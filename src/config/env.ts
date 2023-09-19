@@ -30,9 +30,6 @@ export default {
     //jwt
     jwtSecretKey: process.env.JWT_SECRET_KEY,
 
-    //upload directory name
-    uploadDirectory: process.env.UPLOAD_DIRECTORY || './upload',
-
     //aws
     awsAccessKyeId: process.env.AWS_ACCESS_KEY_ID || '',
     awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
@@ -48,9 +45,9 @@ export default {
     gmailUser: process.env.GMAIL_USER,
     gmailPassword: process.env.GMAIL_PASSWORD,
 
-    //google
-    googleClientId: process.env.GOOGLE_CLIENT_ID,
-    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    //apple
+    appleClientId: process.env.APPLE_CLIENT_ID,
+    appleClientSecret: process.env.APPLE_CLIENT_SECRET,
 
     //kakao
     kakaoClientId: process.env.KAKAO_CLIENT_ID,
