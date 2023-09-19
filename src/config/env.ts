@@ -46,14 +46,14 @@ export default {
     gmailPassword: process.env.GMAIL_PASSWORD,
 
     //apple
-    appleClientId: process.env.APPLE_CLIENT_ID,
-    appleClientSecret: process.env.APPLE_CLIENT_SECRET,
+    appleClientId: process.env.APPLE_CLIENT_ID || '',
+    appleClientSecret: process.env.APPLE_CLIENT_SECRET || '',
 
     //kakao
-    kakaoClientId: process.env.KAKAO_CLIENT_ID,
-    kakaoClientSecret: process.env.KAKAO_CLIENT_SECRET,
+    kakaoClientId: process.env.KAKAO_CLIENT_ID || '',
+    kakaoClientSecret: process.env.KAKAO_CLIENT_SECRET || '',
 
     //naver
-    naverClientId: process.env.NAVER_CLIENT_ID,
-    naverClientSecret: process.env.NAVER_CLIENT_SECRET
+    naverClientId: process.env.NAVER_CLIENT_ID || '',
+    naverClientSecret: process.env.NAVER_CLIENT_SECRET || ''
 };
