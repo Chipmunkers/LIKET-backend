@@ -1,8 +1,13 @@
-import express, { Router } from "express";
+import { Router } from "express";
 import * as authController from '../controllers/auth.controller';
+import passport from '../config/passport.config';
 
 const authRouter = Router();
 
-authRouter.post('/', authController.login);
+authRouter.get('/naver', passport.authenticate('naver'));
+authRouter.get('/naver/callback', authController.naverLogin);
+
+authRouter.get('/kakao', passport.authenticate('kakao'));
+authRouter.get('/kakao/callback', authController.kakaoLogin);
 
 export default authRouter;

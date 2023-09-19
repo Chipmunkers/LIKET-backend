@@ -7,6 +7,7 @@ import corsConfig from './config/cors.config';
 import cors from 'cors';
 import logging from './middleware/logging.mw';
 import logRouter from './routers/log.router';
+import passport from 'passport';
 
 const app = express();
 

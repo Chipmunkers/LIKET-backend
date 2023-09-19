@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import env from '../config/env';
 import { TokenPayload } from '../types/TokenPayload';
 
-export const createToken = (payload: TokenPayload, expiresIn = '24h'): string => {
+export const createToken = (payload: TokenPayload | { email: string, provider: 'local' | 'naver' | 'kakao' | 'apple' }, expiresIn = '24h'): string => {
     const issuer = '';
 
     return jwt.sign(

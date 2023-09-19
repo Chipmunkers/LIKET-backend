@@ -8,10 +8,13 @@ datasource db {
 }
 
 model User {
-  userIdx Int     @id @default(autoincrement()) @map("user_idx")
-  id      String  @db.VarChar(32)
-  pw      String  @db.VarChar(255)
-  profile String? @map("profile_img")
+  userIdx   Int       @id @default(autoincrement()) @map("user_idx")
+  email     String    @map("user_email") @db.VarChar(320)
+  pw        String?   @db.VarChar(255)
+  provider  String    @default("local") @db.VarChar(12)
+  profile   String?   @map("profile_img")
+  gender    Int?      @default(0) @db.SmallInt // 0: Not known, 1: Male, 2: Female
+  birthYear DateTime? @map("birth_year") @db.Date
 
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
