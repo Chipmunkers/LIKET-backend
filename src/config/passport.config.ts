@@ -22,7 +22,7 @@ const handleUserProfile = async (provider: 'local' | 'naver' | 'kakao' | 'apple'
                 provider: true
             }
         });
-        console.log(user);
+
         if (user?.provider && user?.provider !== provider) {
             return done(new BadRequestException(`이미 ${provider}로 회원가입한 계정입니다`));
         }
@@ -39,10 +39,6 @@ const handleUserProfile = async (provider: 'local' | 'naver' | 'kakao' | 'apple'
         }
 
         if (user) {
-            token = createToken({
-                userIdx: user.userIdx
-            });
-
             tokenType = 'login';
         }
 
