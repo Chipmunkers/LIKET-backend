@@ -24,6 +24,9 @@ export default {
     mongoPort: process.env.MONGO_PORT || '27017',
     mongoDatabase: process.env.MONGO_DATABASE,
 
+    //Redis
+    redisHost: process.env.REDIS_HOST || 'localhost',
+
     //Root Directory
     rootDirectory: path.join(__dirname, '..', '..'),
 
