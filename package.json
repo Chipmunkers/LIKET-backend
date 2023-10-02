@@ -1,13 +1,14 @@
 {
-  "name": "express-typescript-template",
+  "name": "liket-backend",
   "version": "1.0.0",
   "description": "Express Typescript Template 입니다.",
-  "main": "./src/server.js",
+  "main": "./dist/server.js",
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node ./dist/server.js\"",
     "start": "node ./dist/server.js",
     "build": "npx tsc",
-    "notion": "notion"
+    "notion": "notion",
+    "serve": "pm2 start ./dist/server.js --name liket-backend"
   },
   "author": "",
   "license": "ISC",
@@ -22,7 +23,6 @@
     "mongodb": "^6.0.0",
     "multer": "^1.4.5-lts.1",
     "multer-s3": "^3.0.1",
-    "notion-generator": "https://github.com/jochongs/notion-generator",
     "passport": "^0.6.0",
     "passport-kakao": "^1.0.1",
     "passport-naver-v2": "^2.0.8"
