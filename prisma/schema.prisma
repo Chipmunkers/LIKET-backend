@@ -10,6 +10,7 @@ datasource db {
 model User {
   userIdx   Int       @id @default(autoincrement()) @map("user_idx")
   email     String    @map("user_email") @db.VarChar(320)
+  nickname  String    @map("nickname") @db.VarChar()
   pw        String?   @db.VarChar(255)
   provider  String    @default("local") @db.VarChar(12)
   profile   String?   @map("profile_img")
