@@ -1,5 +1,0 @@
-{
-    "name": "string",
-    "age": "number | null",
-    "creationTime": "Date | null // 생성 시간 (UTC)"
-}
