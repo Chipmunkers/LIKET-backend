@@ -7,7 +7,7 @@ import corsConfig from './config/cors.config';
 import cors from 'cors';
 import logging from './middleware/logging.mw';
 import logRouter from './routers/log.router';
-import passport from 'passport';
+import userRouter from './routers/user.router';
 
 const app = express();
 
@@ -18,6 +18,7 @@ app.use(cors(corsConfig));
 
 app.use('/auth', authRouter);
 app.use('/log', logRouter);
+app.use('/user', userRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     return next(new NotFoundException('잘못된 경로입니다.'));
@@ -26,6 +27,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     const result = new ResponseResult(err);
     req.err = err;
+    console.log(err);
 
     res.status(result.status).send(result);
 });
