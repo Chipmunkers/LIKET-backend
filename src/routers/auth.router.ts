@@ -13,4 +13,6 @@ authRouter.get('/kakao/callback', authController.kakaoLogin);
 authRouter.post('/number', authController.sendEmailAuthNumber);
 authRouter.post('/number/check', authController.checkEmailAuthNumber);
 
+authRouter.post('/', authController.login);
+
 export default authRouter;

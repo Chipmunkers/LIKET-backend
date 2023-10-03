@@ -8,9 +8,49 @@ import { emailRegExp, onlyNumberRegExp } from "../utils/regExp";
 import redisClient from "../utils/redisClient";
 import * as random from '../utils/random';
 import { sendEmail } from "../utils/send";
+import prisma from "../utils/prisma";
+import { compareHash } from "../utils/hash";
+import { createToken } from "../utils/token";
 
 // 로컬 로그인
 export const login = async (req: Request, res: Response, next: NextFunction) => {
+    const email = req.body.email;
+    const pw = req.body.pw;
+    const auto = req.body.auto || false;
+
+    const result = new ResponseResult();
+
+    if (typeof auto !== 'boolean')
+        return next(new BadRequestException('auto가 유효하지 않습니다.'));
+
+    try {
+        const user = await prisma.user.findFirst({
+            where: {
+                deletedAt: null,
+                email: email,
+                provider: 'local'
+            },
+            select: {
+                userIdx: true,
+                pw: true,
+                provider: true
+            }
+        });
+
+        if (!user)
+            return next(new BadRequestException('이메일 또는 비밀번호가 잘못되었습니다.'));
+        if (!compareHash(pw, user.pw))
+            return next(new BadRequestException('아이디 또는 비밀번호가 잘못되었습니다.'));
+
+        const expireTime = auto ? '7d' : '24h';
+        const loginToken = createToken({ userIdx: user.userIdx, provider: 'local' }, expireTime);
+
+        res.cookie("token", loginToken, cookieConfig);
+    } catch (err) {
+        return next(new InternalServerErrorException('예상하지 못한 에러가 발생했습니다.', err));
+    }
+
+    res.status(result.status).send(result);
 }
 
 // 네이버 로그인
