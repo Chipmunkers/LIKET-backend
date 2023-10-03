@@ -104,6 +104,8 @@ export const checkEmailAuthNumber = async (req: Request, res: Response, next: Ne
 
         await redisClient.set(`certified-email-${email}`, '1');
         await redisClient.expire(`certified-email-${email}`, 60 * 30);
+
+        await redisClient.del(`email-auth-number-${email}`);
     } catch (err) {
         return next(new InternalServerErrorException('예상하지 못한 에러가 발생했습니다.', err));
     }
