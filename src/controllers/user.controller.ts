@@ -6,6 +6,7 @@ import validator from "../utils/validator";
 import { emailRegExp, nameRegExp, onlyNumberRegExp, pwRegExp } from "../utils/regExp";
 import prisma from "../utils/prisma";
 import { hash } from "../utils/hash";
+import redisClient from "../utils/redisClient";
 
 // 소셜 로그인 회원가입하기
 export const socailLoginSignUp = async (req: Request, res: Response, next: NextFunction) => {
@@ -82,6 +83,9 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
             return next(new BadRequestException('이미 존재하는 이메일입니다.'));
         if (sameUser)
             return next(new ConflictException('이미 존재하는 닉네임입니다.'));
+
+        if (!await redisClient.exists(`certified-email-${email}`))
+            return next(new BadRequestException('인증번호를 먼저 받아야합니다.'));
 
         await prisma.user.create({
             data: {
