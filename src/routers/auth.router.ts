@@ -11,5 +11,6 @@ authRouter.get('/kakao', passport.authenticate('kakao'));
 authRouter.get('/kakao/callback', authController.kakaoLogin);
 
 authRouter.post('/number', authController.sendEmailAuthNumber);
+authRouter.post('/number/check', authController.checkEmailAuthNumber);
 
 export default authRouter;
