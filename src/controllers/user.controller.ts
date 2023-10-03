@@ -15,7 +15,7 @@ export const socailLoginSignUp = async (req: Request, res: Response, next: NextF
     const nickname = req.body.nickname;
     const gender = Number(req.body.gender) || null;
     const birthYear = req.body.birthYear;
-    const profileImg = (req.file as Express.MulterS3.File).key;
+    const profileImg = (req.file as Express.MulterS3.File).key || null;
 
     const result = new ResponseResult();
 
@@ -89,7 +89,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
     const nickname = req.body.nickname;
     const gender = Number(req.body.gender) || null;
     const birthYear = req.body.birthYear;
-    const profileImg = req.file?.filename || null;
+    const profileImg = (req.file as Express.MulterS3.File).key || null;
 
     const result = new ResponseResult();
 
