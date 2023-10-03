@@ -10,4 +10,6 @@ authRouter.get('/naver/callback', authController.naverLogin);
 authRouter.get('/kakao', passport.authenticate('kakao'));
 authRouter.get('/kakao/callback', authController.kakaoLogin);
 
+authRouter.post('/number', authController.sendEmailAuthNumber);
+
 export default authRouter;
