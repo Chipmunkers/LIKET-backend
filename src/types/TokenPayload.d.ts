@@ -1,7 +1,7 @@
 import * as jwt from 'jsonwebtoken';
 
 export type TokenPayload = {
-    email: string,
+    userIdx: number,
     provider: 'local' | 'naver' | 'kakao' | 'apple'
 }
 

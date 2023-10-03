@@ -2,49 +2,48 @@ import passport from 'passport';
 import { Strategy as NaverStrategy, Profile as NaverProfile } from 'passport-naver-v2';
 import { Strategy as KakaoStrategy } from 'passport-kakao';
 import env from './env';
-import { BadRequestException, ConflictException } from '../utils/Exception';
-import { createToken } from '../utils/token';
-import { SocialLoginData } from '../types/SocailLoginData';
 import prisma from '../utils/prisma';
+import { SocialLoginProvider } from '../types/SocialLoginProvider';
+import { ConflictException, InternalServerErrorException } from '../utils/Exception';
+import { createToken } from '../utils/token';
 
-const handleUserProfile = async (provider: 'local' | 'naver' | 'kakao' | 'apple', loginData: SocialLoginData, done: passport.DoneCallback) => {
-    if (!loginData) {
-        return done(new BadRequestException('필수 동의 사항이 동의되지 않았습니다.'));
-    }
-
+const handleUserProfile = async (provider: SocialLoginProvider, info: { id: string, accessToken: string, email: string }, done: passport.DoneCallback) => {
     try {
-        const user = await prisma.user.findFirst({
+        const user = await prisma.socialUser.findFirst({
             where: {
-                email: loginData.email
+                user: {
+                    deletedAt: null,
+                    provider
+                },
+                snsId: info.id
             },
             select: {
-                userIdx: true,
-                provider: true
+                userIdx: true
             }
         });
 
-        if (user?.provider && user?.provider !== provider) {
-            return done(new BadRequestException(`이미 ${provider}로 회원가입한 계정입니다`));
-        }
+        if (user)
+            return done(null, { loginToken: createToken({ userIdx: user.userIdx, provider: provider }) });
 
-        let token = null;
-        let tokenType = null;
-        if (!user) {
-            token = createToken({
-                email: loginData.email,
-                provider: provider
-            });
+        const sameUser = await prisma.user.findFirst({
+            where: {
+                deletedAt: null,
+                email: info.email
+            },
+            select: {
+                userIdx: true,
+                email: true,
+                nickname: true
+            }
+        });
 
-            tokenType = 'signup';
-        }
+        if (sameUser)
+            done(new ConflictException('이미 가입된 이메일입니다.'));
 
-        if (user) {
-            tokenType = 'login';
-        }
 
-        done(null, { token, tokenType });
-    } catch (err: any) {
-        return done(new ConflictException('예상하지 못한 에러가 발생했습니다.', err));
+        done(null, { accessToken: info.accessToken });
+    } catch (err) {
+        done(new InternalServerErrorException('예상하지 못한 에러가 발생했습니다.', err));
     }
 }
 
@@ -53,11 +52,10 @@ passport.use(new NaverStrategy({
     clientSecret: env.naverClientSecret,
     callbackURL: '/auth/naver/callback'
 }, async (accessToken: string, refreshToken: string, profile: NaverProfile, done: passport.DoneCallback) => {
-    if (!profile.email) {
-        return done(new BadRequestException('필수 동의항목이 동의되지 않았습니다.'));
-    }
+    const id = profile.id;
+    const email = profile.email || '';
 
-    handleUserProfile('naver', { email: profile.email }, done);
+    handleUserProfile('naver', { id, accessToken, email }, done);
 }));
 
 passport.use(new KakaoStrategy({
@@ -65,11 +63,10 @@ passport.use(new KakaoStrategy({
     clientSecret: env.kakaoClientSecret,
     callbackURL: '/auth/kakao/callback'
 }, async (accessToken: string, refreshToken: string, profile: any, done: passport.DoneCallback) => {
-    if (!profile._json.kakao_account.email) {
-        return done(new BadRequestException('필수 동의 항목이 동의되지 않았습니다.'));
-    }
+    const id = profile.id.toString();
+    const email = profile._json.kakao_account.email;
 
-    handleUserProfile('kakao', { email: profile._json.kakao_account.email }, done);
+    handleUserProfile('kakao', { id, accessToken, email }, done);
 }));
 
 export default passport;

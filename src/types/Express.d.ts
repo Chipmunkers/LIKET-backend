@@ -6,7 +6,8 @@ declare global {
         interface Request {
             userIdx?: TokenPayload.userIdx,
             date: Date,
-            err?: any
+            err?: any,
+            file: Express.MulterS3.File
         }
     }
 }

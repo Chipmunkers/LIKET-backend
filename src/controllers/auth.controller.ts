@@ -27,13 +27,13 @@ export const naverLogin = async (req: Request, res: Response, next: NextFunction
             return res.redirect('/login/error?provider=naver');
         }
 
-        if (data.tokenType === 'login') {
-            res.cookie('token', data.token, cookieConfig);
+        if (data.loginToken) {
+            res.cookie('token', data.loginToken, cookieConfig);
             res.redirect('/');
             return;
         }
 
-        res.redirect(`/signup?token=${data.token}`);
+        res.redirect(`/signup?access-token=${data.accessToken}&provider=naver`);
     })(req, res, next);
 }
 
@@ -42,7 +42,7 @@ export const kakaoLogin = async (req: Request, res: Response, next: NextFunction
     passport.authenticate('kakao', {
         failureRedirect: '/login?provider=kakao',
         session: false
-    }, (err: any, data: { token: string, tokenType: 'signup' | 'login' }) => {
+    }, (err: any, data: any) => {
         if (err instanceof Exception) {
             return res.redirect(`/login/error?provider=naver&message=${err.message}`);
         }
@@ -51,13 +51,13 @@ export const kakaoLogin = async (req: Request, res: Response, next: NextFunction
             return res.redirect('/login/error?provider=naver');
         }
 
-        if (data.tokenType === 'login') {
-            res.cookie('token', data.token, cookieConfig);
+        if (data.loginToken) {
+            res.cookie('token', data.loginToken, cookieConfig);
             res.redirect('/');
             return;
         }
 
-        res.redirect(`/signup?token=${data.token}`);
+        res.redirect(`/signup?access-token=${data.accessToken}&provider=kakao`);
     })(req, res, next);
 }
 
