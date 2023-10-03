@@ -3,9 +3,11 @@ import { Exception } from "../utils/Exception";
 import cookieConfig from "../config/cookie.config";
 import passport from "../config/passport.config";
 
+// 로컬 로그인
 export const login = async (req: Request, res: Response, next: NextFunction) => {
 }
 
+// 네이버 로그인
 export const naverLogin = async (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('naver', {
         failureRedirect: '/login?provider=naver',
@@ -29,6 +31,7 @@ export const naverLogin = async (req: Request, res: Response, next: NextFunction
     })(req, res, next);
 }
 
+// 카카오 로그인
 export const kakaoLogin = async (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('kakao', {
         failureRedirect: '/login?provider=kakao',
