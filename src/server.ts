@@ -9,7 +9,7 @@ const server = async () => {
     //await mongoClient.connect();
 
     app.listen(env.httpPort, () => {
-        console.log(`Server On   PORT:${env.httpPort}`);
+        console.log(`Server On!\n   PORT:${env.httpPort}`);
     });
 }
 
