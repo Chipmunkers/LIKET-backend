@@ -1,11 +1,13 @@
 name: Deploy to ECR
 
 on:
-  push:
-    branches: [ main ]
+  pull_request:
+    types:
+      - closed
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     name: Build Image
     runs-on: ubuntu-20.04
 
