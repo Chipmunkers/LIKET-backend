@@ -1,0 +1,31 @@
+name: Deploy to ECR
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
+        aws-region: ap-northeast-2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+      
+    - name: Build, tag, and push image to Amazon ECR
+      run: |
+        docker build -t liket-ecr-repository .
+        docker tag liket-ecr-repository:latest 552003260522.dkr.ecr.ap-northeast-2.amazonaws.com/liket-ecr-repository:latest
+        docker push 552003260522.dkr.ecr.ap-northeast-2.amazonaws.com/liket-ecr-repository:latest
