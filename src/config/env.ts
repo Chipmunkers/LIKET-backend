@@ -24,14 +24,14 @@ export default {
     mongoPort: process.env.MONGO_PORT || '27017',
     mongoDatabase: process.env.MONGO_DATABASE,
 
+    //Redis
+    redisHost: process.env.REDIS_HOST || 'localhost',
+
     //Root Directory
     rootDirectory: path.join(__dirname, '..', '..'),
 
     //jwt
     jwtSecretKey: process.env.JWT_SECRET_KEY,
-
-    //upload directory name
-    uploadDirectory: process.env.UPLOAD_DIRECTORY || './upload',
 
     //aws
     awsAccessKyeId: process.env.AWS_ACCESS_KEY_ID || '',
@@ -48,15 +48,15 @@ export default {
     gmailUser: process.env.GMAIL_USER,
     gmailPassword: process.env.GMAIL_PASSWORD,
 
-    //google
-    googleClientId: process.env.GOOGLE_CLIENT_ID,
-    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    //apple
+    appleClientId: process.env.APPLE_CLIENT_ID || '',
+    appleClientSecret: process.env.APPLE_CLIENT_SECRET || '',
 
     //kakao
-    kakaoClientId: process.env.KAKAO_CLIENT_ID,
-    kakaoClientSecret: process.env.KAKAO_CLIENT_SECRET,
+    kakaoClientId: process.env.KAKAO_CLIENT_ID || '',
+    kakaoClientSecret: process.env.KAKAO_CLIENT_SECRET || '',
 
     //naver
-    naverClientId: process.env.NAVER_CLIENT_ID,
-    naverClientSecret: process.env.NAVER_CLIENT_SECRET
+    naverClientId: process.env.NAVER_CLIENT_ID || '',
+    naverClientSecret: process.env.NAVER_CLIENT_SECRET || ''
 };
