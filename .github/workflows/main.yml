@@ -28,6 +28,6 @@ jobs:
       
     - name: Build, tag, and push image to Amazon ECR
       run: |
-        docker build -t liket-ecr-repository .
+        docker build -t liket-ecr-repository --platform linux/amd64 .
         docker tag liket-ecr-repository:latest ${{ secrets.ECR_URI }}:latest
         docker push ${{ secrets.ECR_URI }}:latest
