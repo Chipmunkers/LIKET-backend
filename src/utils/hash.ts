@@ -7,13 +7,13 @@ export const hash = (password: string): string => {
     return hash;
 }
 
-export const compareHash = (password: string, hashedPassword: string): boolean => {
+export const compareHash = (password: string, hashedPassword: string | null): boolean => {
     if (!password) {
         return false;
     }
 
     if (!hashedPassword) {
-        false;
+        return false;
     }
 
     return compareSync(password, hashedPassword);

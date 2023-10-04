@@ -47,7 +47,7 @@ export class NotFoundException extends Exception {
 export class ConflictException extends Exception {
     status = 409;
 
-    constructor(message: string, error: any) {
+    constructor(message: string, error?: any) {
         super('Conflict', 409, message, error);
     }
 }
