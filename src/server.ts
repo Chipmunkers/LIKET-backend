@@ -4,9 +4,9 @@ import mongoClient from './utils/mongoClient';
 import redisClient from './utils/redisClient';
 
 const server = async () => {
-    await redisClient.connect();
+    //await redisClient.connect();
 
-    await mongoClient.connect();
+    //await mongoClient.connect();
 
     app.listen(env.httpPort, () => {
         console.log(`Server On   PORT:${env.httpPort}`);
