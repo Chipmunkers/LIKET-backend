@@ -1,5 +1,5 @@
 export class TosDto<
-  T extends { contents: undefined | string } = { contents: string },
+  T extends { contents: undefined | string } = { contents: undefined },
 > {
   idx: number;
   title: string;
