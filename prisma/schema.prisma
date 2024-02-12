@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,4 +5,392 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model ContentImg {
+  idx               Int            @id @default(autoincrement())
+  cultureContentIdx Int            @default(autoincrement()) @map("culture_content_idx")
+  imgPath           String         @map("img_path") @db.VarChar
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt         DateTime?      @map("deleted_at") @db.Timestamptz(6)
+  CultureContent    CultureContent @relation(fields: [cultureContentIdx], references: [idx], onDelete: Cascade, map: "fk_culture_content_tb_to_content_img_tb")
+
+  @@map("content_img_tb")
+}
+
+model ContentLike {
+  contentIdx     Int            @default(autoincrement()) @map("content_idx")
+  userIdx        Int            @default(autoincrement()) @map("user_idx")
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  CultureContent CultureContent @relation(fields: [contentIdx], references: [idx], onDelete: Cascade, map: "fk_culture_content_tb_to_content_like_tb")
+  User           User           @relation(fields: [userIdx], references: [idx], onDelete: Cascade, map: "fk_user_tb_to_content_like_tb")
+
+  @@id([contentIdx, userIdx])
+  @@map("content_like_tb")
+}
+
+model CultureContent {
+  idx           Int            @id @default(autoincrement())
+  genreIdx      Int            @default(autoincrement()) @map("genre_idx")
+  userIdx       Int            @default(autoincrement()) @map("user_idx")
+  locationIdx   Int            @default(autoincrement()) @map("location_idx")
+  title         String         @map("title") @db.VarChar
+  description   String         @map("description") @db.VarChar
+  openTime      String         @map("open_time") @db.VarChar
+  isFee         Boolean        @default(false) @map("is_fee")
+  isReservation Boolean        @default(false) @map("is_reservation")
+  isPet         Boolean        @default(false) @map("is_pet")
+  isParking     Boolean        @default(false) @map("is_parking")
+  acceptedAt    DateTime?      @map("accepted_at") @db.Timestamptz(6)
+  likeCount     Int            @default(0) @map("like_count")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt     DateTime?      @map("deleted_at") @db.Timestamptz(6)
+  ageIdx        Int            @map("age_idx")
+  endDate       DateTime       @map("end_date") @db.Timestamptz(6)
+  startDate     DateTime       @map("start_date") @db.Timestamptz(6)
+  websiteLink   String         @map("website_link") @db.VarChar
+  ContentImg    ContentImg[]
+  ContentLike   ContentLike[]
+  Age           Age            @relation(fields: [ageIdx], references: [idx])
+  Genre         Genre          @relation(fields: [genreIdx], references: [idx], onDelete: Cascade, map: "fk_genre_tb_to_culture_content_tb")
+  Location      Location       @relation(fields: [locationIdx], references: [idx], onDelete: Cascade, map: "fk_location_tb_to_culture_content_tb")
+  User          User           @relation(fields: [userIdx], references: [idx], onDelete: Cascade, map: "fk_user_tb_to_culture_content_tb")
+  Destination   Destination[]
+  Review        Review[]
+  StartPoint    StartPoint[]
+  Stopover      Stopover[]
+  Style         StyleMapping[]
+
+  @@map("culture_content_tb")
+}
+
+model Age {
+  idx            Int              @id @default(autoincrement())
+  name           String           @db.VarChar
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?        @map("deleted_at") @db.Timestamptz(6)
+  CultureContent CultureContent[]
+
+  @@map("age_tb")
+}
+
+model StyleMapping {
+  contentIdx     Int            @map("content_idx")
+  styleIdx       Int            @map("style_idx")
+  CultureContent CultureContent @relation(fields: [contentIdx], references: [idx])
+  Style          Style          @relation(fields: [styleIdx], references: [idx])
+
+  @@id([styleIdx, contentIdx])
+  @@map("style_mapping_tb")
+}
+
+model Style {
+  idx       Int            @id @default(autoincrement())
+  name      String         @db.VarChar
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime?      @map("deleted_at") @db.Timestamptz(6)
+  Style     StyleMapping[]
+
+  @@map("style_tb")
+}
+
+model Genre {
+  idx            Int              @id @default(autoincrement())
+  name           String           @db.VarChar
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?        @map("deleted_at") @db.Timestamptz(6)
+  CultureContent CultureContent[]
+
+  @@map("genre_tb")
+}
+
+model InquiryImg {
+  idx        Int       @id @default(autoincrement())
+  inquiryIdx Int       @default(autoincrement()) @map("inquiry_idx")
+  imgPath    String    @map("img_path") @db.VarChar
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt  DateTime? @map("deleted_at") @db.Timestamptz(6)
+  Inquiry    Inquiry   @relation(fields: [inquiryIdx], references: [idx], onDelete: Cascade, map: "fk_inquiry_tb_to_inquiry_img_tb")
+
+  @@map("inquiry_img_tb")
+}
+
+model Inquiry {
+  idx         Int          @id @default(autoincrement())
+  userIdx     Int          @default(autoincrement()) @map("user_idx")
+  title       String       @db.VarChar(30)
+  contents    String       @db.VarChar(200)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime?    @map("deleted_at") @db.Timestamptz(6)
+  typeIdx     Int          @default(autoincrement()) @map("type_idx")
+  answerIdx   Int          @default(autoincrement()) @map("answer_idx")
+  Answer      Answer[]     @relation("answer_tb_inquiry_idxToinquiry_tb")
+  InquiryImg  InquiryImg[]
+  InquiryType InquiryType  @relation(fields: [typeIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_inquiry_type_tb_to_inquiry_tb")
+  User        User         @relation(fields: [userIdx], references: [idx], onDelete: Cascade, map: "fk_user_tb_to_inquiry_tb")
+
+  @@map("inquiry_tb")
+}
+
+model Answer {
+  idx        Int       @id @default(autoincrement())
+  contents   String    @db.VarChar
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt  DateTime? @map("deleted_at") @db.Timestamptz(6)
+  inquiryIdx Int       @default(autoincrement()) @map("inquiry_idx")
+  Inquiry    Inquiry   @relation("answer_tb_inquiry_idxToinquiry_tb", fields: [inquiryIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_inquiry_tb_to_answer_tb")
+
+  @@map("answer_tb")
+}
+
+model InquiryType {
+  idx       Int       @id @default(autoincrement())
+  name      String    @db.VarChar
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  Inquiry   Inquiry[]
+
+  @@map("inquiry_type_tb")
+}
+
+model Liket {
+  idx         Int       @id @default(autoincrement())
+  reviewIdx   Int       @default(autoincrement()) @map("review_idx")
+  imgPath     String    @map("img_path") @db.VarChar
+  description String    @db.VarChar
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+  Review      Review    @relation(fields: [reviewIdx], references: [idx], onDelete: Cascade, map: "fk_review_tb_to_liket_tb")
+
+  @@map("liket_tb")
+}
+
+model Location {
+  idx            Int              @id @default(autoincrement())
+  address        String           @db.VarChar
+  region1Depth   String           @map("region_1_depth") @db.VarChar
+  region2Depth   String           @map("region_2_depth") @db.VarChar
+  hCode          String           @map("h_code") @db.VarChar
+  bCode          String           @map("b_code") @db.VarChar
+  positionX      Float            @map("position_x")
+  positionY      Float            @map("position_y")
+  detailAddress  String           @map("detail_address") @db.VarChar
+  CultureContent CultureContent[]
+
+  @@map("location_tb")
+}
+
+model ReviewLike {
+  reviewIdx Int      @default(autoincrement()) @map("review_tb")
+  userIdx   Int      @default(autoincrement()) @map("user_idx")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  Review    Review   @relation("review_like_tb_review_tbToreview_tb", fields: [reviewIdx], references: [idx], onDelete: Cascade, map: "fk_review_tb_to_review_like_tb")
+  User      User     @relation(fields: [userIdx], references: [idx], onDelete: Cascade, map: "fk_user_tb_to_review_like_tb")
+
+  @@id([reviewIdx, userIdx])
+  @@map("review_like_tb")
+}
+
+model Review {
+  idx               Int            @id @default(autoincrement())
+  cultureContentIdx Int            @default(autoincrement()) @map("culture_content_idx")
+  userIdx           Int            @default(autoincrement()) @map("user_idx")
+  likeCount         Int            @default(0) @map("like_count")
+  description       String
+  visitTime         DateTime       @map("visit_time") @db.Timestamptz(6)
+  starRating        Int            @map("star_rating") @db.SmallInt
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt         DateTime?      @map("deleted_at") @db.Timestamptz(6)
+  updatedAt         DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+  Liket             Liket[]
+  ReviewImg         ReviewImg[]
+  ReviewLike        ReviewLike[]   @relation("review_like_tb_review_tbToreview_tb")
+  CultureContent    CultureContent @relation(fields: [cultureContentIdx], references: [idx], onDelete: Cascade, map: "fk_culture_content_tb_to_review_tb")
+  User              User           @relation(fields: [userIdx], references: [idx], onDelete: Cascade, map: "fk_user_tb_to_review_tb")
+
+  @@map("review_tb")
+}
+
+model ReviewImg {
+  idx       Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  imgPath   String    @db.VarChar
+  reviewIdx Int       @default(autoincrement())
+  Review    Review    @relation(fields: [reviewIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_review_tb_to_review_img_tb")
+
+  @@map("review_img_tb")
+}
+
+model Route {
+  idx         Int          @id @default(autoincrement())
+  userIdx     Int          @default(autoincrement()) @map("user_idx")
+  name        String       @db.VarChar()
+  date        DateTime     @db.Timestamptz(6)
+  headcount   Int          @default(1) @db.SmallInt
+  note        String?      @db.VarChar
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime?    @map("deleted_at") @db.Timestamptz(6)
+  Destination Destination?
+  User        User         @relation(fields: [userIdx], references: [idx], onDelete: Cascade, map: "fk_user_tb_to_route_tb")
+  StartPoint  StartPoint?
+  Stopover    Stopover[]
+
+  @@map("route_tb")
+}
+
+model StartPoint {
+  idx               Int             @id @default(autoincrement())
+  cultureContentIdx Int?            @default(autoincrement()) @map("culture_content_idx")
+  address           String?         @db.VarChar
+  region1Depth      String?         @map("region_1_depth") @db.VarChar
+  region2Depth      String?         @map("region_2_depth") @db.VarChar
+  hCode             String?         @map("h_code") @db.VarChar
+  bCode             String?         @map("b_code") @db.VarChar
+  positionX         Float?          @map("position_x")
+  positionY         Float?          @map("position_y")
+  detailAddress     String?         @map("detail_address") @db.VarChar
+  CultureContent    CultureContent? @relation(fields: [cultureContentIdx], references: [idx], onDelete: Cascade, map: "fk_culture_content_tb_to_start_point_tb")
+  Route             Route           @relation(fields: [idx], references: [idx], onDelete: Cascade, map: "fk_route_tb_to_start_point_tb")
+
+  @@map("start_point_tb")
+}
+
+model Destination {
+  idx               Int             @id @default(autoincrement())
+  cultureContentIdx Int?            @default(autoincrement()) @map("culture_content_idx")
+  address           String?         @db.VarChar
+  region1Depth      String?         @map("region_1_depth") @db.VarChar
+  region2Depth      String?         @map("region_2_depth") @db.VarChar
+  hCode             String?         @map("h_code") @db.VarChar
+  bCode             String?         @map("b_code") @db.VarChar
+  positionX         Float?          @map("position_x")
+  positionY         Float?          @map("position_y")
+  detailAddress     String?         @map("detail_address") @db.VarChar
+  CultureContent    CultureContent? @relation(fields: [cultureContentIdx], references: [idx], onDelete: Cascade, map: "fk_culture_content_tb_to_destination_tb")
+  Route             Route           @relation(fields: [idx], references: [idx], onDelete: Cascade, map: "fk_route_tb_to_destination_tb")
+
+  @@map("destination_tb")
+}
+
+model Stopover {
+  idx               Int             @id @default(autoincrement())
+  routeIdx          Int             @default(autoincrement()) @map("route_idx")
+  cultureContentIdx Int?            @default(autoincrement()) @map("culture_content_idx")
+  address           String?         @db.VarChar
+  region1Depth      String?         @map("region_1_depth") @db.VarChar
+  region2Depth      String?         @map("region_2_depth") @db.VarChar
+  hCode             String?         @map("h_code") @db.VarChar
+  bCode             String?         @map("b_code") @db.VarChar
+  positionX         Float?          @map("position_x")
+  positionY         Float?          @map("position_y")
+  detailAddress     String?         @map("detail_address") @db.VarChar
+  CultureContent    CultureContent? @relation(fields: [cultureContentIdx], references: [idx], onDelete: Cascade, map: "fk_culture_content_tb_to_stopover_tb")
+  Route             Route           @relation(fields: [routeIdx], references: [idx], onDelete: Cascade, map: "fk_route_tb_to_stopover_tb")
+
+  @@map("stopover_tb")
+}
+
+model TosAgree {
+  idx       Int       @id @default(autoincrement())
+  userIdx   Int       @default(autoincrement()) @map("user_idx")
+  tosIdx    Int       @default(autoincrement()) @map("tos_idx")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  Tos       Tos       @relation(fields: [tosIdx], references: [idx], onDelete: Cascade, map: "fk_tos_tb_to_tos_agree_tb")
+  User      User      @relation(fields: [userIdx], references: [idx], onDelete: Cascade, map: "fk_user_tb_to_tos_agree_tb")
+
+  @@map("tos_agree_tb")
+}
+
+model Tos {
+  idx         Int        @id @default(autoincrement())
+  title       String     @db.VarChar
+  contents    String
+  isEssential Boolean    @map("is_essential")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime?  @map("deleted_at") @db.Timestamptz(6)
+  TosAgree    TosAgree[]
+
+  @@map("tos_tb")
+}
+
+model User {
+  idx            Int              @id @default(autoincrement())
+  isAdmin        Boolean          @default(false) @map("is_admin")
+  email          String           @db.VarChar
+  pw             String?          @db.VarChar
+  nickname       String           @db.VarChar
+  gender         Int?             @db.SmallInt
+  birth          Int?
+  snsId          String?          @map("sns_id") @db.VarChar
+  provider       String           @default("local") @db.VarChar
+  profileImgPath String?          @map("profile_img_path") @db.VarChar
+  blockedAt      DateTime?        @map("blocked_at") @db.Timestamptz(6)
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?        @map("deleted_at") @db.Timestamptz(6)
+  ContentLike    ContentLike[]
+  CultureContent CultureContent[]
+  Inquiry        Inquiry[]
+  ReviewLike     ReviewLike[]
+  Review         Review[]
+  Route          Route[]
+  TosAgree       TosAgree[]
+  UploadFile     UploadFile[]
+
+  @@unique([nickname, deletedAt], map: "uq_user_tb_nickname")
+  @@index([email])
+  @@index([nickname])
+  @@map("user_tb")
+}
+
+model Banner {
+  idx          Int           @id @default(autoincrement())
+  name         String        @db.VarChar
+  link         String        @db.VarChar
+  imgPath      String        @map("img_path") @db.VarChar
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime?     @map("deleted_at") @db.Timestamptz(6)
+  ActiveBanner ActiveBanner?
+
+  @@map("banner_tb")
+}
+
+model ActiveBanner {
+  idx         Int      @id @default(autoincrement())
+  order       Int      @db.Integer
+  activatedAt DateTime @default(now()) @map("activated_at") @db.Timestamptz(6)
+  Banner      Banner   @relation(fields: [idx], references: [idx])
+
+  @@map("active_banner_tb")
+}
+
+model UploadFile {
+  idx       Int       @id @default(autoincrement())
+  userIdx   Int?      @default(autoincrement()) @map("user_idx")
+  grouping  Int       @db.SmallInt
+  fileName  String    @map("file_name") @db.VarChar
+  fileExt   String    @map("file_ext") @db.VarChar
+  urlPath   String    @map("url_path") @db.VarChar
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  User      User?     @relation(fields: [userIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_tb_to_upload_file_tb")
+
+  @@index([fileName])
+  @@map("upload_file_tb")
 }
