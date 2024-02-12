@@ -6,12 +6,15 @@ import { UserListPagenationDto } from './dto/request/UserListPaginationDto';
 import { UpdateProfileDto } from './dto/response/UpdateProfileDto';
 import { UserDto } from './dto/response/UserDto';
 import { UpdatePwDto } from './dto/request/UpdatePwDto';
+import { MyInfoDto } from './dto/response/MyInfoDto';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   public signUp: (signUpDto: SignUpDto) => Promise<string>;
+
+  public getMyInfo: (userIdx: number) => Promise<MyInfoDto>;
 
   public getUserByIdx: (userIdx: number) => Promise<UserDto>;
 
