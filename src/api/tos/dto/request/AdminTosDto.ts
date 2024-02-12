@@ -1,4 +1,4 @@
-export class TosDto<
+export class AdminTosDto<
   T extends { contents: undefined | string } = { contents: undefined },
 > {
   idx: number;
