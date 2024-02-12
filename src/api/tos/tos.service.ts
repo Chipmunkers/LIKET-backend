@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { TosDto } from './dto/request/TosDto';
-import { AdminTosDto } from './dto/request/AdminTosDto';
+import { TosDto } from './dto/response/TosDto';
+import { AdminTosDto } from './dto/response/AdminTosDto';
 import { CreateTosDto } from './dto/request/CreateTosDto';
 import { UpdateTosDto } from './dto/request/UpdateTosDto';
 
