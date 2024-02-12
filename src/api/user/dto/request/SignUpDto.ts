@@ -1,6 +1,6 @@
 import { UploadFileDto } from '../../../upload/dto/UploadFileDto';
 
-export class CreateUserDto {
+export class SignUpDto {
   emailToken: string;
   pw: string;
   nickname: string;
