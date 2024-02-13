@@ -1,4 +1,4 @@
-import { UploadFileDto } from '../../../upload/dto/UploadFileDto';
+import { UploadFileDto } from '../../upload/dto/UploadFileDto';
 
 export class SignUpDto {
   emailToken: string;

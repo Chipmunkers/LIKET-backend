@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { SignUpDto } from './dto/request/SignUpDto';
-import { Prisma, User } from '@prisma/client';
-import { UserListPagenationDto } from './dto/request/UserListPaginationDto';
-import { UpdateProfileDto } from './dto/response/UpdateProfileDto';
-import { UserDto } from './dto/response/UserDto';
-import { UpdatePwDto } from './dto/request/UpdatePwDto';
-import { MyInfoDto } from './dto/response/MyInfoDto';
+import { SignUpDto } from './dto/SignUpDto';
+import { UserListPagenationDto } from './dto/UserListPaginationDto';
+import { UpdatePwDto } from './dto/UpdatePwDto';
+import { UserEntity } from './entity/UserEntity';
+import { MyInfoEntity } from './entity/MyInfoEntity';
+import { UpdateProfileDto } from './dto/UpdateProfileDto';
 
 @Injectable()
 export class UserService {
@@ -14,13 +13,13 @@ export class UserService {
 
   public signUp: (signUpDto: SignUpDto) => Promise<string>;
 
-  public getMyInfo: (userIdx: number) => Promise<MyInfoDto>;
+  public getMyInfo: (userIdx: number) => Promise<MyInfoEntity>;
 
-  public getUserByIdx: (userIdx: number) => Promise<UserDto>;
+  public getUserByIdx: (userIdx: number) => Promise<UserEntity<'my', 'admin'>>;
 
   public getUserAll: (
     pagenation: UserListPagenationDto,
-  ) => Promise<{ user: UserDto[]; count: number }>;
+  ) => Promise<{ user: UserEntity<'my', 'admin'>[]; count: number }>;
 
   public updateProfile: (
     idx: number,

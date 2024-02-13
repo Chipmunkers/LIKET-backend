@@ -1,5 +1,5 @@
 import { PickType } from '@nestjs/swagger';
-import { SignUpDto } from '../request/SignUpDto';
+import { SignUpDto } from './SignUpDto';
 
 export class UpdateProfileDto extends PickType(SignUpDto, [
   'nickname',
