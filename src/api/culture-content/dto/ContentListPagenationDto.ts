@@ -1,4 +1,5 @@
 export class ContentListPagenationDto {
+  page: number;
   genre?: number;
   age?: number;
   region?: number;
