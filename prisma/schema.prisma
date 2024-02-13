@@ -168,7 +168,9 @@ model Liket {
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+  userIdx     Int       @map("user_idx")
   Review      Review    @relation(fields: [reviewIdx], references: [idx], onDelete: Cascade, map: "fk_review_tb_to_liket_tb")
+  User        User      @relation(fields: [userIdx], references: [idx])
 
   @@map("liket_tb")
 }
@@ -350,6 +352,7 @@ model User {
   Route          Route[]
   TosAgree       TosAgree[]
   UploadFile     UploadFile[]
+  Liket          Liket[]
 
   @@unique([nickname, deletedAt], map: "uq_user_tb_nickname")
   @@index([email])
