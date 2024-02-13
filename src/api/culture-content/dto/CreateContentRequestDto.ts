@@ -1,5 +1,5 @@
 import { UploadFile } from '@prisma/client';
-import { CreateLocationDto } from '../../../../common/dto/CreateLocationDto';
+import { CreateLocationDto } from '../../../common/dto/CreateLocationDto';
 import { ValidateNested } from 'class-validator';
 
 export class CreateContentRequestDto {

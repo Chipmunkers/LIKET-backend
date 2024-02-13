@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { CreateContentRequestDto } from './dto/request/CreateContentRequestDto';
-import { CultureContentRequestDto } from './dto/response/ContentRequestDto';
-import { ContentRequestListPagenationDto } from './dto/request/ContentRequestListPagenationDto';
-import { UpdateContentDto } from './dto/request/UpdateContentDto';
-import { ContentDto } from './dto/response/ContentDto';
-import { SummaryContentDto } from './dto/response/SummaryContentDto';
-import { ContentListPagenationDto } from './dto/request/ContentListPagenationDto';
+import { CreateContentRequestDto } from './dto/CreateContentRequestDto';
+import { ContentRequestListPagenationDto } from './dto/ContentRequestListPagenationDto';
+import { UpdateContentDto } from './dto/UpdateContentDto';
+import { ContentListPagenationDto } from './dto/ContentListPagenationDto';
+import { ContentEntity } from './entity/ContentEntity';
 
 @Injectable()
 export class CultureContentService {
@@ -17,7 +15,10 @@ export class CultureContentService {
   /**
    * 컨텐츠 자세히보기
    */
-  public getContentByIdx: (idx: number, userIdx: number) => Promise<ContentDto>;
+  public getContentByIdx: (
+    idx: number,
+    userIdx: number,
+  ) => Promise<ContentEntity<'detail', 'user'>>;
 
   /**
    * 컨텐츠 요청 목록 보기
@@ -25,7 +26,7 @@ export class CultureContentService {
   public getContentAll: (
     pagenation: ContentListPagenationDto,
     userIdx: number,
-  ) => Promise<SummaryContentDto[]>;
+  ) => Promise<ContentEntity<'summary', 'user'>[]>;
 
   // Content Request ==========================================
 
@@ -34,7 +35,7 @@ export class CultureContentService {
    */
   public getContentRequestByIdx: (
     idx: number,
-  ) => Promise<CultureContentRequestDto>;
+  ) => Promise<ContentEntity<'detail', 'admin'>>;
 
   /**
    * 컨텐츠 요청 목록 보기
@@ -42,7 +43,7 @@ export class CultureContentService {
   public getContentRequestAll: (
     pagenation: ContentRequestListPagenationDto,
   ) => Promise<{
-    contentList: CultureContentRequestDto[];
+    contentList: ContentEntity<'summary', 'admin'>[];
     count: number;
   }>;
 
