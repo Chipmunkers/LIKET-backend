@@ -7,4 +7,6 @@ export class InquiryTypeService {
   constructor(private readonly prisma: PrismaService) {}
 
   public getTypeAll: () => Promise<InquiryTypeEntity>;
+
+  public getTypeByIdx: (idx: number) => Promise<InquiryTypeEntity>;
 }
