@@ -1,25 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { TosDto } from './dto/response/TosDto';
-import { AdminTosDto } from './dto/response/AdminTosDto';
-import { CreateTosDto } from './dto/request/CreateTosDto';
-import { UpdateTosDto } from './dto/request/UpdateTosDto';
+import { CreateTosDto } from './dto/CreateTosDto';
+import { UpdateTosDto } from './dto/UpdateTosDto';
+import { TosEntity } from './entity/TosEntity';
 
 @Injectable()
 export class TosService {
   constructor(private readonly prisma: PrismaService) {}
 
-  public getTosAll: () => Promise<TosDto[]>;
+  public getTosAll: () => Promise<TosEntity<'summary', 'user'>>;
 
-  public getTosByIdx: () => Promise<TosDto<{ contents: string }>>;
+  public getTosByIdx: () => Promise<TosEntity<'detail', 'user'>>;
 
   // Admin
 
-  public getTosAdminAll: () => Promise<AdminTosDto[]>;
+  public getTosAdminAll: () => Promise<TosEntity<'summary', 'admin'>[]>;
 
   public getTosAmdminByIdx: (
     idx: number,
-  ) => Promise<AdminTosDto<{ contents: string }>>;
+  ) => Promise<TosEntity<'detail', 'admin'>>;
 
   public createTos: (createDto: CreateTosDto) => Promise<void>;
 
