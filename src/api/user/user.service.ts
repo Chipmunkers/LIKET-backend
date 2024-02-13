@@ -27,4 +27,6 @@ export class UserService {
   ) => Promise<void>;
 
   public updatePw: (idx: number, updateDto: UpdatePwDto) => Promise<void>;
+
+  public blockUser: (idx: number) => Promise<void>;
 }
