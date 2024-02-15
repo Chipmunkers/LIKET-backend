@@ -1,7 +1,74 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { ReviewEntity } from './entity/ReviewEntity';
+import { ReviewListPagerbleDto } from './dto/ReviewListPagerbleDto';
+import { ReviewListByContentPagerbleDto } from './dto/ReviewListByContentPagerbleDto';
+import { UpdateReviewDto } from './dto/UpdateReviewDto';
+import { CreateReviewDto } from './dto/CreateReviewDto';
 
 @Injectable()
 export class ReviewService {
   constructor(private readonly prisma: PrismaService) {}
+  // User ======================================================
+
+  /**
+   * 컨텐츠별 리뷰 목록 보기
+   */
+  public getReviewAll: (pagerble: ReviewListByContentPagerbleDto) => Promise<{
+    reviewList: ReviewEntity<'detail', 'user'>;
+    count: number;
+  }>;
+
+  /**
+   * 리뷰 자세히보기
+   */
+  public getReviewByIdx: (
+    idx: number,
+  ) => Promise<ReviewEntity<'detail', 'user'>>;
+
+  /**
+   * 리뷰 생성하기
+   */
+  public createReview: (
+    contentIdx: number,
+    userIdx: number,
+    createDto: CreateReviewDto,
+  ) => Promise<number>;
+
+  /**
+   * 리뷰 수정하기
+   */
+  public updateReview: (
+    idx: number,
+    updateDto: UpdateReviewDto,
+  ) => Promise<void>;
+
+  // Admin =====================================================
+
+  /**
+   * 관리자용 리뷰 전체 가져오기
+   */
+  public getReviewAllForAdmin: (pagerble: ReviewListPagerbleDto) => Promise<{
+    reviewList: ReviewEntity<'summary', 'admin'>;
+    count: number;
+  }>;
+
+  /**
+   * 관리자용 리뷰 하나 가져오기
+   */
+  public getReviewByIdxForAdmin: (
+    idx: number,
+  ) => Promise<ReviewEntity<'detail', 'admin'>>;
+
+  // Like ======================================================
+
+  /**
+   * 리뷰 좋아요 누르기
+   */
+  public likeReview: (userIdx: number, reviewIdx: number) => Promise<void>;
+
+  /**
+   * 리뷰 좋아요 취소하기
+   */
+  public cancelReview: (userIdx: number, reviewIdx: number) => Promise<void>;
 }
