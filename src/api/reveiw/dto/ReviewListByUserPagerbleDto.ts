@@ -1,4 +1,4 @@
-export class ReviewListByUserPagerble {
+export class ReviewListByUserPagerbleDto {
   page: number;
   order: 'desc' | 'asc';
   liket: boolean;
