@@ -16,7 +16,7 @@ export class LocationEntity<T extends 'summary' | 'detail' = 'detail'>
     public bCode: T extends 'detail' ? string : undefined,
   ) {}
 
-  static createLocation(data: Location): LocationEntity {
+  static createDetailLocation(data: Location): LocationEntity<'detail'> {
     return new LocationEntity(
       data.region1Depth,
       data.region2Depth,
@@ -26,6 +26,19 @@ export class LocationEntity<T extends 'summary' | 'detail' = 'detail'>
       data.positionY,
       data.hCode,
       data.bCode,
+    );
+  }
+
+  static createSummaryLocation(data: Location): LocationEntity<'summary'> {
+    return new LocationEntity<'summary'>(
+      data.region1Depth,
+      data.region2Depth,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
     );
   }
 }
