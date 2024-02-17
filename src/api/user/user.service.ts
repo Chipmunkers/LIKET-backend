@@ -6,10 +6,14 @@ import { UpdatePwDto } from './dto/UpdatePwDto';
 import { UserEntity } from './entity/UserEntity';
 import { MyInfoEntity } from './entity/MyInfoEntity';
 import { UpdateProfileDto } from './dto/UpdateProfileDto';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly AuthService: AuthService,
+  ) {}
 
   public signUp: (signUpDto: SignUpDto) => Promise<string>;
 
