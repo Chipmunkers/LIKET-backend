@@ -1,6 +1,6 @@
-import { UploadFile } from '@prisma/client';
 import { CreateLocationDto } from '../../../common/dto/CreateLocationDto';
 import { ValidateNested } from 'class-validator';
+import { UploadFileDto } from '../../upload/dto/UploadFileDto';
 
 export class CreateContentRequestDto {
   title: string;
@@ -8,7 +8,7 @@ export class CreateContentRequestDto {
   websiteLink: string;
 
   @ValidateNested()
-  imgList: UploadFile[];
+  imgList: UploadFileDto[];
 
   genreIdx: number;
   ageIdx: number;
