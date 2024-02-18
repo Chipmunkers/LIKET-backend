@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from './user.service';
-import { PrismaService } from '../../common/prisma/prisma.service';
-import { AuthService } from '../auth/auth.service';
+import { UserService } from '../../../src/api/user/user.service';
+import { PrismaService } from '../../../src/common/prisma/prisma.service';
+import { AuthService } from '../../../src/api/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { InvalidEmailAuthTokenException } from '../../../src/api/auth/exception/InvalidEmailAuthTokenException';
 
 describe('UserService', () => {
   let service: UserService;
@@ -44,6 +45,6 @@ describe('UserService', () => {
       nickname: 'test',
     });
 
-    expect(result).toBeInstanceOf(InvalidEmailAuthToken);
+    expect(result).toBe('this.is.token');
   });
 });
