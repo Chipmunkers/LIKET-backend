@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { SendEmailVerificationCodeDto } from './dto/request/SendEmailVerificationCodeDto';
-import { CheckEmailVerificationCodeDto } from './dto/request/CheckEmailVerificationCodeDto';
+import { SendEmailVerificationCodeDto } from './dto/SendEmailVerificationCodeDto';
+import { CheckEmailVerificationCodeDto } from './dto/CheckEmailVerificationCodeDto';
 import { HashService } from '../../common/service/hash.service';
-import { LoginDto } from './dto/request/LoginDto';
+import { LoginDto } from './dto/LoginDto';
 
 @Injectable()
 export class AuthService {
