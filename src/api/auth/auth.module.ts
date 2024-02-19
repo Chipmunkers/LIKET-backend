@@ -5,9 +5,9 @@ import { AuthController } from './auth.controller';
 import { HashService } from '../../common/service/hash.service';
 
 @Module({
+  imports: [PrismaModule],
   controllers: [AuthController],
   providers: [AuthService, HashService],
-  imports: [PrismaModule],
   exports: [AuthService],
 })
 export class AuthModule {}
