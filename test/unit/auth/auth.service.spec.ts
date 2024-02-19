@@ -4,12 +4,18 @@ import { AuthService } from '../../../src/api/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../../../src/common/service/hash.service';
 import { InvalidEmailOrPwException } from '../../../src/api/auth/exception/InvalidEmailOrPwException';
+import { RedisService } from '../../../src/common/redis/redis.service';
+import { MailerService } from '@nestjs-modules/mailer';
+import { NotFoundVerificationCodeException } from '../../../src/common/redis/exception/NotFoundVerificationCodeException';
+import { InvalidEmailVerificationCodeException } from '../../../src/api/auth/exception/InvalidEmailVerificationCodeException';
 
 describe('AuthService', () => {
   let service: AuthService;
   let prismaMock: PrismaService;
   let jwtServiceMock: JwtService;
   let hashServiceMock: HashService;
+  let redisMock: RedisService;
+  let mailerServiceMock: MailerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,6 +35,14 @@ describe('AuthService', () => {
           provide: HashService,
           useValue: {},
         },
+        {
+          provide: RedisService,
+          useValue: {},
+        },
+        {
+          provide: MailerService,
+          useValue: {},
+        },
       ],
     }).compile();
 
@@ -36,6 +50,8 @@ describe('AuthService', () => {
     prismaMock = module.get<PrismaService>(PrismaService);
     jwtServiceMock = module.get<JwtService>(JwtService);
     hashServiceMock = module.get<HashService>(HashService);
+    redisMock = module.get<RedisService>(RedisService);
+    mailerServiceMock = module.get<MailerService>(MailerService);
   });
 
   it('login success', async () => {
@@ -111,5 +127,45 @@ describe('AuthService', () => {
         pw: 'password',
       }),
     ).rejects.toThrow(InvalidEmailOrPwException);
+  });
+
+  it('checkEmailVerificationCode success', async () => {
+    const randomCode = '123123';
+    redisMock.getEmailVerificationCode = jest
+      .fn()
+      .mockResolvedValue(randomCode);
+    service.signEmailAuthToken = jest.fn().mockReturnValue('this.is.token');
+
+    await expect(
+      service.checkEmailVerificatioCode({
+        email: 'abc123@xx.xx',
+        code: randomCode,
+      }),
+    ).resolves.toBe('this.is.token');
+  });
+
+  it('checkEmailVerificationCode fail - verification code not found', async () => {
+    redisMock.getEmailVerificationCode = jest.fn().mockResolvedValue(null);
+
+    await expect(
+      service.checkEmailVerificatioCode({
+        email: 'abc123@xx.xx',
+        code: '123123',
+      }),
+    ).rejects.toThrow(NotFoundVerificationCodeException);
+  });
+
+  it('checkEmailVerificationCode fail - incorrect code', async () => {
+    const randomCode = '000000';
+    redisMock.getEmailVerificationCode = jest
+      .fn()
+      .mockResolvedValue(randomCode);
+
+    await expect(
+      service.checkEmailVerificatioCode({
+        email: 'abc123@xx.xx',
+        code: '123123',
+      }),
+    ).rejects.toThrow(InvalidEmailVerificationCodeException);
   });
 });
