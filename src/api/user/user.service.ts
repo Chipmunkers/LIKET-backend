@@ -12,7 +12,7 @@ import { AuthService } from '../auth/auth.service';
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly AuthService: AuthService,
+    private readonly authService: AuthService,
   ) {}
 
   public signUp: (signUpDto: SignUpDto) => Promise<string>;
