@@ -4,12 +4,14 @@ import { SendEmailVerificationCodeDto } from './dto/SendEmailVerificationCodeDto
 import { CheckEmailVerificationCodeDto } from './dto/CheckEmailVerificationCodeDto';
 import { HashService } from '../../common/service/hash.service';
 import { LoginDto } from './dto/LoginDto';
+import { RedisService } from '../../common/redis/redis.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly hashService: HashService,
+    private readonly redis: RedisService,
   ) {}
 
   public login: (loginDto: LoginDto) => Promise<string>;
