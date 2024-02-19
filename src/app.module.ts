@@ -11,9 +11,25 @@ import { ReveiwModule } from './api/reveiw/reveiw.module';
 import { RouteModule } from './api/route/route.module';
 import { TosModule } from './api/tos/tos.module';
 import { UploadModule } from './api/upload/upload.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import emailConfig from './common/config/email.config';
+import redisConfig from './common/config/redis.config';
+import jwtConfig from './common/config/jwt.config';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [emailConfig, redisConfig, jwtConfig],
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        ...configService.get('email'),
+      }),
+      inject: [ConfigService],
+    }),
     UserModule,
     AuthModule,
     BannerModule,
