@@ -168,4 +168,30 @@ describe('AuthService', () => {
       }),
     ).rejects.toThrow(InvalidEmailVerificationCodeException);
   });
+
+  it('verifyEmailAuthToken succss', async () => {
+    jwtServiceMock.verify = jest.fn().mockReturnValue({});
+
+    const inputToken = 'this.is.token';
+
+    await expect(service.verifyEmailAuthToken(inputToken)).resolves.toBe(true);
+  });
+
+  it('verifyEmailAuthToken fail - token non-existence', async () => {
+    const inputToken = '';
+
+    await expect(service.verifyEmailAuthToken(inputToken)).resolves.toBe(false);
+  });
+
+  it('verifyEmailAuthToken fail - invalid token', async () => {
+    jwtServiceMock.verify = jest.fn().mockImplementation(() => {
+      throw new Error('invalid token error'); // any error
+    });
+
+    const invalidToken = 'this.is.invalidtoken';
+
+    await expect(service.verifyEmailAuthToken(invalidToken)).resolves.toBe(
+      false,
+    );
+  });
 });
