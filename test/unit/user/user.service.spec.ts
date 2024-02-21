@@ -43,7 +43,7 @@ describe('UserService', () => {
     hashService = module.get<HashService>(HashService);
   });
 
-  it('Sign Up success', async () => {
+  it('signUp success', async () => {
     // 1. verify email auth token
     authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
 
@@ -63,7 +63,7 @@ describe('UserService', () => {
     ).resolves.toBe(outputToken);
   });
 
-  it('Sign Up fail - invalid email auth token', async () => {
+  it('signUp fail - invalid email auth token', async () => {
     // fail to verify email auth token
     authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(false);
 
@@ -76,7 +76,7 @@ describe('UserService', () => {
     ).rejects.toThrow(InvalidEmailAuthTokenException);
   });
 
-  it('Sign Up fail - duplicate user nickname', async () => {
+  it('signUp fail - duplicate user nickname', async () => {
     authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
 
     // find duplicated nickname
@@ -96,7 +96,7 @@ describe('UserService', () => {
     ).rejects.toThrow(DuplicateUserException<'nickname'>);
   });
 
-  it('Sign Up fail - duplicate user email', async () => {
+  it('signUp fail - duplicate user email', async () => {
     authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
 
     // find duplicated email
