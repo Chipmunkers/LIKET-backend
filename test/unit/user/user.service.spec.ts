@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InvalidEmailAuthTokenException } from '../../../src/api/user/exception/InvalidEmailAuthTokenException';
 import { DuplicateUserException } from '../../../src/api/user/exception/DuplicateUserException';
 import { HashService } from '../../../src/common/service/hash.service';
+import { AlreadyBlockedUserException } from '../../../src/api/user/exception/AlreadyBlockedUserException';
 
 describe('UserService', () => {
   let service: UserService;
@@ -143,5 +144,28 @@ describe('UserService', () => {
         emailToken: 'this.is.token',
       }),
     ).rejects.toThrow(InvalidEmailAuthTokenException);
+  });
+
+  it('blockUser success', async () => {
+    // 1. find user for checking already blocked user
+    prismaMock.user.findFirst = jest.fn().mockResolvedValue({
+      blockedAt: null,
+    });
+
+    // 2. block user
+    prismaMock.user.update = jest.fn().mockResolvedValue({});
+
+    await expect(service.blockUser(1)).resolves.toBeUndefined();
+  });
+
+  it('blockUser fail - already blocked user', async () => {
+    // 1. find user for checking already blocked user
+    prismaMock.user.findFirst = jest.fn().mockResolvedValue({
+      blockedAt: new Date(),
+    });
+
+    await expect(service.blockUser(1)).rejects.toThrow(
+      AlreadyBlockedUserException,
+    );
   });
 });
