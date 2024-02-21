@@ -5,12 +5,14 @@ import { AuthService } from '../../../src/api/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { InvalidEmailAuthTokenException } from '../../../src/api/user/exception/InvalidEmailAuthTokenException';
 import { DuplicateUserException } from '../../../src/api/user/exception/DuplicateUserException';
+import { HashService } from '../../../src/common/service/hash.service';
 
 describe('UserService', () => {
   let service: UserService;
   let prismaMock: PrismaService;
   let authServiceMock: AuthService;
   let jwtServiceMock: JwtService;
+  let hashService: HashService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -37,6 +39,7 @@ describe('UserService', () => {
     prismaMock = module.get<PrismaService>(PrismaService);
     authServiceMock = module.get<AuthService>(AuthService);
     jwtServiceMock = module.get<JwtService>(JwtService);
+    hashService = module.get<HashService>(HashService);
   });
 
   it('Sign Up success', async () => {
@@ -110,5 +113,35 @@ describe('UserService', () => {
         nickname: 'myNickname',
       }),
     ).rejects.toThrow(DuplicateUserException<'email'>);
+  });
+
+  it('updatePw success', async () => {
+    // 1. check email auth token
+    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
+
+    // 2. hash password
+    hashService.hashPw = jest.fn().mockReturnValue('hashedPassword');
+
+    // 3. update user data
+    prismaMock.user.update = jest.fn().mockResolvedValue({ idx: 1 });
+
+    await expect(
+      service.updatePw(1, {
+        pw: 'abc123123',
+        emailToken: 'this.is.token',
+      }),
+    ).resolves.toBeUndefined();
+  });
+
+  it('updatePw fail - invalid check email auth token', async () => {
+    // fail to verify email auth token
+    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(false);
+
+    await expect(
+      service.updatePw(1, {
+        pw: 'abc123123',
+        emailToken: 'this.is.token',
+      }),
+    ).rejects.toThrow(InvalidEmailAuthTokenException);
   });
 });
