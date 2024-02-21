@@ -3,7 +3,7 @@ import { UserService } from '../../../src/api/user/user.service';
 import { PrismaService } from '../../../src/common/prisma/prisma.service';
 import { AuthService } from '../../../src/api/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { InvalidEmailAuthTokenException } from '../../../src/api/auth/exception/InvalidEmailAuthTokenException';
+import { InvalidEmailAuthTokenException } from '../../../src/api/user/exception/InvalidEmailAuthTokenException';
 import { DuplicateUserException } from '../../../src/api/user/exception/DuplicateUserException';
 
 describe('UserService', () => {
@@ -40,9 +40,15 @@ describe('UserService', () => {
   });
 
   it('Sign Up success', async () => {
+    // 1. verify email auth token
     authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
+
+    // 2. check duplicated user with email and nickname
     prismaMock.user.findFirst = jest.fn().mockResolvedValue(null);
-    jwtServiceMock.verify = jest.fn().mockReturnValue('this.is.token');
+
+    // 3. create local login access token
+    const outputToken = 'this.is.token';
+    jwtServiceMock.sign = jest.fn().mockReturnValue(outputToken);
 
     await expect(
       service.signUp({
@@ -50,13 +56,12 @@ describe('UserService', () => {
         pw: 'abc123',
         nickname: 'test',
       }),
-    ).resolves.not.toBe(undefined);
+    ).resolves.toBe(outputToken);
   });
 
   it('Sign Up fail - invalid email auth token', async () => {
-    authServiceMock.verifyEmailAuthToken = jest.fn().mockImplementation(() => {
-      throw new InvalidEmailAuthTokenException('invalid token');
-    });
+    // fail to verify email auth token
+    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(false);
 
     await expect(
       service.signUp({
@@ -68,11 +73,10 @@ describe('UserService', () => {
   });
 
   it('Sign Up fail - duplicate user nickname', async () => {
-    const inputNickname = 'duplicateNick';
+    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
 
-    authServiceMock.verifyEmailAuthToken = jest
-      .fn()
-      .mockReturnValue('abc123@xx.xx');
+    // find duplicated nickname
+    const inputNickname = 'duplicateNick';
     prismaMock.user.findFirst = jest.fn().mockResolvedValue({
       idx: 1,
       nickname: inputNickname,
@@ -88,12 +92,11 @@ describe('UserService', () => {
     ).rejects.toThrow(DuplicateUserException<'nickname'>);
   });
 
-  it('Sign Up fail - duplicate user', async () => {
-    const inputEmail = 'abc123@xx.xx';
+  it('Sign Up fail - duplicate user email', async () => {
+    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
 
-    authServiceMock.verifyEmailAuthToken = jest
-      .fn()
-      .mockReturnValue(inputEmail);
+    // find duplicated email
+    const inputEmail = 'abc123@xx.xx';
     prismaMock.user.findFirst = jest.fn().mockResolvedValue({
       idx: 1,
       nickname: 'test',
