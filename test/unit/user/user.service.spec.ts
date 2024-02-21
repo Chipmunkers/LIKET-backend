@@ -7,6 +7,7 @@ import { InvalidEmailAuthTokenException } from '../../../src/api/user/exception/
 import { DuplicateUserException } from '../../../src/api/user/exception/DuplicateUserException';
 import { HashService } from '../../../src/common/service/hash.service';
 import { AlreadyBlockedUserException } from '../../../src/api/user/exception/AlreadyBlockedUserException';
+import { UserNotFoundException } from '../../../src/api/user/exception/UserNotFoundException';
 
 describe('UserService', () => {
   let service: UserService;
@@ -114,6 +115,26 @@ describe('UserService', () => {
         nickname: 'myNickname',
       }),
     ).rejects.toThrow(DuplicateUserException<'email'>);
+  });
+
+  it('getUserByIdx success', async () => {
+    // 1. find user
+    const findUser = {
+      idx: 1,
+      // ...Something
+    };
+    prismaMock.user.findFirst = jest.fn().mockResolvedValue(findUser);
+
+    await expect(service.getUserByIdx(1)).resolves.toStrictEqual(findUser);
+  });
+
+  it('getUserByIdx fail - cannot find user', async () => {
+    // cannot find user
+    prismaMock.user.findFirst = jest.fn().mockResolvedValue(null);
+
+    await expect(service.getUserByIdx(1)).rejects.toThrow(
+      UserNotFoundException,
+    );
   });
 
   it('updatePw success', async () => {
