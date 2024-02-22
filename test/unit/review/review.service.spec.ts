@@ -5,6 +5,7 @@ import { ReviewNotFoundException } from '../../../src/api/reveiw/exception/Revie
 import { CreateReviewDto } from '../../../src/api/reveiw/dto/CreateReviewDto';
 import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';
 import { ReviewEntity } from '../../../src/api/reveiw/entity/ReviewEntity';
+import { AlreadyLikeReviewException } from '../../../src/api/reveiw/exception/AlreadyLikeReviewException';
 
 describe('ReviewService', () => {
   let service: ReviewService;
@@ -19,6 +20,7 @@ describe('ReviewService', () => {
           useValue: {
             review: {},
             cultureContent: {},
+            reviewLike: {},
           },
         },
       ],
@@ -101,6 +103,31 @@ describe('ReviewService', () => {
 
     await expect(service.getReviewByIdxForAdmin(1)).rejects.toThrow(
       ReviewNotFoundException,
+    );
+  });
+
+  it('likeReview success', async () => {
+    // 1. check review like state
+    prismaMock.reviewLike.findUnique = jest.fn().mockResolvedValue(null);
+
+    // 2. like review
+    prismaMock.reviewLike.create = jest.fn().mockResolvedValue({});
+
+    expect(prismaMock.reviewLike.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.reviewLike.create).toHaveBeenCalledTimes(1);
+    await expect(service.likeReview(1, 1)).resolves.toBeUndefined();
+  });
+
+  it('likeReview fail - already like review', async () => {
+    // already like
+    prismaMock.reviewLike.findUnique = jest.fn().mockResolvedValue({
+      userIdx: 1,
+      reviewIdx: 1,
+      createdAt: new Date(),
+    });
+
+    await expect(service.likeReview(1, 1)).rejects.toThrow(
+      AlreadyLikeReviewException,
     );
   });
 });
