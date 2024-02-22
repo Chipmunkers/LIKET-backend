@@ -166,4 +166,35 @@ describe('CultureContentService', () => {
       ContentNotFoundException,
     );
   });
+
+  it('deactivateContent success', async () => {
+    // 1. check content request state
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      acceptedAt: new Date(),
+    });
+
+    await expect(service.deactivateContent(1)).resolves.toBeUndefined();
+  });
+
+  it('deactivateContent fail - already deactivated content', async () => {
+    // already deactivated content
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      acceptedAt: null,
+    });
+
+    await expect(service.deactivateContent(1)).rejects.toThrow(
+      ForbiddenException,
+    );
+  });
+
+  it('deactivateContent fail - content not found', async () => {
+    // content not found
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
+
+    await expect(service.deactivateContent(1)).rejects.toThrow(
+      ContentNotFoundException,
+    );
+  });
 });
