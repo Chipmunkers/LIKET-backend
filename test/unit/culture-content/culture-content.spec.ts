@@ -82,13 +82,38 @@ describe('CultureContentService', () => {
   });
 
   it('updateContentRequest fail - accpeted content', async () => {
-    // accept content
+    // acceptd content
     prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
       idx: 1,
       acceptedAt: new Date(),
     });
 
-    await expect(service.updateContentRequest).rejects.toThrow(
+    await expect(
+      service.updateContentRequest(1, {} as UpdateContentDto),
+    ).rejects.toThrow(ForbiddenException);
+  });
+
+  it('deleteContentRequest success', async () => {
+    // 1. delete culture content request state
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      acceptedAt: null,
+    });
+
+    // 2. delete culture content
+    prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
+
+    await expect(service.deleteContentRequest(1)).resolves.toBeUndefined();
+  });
+
+  it('deleteContentRequest fail - accepted content', async () => {
+    // accepted content
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      acceptedAt: new Date(),
+    });
+
+    await expect(service.deleteContentRequest(1)).rejects.toThrow(
       ForbiddenException,
     );
   });
