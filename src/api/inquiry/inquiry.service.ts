@@ -13,7 +13,7 @@ export class InquiryService {
     inquiryList: InquiryEntity<'summary'>;
   }>;
 
-  public getInquiryByidx: (idx: number) => Promise<InquiryEntity<'detail'>>;
+  public getInquiryByIdx: (idx: number) => Promise<InquiryEntity<'detail'>>;
 
   public createInquiry: (
     userIdx: number,
