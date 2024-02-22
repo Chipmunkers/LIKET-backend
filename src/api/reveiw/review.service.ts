@@ -70,5 +70,8 @@ export class ReviewService {
   /**
    * 리뷰 좋아요 취소하기
    */
-  public cancelReview: (userIdx: number, reviewIdx: number) => Promise<void>;
+  public cancelToLikeReview: (
+    userIdx: number,
+    reviewIdx: number,
+  ) => Promise<void>;
 }
