@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ReviewService } from '../../../src/api/reveiw/review.service';
 import { PrismaService } from '../../../src/common/prisma/prisma.service';
 import { ReviewNotFoundException } from '../../../src/api/reveiw/exception/ReviewNotFoundException';
+import { CreateReviewDto } from '../../../src/api/reveiw/dto/CreateReviewDto';
+import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';
 
 describe('ReviewService', () => {
   let service: ReviewService;
@@ -15,6 +17,7 @@ describe('ReviewService', () => {
           provide: PrismaService,
           useValue: {
             review: {},
+            cultureContent: {},
           },
         },
       ],
@@ -41,5 +44,39 @@ describe('ReviewService', () => {
     await expect(service.getReviewByIdx(1)).rejects.toThrow(
       ReviewNotFoundException,
     );
+  });
+
+  it('createReview success', async () => {
+    // 1. check culture content state
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      acceptedAt: new Date(),
+    });
+
+    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
+    await expect(
+      service.createReview(1, 1, {} as CreateReviewDto),
+    ).resolves.toBeUndefined();
+  });
+
+  it('createReview fail - not found cultureContent', async () => {
+    // not found content
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
+
+    await expect(
+      service.createReview(1, 1, {} as CreateReviewDto),
+    ).rejects.toThrow(ContentNotFoundException);
+  });
+
+  it('createReview fail - not activate cultureContent', async () => {
+    // not activate
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      acceptedAt: null,
+    });
+
+    await expect(
+      service.createReview(1, 1, {} as CreateReviewDto),
+    ).rejects.toThrow(ContentNotFoundException);
   });
 });
