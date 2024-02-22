@@ -6,6 +6,7 @@ import { ContentNotFoundException } from '../../../src/api/culture-content/excep
 import { CreateContentRequestDto } from '../../../src/api/culture-content/dto/CreateContentRequestDto';
 import { UpdateContentDto } from '../../../src/api/culture-content/dto/UpdateContentDto';
 import { ForbiddenException } from '@nestjs/common';
+import { AlreadyLikeContentException } from '../../../src/api/culture-content/exception/AlreadyLikeContentException';
 
 describe('CultureContentService', () => {
   let service: CultureContentService;
@@ -19,6 +20,7 @@ describe('CultureContentService', () => {
           provide: PrismaService,
           useValue: {
             cultureContent: {},
+            contentLike: {},
           },
         },
       ],
@@ -174,6 +176,7 @@ describe('CultureContentService', () => {
       acceptedAt: new Date(),
     });
 
+    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
     await expect(service.deactivateContent(1)).resolves.toBeUndefined();
   });
 
@@ -195,6 +198,27 @@ describe('CultureContentService', () => {
 
     await expect(service.deactivateContent(1)).rejects.toThrow(
       ContentNotFoundException,
+    );
+  });
+
+  it('likeContent success', async () => {
+    // 1. check like state
+    prismaMock.contentLike.findUnique = jest.fn().mockResolvedValue(null);
+
+    expect(prismaMock.contentLike.findUnique).toHaveBeenCalledTimes(1);
+    await expect(service.likeContent(1, 1)).resolves.toBeUndefined();
+  });
+
+  it('liketContent fail - already like content', async () => {
+    // already like content
+    prismaMock.contentLike.findUnique = jest.fn().mockResolvedValue({
+      userIdx: 1,
+      contentIdx: 1,
+      createdAt: new Date(),
+    });
+
+    await expect(service.likeContent(1, 1)).rejects.toThrow(
+      AlreadyLikeContentException,
     );
   });
 });
