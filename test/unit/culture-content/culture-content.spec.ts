@@ -3,6 +3,9 @@ import { CultureContentService } from '../../../src/api/culture-content/culture-
 import { PrismaService } from '../../../src/common/prisma/prisma.service';
 import { AuthService } from '../../../src/api/auth/auth.service';
 import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';
+import { CreateContentRequestDto } from '../../../src/api/culture-content/dto/CreateContentRequestDto';
+import { UpdateContentDto } from '../../../src/api/culture-content/dto/UpdateContentDto';
+import { ForbiddenException } from '@nestjs/common';
 
 describe('CultureContentService', () => {
   let service: CultureContentService;
@@ -60,6 +63,33 @@ describe('CultureContentService', () => {
 
     await expect(service.getContentRequestByIdx(1)).rejects.toThrow(
       ContentNotFoundException,
+    );
+  });
+
+  it('updateContentRequest success', async () => {
+    // 1. check cutlure content request state
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      acceptedAt: null,
+    });
+
+    // 2. update culture content
+    prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
+
+    await expect(
+      service.updateContentRequest(1, {} as UpdateContentDto),
+    ).resolves.toBeUndefined();
+  });
+
+  it('updateContentRequest fail - accpeted content', async () => {
+    // accept content
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      acceptedAt: new Date(),
+    });
+
+    await expect(service.updateContentRequest).rejects.toThrow(
+      ForbiddenException,
     );
   });
 });
