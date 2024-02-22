@@ -35,7 +35,9 @@ describe('ReviewService', () => {
     });
 
     expect(prismaMock.review.findUnique).toHaveBeenCalledTimes(1);
-    await expect(service.getReviewByIdx(1)).resolves.not.toBeUndefined();
+    await expect(service.getReviewByIdx(1)).resolves.toBeInstanceOf(
+      ReviewEntity<'detail', 'user'>,
+    );
   });
 
   it('getReviewByIdx fail', async () => {
