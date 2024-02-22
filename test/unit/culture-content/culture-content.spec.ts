@@ -8,6 +8,7 @@ import { UpdateContentDto } from '../../../src/api/culture-content/dto/UpdateCon
 import { ForbiddenException } from '@nestjs/common';
 import { AlreadyLikeContentException } from '../../../src/api/culture-content/exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from '../../../src/api/culture-content/exception/AlreadyNotLikeContentException';
+import { ContentEntity } from '../../../src/api/culture-content/entity/ContentEntity';
 
 describe('CultureContentService', () => {
   let service: CultureContentService;
@@ -37,7 +38,10 @@ describe('CultureContentService', () => {
       idx: 1,
     });
 
-    await expect(service.getContentByIdx(1, 1)).resolves.not.toBeUndefined();
+    await expect(service.getContentByIdx(1, 1)).resolves.toBeInstanceOf(
+      ContentEntity<'detail', 'user'>,
+    );
+    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
   });
 
   it('getContentByIdx fail - not found content', async () => {
@@ -55,9 +59,10 @@ describe('CultureContentService', () => {
       idx: 1,
     });
 
-    await expect(
-      service.getContentRequestByIdx(1),
-    ).resolves.not.toBeUndefined();
+    await expect(service.getContentRequestByIdx(1)).resolves.toBeInstanceOf(
+      ContentEntity<'detail', 'admin'>,
+    );
+    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
   });
 
   it('getContentRequestByIdx fail - not found content request', async () => {
@@ -82,6 +87,8 @@ describe('CultureContentService', () => {
     await expect(
       service.updateContentRequest(1, {} as UpdateContentDto),
     ).resolves.toBeUndefined();
+    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
   });
 
   it('updateContentRequest fail - accpeted content', async () => {
@@ -116,6 +123,8 @@ describe('CultureContentService', () => {
     prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
 
     await expect(service.deleteContentRequest(1)).resolves.toBeUndefined();
+    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
   });
 
   it('deleteContentRequest fail - accepted content', async () => {
@@ -146,7 +155,12 @@ describe('CultureContentService', () => {
       acceptedAt: null,
     });
 
+    // 2. update content to accept
+    prismaMock.cultureContent.create = jest.fn().mockResolvedValue({});
+
     await expect(service.acceptContentRequest(1)).resolves.toBeUndefined();
+    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.cultureContent.create).toHaveBeenCalledTimes(1);
   });
 
   it('acceptContentRequest fail - accepted content', async () => {
@@ -177,8 +191,12 @@ describe('CultureContentService', () => {
       acceptedAt: new Date(),
     });
 
-    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
+    // 2. update content
+    prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
+
     await expect(service.deactivateContent(1)).resolves.toBeUndefined();
+    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
   });
 
   it('deactivateContent fail - already deactivated content', async () => {
@@ -206,8 +224,12 @@ describe('CultureContentService', () => {
     // 1. check like state
     prismaMock.contentLike.findUnique = jest.fn().mockResolvedValue(null);
 
-    expect(prismaMock.contentLike.findUnique).toHaveBeenCalledTimes(1);
+    // 2. create like
+    prismaMock.contentLike.create = jest.fn().mockResolvedValue({});
+
     await expect(service.likeContent(1, 1)).resolves.toBeUndefined();
+    expect(prismaMock.contentLike.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.contentLike.create).toHaveBeenCalledTimes(1);
   });
 
   it('liketContent fail - already like content', async () => {
@@ -231,8 +253,12 @@ describe('CultureContentService', () => {
       createdAt: new Date(),
     });
 
-    expect(prismaMock.contentLike.findUnique).toHaveBeenCalledTimes(1);
+    // 2. delete like
+    prismaMock.contentLike.delete = jest.fn().mockResolvedValue({});
+
     await expect(service.cancelToLikeContent(1, 1)).resolves.toBeUndefined();
+    expect(prismaMock.contentLike.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.contentLike.delete).toHaveBeenCalledTimes(1);
   });
 
   it('cancelToLikeContent fail - already do not like', async () => {
