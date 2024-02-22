@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { InquiryService } from '../../../src/api/inquiry/inquiry.service';
 import { PrismaService } from '../../../src/common/prisma/prisma.service';
 import { InquiryEntity } from '../../../src/api/inquiry/entity/InquiryEntity';
+import { InquiryNotFoundException } from '../../../src/api/inquiry/exception/InquiryNotFoundException';
 
 describe('InquiryService', async () => {
   let service: InquiryService;
@@ -39,6 +40,8 @@ describe('InquiryService', async () => {
     // not found
     prismaMock.inquiry.findUnique = jest.fn().mockResolvedValue(null);
 
-    await expect(service.getInquiryByIdx(1)).rejects.toThrow();
+    await expect(service.getInquiryByIdx(1)).rejects.toThrow(
+      InquiryNotFoundException,
+    );
   });
 });
