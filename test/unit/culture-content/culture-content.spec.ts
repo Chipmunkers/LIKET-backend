@@ -93,6 +93,15 @@ describe('CultureContentService', () => {
     ).rejects.toThrow(ForbiddenException);
   });
 
+  it('updateContentRequest fail - content not found', async () => {
+    // content not found
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
+
+    await expect(
+      service.updateContentRequest(1, {} as UpdateContentDto),
+    ).rejects.toThrow(ContentNotFoundException);
+  });
+
   it('deleteContentRequest success', async () => {
     // 1. delete culture content request state
     prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
@@ -115,6 +124,46 @@ describe('CultureContentService', () => {
 
     await expect(service.deleteContentRequest(1)).rejects.toThrow(
       ForbiddenException,
+    );
+  });
+
+  it('deleteContentRequest fail - content not found', async () => {
+    // content not found
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
+
+    await expect(service.deleteContentRequest(1)).rejects.toThrow(
+      ContentNotFoundException,
+    );
+  });
+
+  it('acceptContentRequest success', async () => {
+    // 1. check content request state
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      acceptedAt: null,
+    });
+
+    await expect(service.acceptContentRequest(1)).resolves.toBeUndefined();
+  });
+
+  it('acceptContentRequest fail - accepted content', async () => {
+    // accepted content
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      acceptedAt: new Date(),
+    });
+
+    await expect(service.acceptContentRequest(1)).rejects.toThrow(
+      ForbiddenException,
+    );
+  });
+
+  it('acceptContentRequest fail - not found content', async () => {
+    // not found content
+    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
+
+    await expect(service.acceptContentRequest(1)).rejects.toThrow(
+      ContentNotFoundException,
     );
   });
 });
