@@ -77,4 +77,17 @@ export class CultureContentService {
    * 비활성화 하기
    */
   public deactivateContent: (idx: number) => Promise<void>;
+
+  /**
+   * 컨텐츠 좋아요 누르기
+   */
+  public likeContent: (userIdx: number, contentIdx: number) => Promise<void>;
+
+  /**
+   * 컨텐츠 좋아요 취소하기
+   */
+  public cancelToLikeContent: (
+    userIdx: number,
+    contentIdx: number,
+  ) => Promise<void>;
 }
