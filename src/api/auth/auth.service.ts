@@ -142,5 +142,16 @@ export class AuthService {
   /**
    * 이메일 인증 토큰 생성하기
    */
-  public signEmailAuthToken: (email: string) => string;
+  public signEmailAuthToken: (email: string) => string = (email) => {
+    const token = this.jwtService.sign(
+      {
+        email: email,
+      },
+      {
+        expiresIn: '6h',
+      },
+    );
+
+    return token;
+  };
 }
