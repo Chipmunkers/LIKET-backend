@@ -8,6 +8,7 @@ import { RedisService } from '../../../src/common/redis/redis.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { NotFoundVerificationCodeException } from '../../../src/common/redis/exception/NotFoundVerificationCodeException';
 import { InvalidEmailVerificationCodeException } from '../../../src/api/auth/exception/InvalidEmailVerificationCodeException';
+import { BlockedUserException } from '../../../src/api/auth/exception/BlockedUserException';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -59,6 +60,7 @@ describe('AuthService', () => {
       idx: 1,
       pw: 'hashedPw',
       provider: 'local',
+      blockedAt: null,
     });
     hashServiceMock.comparePw = jest.fn().mockReturnValue(true);
     jwtServiceMock.sign = jest.fn().mockReturnValue('this.is.jwt');
@@ -69,6 +71,25 @@ describe('AuthService', () => {
         pw: 'password',
       }),
     ).resolves.toBe('this.is.jwt');
+    expect(prismaMock.user.findFirst).toHaveBeenCalledTimes(1);
+    expect(hashServiceMock.comparePw).toHaveBeenCalledTimes(1);
+    expect(jwtServiceMock.sign).toHaveBeenCalledTimes(1);
+  });
+
+  it('login fail - blocked user', async () => {
+    prismaMock.user.findFirst = jest.fn().mockResolvedValue({
+      idx: 1,
+      pw: 'hashedPw',
+      provider: 'local',
+      blockedAt: null,
+    });
+
+    await expect(
+      service.login({
+        email: 'abc123@xx.xx',
+        pw: 'password',
+      }),
+    ).rejects.toThrow(BlockedUserException);
   });
 
   it('login fail - cannot find user', async () => {
