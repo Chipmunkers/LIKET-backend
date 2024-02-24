@@ -9,6 +9,8 @@ import { BlockedUserException } from './exception/BlockedUserException';
 import { InvalidEmailOrPwException } from './exception/InvalidEmailOrPwException';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
+import { NotFoundVerificationCodeException } from '../../common/redis/exception/NotFoundVerificationCodeException';
+import { InvalidEmailVerificationCodeException } from './exception/InvalidEmailVerificationCodeException';
 
 @Injectable()
 export class AuthService {
@@ -89,7 +91,25 @@ export class AuthService {
    */
   public checkEmailVerificatioCode: (
     checkDto: CheckEmailVerificationCodeDto,
-  ) => Promise<boolean>;
+  ) => Promise<string> = async (checkDto) => {
+    const randomCode = await this.redis.getEmailVerificationCode(
+      checkDto.email,
+    );
+
+    if (!randomCode) {
+      throw new NotFoundVerificationCodeException('not send verification code');
+    }
+
+    if (checkDto.code !== randomCode) {
+      throw new InvalidEmailVerificationCodeException(
+        'wrong verification code',
+      );
+    }
+
+    const token = this.signEmailAuthToken(checkDto.email);
+
+    return token;
+  };
 
   /**
    * 이메일 인증 토큰 검사하기
