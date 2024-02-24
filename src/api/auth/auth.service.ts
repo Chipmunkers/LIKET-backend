@@ -8,6 +8,7 @@ import { RedisService } from '../../common/redis/redis.service';
 import { BlockedUserException } from './exception/BlockedUserException';
 import { InvalidEmailOrPwException } from './exception/InvalidEmailOrPwException';
 import { JwtService } from '@nestjs/jwt';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly hashService: HashService,
     private readonly jwtService: JwtService,
     private readonly redis: RedisService,
+    private readonly mailerService: MailerService,
   ) {}
 
   /**
@@ -65,7 +67,22 @@ export class AuthService {
    */
   public sendEmailVerificationCode: (
     sendDto: SendEmailVerificationCodeDto,
-  ) => Promise<void>;
+  ) => Promise<void> = async (sendDto) => {
+    // generate randon code
+    const randomCode = Math.floor(Math.random() * 10 ** 6)
+      .toString()
+      .padStart(6, '0');
+
+    await this.redis.setEmailVerificationCode(sendDto.email, randomCode);
+
+    await this.mailerService.sendMail({
+      to: sendDto.email,
+      subject: 'Liket 인증번호',
+      html: `<h1>${randomCode}</h1>`,
+    });
+
+    return;
+  };
 
   /**
    * 이메일 인증번호 확인하기

@@ -143,7 +143,7 @@ describe('AuthService', () => {
         email: 'abc123@xx.xx',
       }),
     ).resolves.toBeUndefined();
-    expect(mailerServiceMock).toHaveBeenCalledTimes(1);
+    expect(mailerServiceMock.sendMail).toHaveBeenCalledTimes(1);
     expect(redisMock.setEmailVerificationCode).toHaveBeenCalledTimes(1);
   });
 
