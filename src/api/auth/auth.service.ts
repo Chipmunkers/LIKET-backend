@@ -28,10 +28,10 @@ export class AuthService {
         pw: true,
         isAdmin: true,
         blockedAt: true,
+        provider: true,
       },
       where: {
         email: loginDto.email,
-        provider: 'local',
         deletedAt: null,
       },
     });
@@ -40,11 +40,15 @@ export class AuthService {
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
+    if (user.provider !== 'local') {
+      throw new InvalidEmailOrPwException('invalid email or password');
+    }
+
     if (user.blockedAt) {
       throw new BlockedUserException('your account has been suspended');
     }
 
-    if (this.hashService.comparePw(loginDto.pw, user.pw)) {
+    if (!this.hashService.comparePw(loginDto.pw, user.pw)) {
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
