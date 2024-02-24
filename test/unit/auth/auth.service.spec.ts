@@ -129,6 +129,17 @@ describe('AuthService', () => {
     ).rejects.toThrow(InvalidEmailOrPwException);
   });
 
+  it('sendEmailVerificationCode success', async () => {
+    mailerServiceMock.sendMail = jest.fn().mockResolvedValue({});
+
+    await expect(
+      service.sendEmailVerificationCode({
+        email: 'abc123@xx.xx',
+      }),
+    ).resolves.toBeUndefined();
+    expect(mailerServiceMock).toHaveBeenCalledTimes(1);
+  });
+
   it('checkEmailVerificationCode success', async () => {
     const randomCode = '123123';
     redisMock.getEmailVerificationCode = jest
@@ -174,13 +185,13 @@ describe('AuthService', () => {
 
     const inputToken = 'this.is.token';
 
-    await expect(service.verifyEmailAuthToken(inputToken)).resolves.toBe(true);
+    expect(service.verifyEmailAuthToken(inputToken)).toBe(true);
   });
 
   it('verifyEmailAuthToken fail - token non-existence', async () => {
     const inputToken = '';
 
-    await expect(service.verifyEmailAuthToken(inputToken)).resolves.toBe(false);
+    expect(service.verifyEmailAuthToken(inputToken)).toBe(false);
   });
 
   it('verifyEmailAuthToken fail - invalid token', async () => {
@@ -190,8 +201,13 @@ describe('AuthService', () => {
 
     const invalidToken = 'this.is.invalidtoken';
 
-    await expect(service.verifyEmailAuthToken(invalidToken)).resolves.toBe(
-      false,
-    );
+    expect(service.verifyEmailAuthToken(invalidToken)).toBe(false);
+  });
+
+  it('signEmailAuthToken', async () => {
+    const token = 'this.is.token';
+    jwtServiceMock.sign = jest.fn().mockReturnValue(token);
+
+    expect(service.signEmailAuthToken('abc123@xx.xx')).toBe(token);
   });
 });
