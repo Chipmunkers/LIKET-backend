@@ -12,15 +12,33 @@ export class RedisService {
   setEmailVerificationCode: (
     email: string,
     randomCode: string,
-  ) => Promise<void>;
+  ) => Promise<void> = async (email, randomCode) => {
+    await this.redis.set(`email-auth-code-${email}`, randomCode, 3000);
+    return;
+  };
 
   /**
    * 이메일 인증번호 삭제하기
    */
-  delEmailVerificationCode: (email: string) => Promise<void>;
+  delEmailVerificationCode: (email: string) => Promise<void> = async (
+    email,
+  ) => {
+    await this.redis.del(`email-auth-code-${email}`);
+    return;
+  };
 
   /**
    * 이메일 인증번호 가져오기
    */
-  getEmailVerificationCode: (email: string) => Promise<string>;
+  getEmailVerificationCode: (email: string) => Promise<string | null> = async (
+    email,
+  ) => {
+    const randomCode = await this.redis.get(`email-auth-code-${email}`);
+
+    if (typeof randomCode === 'string') {
+      return randomCode;
+    }
+
+    return null;
+  };
 }
