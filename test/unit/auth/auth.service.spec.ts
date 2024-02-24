@@ -135,6 +135,7 @@ describe('AuthService', () => {
   });
 
   it('sendEmailVerificationCode success', async () => {
+    redisMock.setEmailVerificationCode = jest.fn().mockResolvedValue(undefined);
     mailerServiceMock.sendMail = jest.fn().mockResolvedValue({});
 
     await expect(
@@ -143,6 +144,7 @@ describe('AuthService', () => {
       }),
     ).resolves.toBeUndefined();
     expect(mailerServiceMock).toHaveBeenCalledTimes(1);
+    expect(redisMock.setEmailVerificationCode).toHaveBeenCalledTimes(1);
   });
 
   it('checkEmailVerificationCode success', async () => {
