@@ -13,6 +13,8 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+swagger.json
+
 # OS
 .DS_Store
 
