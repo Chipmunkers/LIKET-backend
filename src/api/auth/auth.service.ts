@@ -114,7 +114,25 @@ export class AuthService {
   /**
    * 이메일 인증 토큰 검사하기
    */
-  public verifyEmailAuthToken: (emailToken: string) => boolean;
+  public verifyEmailAuthToken: (emailToken: string) => boolean = (
+    emailToken,
+  ) => {
+    if (!emailToken) {
+      return false;
+    }
+
+    try {
+      const payload = this.jwtService.verify(emailToken);
+
+      if (!payload.email) {
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
 
   /**
    * 이메일 인증 토큰 생성하기
