@@ -188,7 +188,9 @@ describe('AuthService', () => {
   });
 
   it('verifyEmailAuthToken succss', async () => {
-    jwtServiceMock.verify = jest.fn().mockReturnValue({});
+    jwtServiceMock.verify = jest.fn().mockReturnValue({
+      email: 'abc123@xx.xx',
+    });
 
     const inputToken = 'this.is.token';
 
@@ -209,6 +211,14 @@ describe('AuthService', () => {
     const invalidToken = 'this.is.invalidtoken';
 
     expect(service.verifyEmailAuthToken(invalidToken)).toBe(false);
+  });
+
+  it('verifyEmailAuthToken fail - not email auth token', async () => {
+    jwtServiceMock.verify = jest.fn().mockResolvedValue({
+      idx: 1,
+    });
+
+    expect(service.verifyEmailAuthToken('this.is.token')).toBe(false);
   });
 
   it('signEmailAuthToken', async () => {
