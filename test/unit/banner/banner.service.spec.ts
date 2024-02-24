@@ -3,6 +3,7 @@ import { BannerService } from '../../../src/api/banner/banner.service';
 import { PrismaService } from '../../../src/common/prisma/prisma.service';
 import { BannerEntity } from '../../../src/api/banner/entity/BannerEntity';
 import { BannerNotFoundException } from '../../../src/api/banner/exception/BannerNotFoundException';
+import { ConflictException } from '@nestjs/common';
 
 describe('BannerService', () => {
   let service: BannerService;
@@ -69,5 +70,37 @@ describe('BannerService', () => {
       BannerNotFoundException,
     );
     expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
+  });
+
+  it('deleteBanner success', async () => {
+    // 1. find banner with prisma
+    prismaMock.banner.findUnique = jest
+      .fn()
+      .mockResolvedValue({ idx: 1, ActiveBanner: null });
+
+    // 2. excute transaction ( delete banner )
+    prismaMock.$transaction = jest.fn().mockResolvedValue({});
+
+    await expect(service.deleteBanner(1)).resolves.toBeUndefined();
+    expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+  });
+
+  it('deleteBanner fail - banner not found', async () => {
+    // banner not ounf
+    prismaMock.banner.findUnique = jest.fn().mockResolvedValue(null);
+
+    await expect(service.deleteBanner(1)).rejects.toThrow(
+      BannerNotFoundException,
+    );
+  });
+
+  it('deleteBanner fail - active banner', async () => {
+    // active banner
+    prismaMock.banner.findUnique = jest
+      .fn()
+      .mockResolvedValue({ idx: 1, ActiveBanner: { idx: 1 } });
+
+    await expect(service.deleteBanner(1)).rejects.toThrow(ConflictException);
   });
 });
