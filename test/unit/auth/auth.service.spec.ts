@@ -81,7 +81,7 @@ describe('AuthService', () => {
       idx: 1,
       pw: 'hashedPw',
       provider: 'local',
-      blockedAt: null,
+      blockedAt: new Date(),
     });
 
     await expect(
