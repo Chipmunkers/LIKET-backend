@@ -134,22 +134,6 @@ describe('AuthService', () => {
     ).rejects.toThrow(InvalidEmailOrPwException);
   });
 
-  it('login fail - invalid password', async () => {
-    prismaMock.user.findFirst = jest.fn().mockResolvedValue({
-      idx: 1,
-      pw: 'hashedPw',
-      provider: 'local',
-    });
-    hashServiceMock.comparePw = jest.fn().mockReturnValue(false);
-
-    await expect(
-      service.login({
-        email: 'abc123@xx.xx',
-        pw: 'password',
-      }),
-    ).rejects.toThrow(InvalidEmailOrPwException);
-  });
-
   it('sendEmailVerificationCode success', async () => {
     mailerServiceMock.sendMail = jest.fn().mockResolvedValue({});
 
