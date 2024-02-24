@@ -56,10 +56,15 @@ export class AuthService {
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
-    const loginAccessToken = await this.jwtService.sign({
-      idx: user.idx,
-      isAdmin: user.isAdmin,
-    });
+    const loginAccessToken = this.jwtService.sign(
+      {
+        idx: user.idx,
+        isAdmin: user.isAdmin,
+      },
+      {
+        expiresIn: '14h',
+      },
+    );
 
     return loginAccessToken;
   };
