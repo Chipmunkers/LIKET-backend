@@ -5,19 +5,56 @@ import { CheckEmailVerificationCodeDto } from './dto/CheckEmailVerificationCodeD
 import { HashService } from '../../common/service/hash.service';
 import { LoginDto } from './dto/LoginDto';
 import { RedisService } from '../../common/redis/redis.service';
+import { BlockedUserException } from './exception/BlockedUserException';
+import { InvalidEmailOrPwException } from './exception/InvalidEmailOrPwException';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly hashService: HashService,
+    private readonly jwtService: JwtService,
     private readonly redis: RedisService,
   ) {}
 
   /**
    * 로그인하기
    */
-  public login: (loginDto: LoginDto) => Promise<string>;
+  public login: (loginDto: LoginDto) => Promise<string> = async (loginDto) => {
+    const user = await this.prisma.user.findFirst({
+      select: {
+        idx: true,
+        pw: true,
+        isAdmin: true,
+        blockedAt: true,
+      },
+      where: {
+        email: loginDto.email,
+        provider: 'local',
+        deletedAt: null,
+      },
+    });
+
+    if (!user) {
+      throw new InvalidEmailOrPwException('invalid email or password');
+    }
+
+    if (user.blockedAt) {
+      throw new BlockedUserException('your account has been suspended');
+    }
+
+    if (this.hashService.comparePw(loginDto.pw, user.pw)) {
+      throw new InvalidEmailOrPwException('invalid email or password');
+    }
+
+    const loginAccessToken = await this.jwtService.sign({
+      idx: user.idx,
+      isAdmin: user.isAdmin,
+    });
+
+    return loginAccessToken;
+  };
 
   /**
    * 이메일 인증번호 발송하기
