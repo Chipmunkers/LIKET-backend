@@ -9,6 +9,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { NotFoundVerificationCodeException } from '../../../src/common/redis/exception/NotFoundVerificationCodeException';
 import { InvalidEmailVerificationCodeException } from '../../../src/api/auth/exception/InvalidEmailVerificationCodeException';
 import { BlockedUserException } from '../../../src/api/auth/exception/BlockedUserException';
+import { InvalidEmailAuthTokenException } from '../../../src/api/auth/exception/InvalidEmailAuthTokenException';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -148,11 +149,17 @@ describe('AuthService', () => {
   });
 
   it('checkEmailVerificationCode success', async () => {
+    // 1. store random code
     const randomCode = '123123';
     redisMock.getEmailVerificationCode = jest
       .fn()
       .mockResolvedValue(randomCode);
+
+    // 2. sign email token
     service.signEmailAuthToken = jest.fn().mockReturnValue('this.is.token');
+
+    // 3. delete random code in redis
+    redisMock.delEmailVerificationCode = jest.fn().mockResolvedValue(undefined);
 
     await expect(
       service.checkEmailVerificatioCode({
@@ -188,19 +195,21 @@ describe('AuthService', () => {
   });
 
   it('verifyEmailAuthToken succss', async () => {
+    const email = 'abc123@xx.xx';
     jwtServiceMock.verify = jest.fn().mockReturnValue({
-      email: 'abc123@xx.xx',
+      email,
     });
-
     const inputToken = 'this.is.token';
 
-    expect(service.verifyEmailAuthToken(inputToken)).toBe(true);
+    expect(service.verifyEmailAuthToken(inputToken)).toBe(email);
   });
 
   it('verifyEmailAuthToken fail - token non-existence', async () => {
     const inputToken = '';
 
-    expect(service.verifyEmailAuthToken(inputToken)).toBe(false);
+    expect(() => {
+      service.verifyEmailAuthToken(inputToken);
+    }).toThrow(InvalidEmailAuthTokenException);
   });
 
   it('verifyEmailAuthToken fail - invalid token', async () => {
@@ -210,7 +219,9 @@ describe('AuthService', () => {
 
     const invalidToken = 'this.is.invalidtoken';
 
-    expect(service.verifyEmailAuthToken(invalidToken)).toBe(false);
+    expect(() => {
+      service.verifyEmailAuthToken(invalidToken);
+    }).toThrow(InvalidEmailAuthTokenException);
   });
 
   it('verifyEmailAuthToken fail - not email auth token', async () => {
@@ -218,7 +229,9 @@ describe('AuthService', () => {
       idx: 1,
     });
 
-    expect(service.verifyEmailAuthToken('this.is.token')).toBe(false);
+    expect(() => {
+      service.verifyEmailAuthToken('this.is.login-token');
+    }).toThrow(InvalidEmailAuthTokenException);
   });
 
   it('signEmailAuthToken', async () => {
