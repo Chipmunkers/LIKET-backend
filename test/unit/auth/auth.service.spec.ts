@@ -10,6 +10,7 @@ import { NotFoundVerificationCodeException } from '../../../src/common/redis/exc
 import { InvalidEmailVerificationCodeException } from '../../../src/api/auth/exception/InvalidEmailVerificationCodeException';
 import { BlockedUserException } from '../../../src/api/auth/exception/BlockedUserException';
 import { InvalidEmailAuthTokenException } from '../../../src/api/auth/exception/InvalidEmailAuthTokenException';
+import { InvalidLoginAccessTokenException } from '../../../src/api/auth/exception/InvalidLoginAccessTokenException';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -239,5 +240,51 @@ describe('AuthService', () => {
     jwtServiceMock.sign = jest.fn().mockReturnValue(token);
 
     expect(service.signEmailAuthToken('abc123@xx.xx')).toBe(token);
+  });
+
+  it('verifyLoginAccessToken success', () => {
+    // 1. verify token
+    jwtServiceMock.verify = jest.fn().mockReturnValue({
+      idx: 1,
+      isAdmin: false,
+    });
+
+    expect(service.verifyLoginAccessToken('this.is.token')).toStrictEqual({
+      idx: 1,
+      isAdmin: false,
+    });
+  });
+
+  it('verifyLoginAccessToken fail - fail to verify', () => {
+    // fail to verify
+    jwtServiceMock.verify = jest.fn().mockImplementation(() => {
+      throw new Error('fail to verify');
+    });
+
+    expect(() => {
+      service.verifyLoginAccessToken('this.is.token');
+    }).toThrow(InvalidLoginAccessTokenException);
+  });
+
+  it('verifyLoginAccessToken fail - payload does not have idx field', () => {
+    // payload does not have idx
+    jwtServiceMock.verify = jest.fn().mockReturnValue({
+      isAdmin: true,
+    });
+
+    expect(() => {
+      service.verifyLoginAccessToken('this.is.token');
+    }).toThrow(InvalidLoginAccessTokenException);
+  });
+
+  it('verifyLoginAccessToken fail - payload does not have isAdmin field', () => {
+    // payload does not have isAdmin
+    jwtServiceMock.verify = jest.fn().mockReturnValue({
+      idx: 1,
+    });
+
+    expect(() => {
+      service.verifyLoginAccessToken('this.is.token');
+    }).toThrow(InvalidLoginAccessTokenException);
   });
 });
