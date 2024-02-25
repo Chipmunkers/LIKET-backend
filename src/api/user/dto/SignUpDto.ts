@@ -2,6 +2,7 @@ import {
   IsIn,
   IsInt,
   IsJWT,
+  IsOptional,
   IsString,
   IsStrongPassword,
   Length,
@@ -11,7 +12,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { UploadFileDto } from '../../upload/dto/UploadFileDto';
-import { Optional } from '@nestjs/common';
 
 export class SignUpDto {
   @IsJWT()
@@ -21,6 +21,7 @@ export class SignUpDto {
     minNumbers: 1,
     minSymbols: 1,
     minLowercase: 1,
+    minUppercase: 0,
   })
   @Length(6, 20)
   pw: string;
@@ -28,18 +29,18 @@ export class SignUpDto {
   @Matches('^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,8}$')
   nickname: string;
 
+  @IsOptional()
   @IsInt()
   @IsIn([1, 2])
-  @Optional()
   gender?: 1 | 2;
 
   @IsInt()
   @Min(1900)
   @Max(new Date().getFullYear())
-  @Optional()
+  @IsOptional()
   birth?: number;
 
-  @Optional()
+  @IsOptional()
   @IsString()
   @ValidateNested()
   profileImg?: UploadFileDto;
