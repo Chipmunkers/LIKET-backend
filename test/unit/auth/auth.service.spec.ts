@@ -64,7 +64,7 @@ describe('AuthService', () => {
       blockedAt: null,
     });
     hashServiceMock.comparePw = jest.fn().mockReturnValue(true);
-    jwtServiceMock.sign = jest.fn().mockReturnValue('this.is.jwt');
+    service.signLoginAccessToken = jest.fn().mockReturnValue('this.is.jwt');
 
     await expect(
       service.login({
@@ -74,7 +74,7 @@ describe('AuthService', () => {
     ).resolves.toBe('this.is.jwt');
     expect(prismaMock.user.findFirst).toHaveBeenCalledTimes(1);
     expect(hashServiceMock.comparePw).toHaveBeenCalledTimes(1);
-    expect(jwtServiceMock.sign).toHaveBeenCalledTimes(1);
+    expect(service.signLoginAccessToken).toHaveBeenCalledTimes(1);
   });
 
   it('login fail - blocked user', async () => {
