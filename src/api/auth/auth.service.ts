@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
 import { NotFoundVerificationCodeException } from '../../common/redis/exception/NotFoundVerificationCodeException';
 import { InvalidEmailVerificationCodeException } from './exception/InvalidEmailVerificationCodeException';
+import { InvalidEmailAuthTokenException } from './exception/InvalidEmailAuthTokenException';
 
 @Injectable()
 export class AuthService {
@@ -56,15 +57,7 @@ export class AuthService {
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
-    const loginAccessToken = this.jwtService.sign(
-      {
-        idx: user.idx,
-        isAdmin: user.isAdmin,
-      },
-      {
-        expiresIn: '14h',
-      },
-    );
+    const loginAccessToken = this.signLoginAccessToken(user.idx, user.isAdmin);
 
     return loginAccessToken;
   };
@@ -120,24 +113,29 @@ export class AuthService {
   /**
    * 이메일 인증 토큰 검사하기
    */
-  public verifyEmailAuthToken: (emailToken: string) => boolean = (
+  public verifyEmailAuthToken: (emailToken: string) => string = (
     emailToken,
   ) => {
     if (!emailToken) {
-      return false;
+      throw new InvalidEmailAuthTokenException('There is not a token');
     }
 
+    let payload: any;
     try {
-      const payload = this.jwtService.verify(emailToken);
-
-      if (!payload.email) {
-        return false;
-      }
-
-      return true;
+      payload = this.jwtService.verify(emailToken);
     } catch (err) {
-      return false;
+      throw new InvalidEmailAuthTokenException(
+        'Cannot verify email auth token',
+      );
     }
+
+    if (!payload.email || typeof payload.email !== 'string') {
+      throw new InvalidEmailAuthTokenException(
+        'This is not a email auth token',
+      );
+    }
+
+    return payload.email;
   };
 
   /**
@@ -154,5 +152,23 @@ export class AuthService {
     );
 
     return token;
+  };
+
+  /**
+   * 로그인 액세스 토큰 생성하기
+   */
+  public signLoginAccessToken: (idx: number, isAdmin: boolean) => string = (
+    idx,
+    isAdmin,
+  ) => {
+    return this.jwtService.sign(
+      {
+        idx: idx,
+        isAdmin: isAdmin,
+      },
+      {
+        expiresIn: '14h',
+      },
+    );
   };
 }
