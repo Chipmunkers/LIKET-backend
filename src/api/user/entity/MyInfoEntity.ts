@@ -1,4 +1,4 @@
-import { Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { UserEntity } from './UserEntity';
 
 const UserInclude = Prisma.validator<Prisma.UserDefaultArgs>()({
