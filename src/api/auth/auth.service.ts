@@ -189,13 +189,13 @@ export class AuthService {
       );
     }
 
-    if (!payload.email || typeof payload.email !== 'string') {
+    if (!payload.idx || typeof payload.idx !== 'number') {
       throw new InvalidLoginAccessTokenException(
         'Cannot verify login access token',
       );
     }
 
-    if (!payload.isAdmin || typeof payload.isAdmin !== 'boolean') {
+    if (typeof payload.isAdmin !== 'boolean') {
       throw new InvalidLoginAccessTokenException(
         'Cannot verify login access token',
       );
