@@ -8,6 +8,7 @@ import {
   Matches,
   Max,
   Min,
+  ValidateNested,
 } from 'class-validator';
 import { UploadFileDto } from '../../upload/dto/UploadFileDto';
 import { Optional } from '@nestjs/common';
@@ -40,5 +41,6 @@ export class SignUpDto {
 
   @Optional()
   @IsString()
+  @ValidateNested()
   profileImg?: UploadFileDto;
 }
