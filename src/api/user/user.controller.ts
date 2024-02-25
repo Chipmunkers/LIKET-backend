@@ -56,6 +56,6 @@ export class UserController {
   public async getMyInfo(
     @User() loginUser: LoginUserDto,
   ): Promise<MyInfoEntity> {
-    return await this.userService.getMyInfo(1);
+    return await this.userService.getMyInfo(loginUser.idx);
   }
 }
