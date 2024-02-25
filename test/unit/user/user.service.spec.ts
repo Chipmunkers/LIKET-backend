@@ -3,7 +3,7 @@ import { UserService } from '../../../src/api/user/user.service';
 import { PrismaService } from '../../../src/common/prisma/prisma.service';
 import { AuthService } from '../../../src/api/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { InvalidEmailAuthTokenException } from '../../../src/api/user/exception/InvalidEmailAuthTokenException';
+import { InvalidEmailAuthTokenException } from '../../../src/api/auth/exception/InvalidEmailAuthTokenException';
 import { DuplicateUserException } from '../../../src/api/user/exception/DuplicateUserException';
 import { HashService } from '../../../src/common/service/hash.service';
 import { AlreadyBlockedUserException } from '../../../src/api/user/exception/AlreadyBlockedUserException';
@@ -13,7 +13,6 @@ describe('UserService', () => {
   let service: UserService;
   let prismaMock: PrismaService;
   let authServiceMock: AuthService;
-  let jwtServiceMock: JwtService;
   let hashService: HashService;
 
   beforeEach(async () => {
@@ -27,11 +26,11 @@ describe('UserService', () => {
           },
         },
         {
-          provide: JwtService,
+          provide: AuthService,
           useValue: {},
         },
         {
-          provide: AuthService,
+          provide: HashService,
           useValue: {},
         },
       ],
@@ -40,20 +39,31 @@ describe('UserService', () => {
     service = module.get<UserService>(UserService);
     prismaMock = module.get<PrismaService>(PrismaService);
     authServiceMock = module.get<AuthService>(AuthService);
-    jwtServiceMock = module.get<JwtService>(JwtService);
     hashService = module.get<HashService>(HashService);
   });
 
   it('signUp success', async () => {
     // 1. verify email auth token
-    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
+    const email = 'abc123@xx.xx';
+    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(email);
 
     // 2. check duplicated user with email and nickname
     prismaMock.user.findFirst = jest.fn().mockResolvedValue(null);
 
-    // 3. create local login access token
-    const outputToken = 'this.is.token';
-    jwtServiceMock.sign = jest.fn().mockReturnValue(outputToken);
+    // 3. hash password
+    hashService.hashPw = jest.fn().mockReturnValue('hashedPassword');
+
+    // 4. create user with
+    prismaMock.user.create = jest.fn().mockResolvedValue({
+      email: 'abc123@xx.xx',
+      isAdmin: true,
+    });
+
+    // 4. create local login access token
+    const loginAccessToken = 'this.is.token';
+    authServiceMock.signLoginAccessToken = jest
+      .fn()
+      .mockReturnValue(loginAccessToken);
 
     await expect(
       service.signUp({
@@ -61,31 +71,22 @@ describe('UserService', () => {
         pw: 'abc123',
         nickname: 'test',
       }),
-    ).resolves.toBe(outputToken);
-  });
-
-  it('signUp fail - invalid email auth token', async () => {
-    // fail to verify email auth token
-    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(false);
-
-    await expect(
-      service.signUp({
-        emailToken: 'jwt token',
-        pw: 'abc123',
-        nickname: 'test',
-      }),
-    ).rejects.toThrow(InvalidEmailAuthTokenException);
+    ).resolves.toBe(loginAccessToken);
+    expect(authServiceMock.verifyEmailAuthToken).toHaveBeenCalledTimes(1);
+    expect(prismaMock.user.findFirst).toHaveBeenCalledTimes(1);
+    expect(authServiceMock.signLoginAccessToken).toHaveBeenCalledTimes(1);
   });
 
   it('signUp fail - duplicate user nickname', async () => {
-    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
+    const email = 'abc123@xx.xx';
+    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(email);
 
     // find duplicated nickname
     const inputNickname = 'duplicateNick';
     prismaMock.user.findFirst = jest.fn().mockResolvedValue({
       idx: 1,
       nickname: inputNickname,
-      email: '123@xx.xx',
+      email: 'test123@xx.xx',
     });
 
     await expect(
@@ -98,7 +99,8 @@ describe('UserService', () => {
   });
 
   it('signUp fail - duplicate user email', async () => {
-    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
+    const email = 'abc123@xx.xx';
+    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(email);
 
     // find duplicated email
     const inputEmail = 'abc123@xx.xx';
