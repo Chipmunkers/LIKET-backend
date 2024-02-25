@@ -12,6 +12,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { NotFoundVerificationCodeException } from '../../common/redis/exception/NotFoundVerificationCodeException';
 import { InvalidEmailVerificationCodeException } from './exception/InvalidEmailVerificationCodeException';
 import { InvalidEmailAuthTokenException } from './exception/InvalidEmailAuthTokenException';
+import { InvalidLoginAccessTokenException } from './exception/InvalidLoginAccessTokenException';
 
 @Injectable()
 export class AuthService {
@@ -170,5 +171,36 @@ export class AuthService {
         expiresIn: '14h',
       },
     );
+  };
+
+  /**
+   * 로그인 액세스 토큰 검증하기
+   */
+  public verifyLoginAccessToken: (token: string) => {
+    idx: number;
+    isAdmin: boolean;
+  } = (token) => {
+    let payload: any;
+    try {
+      payload = this.jwtService.verify(token);
+    } catch (err) {
+      throw new InvalidLoginAccessTokenException(
+        'Cannot verify login access token',
+      );
+    }
+
+    if (!payload.email || typeof payload.email !== 'string') {
+      throw new InvalidLoginAccessTokenException(
+        'Cannot verify login access token',
+      );
+    }
+
+    if (!payload.isAdmin || typeof payload.isAdmin !== 'boolean') {
+      throw new InvalidLoginAccessTokenException(
+        'Cannot verify login access token',
+      );
+    }
+
+    return payload;
   };
 }
