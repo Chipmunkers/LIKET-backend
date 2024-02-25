@@ -111,6 +111,7 @@ export class AuthService {
       );
     }
 
+    await this.redis.delEmailVerificationCode(checkDto.email);
     const token = this.signEmailAuthToken(checkDto.email);
 
     return token;
