@@ -41,7 +41,6 @@ export class SignUpDto {
   birth?: number;
 
   @IsOptional()
-  @IsString()
   @ValidateNested()
   profileImg?: UploadFileDto;
 }

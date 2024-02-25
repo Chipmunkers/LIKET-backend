@@ -131,7 +131,32 @@ export class UserService {
   public updateProfile: (
     idx: number,
     updateDto: UpdateProfileDto,
-  ) => Promise<void>;
+  ) => Promise<void> = async (idx, updateDto) => {
+    const duplicatedUser = await this.prisma.user.findFirst({
+      where: {
+        nickname: updateDto.nickname,
+        deletedAt: null,
+      },
+    });
+
+    if (duplicatedUser) {
+      throw new DuplicateUserException<'nickname'>(
+        'This nickname is Duplicated',
+        'nickname',
+      );
+    }
+
+    await this.prisma.user.update({
+      where: {
+        idx,
+      },
+      data: {
+        gender: updateDto.gender,
+        birth: updateDto.birth,
+        profileImgPath: updateDto.profileImg?.fileName,
+      },
+    });
+  };
 
   public updatePw: (idx: number, updateDto: UpdatePwDto) => Promise<void>;
 

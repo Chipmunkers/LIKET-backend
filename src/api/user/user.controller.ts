@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -15,6 +16,7 @@ import { MyInfoEntity } from './entity/MyInfoEntity';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
+import { UpdateProfileDto } from './dto/UpdateProfileDto';
 
 @Controller('user')
 export class UserController {
@@ -57,5 +59,28 @@ export class UserController {
     @User() loginUser: LoginUserDto,
   ): Promise<MyInfoEntity> {
     return await this.userService.getMyInfo(loginUser.idx);
+  }
+
+  /**
+   * Update login user profile API
+   * @summary Update login user profile API
+   *
+   * @tag User
+   */
+  @Put('/my/profile')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid body')
+  @TypedException<ExceptionDto>(401, 'There is no login access token')
+  @TypedException<ExceptionDto>(403, 'Suspended user')
+  @TypedException<ExceptionDto>(404, 'Cannot find user')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async udpateUserInfo(
+    @User() loginUser: LoginUserDto,
+    @Body() updateDto: UpdateProfileDto,
+  ): Promise<void> {
+    await this.userService.updateProfile(loginUser.idx, updateDto);
+
+    return;
   }
 }
