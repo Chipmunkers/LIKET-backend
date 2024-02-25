@@ -1,9 +1,20 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignUpDto } from './dto/SignUpDto';
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { SignUpResponseDto } from './dto/response/SignUpResponseDto';
+import { MyInfoEntity } from './entity/MyInfoEntity';
+import { LoginAuthGuard } from '../../common/guard/auth.guard';
+import { User } from '../../common/decorator/user.decorator';
+import { LoginUserDto } from '../../common/dto/LoginUserDto';
 
 @Controller('user')
 export class UserController {
@@ -27,5 +38,24 @@ export class UserController {
     const token = await this.userService.signUp(signUpDto);
 
     return { token };
+  }
+
+  /**
+   * Get my info API
+   * @summary Get my info API
+   *
+   * @tag User
+   */
+  @Get('/my')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(401, 'There is no login access token')
+  @TypedException<ExceptionDto>(403, 'Suspended user')
+  @TypedException<ExceptionDto>(404, 'Cannot find user')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getMyInfo(
+    @User() loginUser: LoginUserDto,
+  ): Promise<MyInfoEntity> {
+    return await this.userService.getMyInfo(1);
   }
 }

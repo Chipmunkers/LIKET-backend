@@ -9,6 +9,7 @@ import { UpdateProfileDto } from './dto/UpdateProfileDto';
 import { AuthService } from '../auth/auth.service';
 import { DuplicateUserException } from './exception/DuplicateUserException';
 import { HashService } from '../../common/service/hash.service';
+import { UserNotFoundException } from './exception/UserNotFoundException';
 
 @Injectable()
 export class UserService {
@@ -70,7 +71,56 @@ export class UserService {
     return loginAccessToken;
   };
 
-  public getMyInfo: (userIdx: number) => Promise<MyInfoEntity>;
+  public getMyInfo: (userIdx: number) => Promise<MyInfoEntity> = async (
+    userIdx,
+  ) => {
+    const user = await this.prisma.user.findFirst({
+      include: {
+        Review: {
+          include: {
+            ReviewImg: true,
+          },
+          where: {
+            ReviewImg: {
+              some: {
+                deletedAt: null,
+              },
+            },
+          },
+        },
+        Liket: {
+          select: {
+            idx: true,
+            imgPath: true,
+          },
+        },
+        _count: {
+          select: {
+            Review: {
+              where: {
+                deletedAt: null,
+              },
+            },
+            Liket: {
+              where: {
+                deletedAt: null,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        idx: userIdx,
+        deletedAt: null,
+      },
+    });
+
+    if (!user) {
+      throw new UserNotFoundException('Cannot find user');
+    }
+
+    return MyInfoEntity.createMyInfoEntity(user);
+  };
 
   public getUserByIdx: (userIdx: number) => Promise<UserEntity<'my', 'admin'>>;
 
