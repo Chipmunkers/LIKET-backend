@@ -44,9 +44,9 @@ export class MyInfoEntity extends UserEntity<'my', 'user'> {
     nickname: string;
     provider: string;
 
-    gender: number;
     email: string;
-    birth: number;
+    gender: number | null;
+    birth: number | null;
     createdAt: Date;
 
     reviewCount: number;

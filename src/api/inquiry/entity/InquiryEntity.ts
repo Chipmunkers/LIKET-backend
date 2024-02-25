@@ -25,7 +25,7 @@ export class InquiryEntity<T extends 'summary' | 'detail' = 'summary'> {
   answerList: T extends 'detail' ? AnswerEntity[] : undefined;
 
   imgList: T extends 'detail' ? string[] : undefined;
-  thumbnail: string;
+  thumbnail: string | null;
 
   constructor(data: {
     idx: number;
@@ -34,7 +34,7 @@ export class InquiryEntity<T extends 'summary' | 'detail' = 'summary'> {
     type: InquiryTypeEntity;
     answerList: T extends 'detail' ? AnswerEntity[] : undefined;
     imgList: T extends 'detail' ? string[] : undefined;
-    thumbnail: string;
+    thumbnail: string | null;
   }) {
     this.idx = data.idx;
     this.title = data.title;

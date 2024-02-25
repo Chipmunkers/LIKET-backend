@@ -134,7 +134,7 @@ class LiketReview extends PickType(ReviewEntity, [
     idx: number;
     starRating: number;
     visitTime: Date;
-    thumbnail: string;
+    thumbnail: string | null;
     createdAt: Date;
   }) {
     super();
@@ -159,7 +159,7 @@ class LiketContent extends PickType(ContentEntity, [
     title: string;
     genre: TagEntity;
     location: LocationEntity;
-    thumbnail: string;
+    thumbnail: string | null;
   }) {
     super();
 

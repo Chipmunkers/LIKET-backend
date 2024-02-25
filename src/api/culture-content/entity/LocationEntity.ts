@@ -1,10 +1,6 @@
 import { Location } from '@prisma/client';
 
-export class LocationEntity<T extends 'summary' | 'detail' = 'detail'>
-  implements Location
-{
-  idx: undefined;
-
+export class LocationEntity<T extends 'summary' | 'detail' = 'detail'> {
   constructor(
     public region1Depth: string,
     public region2Depth: string,

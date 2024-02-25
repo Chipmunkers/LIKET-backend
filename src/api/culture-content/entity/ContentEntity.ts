@@ -37,7 +37,7 @@ export class ContentEntity<
 > {
   idx: number;
   title: string;
-  thumbnail: string;
+  thumbnail: string | null;
 
   @ValidateNested()
   genre: TagEntity;
@@ -70,7 +70,7 @@ export class ContentEntity<
 
   @ValidateNested()
   author: K extends 'admin' ? UserProfileEntity : undefined;
-  acceptedAt: K extends 'admin' ? Date : undefined;
+  acceptedAt: K extends 'admin' ? Date | null : undefined;
 
   createdAt: Date;
 
@@ -78,7 +78,7 @@ export class ContentEntity<
     data: {
       idx: number;
       title: string;
-      thumbnail: string;
+      thumbnail: string | null;
       genre: TagEntity;
       style: TagEntity[];
       age: TagEntity;
@@ -98,11 +98,11 @@ export class ContentEntity<
       likeCount: T extends 'detail' ? number : undefined;
       reviewCount: T extends 'detail' ? number : undefined;
 
-      acceptedAt: K extends 'admin' ? Date : undefined;
+      acceptedAt: K extends 'admin' ? Date | null : undefined;
       author: K extends 'admin' ? UserProfileEntity : undefined;
       likeState: K extends 'user' ? boolean : undefined;
     },
-    avgStarRating: T extends 'detail' ? number : undefined = undefined,
+    avgStarRating: T extends 'detail' ? number : undefined,
   ) {
     this.idx = data.idx;
     this.title = data.title;
@@ -133,61 +133,67 @@ export class ContentEntity<
   static createUserSummaryContent(
     data: CotnentWithInclude,
   ): ContentEntity<'summary', 'user'> {
-    return new ContentEntity<'summary', 'user'>({
-      idx: data.idx,
-      title: data.title,
-      thumbnail: data.ContentImg[0]?.imgPath || null,
-      genre: TagEntity.createTag(data.Genre),
-      style: data.Style.map((style) => TagEntity.createTag(style.Style)),
-      age: TagEntity.createTag(data.Age),
-      location: LocationEntity.createDetailLocation(data.Location),
-      startDate: data.startDate,
-      endDate: data.endDate,
-      openTime: undefined,
-      description: undefined,
-      websiteLink: undefined,
-      imgList: undefined,
-      isFee: undefined,
-      isReservation: undefined,
-      isPet: undefined,
-      isParking: undefined,
-      likeCount: undefined,
-      acceptedAt: undefined,
-      author: undefined,
-      likeState: data.ContentLike[0] ? true : false,
-      reviewCount: undefined,
-      createdAt: data.createdAt,
-    });
+    return new ContentEntity<'summary', 'user'>(
+      {
+        idx: data.idx,
+        title: data.title,
+        thumbnail: data.ContentImg[0]?.imgPath || null,
+        genre: TagEntity.createTag(data.Genre),
+        style: data.Style.map((style) => TagEntity.createTag(style.Style)),
+        age: TagEntity.createTag(data.Age),
+        location: LocationEntity.createDetailLocation(data.Location),
+        startDate: data.startDate,
+        endDate: data.endDate,
+        openTime: undefined,
+        description: undefined,
+        websiteLink: undefined,
+        imgList: undefined,
+        isFee: undefined,
+        isReservation: undefined,
+        isPet: undefined,
+        isParking: undefined,
+        likeCount: undefined,
+        acceptedAt: undefined,
+        author: undefined,
+        likeState: data.ContentLike[0] ? true : false,
+        reviewCount: undefined,
+        createdAt: data.createdAt,
+      },
+      undefined,
+    );
   }
 
   static createAdminSummaryContent(
     data: CotnentWithInclude,
   ): ContentEntity<'summary', 'admin'> {
-    return new ContentEntity<'summary', 'admin'>({
-      idx: data.idx,
-      title: data.title,
-      thumbnail: data.ContentImg[0]?.imgPath || null,
-      genre: TagEntity.createTag(data.Genre),
-      style: data.Style.map((style) => TagEntity.createTag(style.Style)),
-      age: TagEntity.createTag(data.Age),
-      location: LocationEntity.createDetailLocation(data.Location),
-      startDate: data.startDate,
-      endDate: data.endDate,
-      openTime: undefined,
-      description: undefined,
-      websiteLink: undefined,
-      imgList: undefined,
-      isFee: undefined,
-      isReservation: undefined,
-      isPet: undefined,
-      isParking: undefined,
-      likeCount: undefined,
-      acceptedAt: undefined,
-      author: UserProfileEntity.createUserProfileEntity(data.User),
-      likeState: undefined,
-      reviewCount: undefined,
-      createdAt: data.createdAt,
-    });
+    return new ContentEntity<'summary', 'admin'>(
+      {
+        idx: data.idx,
+        title: data.title,
+        thumbnail: data.ContentImg[0]?.imgPath || null,
+        genre: TagEntity.createTag(data.Genre),
+        style: data.Style.map((style) => TagEntity.createTag(style.Style)),
+        age: TagEntity.createTag(data.Age),
+        location: LocationEntity.createDetailLocation(data.Location),
+        startDate: data.startDate,
+        endDate: data.endDate,
+        openTime: undefined,
+        description: undefined,
+        websiteLink: undefined,
+        imgList: undefined,
+        isFee: undefined,
+        isReservation: undefined,
+        isPet: undefined,
+        isParking: undefined,
+        likeCount: undefined,
+        acceptedAt: data.acceptedAt,
+        author: UserProfileEntity.createUserProfileEntity(data.User),
+        likeState: undefined,
+        reviewCount: undefined,
+        createdAt: data.createdAt,
+      },
+      undefined,
+    );
   }
 
   static createUserDetailContent(
