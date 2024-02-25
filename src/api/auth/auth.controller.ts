@@ -19,6 +19,7 @@ export class AuthController {
   @HttpCode(200)
   @TypedException<ExceptionDto>(400, 'Invalid email or password format')
   @TypedException<ExceptionDto>(401, 'Wrong email or password')
+  @TypedException<ExceptionDto>(403, 'Suspended User')
   @TypedException<ExceptionDto>(500, 'Server Error')
   public async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     const token = await this.authService.login(loginDto);
