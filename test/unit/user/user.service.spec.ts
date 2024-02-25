@@ -8,6 +8,7 @@ import { DuplicateUserException } from '../../../src/api/user/exception/Duplicat
 import { HashService } from '../../../src/common/service/hash.service';
 import { AlreadyBlockedUserException } from '../../../src/api/user/exception/AlreadyBlockedUserException';
 import { UserNotFoundException } from '../../../src/api/user/exception/UserNotFoundException';
+import { UpdateProfileDto } from '../../../src/api/user/dto/UpdateProfileDto';
 
 describe('UserService', () => {
   let service: UserService;
@@ -167,6 +168,31 @@ describe('UserService', () => {
         emailToken: 'this.is.token',
       }),
     ).rejects.toThrow(InvalidEmailAuthTokenException);
+  });
+
+  it('updateProfile success', async () => {
+    // 1. check nickname duplicate
+    prismaMock.user.findFirst = jest.fn().mockResolvedValue(null);
+
+    // 2. update user profile
+    prismaMock.user.update = jest.fn().mockResolvedValue({});
+
+    await expect(
+      service.updateProfile(1, {} as UpdateProfileDto),
+    ).resolves.toBeUndefined();
+    expect(prismaMock.user.findFirst).toHaveBeenCalledTimes(1);
+    expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('updateProfile fail - nickname duplicate', async () => {
+    // 1. check nickname duplicate
+    prismaMock.user.findFirst = jest.fn().mockResolvedValue({
+      nickname: 'test',
+    });
+
+    await expect(
+      service.updateProfile(1, {} as UpdateProfileDto),
+    ).rejects.toThrow(DuplicateUserException<'nickname'>);
   });
 
   it('blockUser success', async () => {
