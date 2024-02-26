@@ -166,4 +166,24 @@ export class UserController {
 
     return;
   }
+
+  /**
+   * Suspend user by idx API for admin
+   * @summary Suspend user by idx API for admin
+   *
+   * @tag User
+   */
+  @Post('/:idx/cancel-block')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(404, 'Cannot find user')
+  @TypedException<ExceptionDto>(409, 'Already not suspended user')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async cancelToBlockUser(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) userIdx: number,
+  ): Promise<void> {}
 }

@@ -11,6 +11,7 @@ import { DuplicateUserException } from './exception/DuplicateUserException';
 import { HashService } from '../../common/service/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { AlreadyBlockedUserException } from './exception/AlreadyBlockedUserException';
+import { AlreadyNotBlockedUserException } from './exception/AlreadyNotBlockedUserException';
 
 @Injectable()
 export class UserService {
@@ -265,6 +266,37 @@ export class UserService {
       },
       data: {
         blockedAt: new Date(),
+      },
+    });
+
+    return;
+  };
+
+  public cancelToBlock: (idx: number) => Promise<void> = async (idx) => {
+    const user = await this.prisma.user.findUnique({
+      select: {
+        blockedAt: true,
+      },
+      where: {
+        idx,
+        deletedAt: null,
+      },
+    });
+
+    if (!user) {
+      throw new UserNotFoundException('Cannot find user');
+    }
+
+    if (!user.blockedAt) {
+      throw new AlreadyNotBlockedUserException('Already not suspended user');
+    }
+
+    await this.prisma.user.update({
+      where: {
+        idx,
+      },
+      data: {
+        blockedAt: null,
       },
     });
 
