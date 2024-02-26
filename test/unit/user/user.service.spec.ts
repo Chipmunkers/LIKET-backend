@@ -150,7 +150,10 @@ describe('UserService', () => {
       idx: 1,
     });
 
-    // 2. update user
+    // 2. hash password
+    hashService.hashPw = jest.fn().mockReturnValue('hashedPassword');
+
+    // 3. update user
     prismaMock.user.update = jest.fn().mockResolvedValue({ idx: 1 });
 
     await expect(
@@ -159,6 +162,7 @@ describe('UserService', () => {
       }),
     ).resolves.toBeUndefined();
     expect(service.getUserByIdx).toHaveBeenCalledTimes(1);
+    expect(hashService.hashPw).toHaveBeenCalledTimes(1);
     expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
   });
 
@@ -189,19 +193,28 @@ describe('UserService', () => {
 
   it('blockUser success', async () => {
     // 1. find user for checking already blocked user
-    prismaMock.user.findFirst = jest.fn().mockResolvedValue({
+    prismaMock.user.findUnique = jest.fn().mockResolvedValue({
       blockedAt: null,
     });
 
-    // 2. block user
+    // 2. update user to block
     prismaMock.user.update = jest.fn().mockResolvedValue({});
 
     await expect(service.blockUser(1)).resolves.toBeUndefined();
+    expect(prismaMock.user.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('blockUser fail - user not found', async () => {
+    // user not found
+    prismaMock.user.findUnique = jest.fn().mockResolvedValue(null);
+
+    await expect(service.blockUser(1)).rejects.toThrow(UserNotFoundException);
   });
 
   it('blockUser fail - already blocked user', async () => {
     // 1. find user for checking already blocked user
-    prismaMock.user.findFirst = jest.fn().mockResolvedValue({
+    prismaMock.user.findUnique = jest.fn().mockResolvedValue({
       blockedAt: new Date(),
     });
 
