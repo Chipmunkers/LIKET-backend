@@ -7,6 +7,7 @@ import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { SendEmailVerificationCodeDto } from './dto/SendEmailVerificationCodeDto';
 import { CheckEmailVerificationCodeDto } from './dto/CheckEmailVerificationCodeDto';
 import { CheckEmailVerificationCodeResponseDto } from './dto/response/CheckEmailVerificationCodeResponseDto';
+import { ApiResponse } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -55,7 +56,7 @@ export class AuthController {
    * @tag Auth
    */
   @Post('/email/code/check')
-  @HttpCode(209)
+  @HttpCode(200)
   @TypedException<ExceptionDto>(400, 'Wrong verification code')
   @TypedException<ExceptionDto>(404, 'Verification code not found')
   @TypedException<ExceptionDto>(500, 'Server Error')
