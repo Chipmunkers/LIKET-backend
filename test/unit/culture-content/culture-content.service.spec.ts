@@ -23,6 +23,9 @@ describe('CultureContentService', () => {
           useValue: {
             cultureContent: {},
             contentLike: {},
+            review: {
+              aggregate: {},
+            },
           },
         },
       ],
@@ -36,17 +39,34 @@ describe('CultureContentService', () => {
     // 1. get culture content with prisma
     prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
       idx: 1,
+      ContentImg: [],
+      Genre: {},
+      Age: {},
+      Style: [],
+      ContentLike: [],
+      Location: {},
+      _count: 0,
+    });
+
+    // 2. get content review start sum
+    prismaMock.review.aggregate = jest.fn().mockResolvedValue({
+      _sum: {
+        starRating: 10,
+      },
     });
 
     await expect(service.getContentByIdx(1, 1)).resolves.toBeInstanceOf(
       ContentEntity<'detail', 'user'>,
     );
     expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.review.aggregate).toHaveBeenCalledTimes(1);
   });
 
   it('getContentByIdx fail - not found content', async () => {
     // fail to find culture content
     prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
+
+    prismaMock.review.aggregate = jest.fn().mockResolvedValue(null);
 
     await expect(service.getContentByIdx(1, 1)).rejects.toThrow(
       ContentNotFoundException,
