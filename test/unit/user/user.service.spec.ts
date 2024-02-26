@@ -2,8 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../../../src/api/user/user.service';
 import { PrismaService } from '../../../src/common/prisma/prisma.service';
 import { AuthService } from '../../../src/api/auth/auth.service';
-import { JwtService } from '@nestjs/jwt';
-import { InvalidEmailAuthTokenException } from '../../../src/api/auth/exception/InvalidEmailAuthTokenException';
 import { DuplicateUserException } from '../../../src/api/user/exception/DuplicateUserException';
 import { HashService } from '../../../src/common/service/hash.service';
 import { AlreadyBlockedUserException } from '../../../src/api/user/exception/AlreadyBlockedUserException';
