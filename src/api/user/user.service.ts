@@ -122,7 +122,21 @@ export class UserService {
     return MyInfoEntity.createMyInfoEntity(user);
   };
 
-  public getUserByIdx: (userIdx: number) => Promise<UserEntity<'my', 'admin'>>;
+  public getUserByIdx: (userIdx: number) => Promise<UserEntity<'my', 'admin'>> =
+    async (userIdx) => {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          idx: userIdx,
+          deletedAt: null,
+        },
+      });
+
+      if (!user) {
+        throw new UserNotFoundException('Cannot find user');
+      }
+
+      return UserEntity.createUserEntityForAdmin(user);
+    };
 
   public getUserAll: (
     pagenation: UserListPagenationDto,
