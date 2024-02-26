@@ -10,6 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import { DuplicateUserException } from './exception/DuplicateUserException';
 import { HashService } from '../../common/service/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
+import { AlreadyBlockedUserException } from './exception/AlreadyBlockedUserException';
 
 @Injectable()
 export class UserService {
@@ -140,7 +141,57 @@ export class UserService {
 
   public getUserAll: (
     pagenation: UserListPagenationDto,
-  ) => Promise<{ user: UserEntity<'my', 'admin'>[]; count: number }>;
+  ) => Promise<{ userList: UserEntity<'my', 'admin'>[]; count: number }> =
+    async (pagerble) => {
+      const [userList, userCount] = await this.prisma.$transaction([
+        this.prisma.user.findMany({
+          where: {
+            deletedAt: null,
+            nickname: pagerble.search
+              ? {
+                  contains: pagerble.search,
+                }
+              : undefined,
+            blockedAt: pagerble.filter
+              ? pagerble.filter === 'block'
+                ? {
+                    not: null,
+                  }
+                : null
+              : undefined,
+          },
+          skip: (pagerble.page - 1) * 10,
+          take: 10,
+          orderBy: {
+            idx: pagerble.order,
+          },
+        }),
+        this.prisma.user.count({
+          where: {
+            deletedAt: null,
+            nickname: pagerble.search
+              ? {
+                  contains: pagerble.search,
+                }
+              : undefined,
+            blockedAt: pagerble.filter
+              ? pagerble.filter === 'block'
+                ? {
+                    not: null,
+                  }
+                : null
+              : undefined,
+          },
+        }),
+      ]);
+
+      return {
+        userList: userList.map((user) =>
+          UserEntity.createUserEntityForAdmin(user),
+        ),
+        count: userCount,
+      };
+    };
 
   public updateProfile: (
     idx: number,
@@ -172,7 +223,50 @@ export class UserService {
     });
   };
 
-  public updatePw: (idx: number, updateDto: UpdatePwDto) => Promise<void>;
+  public updatePw: (idx: number, updateDto: UpdatePwDto) => Promise<void> =
+    async (idx, updateDto) => {
+      await this.getUserByIdx(idx);
 
-  public blockUser: (idx: number) => Promise<void>;
+      await this.prisma.user.update({
+        where: {
+          idx,
+        },
+        data: {
+          pw: this.hashService.hashPw(updateDto.pw),
+        },
+      });
+
+      return;
+    };
+
+  public blockUser: (idx: number) => Promise<void> = async (idx) => {
+    const user = await this.prisma.user.findUnique({
+      select: {
+        blockedAt: true,
+      },
+      where: {
+        idx,
+        deletedAt: null,
+      },
+    });
+
+    if (!user) {
+      throw new UserNotFoundException('Cannot find user');
+    }
+
+    if (user.blockedAt) {
+      throw new AlreadyBlockedUserException('Already suspended user');
+    }
+
+    await this.prisma.user.update({
+      where: {
+        idx,
+      },
+      data: {
+        blockedAt: new Date(),
+      },
+    });
+
+    return;
+  };
 }
