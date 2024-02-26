@@ -9,6 +9,7 @@ import { HashService } from '../../../src/common/service/hash.service';
 import { AlreadyBlockedUserException } from '../../../src/api/user/exception/AlreadyBlockedUserException';
 import { UserNotFoundException } from '../../../src/api/user/exception/UserNotFoundException';
 import { UpdateProfileDto } from '../../../src/api/user/dto/UpdateProfileDto';
+import { UserEntity } from '../../../src/api/user/entity/UserEntity';
 
 describe('UserService', () => {
   let service: UserService;
@@ -126,14 +127,17 @@ describe('UserService', () => {
       idx: 1,
       // ...Something
     };
-    prismaMock.user.findFirst = jest.fn().mockResolvedValue(findUser);
+    prismaMock.user.findUnique = jest.fn().mockResolvedValue(findUser);
 
-    await expect(service.getUserByIdx(1)).resolves.toStrictEqual(findUser);
+    await expect(service.getUserByIdx(1)).resolves.toBeInstanceOf(
+      UserEntity<'my', 'admin'>,
+    );
+    expect(prismaMock.user.findUnique).toHaveBeenCalledTimes(1);
   });
 
   it('getUserByIdx fail - cannot find user', async () => {
     // cannot find user
-    prismaMock.user.findFirst = jest.fn().mockResolvedValue(null);
+    prismaMock.user.findUnique = jest.fn().mockResolvedValue(null);
 
     await expect(service.getUserByIdx(1)).rejects.toThrow(
       UserNotFoundException,
