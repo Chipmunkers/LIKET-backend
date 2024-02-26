@@ -129,8 +129,41 @@ export class UserController {
   @TypedException<ExceptionDto>(500, 'Server Error')
   @UseGuards(LoginAuthGuard)
   public async getUserByIdx(
+    @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) userIdx: number,
   ): Promise<UserEntity<'my', 'admin'>> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
     return await this.userService.getUserByIdx(userIdx);
+  }
+
+  /**
+   * Suspend user by idx API for admin
+   * @summary Suspend user by idx API for admin
+   *
+   * @tag User
+   */
+  @Post('/:idx/block')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(404, 'Cannot find user')
+  @TypedException<ExceptionDto>(409, 'Already suspended user')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async blockUser(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) userIdx: number,
+  ): Promise<void> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.userService.blockUser(userIdx);
+
+    return;
   }
 }
