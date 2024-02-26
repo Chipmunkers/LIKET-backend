@@ -5,6 +5,7 @@ import { ContentRequestListPagenationDto } from './dto/ContentRequestListPagenat
 import { UpdateContentDto } from './dto/UpdateContentDto';
 import { ContentListPagenationDto } from './dto/ContentListPagenationDto';
 import { ContentEntity } from './entity/ContentEntity';
+import { ContentNotFoundException } from './exception/ContentNotFound';
 
 @Injectable()
 export class CultureContentService {
@@ -18,7 +19,64 @@ export class CultureContentService {
   public getContentByIdx: (
     idx: number,
     userIdx: number,
-  ) => Promise<ContentEntity<'detail', 'user'>>;
+  ) => Promise<ContentEntity<'detail', 'user'>> = async (idx, userIdx) => {
+    const content = await this.prisma.cultureContent.findUnique({
+      include: {
+        User: true,
+        ContentImg: true,
+        Genre: true,
+        Style: {
+          include: {
+            Style: true,
+          },
+        },
+        Age: true,
+        Location: true,
+        ContentLike: {
+          where: {
+            userIdx,
+          },
+        },
+        _count: {
+          select: {
+            Review: {
+              where: {
+                deletedAt: null,
+                User: {
+                  deletedAt: null,
+                },
+              },
+            },
+          },
+        },
+      },
+      where: {
+        idx,
+        deletedAt: null,
+      },
+    });
+
+    const reviewStar = await this.prisma.review.aggregate({
+      _sum: {
+        starRating: true,
+      },
+      where: {
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+      },
+    });
+
+    if (!content || !reviewStar._sum.starRating) {
+      throw new ContentNotFoundException('Cannot find content');
+    }
+
+    return ContentEntity.createUserDetailContent(
+      content,
+      reviewStar._sum.starRating,
+    );
+  };
 
   /**
    * 컨텐츠 요청 목록 보기
