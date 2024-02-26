@@ -185,5 +185,13 @@ export class UserController {
   public async cancelToBlockUser(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) userIdx: number,
-  ): Promise<void> {}
+  ): Promise<void> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.userService.cancelToBlock(userIdx);
+
+    return;
+  }
 }
