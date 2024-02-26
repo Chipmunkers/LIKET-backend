@@ -8,6 +8,7 @@ import { AlreadyBlockedUserException } from '../../../src/api/user/exception/Alr
 import { UserNotFoundException } from '../../../src/api/user/exception/UserNotFoundException';
 import { UpdateProfileDto } from '../../../src/api/user/dto/UpdateProfileDto';
 import { UserEntity } from '../../../src/api/user/entity/UserEntity';
+import { AlreadyNotBlockedUserException } from '../../../src/api/user/exception/AlreadyNotBlockedUserException';
 
 describe('UserService', () => {
   let service: UserService;
@@ -218,6 +219,42 @@ describe('UserService', () => {
 
     await expect(service.blockUser(1)).rejects.toThrow(
       AlreadyBlockedUserException,
+    );
+  });
+
+  it('cancelToBlock success', async () => {
+    // 1. get user with prisma
+    prismaMock.user.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      blockedAt: new Date(),
+    });
+
+    // 2. cancel to block
+    prismaMock.user.update = jest.fn().mockResolvedValue({});
+
+    await expect(service.cancelToBlock(1)).resolves.toBeUndefined();
+    expect(prismaMock.user.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancelToBlock fail - user not found', async () => {
+    // cannot find user
+    prismaMock.user.findUnique = jest.fn().mockResolvedValue(null);
+
+    await expect(service.cancelToBlock(1)).rejects.toThrow(
+      UserNotFoundException,
+    );
+  });
+
+  it('cancelToBlock fail - user not found', async () => {
+    // cannot find user
+    prismaMock.user.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      blockedAt: null,
+    });
+
+    await expect(service.cancelToBlock(1)).rejects.toThrow(
+      AlreadyNotBlockedUserException,
     );
   });
 });
