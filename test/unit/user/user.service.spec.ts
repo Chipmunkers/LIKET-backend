@@ -145,33 +145,21 @@ describe('UserService', () => {
   });
 
   it('updatePw success', async () => {
-    // 1. check email auth token
-    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(true);
+    // 1. find user
+    service.getUserByIdx = jest.fn().mockResolvedValue({
+      idx: 1,
+    });
 
-    // 2. hash password
-    hashService.hashPw = jest.fn().mockReturnValue('hashedPassword');
-
-    // 3. update user data
+    // 2. update user
     prismaMock.user.update = jest.fn().mockResolvedValue({ idx: 1 });
 
     await expect(
       service.updatePw(1, {
         pw: 'abc123123',
-        emailToken: 'this.is.token',
       }),
     ).resolves.toBeUndefined();
-  });
-
-  it('updatePw fail - invalid check email auth token', async () => {
-    // fail to verify email auth token
-    authServiceMock.verifyEmailAuthToken = jest.fn().mockReturnValue(false);
-
-    await expect(
-      service.updatePw(1, {
-        pw: 'abc123123',
-        emailToken: 'this.is.token',
-      }),
-    ).rejects.toThrow(InvalidEmailAuthTokenException);
+    expect(service.getUserByIdx).toHaveBeenCalledTimes(1);
+    expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
   });
 
   it('updateProfile success', async () => {
