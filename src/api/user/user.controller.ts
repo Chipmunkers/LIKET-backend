@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpCode,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -17,6 +19,8 @@ import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { UpdateProfileDto } from './dto/UpdateProfileDto';
+import { UserListPagenationDto } from './dto/UserListPaginationDto';
+import { GetUserAllForAdminDto } from './dto/response/GetUserAllForAdminDto';
 
 @Controller('user')
 export class UserController {
@@ -82,5 +86,30 @@ export class UserController {
     await this.userService.updateProfile(loginUser.idx, updateDto);
 
     return;
+  }
+
+  /**
+   * Get user all for admin
+   * @summary Get user all API for admin
+   *
+   * @tag User
+   * @param {UserListPagenationDto}
+   */
+  @Get('/all')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid querystring')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getUserAllForAdmin(
+    @User() loginUser: LoginUserDto,
+    @Query() pagenation: UserListPagenationDto,
+  ): Promise<GetUserAllForAdminDto> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    return await this.userService.getUserAll(pagenation);
   }
 }

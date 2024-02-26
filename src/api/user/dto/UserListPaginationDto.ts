@@ -1,9 +1,8 @@
-import { IsIn, IsInt, IsOptional, IsString, Length } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
+import { IsIn, IsOptional, IsString, Length } from 'class-validator';
+import { PagenationDto } from '../../../common/dto/PagenationDto';
 
-export class UserListPagenationDto {
-  @IsInt()
-  page: number = 1;
-
+export class UserListPagenationDto extends PickType(PagenationDto, ['page']) {
   @IsString()
   @Length(1, 10)
   @IsOptional()
@@ -16,6 +15,5 @@ export class UserListPagenationDto {
 
   @IsString()
   @IsIn(['desc', 'asc'])
-  @IsOptional()
   order: 'desc' | 'asc' = 'desc';
 }

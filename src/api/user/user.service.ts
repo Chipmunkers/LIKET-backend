@@ -140,9 +140,10 @@ export class UserService {
     };
 
   public getUserAll: (
-    pagenation: UserListPagenationDto,
+    pagerble: UserListPagenationDto,
   ) => Promise<{ userList: UserEntity<'my', 'admin'>[]; count: number }> =
     async (pagerble) => {
+      console.log(pagerble);
       const [userList, userCount] = await this.prisma.$transaction([
         this.prisma.user.findMany({
           where: {
@@ -160,8 +161,8 @@ export class UserService {
                 : null
               : undefined,
           },
-          skip: (pagerble.page - 1) * 10,
           take: 10,
+          skip: (pagerble.page - 1) * 10,
           orderBy: {
             idx: pagerble.order,
           },
