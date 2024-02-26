@@ -93,7 +93,6 @@ export class UserController {
    * @summary Get user all API for admin
    *
    * @tag User
-   * @param {UserListPagenationDto}
    */
   @Get('/all')
   @HttpCode(200)
