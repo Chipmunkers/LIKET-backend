@@ -4,6 +4,8 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -21,6 +23,7 @@ import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { UpdateProfileDto } from './dto/UpdateProfileDto';
 import { UserListPagenationDto } from './dto/UserListPaginationDto';
 import { GetUserAllForAdminDto } from './dto/response/GetUserAllForAdminDto';
+import { UserEntity } from './entity/UserEntity';
 
 @Controller('user')
 export class UserController {
@@ -110,5 +113,24 @@ export class UserController {
     }
 
     return await this.userService.getUserAll(pagenation);
+  }
+
+  /**
+   * Get user by idx for admin API
+   * @summary Get user by idx API for admin
+   *
+   * @tag User
+   */
+  @Get('/:idx')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getUserByIdx(
+    @Param('idx', ParseIntPipe) userIdx: number,
+  ): Promise<UserEntity<'my', 'admin'>> {
+    return await this.userService.getUserByIdx(userIdx);
   }
 }
