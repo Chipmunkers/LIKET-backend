@@ -29,7 +29,14 @@ export class CultureContentService {
     const content = await this.prisma.cultureContent.findUnique({
       include: {
         User: true,
-        ContentImg: true,
+        ContentImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
         Genre: true,
         Style: {
           include: {
@@ -97,7 +104,14 @@ export class CultureContentService {
     const contentList = await this.prisma.cultureContent.findMany({
       include: {
         User: true,
-        ContentImg: true,
+        ContentImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
         Genre: true,
         Style: {
           include: {
@@ -186,7 +200,14 @@ export class CultureContentService {
     const content = await this.prisma.cultureContent.findUnique({
       include: {
         User: true,
-        ContentImg: true,
+        ContentImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
         Genre: true,
         Style: {
           include: {
@@ -286,7 +307,14 @@ export class CultureContentService {
       this.prisma.cultureContent.findMany({
         include: {
           User: true,
-          ContentImg: true,
+          ContentImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
           Genre: true,
           Style: {
             include: {
