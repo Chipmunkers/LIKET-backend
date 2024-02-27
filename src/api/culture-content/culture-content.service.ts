@@ -10,6 +10,8 @@ import { UpdateContentDto } from './dto/UpdateContentDto';
 import { ContentListPagenationDto } from './dto/ContentListPagenationDto';
 import { ContentEntity } from './entity/ContentEntity';
 import { ContentNotFoundException } from './exception/ContentNotFound';
+import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
+import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeContentException';
 
 @Injectable()
 export class CultureContentService {
@@ -616,7 +618,30 @@ export class CultureContentService {
   /**
    * 컨텐츠 좋아요 누르기
    */
-  public likeContent: (userIdx: number, contentIdx: number) => Promise<void>;
+  public likeContent: (userIdx: number, contentIdx: number) => Promise<void> =
+    async (userIdx, contentIdx) => {
+      const likeState = await this.prisma.contentLike.findUnique({
+        where: {
+          contentIdx_userIdx: {
+            userIdx,
+            contentIdx,
+          },
+        },
+      });
+
+      if (likeState) {
+        throw new AlreadyLikeContentException('Already liked culture content');
+      }
+
+      await this.prisma.contentLike.create({
+        data: {
+          contentIdx,
+          userIdx,
+        },
+      });
+
+      return;
+    };
 
   /**
    * 컨텐츠 좋아요 취소하기
@@ -624,5 +649,31 @@ export class CultureContentService {
   public cancelToLikeContent: (
     userIdx: number,
     contentIdx: number,
-  ) => Promise<void>;
+  ) => Promise<void> = async (userIdx, contentIdx) => {
+    const likeState = await this.prisma.contentLike.findUnique({
+      where: {
+        contentIdx_userIdx: {
+          userIdx,
+          contentIdx,
+        },
+      },
+    });
+
+    if (!likeState) {
+      throw new AlreadyNotLikeContentException(
+        'Already do not like culture content',
+      );
+    }
+
+    await this.prisma.contentLike.delete({
+      where: {
+        contentIdx_userIdx: {
+          userIdx,
+          contentIdx,
+        },
+      },
+    });
+
+    return;
+  };
 }
