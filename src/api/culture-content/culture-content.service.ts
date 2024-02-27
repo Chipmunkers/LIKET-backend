@@ -355,7 +355,65 @@ export class CultureContentService {
   public createContentRequest: (
     userIdx: number,
     createDto: CreateContentRequestDto,
-  ) => Promise<number>;
+  ) => Promise<number> = async (userIdx, createDto) => {
+    let idx: number = 0;
+
+    await this.prisma.$transaction(async (tx) => {
+      const createdLocation = await tx.location.create({
+        data: {
+          address: createDto.location.address,
+          detailAddress: createDto.location.detailAddress,
+          region1Depth: createDto.location.region1Depth,
+          region2Depth: createDto.location.region2Depth,
+          hCode: createDto.location.hCode,
+          bCode: createDto.location.bCode,
+          positionX: createDto.location.positionX,
+          positionY: createDto.location.positionY,
+        },
+      });
+
+      const requestedCultureContent = await tx.cultureContent.create({
+        data: {
+          genreIdx: createDto.genreIdx,
+          userIdx: userIdx,
+          locationIdx: createdLocation.idx,
+          ageIdx: createDto.ageIdx,
+          Style: {
+            createMany: {
+              data: createDto.styleIdxList.map((style) => ({
+                styleIdx: style,
+              })),
+            },
+          },
+          ContentImg: createDto.imgList?.length
+            ? {
+                createMany: {
+                  data: createDto.imgList.map((img) => ({
+                    imgPath: img.fileName,
+                  })),
+                },
+              }
+            : undefined,
+          title: createDto.title,
+          description: createDto.description,
+          websiteLink: createDto.websiteLink,
+          startDate: new Date(createDto.startDate),
+          endDate: new Date(createDto.endDate),
+          openTime: createDto.openTime,
+          isFee: createDto.isFee,
+          isReservation: createDto.isReservation,
+          isParking: createDto.isParking,
+          isPet: createDto.isPet,
+        },
+      });
+
+      idx = requestedCultureContent.idx;
+
+      return true;
+    });
+
+    return idx;
+  };
 
   /**
    * 컨텐츠 요청 수정하기
