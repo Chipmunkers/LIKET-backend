@@ -6,6 +6,7 @@ import { ReviewListByContentPagerbleDto } from './dto/ReviewListByContentPagerbl
 import { UpdateReviewDto } from './dto/UpdateReviewDto';
 import { CreateReviewDto } from './dto/CreateReviewDto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
+import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 
 @Injectable()
 export class ReviewService {
@@ -175,7 +176,41 @@ export class ReviewService {
     contentIdx: number,
     userIdx: number,
     createDto: CreateReviewDto,
-  ) => Promise<number>;
+  ) => Promise<void> = async (contentIdx, userIdx, createDto) => {
+    const content = await this.prisma.cultureContent.findUnique({
+      where: {
+        idx: contentIdx,
+        deletedAt: null,
+        acceptedAt: null,
+        User: {
+          deletedAt: null,
+          blockedAt: null,
+        },
+      },
+    });
+
+    if (!content) {
+      throw new ContentNotFoundException('Cannot find content');
+    }
+
+    await this.prisma.review.create({
+      data: {
+        userIdx: userIdx,
+        starRating: createDto.starRating,
+        description: createDto.description,
+        ReviewImg: {
+          createMany: {
+            data: createDto.imgList.map((img) => ({
+              imgPath: img.fileName,
+            })),
+          },
+        },
+        visitTime: createDto.visitTime,
+      },
+    });
+
+    return;
+  };
 
   /**
    * 리뷰 수정하기

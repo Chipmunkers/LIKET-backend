@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ReviewService } from '../../../src/api/reveiw/review.service';
+import { ReviewService } from '../../../src/api/review/review.service';
 import { PrismaService } from '../../../src/common/prisma/prisma.service';
-import { ReviewNotFoundException } from '../../../src/api/reveiw/exception/ReviewNotFoundException';
-import { CreateReviewDto } from '../../../src/api/reveiw/dto/CreateReviewDto';
+import { ReviewNotFoundException } from '../../../src/api/review/exception/ReviewNotFoundException';
+import { CreateReviewDto } from '../../../src/api/review/dto/CreateReviewDto';
 import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';
-import { ReviewEntity } from '../../../src/api/reveiw/entity/ReviewEntity';
-import { AlreadyLikeReviewException } from '../../../src/api/reveiw/exception/AlreadyLikeReviewException';
-import { AlreadyNotLikeReviewExcpetion } from '../../../src/api/reveiw/exception/AlreadyNotLikeReviewException';
+import { ReviewEntity } from '../../../src/api/review/entity/ReviewEntity';
+import { AlreadyLikeReviewException } from '../../../src/api/review/exception/AlreadyLikeReviewException';
+import { AlreadyNotLikeReviewExcpetion } from '../../../src/api/review/exception/AlreadyNotLikeReviewException';
 
 describe('ReviewService', () => {
   let service: ReviewService;
@@ -59,10 +59,14 @@ describe('ReviewService', () => {
       acceptedAt: new Date(),
     });
 
-    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
+    // 2. create review
+    prismaMock.review.create = jest.fn().mockResolvedValue({});
+
     await expect(
       service.createReview(1, 1, {} as CreateReviewDto),
     ).resolves.toBeUndefined();
+    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.review.create).toHaveBeenCalledTimes(1);
   });
 
   it('createReview fail - not found cultureContent', async () => {

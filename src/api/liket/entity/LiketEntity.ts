@@ -1,5 +1,5 @@
 import { PickType } from '@nestjs/swagger';
-import { ReviewEntity } from '../../reveiw/entity/ReviewEntity';
+import { ReviewEntity } from '../../review/entity/ReviewEntity';
 import { ValidateNested } from 'class-validator';
 import { ContentEntity } from '../../culture-content/entity/ContentEntity';
 import { UserProfileEntity } from '../../user/entity/UserProfileEntity';

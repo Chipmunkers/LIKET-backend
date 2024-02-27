@@ -5,7 +5,7 @@ import { BannerModule } from './api/banner/banner.module';
 import { CultureContentModule } from './api/culture-content/culture-content.module';
 import { InquiryModule } from './api/inquiry/inquiry.module';
 import { LiketModule } from './api/liket/liket.module';
-import { ReveiwModule } from './api/reveiw/reveiw.module';
+import { ReveiwModule } from './api/review/reveiw.module';
 import { RouteModule } from './api/route/route.module';
 import { TosModule } from './api/tos/tos.module';
 import { UploadModule } from './api/upload/upload.module';
