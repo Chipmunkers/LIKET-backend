@@ -79,12 +79,92 @@ export class CultureContentService {
   };
 
   /**
-   * 컨텐츠 요청 목록 보기
+   * 컨텐츠 목록 보기
    */
   public getContentAll: (
     pagenation: ContentListPagenationDto,
     userIdx: number,
-  ) => Promise<ContentEntity<'summary', 'user'>[]>;
+  ) => Promise<ContentEntity<'summary', 'user'>[]> = async (
+    pagenation,
+    userIdx,
+  ) => {
+    const contentList = await this.prisma.cultureContent.findMany({
+      include: {
+        User: true,
+        ContentImg: true,
+        Genre: true,
+        Style: {
+          include: {
+            Style: true,
+          },
+          where: {
+            Style: {
+              deletedAt: null,
+            },
+          },
+        },
+        Age: true,
+        Location: true,
+        ContentLike: {
+          where: {
+            userIdx,
+          },
+        },
+        _count: {
+          select: {
+            Review: {
+              where: {
+                deletedAt: null,
+                User: {
+                  deletedAt: null,
+                },
+              },
+            },
+          },
+        },
+      },
+      where: {
+        genreIdx: pagenation.genre || undefined,
+        ageIdx: pagenation.age || undefined,
+        Style: pagenation.style
+          ? {
+              some: {
+                Style: {
+                  deletedAt: null,
+                },
+              },
+            }
+          : undefined,
+        Location: pagenation.region
+          ? {
+              hCode: pagenation.region,
+            }
+          : undefined,
+        startDate: pagenation.open
+          ? {
+              lte: new Date(),
+            }
+          : undefined,
+        endDate: pagenation.open
+          ? {
+              gte: new Date(),
+            }
+          : undefined,
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+          blockedAt: null,
+        },
+      },
+      orderBy: {
+        [pagenation.orderby === 'time' ? 'idx' : 'likeCount']: pagenation.order,
+      },
+    });
+
+    return contentList.map((content) =>
+      ContentEntity.createUserSummaryContent(content),
+    );
+  };
 
   // Content Request ==========================================
 
