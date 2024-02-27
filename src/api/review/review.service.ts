@@ -272,17 +272,40 @@ export class ReviewService {
     const [reviewList, count] = await this.prisma.$transaction([
       this.prisma.review.findMany({
         include: {
-          ReviewImg: true,
-          ReviewLike: true,
+          ReviewImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
+          ReviewLike: {
+            where: {
+              userIdx: 0,
+            },
+          },
           User: true,
           CultureContent: {
             include: {
               User: true,
-              ContentImg: true,
+              ContentImg: {
+                where: {
+                  deletedAt: null,
+                },
+                orderBy: {
+                  idx: 'asc',
+                },
+              },
               Genre: true,
               Style: {
                 include: {
                   Style: true,
+                },
+                where: {
+                  Style: {
+                    deletedAt: null,
+                  },
                 },
               },
               Age: true,
