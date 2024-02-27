@@ -99,14 +99,14 @@ describe('CultureContentService', () => {
       acceptedAt: null,
     });
 
-    // 2. update culture content
-    prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
+    // 2. update culture content with transaction
+    prismaMock.$transaction = jest.fn().mockResolvedValue({});
 
     await expect(
       service.updateContentRequest(1, {} as UpdateContentDto),
     ).resolves.toBeUndefined();
     expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
-    expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
   });
 
   it('updateContentRequest fail - accpeted content', async () => {

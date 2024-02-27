@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateContentRequestDto } from './dto/CreateContentRequestDto';
 import { ContentRequestListPagenationDto } from './dto/ContentRequestListPagenationDto';
@@ -421,12 +421,116 @@ export class CultureContentService {
   public updateContentRequest: (
     idx: number,
     updateDto: UpdateContentDto,
-  ) => Promise<void>;
+  ) => Promise<void> = async (idx, updateDto) => {
+    const content = await this.prisma.cultureContent.findUnique({
+      select: {
+        idx: true,
+        acceptedAt: true,
+        locationIdx: true,
+      },
+      where: {
+        idx,
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+      },
+    });
+
+    if (!content) {
+      throw new ContentNotFoundException('Cannot find culture content');
+    }
+
+    if (!content.acceptedAt) {
+      throw new ForbiddenException('Cannot update accepted culture-content');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.location.update({
+        where: {
+          idx: content.locationIdx,
+        },
+        data: {
+          ...updateDto.location,
+        },
+      }),
+      this.prisma.cultureContent.update({
+        where: {
+          idx,
+        },
+        data: {
+          title: updateDto.title,
+          description: updateDto.description,
+          websiteLink: updateDto.websiteLink,
+          ContentImg: {
+            deleteMany: {},
+            createMany: updateDto.imgList
+              ? {
+                  data: updateDto.imgList.map((img) => ({
+                    imgPath: img.fileName,
+                  })),
+                }
+              : undefined,
+          },
+          genreIdx: updateDto.genreIdx,
+          Style: {
+            deleteMany: {},
+            createMany: {
+              data: updateDto.styleIdxList.map((styleIdx) => ({ styleIdx })),
+            },
+          },
+          startDate: new Date(updateDto.startDate),
+          endDate: new Date(updateDto.endDate),
+          openTime: updateDto.openTime,
+          isFee: updateDto.isFee,
+          isParking: updateDto.isParking,
+          isReservation: updateDto.isReservation,
+          isPet: updateDto.isPet,
+        },
+      }),
+    ]);
+
+    return;
+  };
 
   /**
    * 컨텐츠 요청 삭제하기
    */
-  public deleteContentRequest: (idx: number) => Promise<void>;
+  public deleteContentRequest: (idx: number) => Promise<void> = async (idx) => {
+    const content = await this.prisma.cultureContent.findUnique({
+      select: {
+        idx: true,
+        acceptedAt: true,
+        locationIdx: true,
+      },
+      where: {
+        idx,
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+      },
+    });
+
+    if (!content) {
+      throw new ContentNotFoundException('Cannot find culture content');
+    }
+
+    if (!content.acceptedAt) {
+      throw new ForbiddenException('Cannot update accepted culture-content');
+    }
+
+    await this.prisma.cultureContent.update({
+      where: {
+        idx,
+      },
+      data: {
+        acceptedAt: new Date(),
+      },
+    });
+
+    return;
+  };
 
   /**
    * 요청 수락하기
