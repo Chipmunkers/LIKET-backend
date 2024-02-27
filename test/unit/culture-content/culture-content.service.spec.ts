@@ -7,6 +7,7 @@ import { ConflictException, ForbiddenException } from '@nestjs/common';
 import { AlreadyLikeContentException } from '../../../src/api/culture-content/exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from '../../../src/api/culture-content/exception/AlreadyNotLikeContentException';
 import { ContentEntity } from '../../../src/api/culture-content/entity/ContentEntity';
+import { CreateLocationDto } from '../../../src/common/dto/CreateLocationDto';
 
 describe('CultureContentService', () => {
   let service: CultureContentService;
@@ -24,6 +25,7 @@ describe('CultureContentService', () => {
             review: {
               aggregate: {},
             },
+            location: {},
           },
         },
       ],
@@ -75,6 +77,21 @@ describe('CultureContentService', () => {
     // 1. get culture content request with prisma
     prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
       idx: 1,
+      ContentImg: [],
+      Genre: {},
+      Age: {},
+      Style: [],
+      ContentLike: [],
+      Location: {},
+      User: {},
+      _count: 0,
+    });
+
+    // 2. get review starRating
+    prismaMock.review.aggregate = jest.fn().mockResolvedValue({
+      _sum: {
+        starRating: 10,
+      },
     });
 
     await expect(service.getContentRequestByIdx(1)).resolves.toBeInstanceOf(
@@ -86,6 +103,7 @@ describe('CultureContentService', () => {
   it('getContentRequestByIdx fail - not found content request', async () => {
     // fail to find
     prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
+    prismaMock.review.aggregate = jest.fn().mockResolvedValue(null);
 
     await expect(service.getContentRequestByIdx(1)).rejects.toThrow(
       ContentNotFoundException,
@@ -100,10 +118,30 @@ describe('CultureContentService', () => {
     });
 
     // 2. update culture content with transaction
-    prismaMock.$transaction = jest.fn().mockResolvedValue({});
+    prismaMock.$transaction = jest.fn().mockImplementation(async (list) => {
+      list.map(async (task) => await task);
+    });
+    prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
+    prismaMock.location.update = jest.fn().mockResolvedValue({});
 
     await expect(
-      service.updateContentRequest(1, {} as UpdateContentDto),
+      service.updateContentRequest(1, {
+        title: '',
+        description: '',
+        websiteLink: '',
+        startDate: '',
+        endDate: '',
+        openTime: '',
+        location: {} as CreateLocationDto,
+        genreIdx: 1,
+        styleIdxList: [],
+        ageIdx: 1,
+        isFee: true,
+        isParking: true,
+        isReservation: true,
+        isPet: true,
+        imgList: [],
+      }),
     ).resolves.toBeUndefined();
     expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
@@ -174,11 +212,11 @@ describe('CultureContentService', () => {
     });
 
     // 2. update content to accept
-    prismaMock.cultureContent.create = jest.fn().mockResolvedValue({});
+    prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
 
     await expect(service.acceptContentRequest(1)).resolves.toBeUndefined();
     expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
-    expect(prismaMock.cultureContent.create).toHaveBeenCalledTimes(1);
+    expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
   });
 
   it('acceptContentRequest fail - accepted content', async () => {
@@ -225,7 +263,7 @@ describe('CultureContentService', () => {
     });
 
     await expect(service.deactivateContent(1)).rejects.toThrow(
-      ForbiddenException,
+      ConflictException,
     );
   });
 
