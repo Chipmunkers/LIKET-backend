@@ -38,7 +38,7 @@ describe('ReviewService', () => {
     });
 
     expect(prismaMock.review.findUnique).toHaveBeenCalledTimes(1);
-    await expect(service.getReviewByIdx(1)).resolves.toBeInstanceOf(
+    await expect(service.getReviewByIdx(1, 1)).resolves.toBeInstanceOf(
       ReviewEntity<'detail', 'user'>,
     );
   });
@@ -47,7 +47,7 @@ describe('ReviewService', () => {
     // review not found
     prismaMock.review.findUnique = jest.fn().mockResolvedValue(null);
 
-    await expect(service.getReviewByIdx(1)).rejects.toThrow(
+    await expect(service.getReviewByIdx(1, 1)).rejects.toThrow(
       ReviewNotFoundException,
     );
   });
