@@ -1,9 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CultureContentService } from '../../../src/api/culture-content/culture-content.service';
 import { PrismaService } from '../../../src/common/prisma/prisma.service';
-import { AuthService } from '../../../src/api/auth/auth.service';
 import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';
-import { CreateContentRequestDto } from '../../../src/api/culture-content/dto/CreateContentRequestDto';
 import { UpdateContentDto } from '../../../src/api/culture-content/dto/UpdateContentDto';
 import { ForbiddenException } from '@nestjs/common';
 import { AlreadyLikeContentException } from '../../../src/api/culture-content/exception/AlreadyLikeContentException';
