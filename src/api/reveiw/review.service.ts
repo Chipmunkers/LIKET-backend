@@ -14,10 +14,95 @@ export class ReviewService {
   /**
    * 컨텐츠별 리뷰 목록 보기
    */
-  public getReviewAll: (pagerble: ReviewListByContentPagerbleDto) => Promise<{
-    reviewList: ReviewEntity<'detail', 'user'>;
+  public getReviewAll: (
+    contentIdx: number,
+    userIdx: number,
+    pagerble: ReviewListByContentPagerbleDto,
+  ) => Promise<{
+    reviewList: ReviewEntity<'detail', 'user'>[];
     count: number;
-  }>;
+  }> = async (contentIdx, userIdx, pagerble) => {
+    const [count, reviewList] = await this.prisma.$transaction([
+      this.prisma.review.count({
+        where: {
+          cultureContentIdx: contentIdx,
+          deletedAt: null,
+          User: {
+            deletedAt: null,
+          },
+          CultureContent: {
+            deletedAt: null,
+            acceptedAt: {
+              not: null,
+            },
+            User: {
+              deletedAt: null,
+            },
+          },
+        },
+      }),
+      this.prisma.review.findMany({
+        include: {
+          ReviewImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
+          ReviewLike: {
+            where: {
+              userIdx,
+            },
+          },
+          User: true,
+          CultureContent: {
+            include: {
+              User: true,
+              ContentImg: true,
+              Genre: true,
+              Style: {
+                include: {
+                  Style: true,
+                },
+              },
+              Age: true,
+              Location: true,
+            },
+          },
+        },
+        where: {
+          cultureContentIdx: contentIdx,
+          deletedAt: null,
+          User: {
+            deletedAt: null,
+          },
+          CultureContent: {
+            deletedAt: null,
+            acceptedAt: {
+              not: null,
+            },
+            User: {
+              deletedAt: null,
+            },
+          },
+        },
+        orderBy: {
+          idx: pagerble.order,
+        },
+        take: 10,
+        skip: (pagerble.page - 1) * 10,
+      }),
+    ]);
+
+    return {
+      count,
+      reviewList: reviewList.map((review) =>
+        ReviewEntity.createDetailUserReviewEntity(review),
+      ),
+    };
+  };
 
   /**
    * 리뷰 자세히보기
