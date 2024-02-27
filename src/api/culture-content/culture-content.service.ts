@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateContentRequestDto } from './dto/CreateContentRequestDto';
 import { ContentRequestListPagenationDto } from './dto/ContentRequestListPagenationDto';
@@ -441,7 +445,7 @@ export class CultureContentService {
       throw new ContentNotFoundException('Cannot find culture content');
     }
 
-    if (!content.acceptedAt) {
+    if (content.acceptedAt) {
       throw new ForbiddenException('Cannot update accepted culture-content');
     }
 
@@ -473,6 +477,7 @@ export class CultureContentService {
               : undefined,
           },
           genreIdx: updateDto.genreIdx,
+          ageIdx: updateDto.ageIdx,
           Style: {
             deleteMany: {},
             createMany: {
@@ -516,7 +521,7 @@ export class CultureContentService {
       throw new ContentNotFoundException('Cannot find culture content');
     }
 
-    if (!content.acceptedAt) {
+    if (content.acceptedAt) {
       throw new ForbiddenException('Cannot update accepted culture-content');
     }
 
@@ -535,12 +540,78 @@ export class CultureContentService {
   /**
    * 요청 수락하기
    */
-  public acceptContentRequest: (idx: number) => Promise<void>;
+  public acceptContentRequest: (idx: number) => Promise<void> = async (idx) => {
+    const content = await this.prisma.cultureContent.findUnique({
+      select: {
+        idx: true,
+        acceptedAt: true,
+      },
+      where: {
+        idx,
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+      },
+    });
+
+    if (!content) {
+      throw new ContentNotFoundException('Cannot find culture content');
+    }
+
+    if (content.acceptedAt) {
+      throw new ConflictException('Already accepted culture content');
+    }
+
+    await this.prisma.cultureContent.update({
+      where: {
+        idx,
+      },
+      data: {
+        acceptedAt: new Date(),
+      },
+    });
+
+    return;
+  };
 
   /**
    * 비활성화 하기
    */
-  public deactivateContent: (idx: number) => Promise<void>;
+  public deactivateContent: (idx: number) => Promise<void> = async (idx) => {
+    const content = await this.prisma.cultureContent.findUnique({
+      select: {
+        idx: true,
+        acceptedAt: true,
+      },
+      where: {
+        idx,
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+      },
+    });
+
+    if (!content) {
+      throw new ContentNotFoundException('Cannot find culture content');
+    }
+
+    if (!content.acceptedAt) {
+      throw new ConflictException('Already deactivated culture content');
+    }
+
+    await this.prisma.cultureContent.update({
+      where: {
+        idx,
+      },
+      data: {
+        acceptedAt: null,
+      },
+    });
+
+    return;
+  };
 
   /**
    * 컨텐츠 좋아요 누르기
