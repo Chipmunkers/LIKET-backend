@@ -218,7 +218,47 @@ export class ReviewService {
   public updateReview: (
     idx: number,
     updateDto: UpdateReviewDto,
-  ) => Promise<void>;
+  ) => Promise<void> = async (idx, updateDto) => {
+    await this.prisma.review.update({
+      where: {
+        idx,
+      },
+      data: {
+        starRating: updateDto.starRating,
+        description: updateDto.description,
+        ReviewImg: {
+          updateMany: {
+            where: {},
+            data: {
+              deletedAt: new Date(),
+            },
+          },
+          createMany: {
+            data: updateDto.imgList.map((img) => ({
+              imgPath: img.fileName,
+            })),
+          },
+        },
+        visitTime: updateDto.visitTime,
+      },
+    });
+  };
+
+  /**
+   * 리뷰 삭제하기
+   */
+  public deleteReview: (idx: number) => Promise<void> = async (idx) => {
+    await this.prisma.review.update({
+      where: {
+        idx,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    return;
+  };
 
   // Admin =====================================================
 
