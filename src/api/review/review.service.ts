@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Search } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { ReviewEntity } from './entity/ReviewEntity';
 import { ReviewListPagerbleDto } from './dto/ReviewListPagerbleDto';
@@ -266,9 +266,83 @@ export class ReviewService {
    * 관리자용 리뷰 전체 가져오기
    */
   public getReviewAllForAdmin: (pagerble: ReviewListPagerbleDto) => Promise<{
-    reviewList: ReviewEntity<'summary', 'admin'>;
+    reviewList: ReviewEntity<'summary', 'admin'>[];
     count: number;
-  }>;
+  }> = async (pagerble) => {
+    const [reviewList, count] = await this.prisma.$transaction([
+      this.prisma.review.findMany({
+        include: {
+          ReviewImg: true,
+          ReviewLike: true,
+          User: true,
+          CultureContent: {
+            include: {
+              User: true,
+              ContentImg: true,
+              Genre: true,
+              Style: {
+                include: {
+                  Style: true,
+                },
+              },
+              Age: true,
+              Location: true,
+            },
+          },
+        },
+        where: {
+          idx:
+            pagerble.searchby === 'idx' ? Number(pagerble.search) : undefined,
+          CultureContent: {
+            title:
+              pagerble.searchby === 'contents' ? pagerble.search : undefined,
+            deletedAt: null,
+            User: {
+              deletedAt: null,
+            },
+          },
+          deletedAt: null,
+          User: {
+            nickname:
+              pagerble.searchby === 'nickname' ? pagerble.search : undefined,
+            deletedAt: null,
+          },
+        },
+        orderBy: {
+          idx: pagerble.order,
+        },
+        take: 10,
+        skip: (pagerble.page - 1) * 10,
+      }),
+      this.prisma.review.count({
+        where: {
+          idx:
+            pagerble.searchby === 'idx' ? Number(pagerble.search) : undefined,
+          CultureContent: {
+            title:
+              pagerble.searchby === 'contents' ? pagerble.search : undefined,
+            deletedAt: null,
+            User: {
+              deletedAt: null,
+            },
+          },
+          deletedAt: null,
+          User: {
+            nickname:
+              pagerble.searchby === 'nickname' ? pagerble.search : undefined,
+            deletedAt: null,
+          },
+        },
+      }),
+    ]);
+
+    return {
+      reviewList: reviewList.map((review) =>
+        ReviewEntity.createSummaryAdminReviewEntity(review),
+      ),
+      count,
+    };
+  };
 
   /**
    * 관리자용 리뷰 하나 가져오기
