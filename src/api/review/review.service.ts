@@ -349,7 +349,66 @@ export class ReviewService {
    */
   public getReviewByIdxForAdmin: (
     idx: number,
-  ) => Promise<ReviewEntity<'detail', 'admin'>>;
+  ) => Promise<ReviewEntity<'detail', 'admin'>> = async (idx) => {
+    const review = await this.prisma.review.findUnique({
+      include: {
+        ReviewImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
+        ReviewLike: {
+          where: {
+            userIdx: 0,
+          },
+        },
+        User: true,
+        CultureContent: {
+          include: {
+            User: true,
+            ContentImg: {
+              where: {
+                deletedAt: null,
+              },
+              orderBy: {
+                idx: 'asc',
+              },
+            },
+            Genre: true,
+            Style: {
+              include: {
+                Style: true,
+              },
+            },
+            Age: true,
+            Location: true,
+          },
+        },
+      },
+      where: {
+        idx,
+        CultureContent: {
+          deletedAt: null,
+          User: {
+            deletedAt: null,
+          },
+        },
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+      },
+    });
+
+    if (!review) {
+      throw new ReviewNotFoundException('Cannot find review');
+    }
+
+    return ReviewEntity.createDetailAdminReviewEntity(review);
+  };
 
   // Like ======================================================
 
