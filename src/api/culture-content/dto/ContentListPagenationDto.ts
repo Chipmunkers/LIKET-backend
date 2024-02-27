@@ -34,7 +34,7 @@ export class ContentListPagenationDto extends PickType(PagenationDto, [
    */
   @IsString()
   @IsOptional()
-  region?: number;
+  region?: string;
 
   /**
    * Style idx
@@ -62,7 +62,7 @@ export class ContentListPagenationDto extends PickType(PagenationDto, [
   @IsString()
   @IsIn(['time', 'like'])
   @IsOptional()
-  orderby?: 'time' | 'like';
+  orderby: 'time' | 'like' = 'time';
 
   /**
    * Search keyword
