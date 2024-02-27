@@ -150,6 +150,7 @@ export class CultureContentService {
               gte: new Date(),
             }
           : undefined,
+        acceptedAt: null,
         deletedAt: null,
         User: {
           deletedAt: null,
@@ -159,6 +160,8 @@ export class CultureContentService {
       orderBy: {
         [pagenation.orderby === 'time' ? 'idx' : 'likeCount']: pagenation.order,
       },
+      take: 10,
+      skip: (pagenation.page - 1) * 10,
     });
 
     return contentList.map((content) =>
@@ -173,7 +176,61 @@ export class CultureContentService {
    */
   public getContentRequestByIdx: (
     idx: number,
-  ) => Promise<ContentEntity<'detail', 'admin'>>;
+  ) => Promise<ContentEntity<'detail', 'admin'>> = async (idx) => {
+    const content = await this.prisma.cultureContent.findUnique({
+      include: {
+        User: true,
+        ContentImg: true,
+        Genre: true,
+        Style: {
+          include: {
+            Style: true,
+          },
+        },
+        Age: true,
+        Location: true,
+        ContentLike: {
+          where: {
+            userIdx: -1,
+          },
+        },
+        _count: {
+          select: {
+            Review: true,
+          },
+        },
+      },
+      where: {
+        idx,
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+          blockedAt: null,
+        },
+      },
+    });
+
+    const starRatingSum = await this.prisma.review.aggregate({
+      where: {
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+      },
+      _sum: {
+        starRating: true,
+      },
+    });
+
+    if (!content || !starRatingSum._sum.starRating) {
+      throw new ContentNotFoundException('Cannot find culture content request');
+    }
+
+    return ContentEntity.createAdminDetailContent(
+      content,
+      starRatingSum._sum.starRating,
+    );
+  };
 
   /**
    * 컨텐츠 요청 목록 보기
@@ -183,7 +240,114 @@ export class CultureContentService {
   ) => Promise<{
     contentList: ContentEntity<'summary', 'admin'>[];
     count: number;
-  }>;
+  }> = async (pagenation) => {
+    const [count, contentList] = await this.prisma.$transaction([
+      this.prisma.cultureContent.count({
+        where: {
+          genreIdx: pagenation.genre || undefined,
+          ageIdx: pagenation.age || undefined,
+          Style: pagenation.style
+            ? {
+                some: {
+                  Style: {
+                    deletedAt: null,
+                  },
+                },
+              }
+            : undefined,
+          Location: pagenation.region
+            ? {
+                hCode: pagenation.region,
+              }
+            : undefined,
+          startDate: pagenation.open
+            ? {
+                lte: new Date(),
+              }
+            : undefined,
+          endDate: pagenation.open
+            ? {
+                gte: new Date(),
+              }
+            : undefined,
+          deletedAt: null,
+          User: {
+            deletedAt: null,
+            blockedAt: null,
+          },
+        },
+      }),
+      this.prisma.cultureContent.findMany({
+        include: {
+          User: true,
+          ContentImg: true,
+          Genre: true,
+          Style: {
+            include: {
+              Style: true,
+            },
+          },
+          Age: true,
+          Location: true,
+          ContentLike: {
+            where: {
+              userIdx: -1,
+            },
+          },
+          _count: {
+            select: {
+              Review: true,
+            },
+          },
+        },
+        where: {
+          genreIdx: pagenation.genre || undefined,
+          ageIdx: pagenation.age || undefined,
+          Style: pagenation.style
+            ? {
+                some: {
+                  Style: {
+                    deletedAt: null,
+                  },
+                },
+              }
+            : undefined,
+          Location: pagenation.region
+            ? {
+                hCode: pagenation.region,
+              }
+            : undefined,
+          startDate: pagenation.open
+            ? {
+                lte: new Date(),
+              }
+            : undefined,
+          endDate: pagenation.open
+            ? {
+                gte: new Date(),
+              }
+            : undefined,
+          deletedAt: null,
+          User: {
+            deletedAt: null,
+            blockedAt: null,
+          },
+        },
+        orderBy: {
+          idx: pagenation.order,
+        },
+        take: 10,
+        skip: (pagenation.page - 1) * 10,
+      }),
+    ]);
+
+    return {
+      contentList: contentList.map((content) =>
+        ContentEntity.createAdminSummaryContent(content),
+      ),
+      count,
+    };
+  };
 
   /**
    * 컨텐츠 요청하기
