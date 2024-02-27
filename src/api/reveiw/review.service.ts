@@ -5,6 +5,7 @@ import { ReviewListPagerbleDto } from './dto/ReviewListPagerbleDto';
 import { ReviewListByContentPagerbleDto } from './dto/ReviewListByContentPagerbleDto';
 import { UpdateReviewDto } from './dto/UpdateReviewDto';
 import { CreateReviewDto } from './dto/CreateReviewDto';
+import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 
 @Injectable()
 export class ReviewService {
@@ -109,7 +110,63 @@ export class ReviewService {
    */
   public getReviewByIdx: (
     idx: number,
-  ) => Promise<ReviewEntity<'detail', 'user'>>;
+    userIdx: number,
+  ) => Promise<ReviewEntity<'detail', 'user'>> = async (reviewIdx, userIdx) => {
+    const review = await this.prisma.review.findUnique({
+      include: {
+        ReviewImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
+        ReviewLike: {
+          where: {
+            userIdx,
+          },
+        },
+        User: true,
+        CultureContent: {
+          include: {
+            User: true,
+            ContentImg: true,
+            Genre: true,
+            Style: {
+              include: {
+                Style: true,
+              },
+            },
+            Age: true,
+            Location: true,
+          },
+        },
+      },
+      where: {
+        idx: reviewIdx,
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+        CultureContent: {
+          deletedAt: null,
+          acceptedAt: {
+            not: null,
+          },
+          User: {
+            deletedAt: null,
+          },
+        },
+      },
+    });
+
+    if (!review) {
+      throw new ReviewNotFoundException('Cannot find review');
+    }
+
+    return ReviewEntity.createDetailUserReviewEntity(review);
+  };
 
   /**
    * 리뷰 생성하기
