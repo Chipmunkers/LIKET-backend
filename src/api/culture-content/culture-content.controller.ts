@@ -40,7 +40,8 @@ export class CultureContentController {
   @HttpCode(200)
   @TypedException<ExceptionDto>(400, 'Invalid querystring')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @TypedException<ExceptionDto>(403, 'Suspended user')
+  @TypedException<ExceptionDto>(500, 'Server Error')
   @UseGuards(LoginAuthGuard)
   public async getCultureContentAll(
     @User() loginUser: LoginUserDto,
