@@ -7,6 +7,8 @@ import { UpdateReviewDto } from './dto/UpdateReviewDto';
 import { CreateReviewDto } from './dto/CreateReviewDto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
+import { AlreadyLikeReviewException } from './exception/AlreadyLikeReviewException';
+import { AlreadyNotLikeReviewExcpetion } from './exception/AlreadyNotLikeReviewException';
 
 @Injectable()
 export class ReviewService {
@@ -190,6 +192,10 @@ export class ReviewService {
     });
 
     if (!content) {
+      throw new ContentNotFoundException('Cannot find content');
+    }
+
+    if (!content.acceptedAt) {
       throw new ContentNotFoundException('Cannot find content');
     }
 
@@ -438,7 +444,30 @@ export class ReviewService {
   /**
    * 리뷰 좋아요 누르기
    */
-  public likeReview: (userIdx: number, reviewIdx: number) => Promise<void>;
+  public likeReview: (userIdx: number, reviewIdx: number) => Promise<void> =
+    async (userIdx, reviewIdx) => {
+      const reviewLike = await this.prisma.reviewLike.findUnique({
+        where: {
+          reviewIdx_userIdx: {
+            reviewIdx,
+            userIdx,
+          },
+        },
+      });
+
+      if (reviewLike) {
+        throw new AlreadyLikeReviewException('Already like review');
+      }
+
+      await this.prisma.reviewLike.create({
+        data: {
+          reviewIdx,
+          userIdx,
+        },
+      });
+
+      return;
+    };
 
   /**
    * 리뷰 좋아요 취소하기
@@ -446,5 +475,29 @@ export class ReviewService {
   public cancelToLikeReview: (
     userIdx: number,
     reviewIdx: number,
-  ) => Promise<void>;
+  ) => Promise<void> = async (userIdx, reviewIdx) => {
+    const reviewLike = await this.prisma.reviewLike.findUnique({
+      where: {
+        reviewIdx_userIdx: {
+          reviewIdx,
+          userIdx,
+        },
+      },
+    });
+
+    if (!reviewLike) {
+      throw new AlreadyNotLikeReviewExcpetion('Already do not like review');
+    }
+
+    await this.prisma.reviewLike.delete({
+      where: {
+        reviewIdx_userIdx: {
+          reviewIdx,
+          userIdx,
+        },
+      },
+    });
+
+    return;
+  };
 }
