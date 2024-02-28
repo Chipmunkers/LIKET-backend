@@ -81,13 +81,13 @@ export class CultureContentService {
       },
     });
 
-    if (!content || !reviewStar._sum.starRating) {
+    if (!content) {
       throw new ContentNotFoundException('Cannot find content');
     }
 
     return ContentEntity.createUserDetailContent(
       content,
-      reviewStar._sum.starRating,
+      reviewStar._sum.starRating || 0,
     );
   };
 
