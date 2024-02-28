@@ -24,6 +24,7 @@ import { GetCultureContentRequestAllResponseDto } from './dto/response/GetCultur
 import { ContentEntity } from './entity/ContentEntity';
 import { GetCultureContentAllResponseDto } from './dto/response/GetCultureContentAllResponseDto';
 import { ContentListPagenationDto } from './dto/ContentListPagenationDto';
+import { GetSoonOpenCultureContentResponseDto } from './dto/response/GetSoonOpenCultureContentResponseDto';
 
 @Controller('culture-content')
 export class CultureContentController {
@@ -54,6 +55,30 @@ export class CultureContentController {
     );
 
     return result;
+  }
+
+  /**
+   * Get soon open culture-content all API
+   * @summary Get soon open cultur-content all API
+   *
+   * @tag Culture-Content
+   */
+  @Get('/soon-open/all')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Suspended user')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getSoonOpenCultureContentAll(
+    @User() loginUser: LoginUserDto,
+  ): Promise<GetSoonOpenCultureContentResponseDto> {
+    const contentList = await this.cultureContentService.getSoonOpenContentAll(
+      loginUser.idx,
+    );
+
+    return {
+      contentList: contentList,
+    };
   }
 
   /**

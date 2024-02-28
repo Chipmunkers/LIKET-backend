@@ -242,6 +242,81 @@ export class CultureContentService {
     };
   };
 
+  /**
+   * 오픈 예정 컨텐츠 보기
+   */
+  public async getSoonOpenContentAll(
+    userIdx: number,
+  ): Promise<ContentEntity<'summary', 'user'>[]> {
+    const contentList = await this.prisma.cultureContent.findMany({
+      include: {
+        User: true,
+        ContentImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
+        Genre: true,
+        Style: {
+          include: {
+            Style: true,
+          },
+          where: {
+            Style: {
+              deletedAt: null,
+            },
+          },
+        },
+        Age: true,
+        Location: true,
+        ContentLike: {
+          where: {
+            userIdx,
+          },
+        },
+        _count: {
+          select: {
+            Review: {
+              where: {
+                deletedAt: null,
+                User: {
+                  deletedAt: null,
+                },
+              },
+            },
+          },
+        },
+      },
+      where: {
+        startDate: {
+          gte: new Date(),
+        },
+        endDate: {
+          gte: new Date(),
+        },
+        deletedAt: null,
+        acceptedAt: {
+          not: null,
+        },
+        User: {
+          deletedAt: null,
+          blockedAt: null,
+        },
+      },
+      orderBy: {
+        startDate: 'asc',
+      },
+      take: 5,
+    });
+
+    return contentList.map((content) =>
+      ContentEntity.createUserSummaryContent(content),
+    );
+  }
+
   // Content Request ==========================================
 
   /**
