@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   HttpCode,
@@ -79,6 +80,57 @@ export class CultureContentController {
     );
 
     return content;
+  }
+
+  /**
+   * Like culture-content API
+   * @summary Like culture-content API
+   *
+   * @tag Culture-Content
+   */
+  @Post('/:idx/like')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Suspended user')
+  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
+  @TypedException<ExceptionDto>(409, 'Already like culture-content')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async likeCultureContent(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) contentIdx: number,
+  ): Promise<void> {
+    await this.cultureContentService.likeContent(loginUser.idx, contentIdx);
+
+    return;
+  }
+
+  /**
+   * Cancel to like culture-content API
+   * @summary Cancel to like culture-content API
+   *
+   * @tag Culture-Content
+   */
+  @Delete('/:idx/like')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Suspended user')
+  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
+  @TypedException<ExceptionDto>(409, 'Already like culture-content')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async cancelToLikeCutlureContent(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) contentIdx: number,
+  ): Promise<void> {
+    await this.cultureContentService.cancelToLikeContent(
+      loginUser.idx,
+      contentIdx,
+    );
+
+    return;
   }
 
   // Culture Content Reqeust
