@@ -69,6 +69,10 @@ export class CultureContentService {
       },
     });
 
+    if (!content) {
+      throw new ContentNotFoundException('Cannot find content');
+    }
+
     const reviewStar = await this.prisma.review.aggregate({
       _sum: {
         starRating: true,
@@ -80,10 +84,6 @@ export class CultureContentService {
         },
       },
     });
-
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find content');
-    }
 
     return ContentEntity.createUserDetailContent(
       content,
@@ -283,6 +283,10 @@ export class CultureContentService {
       },
     });
 
+    if (!content) {
+      throw new ContentNotFoundException('Cannot find culture content request');
+    }
+
     const starRatingSum = await this.prisma.review.aggregate({
       where: {
         deletedAt: null,
@@ -294,10 +298,6 @@ export class CultureContentService {
         starRating: true,
       },
     });
-
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find culture content request');
-    }
 
     return ContentEntity.createAdminDetailContent(
       content,
