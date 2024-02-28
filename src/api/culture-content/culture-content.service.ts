@@ -97,96 +97,142 @@ export class CultureContentService {
   public getContentAll: (
     pagenation: ContentListPagenationDto,
     userIdx: number,
-  ) => Promise<ContentEntity<'summary', 'user'>[]> = async (
-    pagenation,
-    userIdx,
-  ) => {
-    const contentList = await this.prisma.cultureContent.findMany({
-      include: {
-        User: true,
-        ContentImg: {
-          where: {
-            deletedAt: null,
+  ) => Promise<{
+    contentList: ContentEntity<'summary', 'user'>[];
+    count: number;
+  }> = async (pagenation, userIdx) => {
+    const [count, contentList] = await this.prisma.$transaction([
+      this.prisma.cultureContent.count({
+        where: {
+          genreIdx: pagenation.genre || undefined,
+          ageIdx: pagenation.age || undefined,
+          Style: pagenation.style
+            ? {
+                some: {
+                  Style: {
+                    deletedAt: null,
+                  },
+                },
+              }
+            : undefined,
+          Location: pagenation.region
+            ? {
+                hCode: pagenation.region,
+              }
+            : undefined,
+          startDate: pagenation.open
+            ? {
+                lte: new Date(),
+              }
+            : undefined,
+          endDate: pagenation.open
+            ? {
+                gte: new Date(),
+              }
+            : undefined,
+          acceptedAt: {
+            not: null,
           },
-          orderBy: {
-            idx: 'asc',
+          deletedAt: null,
+          User: {
+            deletedAt: null,
+            blockedAt: null,
           },
         },
-        Genre: true,
-        Style: {
-          include: {
-            Style: true,
-          },
-          where: {
-            Style: {
+      }),
+      this.prisma.cultureContent.findMany({
+        include: {
+          User: true,
+          ContentImg: {
+            where: {
               deletedAt: null,
             },
+            orderBy: {
+              idx: 'asc',
+            },
           },
-        },
-        Age: true,
-        Location: true,
-        ContentLike: {
-          where: {
-            userIdx,
-          },
-        },
-        _count: {
-          select: {
-            Review: {
-              where: {
+          Genre: true,
+          Style: {
+            include: {
+              Style: true,
+            },
+            where: {
+              Style: {
                 deletedAt: null,
-                User: {
+              },
+            },
+          },
+          Age: true,
+          Location: true,
+          ContentLike: {
+            where: {
+              userIdx,
+            },
+          },
+          _count: {
+            select: {
+              Review: {
+                where: {
                   deletedAt: null,
+                  User: {
+                    deletedAt: null,
+                  },
                 },
               },
             },
           },
         },
-      },
-      where: {
-        genreIdx: pagenation.genre || undefined,
-        ageIdx: pagenation.age || undefined,
-        Style: pagenation.style
-          ? {
-              some: {
-                Style: {
-                  deletedAt: null,
+        where: {
+          genreIdx: pagenation.genre || undefined,
+          ageIdx: pagenation.age || undefined,
+          Style: pagenation.style
+            ? {
+                some: {
+                  Style: {
+                    deletedAt: null,
+                  },
                 },
-              },
-            }
-          : undefined,
-        Location: pagenation.region
-          ? {
-              hCode: pagenation.region,
-            }
-          : undefined,
-        startDate: pagenation.open
-          ? {
-              lte: new Date(),
-            }
-          : undefined,
-        endDate: pagenation.open
-          ? {
-              gte: new Date(),
-            }
-          : undefined,
-        acceptedAt: null,
-        deletedAt: null,
-        User: {
+              }
+            : undefined,
+          Location: pagenation.region
+            ? {
+                hCode: pagenation.region,
+              }
+            : undefined,
+          startDate: pagenation.open
+            ? {
+                lte: new Date(),
+              }
+            : undefined,
+          endDate: pagenation.open
+            ? {
+                gte: new Date(),
+              }
+            : undefined,
+          acceptedAt: {
+            not: null,
+          },
           deletedAt: null,
-          blockedAt: null,
+          User: {
+            deletedAt: null,
+            blockedAt: null,
+          },
         },
-      },
-      orderBy: {
-        [pagenation.orderby === 'time' ? 'idx' : 'likeCount']: pagenation.order,
-      },
-      take: 10,
-      skip: (pagenation.page - 1) * 10,
-    });
+        orderBy: {
+          [pagenation.orderby === 'time' ? 'idx' : 'likeCount']:
+            pagenation.order,
+        },
+        take: 10,
+        skip: (pagenation.page - 1) * 10,
+      }),
+    ]);
 
-    return contentList.map((content) =>
-      ContentEntity.createUserSummaryContent(content),
-    );
+    return {
+      contentList: contentList.map((content) =>
+        ContentEntity.createUserSummaryContent(content),
+      ),
+      count: count,
+    };
   };
 
   // Content Request ==========================================

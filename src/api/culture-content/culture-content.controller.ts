@@ -21,10 +21,38 @@ import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { ContentRequestListPagenationDto } from './dto/ContentRequestListPagenationDto';
 import { GetCultureContentRequestAllResponseDto } from './dto/response/GetCultureContentRequestAllResponseDto';
 import { ContentEntity } from './entity/ContentEntity';
+import { GetCultureContentAllResponseDto } from './dto/response/GetCultureContentAllResponseDto';
+import { ContentListPagenationDto } from './dto/ContentListPagenationDto';
 
 @Controller('culture-content')
 export class CultureContentController {
   constructor(private readonly cultureContentService: CultureContentService) {}
+
+  // Culture Content
+
+  /**
+   * Get culture-content all API
+   * @summary Get culture-content all API
+   *
+   * @tag Culture-Content
+   */
+  @Get('/all')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid querystring')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @UseGuards(LoginAuthGuard)
+  public async getCultureContentAll(
+    @User() loginUser: LoginUserDto,
+    @Query() pagerble: ContentListPagenationDto,
+  ): Promise<GetCultureContentAllResponseDto> {
+    const result = await this.cultureContentService.getContentAll(
+      pagerble,
+      loginUser.idx,
+    );
+
+    return result;
+  }
 
   // Culture Content Reqeust
 
