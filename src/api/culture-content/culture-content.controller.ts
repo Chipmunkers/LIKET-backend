@@ -1,4 +1,13 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CultureContentService } from './culture-content.service';
 import { CreateContentRequestResponseDto } from './dto/response/CreateContentRequestResponseDto';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
@@ -7,12 +16,41 @@ import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
+import { ContentRequestListPagenationDto } from './dto/ContentRequestListPagenationDto';
+import { GetCultureContentRequestAllResponseDto } from './dto/response/GetCultureContentRequestAllResponseDto';
 
 @Controller('culture-content')
 export class CultureContentController {
   constructor(private readonly cultureContentService: CultureContentService) {}
 
   // Culture Content Reqeust
+
+  /**
+   * Get cutlure-content request all API
+   * @summary Get culture-content all API
+   *
+   * @tag Culture-Content-Request
+   */
+  @Get('/request/all')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid querystring')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @UseGuards(LoginAuthGuard)
+  public async getCultureContentRequestAll(
+    @Query() pagerble: ContentRequestListPagenationDto,
+    @User() loginUser: LoginUserDto,
+  ): Promise<GetCultureContentRequestAllResponseDto> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    const result = await this.cultureContentService.getContentRequestAll(
+      pagerble,
+    );
+
+    return result;
+  }
 
   /**
    * Create culture-content request API
