@@ -82,6 +82,29 @@ export class CultureContentController {
   }
 
   /**
+   * Get soon end culture-content all API
+   * @summary Get soon end culture-content API
+   *
+   * @tag Culture-Content
+   */
+  @Get('/soon-end/all')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Suspended user')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getSoonEndCultureContentAll(
+    @User() loginUser: LoginUserDto,
+  ): Promise<GetSoonOpenCultureContentResponseDto> {
+    const contentList = await this.cultureContentService.getSoonEndContentAll(
+      loginUser.idx,
+    );
+
+    return {
+      contentList,
+    };
+  }
+
+  /**
    * Get culture-content by idx API
    * @summary Get culture-content by idx API
    *
