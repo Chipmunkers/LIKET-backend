@@ -29,6 +29,30 @@ const reviewWithInclude = Prisma.validator<Prisma.ReviewDefaultArgs>()({
 
 type ReviewWithInclude = Prisma.ReviewGetPayload<typeof reviewWithInclude>;
 
+class ReviewContent extends PickType(ContentEntity, [
+  'idx',
+  'title',
+  'genre',
+  'likeCount',
+  'thumbnail',
+]) {
+  constructor(content: {
+    idx: number;
+    title: string;
+    genre: TagEntity;
+    likeCount: number;
+    thumbnail: string;
+  }) {
+    super();
+
+    this.idx = content.idx;
+    this.title = content.title;
+    this.genre = content.genre;
+    this.likeCount = content.likeCount;
+    this.thumbnail = content.thumbnail;
+  }
+}
+
 export class ReviewEntity<
   T extends 'summary' | 'detail' = 'detail',
   K extends 'user' | 'admin' = 'user',
@@ -185,29 +209,5 @@ export class ReviewEntity<
       likeCount: review.likeCount,
       likeState: undefined,
     });
-  }
-}
-
-class ReviewContent extends PickType(ContentEntity, [
-  'idx',
-  'title',
-  'genre',
-  'likeCount',
-  'thumbnail',
-]) {
-  constructor(content: {
-    idx: number;
-    title: string;
-    genre: TagEntity;
-    likeCount: number;
-    thumbnail: string;
-  }) {
-    super();
-
-    this.idx = content.idx;
-    this.title = content.title;
-    this.genre = content.genre;
-    this.likeCount = content.likeCount;
-    this.thumbnail = content.thumbnail;
   }
 }
