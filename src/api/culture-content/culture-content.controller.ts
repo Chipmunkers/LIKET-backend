@@ -4,6 +4,8 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -18,6 +20,7 @@ import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { ContentRequestListPagenationDto } from './dto/ContentRequestListPagenationDto';
 import { GetCultureContentRequestAllResponseDto } from './dto/response/GetCultureContentRequestAllResponseDto';
+import { ContentEntity } from './entity/ContentEntity';
 
 @Controller('culture-content')
 export class CultureContentController {
@@ -50,6 +53,31 @@ export class CultureContentController {
     );
 
     return result;
+  }
+
+  /**
+   * Get culture-content by idx API
+   * @summary Get culture-content by idx API
+   *
+   * @tag Culture-Content-Request
+   */
+  @Get('/request/:idx')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getCultureContentRequestByIdx(
+    @Param('idx', ParseIntPipe) contentIdx: number,
+    @User() loginUser: LoginUserDto,
+  ): Promise<ContentEntity<'detail', 'admin'>> {
+    const content = await this.cultureContentService.getContentRequestByIdx(
+      contentIdx,
+    );
+
+    return content;
   }
 
   /**
