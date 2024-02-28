@@ -719,12 +719,24 @@ export class CultureContentService {
         throw new AlreadyLikeContentException('Already liked culture content');
       }
 
-      await this.prisma.contentLike.create({
-        data: {
-          contentIdx,
-          userIdx,
-        },
-      });
+      await this.prisma.$transaction([
+        this.prisma.cultureContent.update({
+          where: {
+            idx: contentIdx,
+          },
+          data: {
+            likeCount: {
+              increment: 1,
+            },
+          },
+        }),
+        this.prisma.contentLike.create({
+          data: {
+            contentIdx,
+            userIdx,
+          },
+        }),
+      ]);
 
       return;
     };
@@ -751,14 +763,26 @@ export class CultureContentService {
       );
     }
 
-    await this.prisma.contentLike.delete({
-      where: {
-        contentIdx_userIdx: {
-          userIdx,
-          contentIdx,
+    await this.prisma.$transaction([
+      this.prisma.cultureContent.update({
+        where: {
+          idx: contentIdx,
         },
-      },
-    });
+        data: {
+          likeCount: {
+            decrement: 1,
+          },
+        },
+      }),
+      this.prisma.contentLike.delete({
+        where: {
+          contentIdx_userIdx: {
+            userIdx,
+            contentIdx,
+          },
+        },
+      }),
+    ]);
 
     return;
   };
