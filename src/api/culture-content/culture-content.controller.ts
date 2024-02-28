@@ -106,4 +106,32 @@ export class CultureContentController {
       idx: contentIdx,
     };
   }
+
+  /**
+   * Accept culture-content API
+   * @summary Accept culture-content API
+   *
+   * @tag Culture-Content-Request
+   */
+  @Post('/request/:idx/accept')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid body')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
+  @TypedException<ExceptionDto>(409, 'Already active cutlure-content')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async acceptCultureContentRequest(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) contentIdx: number,
+  ): Promise<void> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.cultureContentService.acceptContentRequest(contentIdx);
+
+    return;
+  }
 }
