@@ -14,7 +14,7 @@ export class CreateReviewDto {
   starRating: 1 | 2 | 3 | 4 | 5;
 
   @IsDateString()
-  visitTime: Date;
+  visitTime: string;
 
   @ValidateNested()
   @Length(0, 10)
