@@ -134,4 +134,32 @@ export class CultureContentController {
 
     return;
   }
+
+  /**
+   * Deactivate cutlure-content API
+   * @summary Deactivate culture-content API
+   *
+   * @tag Culture-Content-Request
+   */
+  @Post('/request/:idx/deactivate')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid body')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
+  @TypedException<ExceptionDto>(409, 'Already deactive cutlure-content')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async deactivateCultureContentRequest(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) contentIdx: number,
+  ): Promise<void> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.cultureContentService.deactivateContent(contentIdx);
+
+    return;
+  }
 }
