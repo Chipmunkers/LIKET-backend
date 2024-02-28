@@ -35,12 +35,20 @@ describe('ReviewService', () => {
     // 1. get review with prisma
     prismaMock.review.findUnique = jest.fn().mockResolvedValue({
       idx: 1,
+      author: {},
+      CultureContent: {
+        Genre: {},
+        ContentImg: [],
+      },
+      ReviewImg: [],
+      User: {},
+      ReviewLike: [],
     });
 
-    expect(prismaMock.review.findUnique).toHaveBeenCalledTimes(1);
     await expect(service.getReviewByIdx(1, 1)).resolves.toBeInstanceOf(
       ReviewEntity<'detail', 'user'>,
     );
+    expect(prismaMock.review.findUnique).toHaveBeenCalledTimes(1);
   });
 
   it('getReviewByIdx fail', async () => {
@@ -63,7 +71,12 @@ describe('ReviewService', () => {
     prismaMock.review.create = jest.fn().mockResolvedValue({});
 
     await expect(
-      service.createReview(1, 1, {} as CreateReviewDto),
+      service.createReview(1, 1, {
+        imgList: [],
+        description: '',
+        starRating: 3,
+        visitTime: new Date().toString(),
+      }),
     ).resolves.toBeUndefined();
     expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.review.create).toHaveBeenCalledTimes(1);
@@ -94,12 +107,20 @@ describe('ReviewService', () => {
     // 1. get review with prisma
     prismaMock.review.findUnique = jest.fn().mockResolvedValue({
       idx: 1,
+      author: {},
+      CultureContent: {
+        Genre: {},
+        ContentImg: [],
+      },
+      ReviewImg: [],
+      User: {},
+      ReviewLike: [],
     });
 
-    expect(prismaMock.review.findUnique).toHaveBeenCalledTimes(1);
     await expect(service.getReviewByIdxForAdmin(1)).resolves.toBeInstanceOf(
       ReviewEntity<'detail', 'admin'>,
     );
+    expect(prismaMock.review.findUnique).toHaveBeenCalledTimes(1);
   });
 
   it('getReviewByIdxForAdmin fail - not found review', async () => {
@@ -118,9 +139,9 @@ describe('ReviewService', () => {
     // 2. like review
     prismaMock.reviewLike.create = jest.fn().mockResolvedValue({});
 
+    await expect(service.likeReview(1, 1)).resolves.toBeUndefined();
     expect(prismaMock.reviewLike.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.reviewLike.create).toHaveBeenCalledTimes(1);
-    await expect(service.likeReview(1, 1)).resolves.toBeUndefined();
   });
 
   it('likeReview fail - already like review', async () => {
@@ -145,11 +166,11 @@ describe('ReviewService', () => {
     });
 
     // 2. delete review like
-    prismaMock.reviewLike.update = jest.fn().mockResolvedValue({});
+    prismaMock.reviewLike.delete = jest.fn().mockResolvedValue({});
 
     await expect(service.cancelToLikeReview(1, 1)).resolves.toBeUndefined();
     expect(prismaMock.reviewLike.findUnique).toHaveBeenCalledTimes(1);
-    expect(prismaMock.reviewLike.update).toHaveBeenCalledTimes(1);
+    expect(prismaMock.reviewLike.delete).toHaveBeenCalledTimes(1);
   });
 
   it('cancelToLikeReview fail - already do not like', async () => {
