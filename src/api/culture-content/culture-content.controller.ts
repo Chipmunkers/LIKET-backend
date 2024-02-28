@@ -55,6 +55,32 @@ export class CultureContentController {
     return result;
   }
 
+  /**
+   * Get culture-content by idx API
+   * @summary Get culture-content by idx API
+   *
+   * @tag Culture-Content
+   */
+  @Get('/:idx')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid querystring')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Suspended user')
+  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getCultureContentByIdx(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) contentIdx: number,
+  ): Promise<ContentEntity<'detail', 'user'>> {
+    const content = await this.cultureContentService.getContentByIdx(
+      contentIdx,
+      loginUser.idx,
+    );
+
+    return content;
+  }
+
   // Culture Content Reqeust
 
   /**
