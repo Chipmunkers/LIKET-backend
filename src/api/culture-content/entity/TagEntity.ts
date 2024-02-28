@@ -4,7 +4,10 @@ export class TagEntity {
   idx: number;
   name: string;
 
-  constructor(idx: number, name: string) {}
+  constructor(idx: number, name: string) {
+    this.idx = idx;
+    this.name = name;
+  }
 
   static createTag(data: Age | Genre | Style): TagEntity {
     return new TagEntity(data.idx, data.name);
