@@ -1,5 +1,6 @@
 import { CreateLocationDto } from '../../../common/dto/CreateLocationDto';
 import {
+  ArrayMaxSize,
   IsArray,
   IsBoolean,
   IsDateString,
@@ -27,7 +28,7 @@ export class CreateContentRequestDto {
   websiteLink: string;
 
   @ValidateNested()
-  @Length(0, 10)
+  @ArrayMaxSize(10)
   @IsOptional()
   imgList?: UploadFileDto[];
 
@@ -37,8 +38,8 @@ export class CreateContentRequestDto {
   @IsInt()
   ageIdx: number;
 
-  @IsNumber({}, { each: true })
-  @Length(0, 10)
+  @IsInt({ each: true })
+  @ArrayMaxSize(10)
   styleIdxList: number[];
 
   @ValidateNested()
