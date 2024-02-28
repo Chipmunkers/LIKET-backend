@@ -249,13 +249,13 @@ export class CultureContentService {
       },
     });
 
-    if (!content || !starRatingSum._sum.starRating) {
+    if (!content) {
       throw new ContentNotFoundException('Cannot find culture content request');
     }
 
     return ContentEntity.createAdminDetailContent(
       content,
-      starRatingSum._sum.starRating,
+      starRatingSum._sum.starRating || 0,
     );
   };
 
