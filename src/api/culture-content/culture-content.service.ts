@@ -65,7 +65,14 @@ export class CultureContentService {
       },
       where: {
         idx,
+        acceptedAt: {
+          not: null,
+        },
         deletedAt: null,
+        User: {
+          deletedAt: null,
+          blockedAt: null,
+        },
       },
     });
 
