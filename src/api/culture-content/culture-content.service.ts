@@ -337,6 +337,11 @@ export class CultureContentService {
         where: {
           genreIdx: pagenation.genre || undefined,
           ageIdx: pagenation.age || undefined,
+          title: pagenation.search
+            ? {
+                contains: pagenation.search,
+              }
+            : undefined,
           Style: pagenation.style
             ? {
                 some: {
