@@ -7,6 +7,7 @@ import {
   HttpCode,
   Param,
   ParseIntPipe,
+  Post,
   Put,
   Query,
   UseGuards,
@@ -126,6 +127,30 @@ export class ReviewController {
     }
 
     await this.reviewService.deleteReview(reviewIdx);
+
+    return;
+  }
+
+  /**
+   * Like review API
+   * @summary Like review API
+   *
+   * @tag Review
+   */
+  @Post('/:idx/like')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Suspended user')
+  @TypedException<ExceptionDto>(404, 'Cannot find review')
+  @TypedException<ExceptionDto>(409, 'Already like review')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async likeReview(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) reviewIdx: number,
+  ): Promise<void> {
+    await this.reviewService.likeReview(loginUser.idx, reviewIdx);
 
     return;
   }
