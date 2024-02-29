@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Post,
@@ -33,6 +34,7 @@ export class ContentReviewController {
    * @tag Culture-Content
    */
   @Post(':idx/review')
+  @HttpCode(201)
   @TypedException<ExceptionDto>(400, 'Invalid path or body')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
   @TypedException<ExceptionDto>(403, 'Suspended user')
@@ -56,6 +58,7 @@ export class ContentReviewController {
    * @tag Culture-Content
    */
   @Get(':idx/review/all')
+  @HttpCode(200)
   @TypedException<ExceptionDto>(400, 'Invalid querystring')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
   @TypedException<ExceptionDto>(403, 'Suspended user')
