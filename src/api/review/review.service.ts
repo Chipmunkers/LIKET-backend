@@ -4,7 +4,7 @@ import { ReviewEntity } from './entity/ReviewEntity';
 import { ReviewListPagerbleDto } from './dto/ReviewListPagerbleDto';
 import { ReviewListByContentPagerbleDto } from './dto/ReviewListByContentPagerbleDto';
 import { UpdateReviewDto } from './dto/UpdateReviewDto';
-import { CreateReviewDto } from './dto/CreateReviewDto';
+import { CreateReviewDto } from '../culture-content/dto/CreateReviewDto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { AlreadyLikeReviewException } from './exception/AlreadyLikeReviewException';
