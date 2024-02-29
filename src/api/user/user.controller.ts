@@ -24,10 +24,16 @@ import { UpdateProfileDto } from './dto/UpdateProfileDto';
 import { UserListPagenationDto } from './dto/UserListPaginationDto';
 import { GetUserAllForAdminDto } from './dto/response/GetUserAllForAdminDto';
 import { UserEntity } from './entity/UserEntity';
+import { GetReviewAllByUseridxResponseDto } from './dto/response/GetReviewAllByUserIdxResponseDto';
+import { ReviewService } from '../review/review.service';
+import { ReviewListByUserPagerbleDto } from '../review/dto/ReviewListByUserPagerbleDto';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly reviewService: ReviewService,
+  ) {}
 
   /**
    * Sign Up API
@@ -193,5 +199,30 @@ export class UserController {
     await this.userService.cancelToBlock(userIdx);
 
     return;
+  }
+
+  /**
+   * Get review all by user idx API
+   * @summary Get review all by user idx API
+   *
+   * @tag User
+   */
+  @Get('/:idx/review/all')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getReviewAllByUserIdx(
+    @User() loginUser: LoginUserDto,
+    @Query() pagerble: ReviewListByUserPagerbleDto,
+    @Param('idx', ParseIntPipe) userIdx: number,
+  ): Promise<GetReviewAllByUseridxResponseDto> {
+    if (loginUser.idx !== userIdx && !loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    return await this.reviewService.getReviewAllByUserIdx(userIdx, pagerble);
   }
 }

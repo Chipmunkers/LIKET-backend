@@ -9,6 +9,7 @@ import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { AlreadyLikeReviewException } from './exception/AlreadyLikeReviewException';
 import { AlreadyNotLikeReviewExcpetion } from './exception/AlreadyNotLikeReviewException';
+import { ReviewListByUserPagerbleDto } from './dto/ReviewListByUserPagerbleDto';
 
 @Injectable()
 export class ReviewService {
@@ -105,6 +106,109 @@ export class ReviewService {
       reviewList: reviewList.map((review) =>
         ReviewEntity.createDetailUserReviewEntity(review),
       ),
+    };
+  };
+
+  /**
+   * 사용자별 리뷰 목록 보기
+   */
+  public getReviewAllByUserIdx: (
+    userIdx: number,
+    pagerble: ReviewListByUserPagerbleDto,
+  ) => Promise<{
+    reviewList: ReviewEntity<'detail', 'user'>[];
+    count: number;
+  }> = async (userIdx, pagerble) => {
+    console.log(pagerble);
+    const [count, reviewList] = await this.prisma.$transaction([
+      this.prisma.review.count({
+        where: {
+          Liket:
+            pagerble.liket === undefined
+              ? pagerble.liket
+                ? {
+                    some: {},
+                  }
+                : {
+                    none: {},
+                  }
+              : undefined,
+          userIdx,
+          deletedAt: null,
+          CultureContent: {
+            deletedAt: null,
+            User: {
+              deletedAt: null,
+              blockedAt: null,
+            },
+          },
+        },
+      }),
+      this.prisma.review.findMany({
+        include: {
+          ReviewImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
+          ReviewLike: {
+            where: {
+              userIdx,
+            },
+          },
+          User: true,
+          CultureContent: {
+            include: {
+              User: true,
+              ContentImg: true,
+              Genre: true,
+              Style: {
+                include: {
+                  Style: true,
+                },
+              },
+              Age: true,
+              Location: true,
+            },
+          },
+        },
+        where: {
+          Liket:
+            pagerble.liket !== undefined
+              ? pagerble.liket
+                ? {
+                    some: {},
+                  }
+                : {
+                    none: {},
+                  }
+              : undefined,
+          userIdx,
+          deletedAt: null,
+          CultureContent: {
+            deletedAt: null,
+            User: {
+              deletedAt: null,
+              blockedAt: null,
+            },
+          },
+        },
+        orderBy: {
+          idx: pagerble.order,
+        },
+        take: pagerble.take,
+        skip: (pagerble.page - 1) * pagerble.take,
+      }),
+    ]);
+
+    return {
+      reviewList: reviewList.map((review) =>
+        ReviewEntity.createDetailUserReviewEntity(review),
+      ),
+      count,
     };
   };
 
