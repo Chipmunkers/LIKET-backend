@@ -183,7 +183,9 @@ export class ReviewService {
       where: {
         idx: contentIdx,
         deletedAt: null,
-        acceptedAt: null,
+        acceptedAt: {
+          not: null,
+        },
         User: {
           deletedAt: null,
           blockedAt: null,
@@ -202,6 +204,7 @@ export class ReviewService {
     await this.prisma.review.create({
       data: {
         userIdx: userIdx,
+        cultureContentIdx: content.idx,
         starRating: createDto.starRating,
         description: createDto.description,
         ReviewImg: {
@@ -211,7 +214,7 @@ export class ReviewService {
             })),
           },
         },
-        visitTime: createDto.visitTime,
+        visitTime: new Date(createDto.visitTime),
       },
     });
 
