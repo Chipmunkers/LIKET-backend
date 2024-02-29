@@ -223,6 +223,10 @@ export class UserController {
       throw new ForbiddenException('Permission denied');
     }
 
-    return await this.reviewService.getReviewAllByUserIdx(userIdx, pagerble);
+    return await this.reviewService.getReviewAllByUserIdx(
+      userIdx,
+      loginUser.idx,
+      pagerble,
+    );
   }
 }
