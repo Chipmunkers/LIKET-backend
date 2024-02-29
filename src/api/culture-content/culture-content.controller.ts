@@ -1,5 +1,6 @@
 import {
   Body,
+  ConflictException,
   Controller,
   Delete,
   ForbiddenException,
@@ -8,6 +9,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -231,6 +233,10 @@ export class CultureContentController {
     const content = await this.cultureContentService.getContentRequestByIdx(
       contentIdx,
     );
+
+    if (loginUser.idx !== content.author.idx && !loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
 
     return content;
   }
