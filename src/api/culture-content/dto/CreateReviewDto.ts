@@ -1,4 +1,5 @@
 import {
+  ArrayMaxSize,
   IsDateString,
   IsIn,
   IsNumber,
@@ -7,6 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { UploadFileDto } from '../../upload/dto/UploadFileDto';
+import { Optional } from '@nestjs/common';
 
 export class CreateReviewDto {
   @IsNumber()
@@ -17,8 +19,9 @@ export class CreateReviewDto {
   visitTime: string;
 
   @ValidateNested()
-  @Length(0, 10)
-  imgList: UploadFileDto[];
+  @ArrayMaxSize(10)
+  @Optional()
+  imgList: UploadFileDto[] = [];
 
   @IsString()
   @Length(1, 2000)
