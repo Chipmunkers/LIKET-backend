@@ -111,13 +111,7 @@ describe('CultureContentService', () => {
   });
 
   it('updateContentRequest success', async () => {
-    // 1. check cutlure content request state
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      acceptedAt: null,
-    });
-
-    // 2. update culture content with transaction
+    // 1. update culture content with transaction
     prismaMock.$transaction = jest.fn().mockImplementation(async (list) => {
       list.map(async (task) => await task);
     });
@@ -143,65 +137,17 @@ describe('CultureContentService', () => {
         imgList: [],
       }),
     ).resolves.toBeUndefined();
-    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
-  });
-
-  it('updateContentRequest fail - accpeted content', async () => {
-    // acceptd content
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      acceptedAt: new Date(),
-    });
-
-    await expect(
-      service.updateContentRequest(1, {} as UpdateContentDto),
-    ).rejects.toThrow(ForbiddenException);
-  });
-
-  it('updateContentRequest fail - content not found', async () => {
-    // content not found
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
-
-    await expect(
-      service.updateContentRequest(1, {} as UpdateContentDto),
-    ).rejects.toThrow(ContentNotFoundException);
+    expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
+    expect(prismaMock.location.update).toHaveBeenCalledTimes(1);
   });
 
   it('deleteContentRequest success', async () => {
-    // 1. delete culture content request state
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      acceptedAt: null,
-    });
-
-    // 2. delete culture content
+    // 1. delete culture content
     prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
 
     await expect(service.deleteContentRequest(1)).resolves.toBeUndefined();
-    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
-  });
-
-  it('deleteContentRequest fail - accepted content', async () => {
-    // accepted content
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      acceptedAt: new Date(),
-    });
-
-    await expect(service.deleteContentRequest(1)).rejects.toThrow(
-      ForbiddenException,
-    );
-  });
-
-  it('deleteContentRequest fail - content not found', async () => {
-    // content not found
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
-
-    await expect(service.deleteContentRequest(1)).rejects.toThrow(
-      ContentNotFoundException,
-    );
   });
 
   it('acceptContentRequest success', async () => {
