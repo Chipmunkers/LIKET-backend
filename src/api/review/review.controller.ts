@@ -101,4 +101,32 @@ export class ReviewController {
 
     return;
   }
+
+  /**
+   * Delete review by idx API
+   * @summary Delete Review by idx API
+   *
+   * @tag Review
+   */
+  @Delete('/:idx')
+  @TypedException<ExceptionDto>(400, 'Invalid path or body')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(404, 'Cannot find review')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async deleteReview(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) reviewIdx: number,
+  ): Promise<void> {
+    const review = await this.reviewService.getReviewByIdxForAdmin(reviewIdx);
+
+    if (review.author.idx !== loginUser.idx && !loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.reviewService.deleteReview(reviewIdx);
+
+    return;
+  }
 }
