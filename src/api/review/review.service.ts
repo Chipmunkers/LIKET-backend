@@ -327,7 +327,11 @@ export class ReviewService {
             pagerble.searchby === 'idx' ? Number(pagerble.search) : undefined,
           CultureContent: {
             title:
-              pagerble.searchby === 'contents' ? pagerble.search : undefined,
+              pagerble.searchby === 'contents'
+                ? {
+                    contains: pagerble.search,
+                  }
+                : undefined,
             deletedAt: null,
             User: {
               deletedAt: null,
@@ -336,7 +340,11 @@ export class ReviewService {
           deletedAt: null,
           User: {
             nickname:
-              pagerble.searchby === 'nickname' ? pagerble.search : undefined,
+              pagerble.searchby === 'nickname'
+                ? {
+                    contains: pagerble.search,
+                  }
+                : undefined,
             deletedAt: null,
           },
         },

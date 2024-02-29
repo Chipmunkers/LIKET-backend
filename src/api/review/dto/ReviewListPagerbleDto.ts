@@ -5,6 +5,7 @@ import { IsIn, IsOptional, IsString, Length } from 'class-validator';
 export class ReviewListPagerbleDto extends PickType(PagenationDto, ['page']) {
   @IsString()
   @IsIn(['idx', 'nickname', 'contents'])
+  @IsOptional()
   searchby?: 'idx' | 'nickname' | 'contents';
 
   @IsString()
