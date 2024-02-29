@@ -168,7 +168,7 @@ export class AuthService {
         isAdmin: isAdmin,
       },
       {
-        expiresIn: '14h',
+        expiresIn: '14d',
       },
     );
   };
