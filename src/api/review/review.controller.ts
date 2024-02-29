@@ -154,4 +154,28 @@ export class ReviewController {
 
     return;
   }
+
+  /**
+   * Cancel to like review API
+   * @summary Cancel to like review API
+   *
+   * @tag Review
+   */
+  @Delete('/:idx/like')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Suspended user')
+  @TypedException<ExceptionDto>(404, 'Cannot find review')
+  @TypedException<ExceptionDto>(409, 'Already like review')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async cancelToLikeReview(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) reviewIdx: number,
+  ): Promise<void> {
+    await this.reviewService.cancelToLikeReview(loginUser.idx, reviewIdx);
+
+    return;
+  }
 }
