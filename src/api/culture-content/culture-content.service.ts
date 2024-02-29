@@ -802,7 +802,7 @@ export class CultureContentService {
         idx,
       },
       data: {
-        acceptedAt: new Date(),
+        deletedAt: new Date(),
       },
     });
 
