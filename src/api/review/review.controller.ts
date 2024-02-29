@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Put,
@@ -77,6 +79,7 @@ export class ReviewController {
    * @tag Review
    */
   @Put('/:idx')
+  @HttpCode(201)
   @TypedException<ExceptionDto>(400, 'Invalid path or body')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
   @TypedException<ExceptionDto>(403, 'Permission denied')
