@@ -8,4 +8,8 @@ export class ReviewListByContentPagerbleDto extends PickType(PagenationDto, [
   @IsString()
   @IsIn(['desc', 'asc'])
   order: 'desc' | 'asc' = 'desc';
+
+  @IsString()
+  @IsIn(['time', 'like'])
+  orderby: 'time' | 'like' = 'time';
 }

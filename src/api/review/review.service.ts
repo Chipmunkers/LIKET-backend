@@ -93,7 +93,7 @@ export class ReviewService {
           },
         },
         orderBy: {
-          idx: pagerble.order,
+          [pagerble.orderby === 'time' ? 'idx' : 'likeCount']: pagerble.order,
         },
         take: 10,
         skip: (pagerble.page - 1) * 10,
