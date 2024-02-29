@@ -276,6 +276,7 @@ export class CultureContentController {
    * @tag Culture-Content-Request
    */
   @Put('/request/:idx')
+  @HttpCode(201)
   @TypedException<ExceptionDto>(400, 'Invalid body')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
   @TypedException<ExceptionDto>(403, 'Accepted culture-content')
@@ -315,6 +316,7 @@ export class CultureContentController {
    * @tag Cutlure-Content-Request
    */
   @Delete('/request/:idx')
+  @HttpCode(201)
   @TypedException<ExceptionDto>(400, 'Invalid body')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
   @TypedException<ExceptionDto>(403, 'Accepted culture-content')
