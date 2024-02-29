@@ -7,5 +7,6 @@ import { ReviewService } from './review.service';
   imports: [PrismaModule],
   controllers: [ReviewController],
   providers: [ReviewService],
+  exports: [ReviewService],
 })
 export class ReveiwModule {}
