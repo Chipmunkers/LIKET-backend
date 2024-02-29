@@ -248,7 +248,7 @@ export class ReviewService {
             })),
           },
         },
-        visitTime: updateDto.visitTime,
+        visitTime: new Date(updateDto.visitTime),
       },
     });
   };
