@@ -744,33 +744,10 @@ export class CultureContentService {
     idx: number,
     updateDto: UpdateContentDto,
   ) => Promise<void> = async (idx, updateDto) => {
-    const content = await this.prisma.cultureContent.findUnique({
-      select: {
-        idx: true,
-        acceptedAt: true,
-        locationIdx: true,
-      },
-      where: {
-        idx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find culture content');
-    }
-
-    if (content.acceptedAt) {
-      throw new ForbiddenException('Cannot update accepted culture-content');
-    }
-
     await this.prisma.$transaction([
       this.prisma.location.update({
         where: {
-          idx: content.locationIdx,
+          idx,
         },
         data: {
           ...updateDto.location,
@@ -820,29 +797,6 @@ export class CultureContentService {
    * 컨텐츠 요청 삭제하기
    */
   public deleteContentRequest: (idx: number) => Promise<void> = async (idx) => {
-    const content = await this.prisma.cultureContent.findUnique({
-      select: {
-        idx: true,
-        acceptedAt: true,
-        locationIdx: true,
-      },
-      where: {
-        idx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find culture content');
-    }
-
-    if (content.acceptedAt) {
-      throw new ForbiddenException('Cannot update accepted culture-content');
-    }
-
     await this.prisma.cultureContent.update({
       where: {
         idx,
