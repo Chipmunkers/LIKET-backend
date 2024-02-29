@@ -1,9 +1,11 @@
 import {
+  Body,
   Controller,
   ForbiddenException,
   Get,
   Param,
   ParseIntPipe,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +18,7 @@ import { GetReviewAllForAdminResponseDto } from './dto/response/GetReviewAllForA
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { ReviewEntity } from './entity/ReviewEntity';
+import { UpdateReviewDto } from './dto/UpdateReviewDto';
 
 @Controller('review')
 export class ReviewController {
@@ -65,5 +68,34 @@ export class ReviewController {
     }
 
     return await this.reviewService.getReviewByIdxForAdmin(reviewIdx);
+  }
+
+  /**
+   * Update review by idx API
+   * @summary Update review by idx API
+   *
+   * @tag Review
+   */
+  @Put('/:idx')
+  @TypedException<ExceptionDto>(400, 'Invalid path or body')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(404, 'Cannot find review')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async updateReview(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) reviewIdx: number,
+    @Body() updateDto: UpdateReviewDto,
+  ): Promise<void> {
+    const review = await this.reviewService.getReviewByIdxForAdmin(reviewIdx);
+
+    if (review.author.idx !== loginUser.idx) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.reviewService.updateReview(reviewIdx, updateDto);
+
+    return;
   }
 }
