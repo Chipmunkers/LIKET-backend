@@ -2,7 +2,7 @@ import { Injectable, Search } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { ReviewEntity } from './entity/ReviewEntity';
 import { ReviewListPagerbleDto } from './dto/ReviewListPagerbleDto';
-import { ReviewListByContentPagerbleDto } from './dto/ReviewListByContentPagerbleDto';
+import { ReviewListByContentPagerbleDto } from '../culture-content/dto/ReviewListByContentPagerbleDto';
 import { UpdateReviewDto } from './dto/UpdateReviewDto';
 import { CreateReviewDto } from '../culture-content/dto/CreateReviewDto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
