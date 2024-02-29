@@ -462,12 +462,24 @@ export class ReviewService {
         throw new AlreadyLikeReviewException('Already like review');
       }
 
-      await this.prisma.reviewLike.create({
-        data: {
-          reviewIdx,
-          userIdx,
-        },
-      });
+      await this.prisma.$transaction([
+        this.prisma.reviewLike.create({
+          data: {
+            reviewIdx,
+            userIdx,
+          },
+        }),
+        this.prisma.review.update({
+          where: {
+            idx: reviewIdx,
+          },
+          data: {
+            likeCount: {
+              increment: 1,
+            },
+          },
+        }),
+      ]);
 
       return;
     };
@@ -492,14 +504,26 @@ export class ReviewService {
       throw new AlreadyNotLikeReviewExcpetion('Already do not like review');
     }
 
-    await this.prisma.reviewLike.delete({
-      where: {
-        reviewIdx_userIdx: {
-          reviewIdx,
-          userIdx,
+    await this.prisma.$transaction([
+      this.prisma.reviewLike.delete({
+        where: {
+          reviewIdx_userIdx: {
+            reviewIdx,
+            userIdx,
+          },
         },
-      },
-    });
+      }),
+      this.prisma.review.update({
+        where: {
+          idx: reviewIdx,
+        },
+        data: {
+          likeCount: {
+            decrement: 1,
+          },
+        },
+      }),
+    ]);
 
     return;
   };
