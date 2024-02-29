@@ -2,6 +2,8 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  Param,
+  ParseIntPipe,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +15,7 @@ import { ReviewListPagerbleDto } from './dto/ReviewListPagerbleDto';
 import { GetReviewAllForAdminResponseDto } from './dto/response/GetReviewAllForAdminResponseDto';
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
+import { ReviewEntity } from './entity/ReviewEntity';
 
 @Controller('review')
 export class ReviewController {
@@ -39,5 +42,28 @@ export class ReviewController {
     }
 
     return await this.reviewService.getReviewAllForAdmin(pagerble);
+  }
+
+  /**
+   * Get review by idx for admin API
+   * @summary Get review by idx for admin API
+   *
+   * @tag Review
+   */
+  @Get('/:idx')
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getReviewByIdxForAdmin(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) reviewIdx: number,
+  ): Promise<ReviewEntity<'detail', 'admin'>> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    return await this.reviewService.getReviewByIdxForAdmin(reviewIdx);
   }
 }
