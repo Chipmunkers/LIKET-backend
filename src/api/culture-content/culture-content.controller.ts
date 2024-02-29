@@ -27,6 +27,7 @@ import { ContentEntity } from './entity/ContentEntity';
 import { GetCultureContentAllResponseDto } from './dto/response/GetCultureContentAllResponseDto';
 import { ContentListPagenationDto } from './dto/ContentListPagenationDto';
 import { GetSoonOpenCultureContentResponseDto } from './dto/response/GetSoonOpenCultureContentResponseDto';
+import { UpdateContentDto } from './dto/UpdateContentDto';
 
 @Controller('culture-content')
 export class CultureContentController {
@@ -266,6 +267,45 @@ export class CultureContentController {
     return {
       idx: contentIdx,
     };
+  }
+
+  /**
+   * Update culture-content request API
+   * @summary Update culture-content request API
+   *
+   * @tag Culture-Content-Request
+   */
+  @Put('/request/:idx')
+  @TypedException<ExceptionDto>(400, 'Invalid body')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Accepted culture-content')
+  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
+  @TypedException<ExceptionDto>(409, 'Accepted request')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async updateContentRequest(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) contentIdx: number,
+    @Body() updateDto: UpdateContentDto,
+  ): Promise<void> {
+    const content = await this.cultureContentService.getContentRequestByIdx(
+      contentIdx,
+    );
+
+    if (content.acceptedAt) {
+      throw new ConflictException('Cannot update accepted request');
+    }
+
+    if (content.author.idx !== loginUser.idx) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.cultureContentService.updateContentRequest(
+      contentIdx,
+      updateDto,
+    );
+
+    return;
   }
 
   /**
