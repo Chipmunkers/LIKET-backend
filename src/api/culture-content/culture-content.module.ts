@@ -15,5 +15,6 @@ import { ReveiwModule } from '../review/reveiw.module';
     ContentReviewController,
   ],
   providers: [CultureContentService, TagService],
+  exports: [CultureContentService],
 })
 export class CultureContentModule {}

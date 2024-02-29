@@ -6,9 +6,10 @@ import { AuthModule } from '../auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../../common/service/hash.service';
 import { ReveiwModule } from '../review/reveiw.module';
+import { CultureContentModule } from '../culture-content/culture-content.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ReveiwModule],
+  imports: [PrismaModule, AuthModule, ReveiwModule, CultureContentModule],
   controllers: [UserController],
   providers: [UserService, JwtService, HashService],
 })

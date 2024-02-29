@@ -12,6 +12,7 @@ import { ContentEntity } from './entity/ContentEntity';
 import { ContentNotFoundException } from './exception/ContentNotFound';
 import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeContentException';
+import { ContentListByUserIdxPagerbleDto } from './dto/ContentListByUserIdxPagerbleDto';
 
 @Injectable()
 export class CultureContentService {
@@ -241,6 +242,85 @@ export class CultureContentService {
       count: count,
     };
   };
+
+  /**
+   * 사용자로 컨텐츠 목록 보기
+   */
+  public async getContentByUserIdx(
+    userIdx: number,
+    pagerble: ContentListByUserIdxPagerbleDto,
+  ): Promise<{
+    contentList: ContentEntity<'summary', 'admin'>[];
+    count: number;
+  }> {
+    const [count, contentList] = await this.prisma.$transaction([
+      this.prisma.cultureContent.count({
+        where: {
+          userIdx,
+          deletedAt: null,
+        },
+      }),
+      this.prisma.cultureContent.findMany({
+        include: {
+          User: true,
+          ContentImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
+          Genre: true,
+          Style: {
+            include: {
+              Style: true,
+            },
+            where: {
+              Style: {
+                deletedAt: null,
+              },
+            },
+          },
+          Age: true,
+          Location: true,
+          ContentLike: {
+            where: {
+              userIdx,
+            },
+          },
+          _count: {
+            select: {
+              Review: {
+                where: {
+                  deletedAt: null,
+                  User: {
+                    deletedAt: null,
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: {
+          userIdx,
+          deletedAt: null,
+        },
+        orderBy: {
+          idx: 'desc',
+        },
+        take: 10,
+        skip: (pagerble.page - 1) * 10,
+      }),
+    ]);
+
+    return {
+      contentList: contentList.map((content) =>
+        ContentEntity.createAdminSummaryContent(content),
+      ),
+      count,
+    };
+  }
 
   /**
    * 오픈 예정 컨텐츠 보기
