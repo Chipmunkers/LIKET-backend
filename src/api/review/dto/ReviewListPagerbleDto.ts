@@ -10,7 +10,7 @@ export class ReviewListPagerbleDto extends PickType(PagenationDto, ['page']) {
   @IsString()
   @Length(1, 20)
   @IsOptional()
-  search?: string = '';
+  search?: string;
 
   @IsString()
   @IsIn(['desc', 'asc'])
