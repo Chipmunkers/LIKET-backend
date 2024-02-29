@@ -119,7 +119,6 @@ export class ReviewService {
     reviewList: ReviewEntity<'detail', 'user'>[];
     count: number;
   }> = async (userIdx, pagerble) => {
-    console.log(pagerble);
     const [count, reviewList] = await this.prisma.$transaction([
       this.prisma.review.count({
         where: {
