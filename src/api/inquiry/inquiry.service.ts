@@ -96,7 +96,22 @@ export class InquiryService {
   public createInquiry: (
     userIdx: number,
     createDto: CreateInquiryDto,
-  ) => Promise<number>;
+  ) => Promise<number> = async (userIdx, createDto) => {
+    const createdInquiry = await this.prisma.inquiry.create({
+      data: {
+        title: createDto.title,
+        contents: createDto.contents,
+        InquiryImg: {
+          createMany: {
+            data: createDto.imgList.map((img) => ({
+              imgPath: img.fileName,
+            })),
+          },
+        },
+        typeIdx: createDto.typeIdx,
+      },
+    });
 
-  public deleteInquiry: (idx: number) => Promise<void>;
+    return createdInquiry.idx;
+  };
 }
