@@ -114,4 +114,17 @@ export class InquiryService {
 
     return createdInquiry.idx;
   };
+
+  public deleteInquiry: (idx: number) => Promise<void> = async (idx) => {
+    await this.prisma.inquiry.update({
+      where: {
+        idx,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    return;
+  };
 }
