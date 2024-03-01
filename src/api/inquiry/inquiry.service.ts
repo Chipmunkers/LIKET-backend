@@ -3,6 +3,7 @@ import { PrismaService } from '../../common/prisma/prisma.service';
 import { InquiryListPagenationDto } from './dto/InquiryListPagenationDto';
 import { InquiryEntity } from './entity/InquiryEntity';
 import { CreateInquiryDto } from './dto/CreateInquiryDto';
+import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
 
 @Injectable()
 export class InquiryService {
@@ -10,10 +11,87 @@ export class InquiryService {
 
   public getInquiryAll: (pagerble: InquiryListPagenationDto) => Promise<{
     count: number;
-    inquiryList: InquiryEntity<'summary'>;
-  }>;
+    inquiryList: InquiryEntity<'summary'>[];
+  }> = async (pagerble) => {
+    const [inquiryList, count] = await this.prisma.$transaction([
+      this.prisma.inquiry.findMany({
+        include: {
+          Answer: {
+            where: {
+              deletedAt: null,
+            },
+          },
+          InquiryType: true,
+          InquiryImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
+        },
+        where: {
+          deletedAt: null,
+          User: {
+            deletedAt: null,
+          },
+        },
+        orderBy: {
+          idx: pagerble.order,
+        },
+        take: 10,
+        skip: (pagerble.page - 1) * 10,
+      }),
+      this.prisma.inquiry.count({
+        where: {
+          deletedAt: null,
+          User: {
+            deletedAt: null,
+          },
+        },
+      }),
+    ]);
 
-  public getInquiryByIdx: (idx: number) => Promise<InquiryEntity<'detail'>>;
+    return {
+      inquiryList: inquiryList.map((inquiry) =>
+        InquiryEntity.createSummaryInquiry(inquiry),
+      ),
+      count,
+    };
+  };
+
+  public getInquiryByIdx: (idx: number) => Promise<InquiryEntity<'detail'>> =
+    async (idx) => {
+      const inquiry = await this.prisma.inquiry.findUnique({
+        include: {
+          Answer: {
+            where: {
+              deletedAt: null,
+            },
+          },
+          InquiryType: true,
+          InquiryImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
+        },
+        where: {
+          idx,
+          deletedAt: null,
+        },
+      });
+
+      if (!inquiry) {
+        throw new InquiryNotFoundException('Cannot find inquiry');
+      }
+
+      return InquiryEntity.createDetailInquiry(inquiry);
+    };
 
   public createInquiry: (
     userIdx: number,
