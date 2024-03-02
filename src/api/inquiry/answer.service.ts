@@ -84,7 +84,18 @@ export class AnswerService {
   public updateAnswer: (
     idx: number,
     updateDto: UpdateAnswerDto,
-  ) => Promise<void>;
+  ) => Promise<void> = async (idx, updateDto) => {
+    await this.prisma.answer.update({
+      where: {
+        idx,
+      },
+      data: {
+        contents: updateDto.contents,
+      },
+    });
+
+    return;
+  };
 
   public deleteAnswer: (idx: number) => Promise<void>;
 }
