@@ -97,5 +97,16 @@ export class AnswerService {
     return;
   };
 
-  public deleteAnswer: (idx: number) => Promise<void>;
+  public deleteAnswer: (idx: number) => Promise<void> = async (idx) => {
+    await this.prisma.answer.update({
+      where: {
+        idx,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    return;
+  };
 }
