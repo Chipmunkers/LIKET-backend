@@ -3,8 +3,10 @@ import { BannerService } from '../../../src/api/banner/banner.service';
 import { PrismaService } from '../../../src/common/prisma/prisma.service';
 import { BannerEntity } from '../../../src/api/banner/entity/BannerEntity';
 import { BannerNotFoundException } from '../../../src/api/banner/exception/BannerNotFoundException';
-import { ConflictException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 import { UpdateBannerDto } from '../../../src/api/banner/dto/UpdateBannerDto';
+import { BannerOrderOutOfRangeException } from '../../../src/api/banner/exception/BannerOrderOutOfRangeException';
+import { AlreadyActiveBannerException } from '../../../src/api/banner/exception/AlreadyActiveBannerException';
 
 describe('BannerService', () => {
   let service: BannerService;
@@ -160,6 +162,202 @@ describe('BannerService', () => {
 
     await expect(service.deleteBanner(1)).rejects.toThrow(
       BannerNotFoundException,
+    );
+  });
+
+  it('updateBannerOrder success', async () => {
+    // 1. start transaction
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
+        return await func(prismaMock);
+      });
+
+    // 2. get order of banner
+    prismaMock.activeBanner.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      order: 7,
+    });
+
+    // 3. get active banner last order
+    prismaMock.activeBanner.findFirst = jest.fn().mockResolvedValue({
+      idx: 1,
+      order: 10,
+    });
+
+    // 4. update the other banners order
+    prismaMock.activeBanner.updateMany = jest.fn().mockResolvedValue({});
+
+    // 5. update banner order
+    prismaMock.activeBanner.update = jest.fn().mockResolvedValue({});
+
+    await expect(
+      service.updateBannerOrder(1, { order: 1 }),
+    ).resolves.toBeUndefined();
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.findFirst).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.updateMany).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('updateBannerOrder fail - banner not found', async () => {
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
+        return await func(prismaMock);
+      });
+
+    // banner not found
+    prismaMock.activeBanner.findUnique = jest.fn().mockResolvedValue(null);
+
+    await expect(service.updateBannerOrder(1, { order: 4 })).rejects.toThrow(
+      BannerNotFoundException,
+    );
+  });
+
+  it('updateBannerOrder fail - order out of range', async () => {
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
+        return await func(prismaMock);
+      });
+
+    prismaMock.activeBanner.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      order: 1,
+    });
+
+    // the order of the last banner is 5
+    prismaMock.activeBanner.findFirst = jest.fn().mockRejectedValue({
+      idx: 1,
+      order: 5,
+    });
+
+    // but the input order is 1000
+    await expect(service.updateBannerOrder(1, { order: 1000 })).rejects.toThrow(
+      BannerOrderOutOfRangeException,
+    );
+  });
+
+  it('updateBannerOrder fail - try to change order to same order', async () => {
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
+        return await func(prismaMock);
+      });
+
+    // the order of the banner is 1 now
+    prismaMock.activeBanner.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      order: 1,
+    });
+
+    // but the input order is same number, 1
+    await expect(service.updateBannerOrder(1, { order: 1 })).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('updateBannerOrder fail - there is no active banner', async () => {
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
+        return await func(prismaMock);
+      });
+
+    prismaMock.activeBanner.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      order: 1,
+    });
+
+    // there is no active banner
+    prismaMock.activeBanner.findFirst = jest.fn().mockResolvedValue(null);
+
+    await expect(service.updateBannerOrder(1, { order: 1 })).rejects.toThrow(
+      BannerOrderOutOfRangeException,
+    );
+  });
+
+  it('activateBanner success', async () => {
+    // 1. find banner with activeBanner via prisma
+    const bannerIdx = 1;
+    prismaMock.banner.findUnique = jest.fn().mockResolvedValue({
+      idx: bannerIdx,
+      ActiveBanner: null,
+    });
+
+    // 2. get the last order of the banner
+    const lastOrder = 3;
+    prismaMock.activeBanner.findFirst = jest.fn().mockResolvedValue({
+      order: lastOrder,
+    });
+
+    // 3. create active banner
+    prismaMock.activeBanner.create = jest.fn().mockResolvedValue({});
+
+    await expect(service.activateBanner(bannerIdx)).resolves.toBeUndefined();
+    expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.findFirst).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.create).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          order: lastOrder + 1,
+          idx: bannerIdx,
+        },
+      }),
+    );
+  });
+
+  it('activateBanner success - there is no active banner', async () => {
+    // 1. find banner with activeBanner via prisma
+    const bannerIdx = 1;
+    prismaMock.banner.findUnique = jest.fn().mockResolvedValue({
+      idx: bannerIdx,
+      ActiveBanner: null,
+    });
+
+    // 2. get the last order of the banner
+    prismaMock.activeBanner.findFirst = jest.fn().mockResolvedValue(null);
+
+    // 3. create active banner
+    prismaMock.activeBanner.create = jest.fn().mockResolvedValue({});
+
+    await expect(service.activateBanner(1)).resolves.toBeUndefined();
+    expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.findFirst).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.create).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          number: 1,
+          idx: bannerIdx,
+        },
+      }),
+    );
+  });
+
+  it('activeBanner fail - banner not found', async () => {
+    // banner not found
+    prismaMock.banner.findUnique = jest.fn().mockResolvedValue(null);
+
+    await expect(service.activateBanner(1)).rejects.toThrow(
+      BannerNotFoundException,
+    );
+  });
+
+  it('activeBanner fail - already active banner', async () => {
+    // already active banner
+    prismaMock.banner.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      ActiveBanner: {
+        idx: 1,
+      },
+    });
+
+    await expect(service.activateBanner(1)).rejects.toThrow(
+      AlreadyActiveBannerException,
     );
   });
 });
