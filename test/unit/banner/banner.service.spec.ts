@@ -280,23 +280,37 @@ describe('BannerService', () => {
   });
 
   it('activateBanner success', async () => {
-    // 1. find banner with activeBanner via prisma
+    // 1. start transaction
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
+        return await func(prismaMock);
+      });
+
+    // 2. find banner with activeBanner via prisma
     const bannerIdx = 1;
     prismaMock.banner.findUnique = jest.fn().mockResolvedValue({
       idx: bannerIdx,
       ActiveBanner: null,
     });
 
-    // 2. get the last order of the banner
+    // 3. get the last order of the banner
     const lastOrder = 3;
     prismaMock.activeBanner.findFirst = jest.fn().mockResolvedValue({
       order: lastOrder,
     });
 
-    // 3. create active banner
+    // 4. create active banner
     prismaMock.activeBanner.create = jest.fn().mockResolvedValue({});
 
     await expect(service.activateBanner(bannerIdx)).resolves.toBeUndefined();
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(prismaMock.$transaction).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        isolationLevel: 'RepeatableRead',
+      }),
+    );
     expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.activeBanner.findFirst).toHaveBeenCalledTimes(1);
     expect(prismaMock.activeBanner.create).toHaveBeenCalledTimes(1);
@@ -311,20 +325,34 @@ describe('BannerService', () => {
   });
 
   it('activateBanner success - there is no active banner', async () => {
-    // 1. find banner with activeBanner via prisma
+    // 1. start  transaction
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
+        return await func(prismaMock);
+      });
+
+    // 2. find banner with activeBanner via prisma
     const bannerIdx = 1;
     prismaMock.banner.findUnique = jest.fn().mockResolvedValue({
       idx: bannerIdx,
       ActiveBanner: null,
     });
 
-    // 2. get the last order of the banner
+    // 3. get the last order of the banner
     prismaMock.activeBanner.findFirst = jest.fn().mockResolvedValue(null);
 
-    // 3. create active banner
+    // 4. create active banner
     prismaMock.activeBanner.create = jest.fn().mockResolvedValue({});
 
     await expect(service.activateBanner(1)).resolves.toBeUndefined();
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(prismaMock.$transaction).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        isolationLevel: 'RepeatableRead',
+      }),
+    );
     expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.activeBanner.findFirst).toHaveBeenCalledTimes(1);
     expect(prismaMock.activeBanner.create).toHaveBeenCalledTimes(1);
@@ -339,6 +367,12 @@ describe('BannerService', () => {
   });
 
   it('activeBanner fail - banner not found', async () => {
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
+        return await func(prismaMock);
+      });
+
     // banner not found
     prismaMock.banner.findUnique = jest.fn().mockResolvedValue(null);
 
@@ -348,6 +382,12 @@ describe('BannerService', () => {
   });
 
   it('activeBanner fail - already active banner', async () => {
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
+        return await func(prismaMock);
+      });
+
     // already active banner
     prismaMock.banner.findUnique = jest.fn().mockResolvedValue({
       idx: 1,
