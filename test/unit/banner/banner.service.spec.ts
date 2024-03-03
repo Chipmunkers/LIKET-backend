@@ -56,6 +56,7 @@ describe('BannerService', () => {
   it('getBannerByIdxForAdmin success', async () => {
     prismaMock.banner.findUnique = jest.fn().mockResolvedValue({
       idx: 1,
+      imgPath: [],
     });
 
     await expect(service.getBannerByIdxForAdmin(1)).resolves.toBeInstanceOf(
@@ -70,61 +71,95 @@ describe('BannerService', () => {
     await expect(service.getBannerByIdxForAdmin(1)).rejects.toThrow(
       BannerNotFoundException,
     );
-    expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
   });
 
   it('updateBanner success', async () => {
-    // 1. find banner via prisma
-    prismaMock.banner.findUnique = jest.fn().mockResolvedValue({ idx: 1 });
-
-    // 2. update banner
+    // 1. update banner
     prismaMock.banner.update = jest.fn().mockResolvedValue({});
 
     await expect(
       service.updateBanner(1, {} as UpdateBannerDto),
     ).resolves.toBeUndefined();
-    expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.banner.update).toHaveBeenCalledTimes(1);
   });
 
-  it('udpateBanner fail - banner not found', async () => {
-    // not found banner
-    prismaMock.banner.findUnique = jest.fn().mockResolvedValue(null);
-
-    await expect(
-      service.updateBanner(1, {} as UpdateBannerDto),
-    ).rejects.toThrow(BannerNotFoundException);
-  });
-
   it('deleteBanner success', async () => {
-    // 1. find banner with prisma
-    prismaMock.banner.findUnique = jest
+    // 1. start transaction
+    prismaMock.$transaction = jest
       .fn()
-      .mockResolvedValue({ idx: 1, ActiveBanner: null });
+      .mockResolvedValue(async (func: (tx: PrismaService) => Promise<any>) => {
+        func(prismaMock);
+      });
 
-    // 2. excute transaction ( delete banner )
-    prismaMock.$transaction = jest.fn().mockResolvedValue({});
+    // 2. find banner
+    prismaMock.banner.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      ActiveBanner: {
+        idx: 1,
+        order: 1,
+      },
+    });
+
+    // 3. delete banner by idx
+    prismaMock.banner.update = jest.fn().mockResolvedValue({});
+
+    // 4. delete active banner
+    prismaMock.activeBanner.delete = jest.fn().mockResolvedValue({});
+
+    // 5. update other banner active
+    prismaMock.activeBanner.update = jest.fn().mockResolvedValue({});
 
     await expect(service.deleteBanner(1)).resolves.toBeUndefined();
-    expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.banner.update).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.delete).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('deleteBanner success - deactivate banner', async () => {
+    // 1. start transaction
+    prismaMock.$transaction = jest
+      .fn()
+      .mockResolvedValue(async (func: (tx: PrismaService) => Promise<any>) => {
+        func(prismaMock);
+      });
+
+    // 2. find banner
+    prismaMock.banner.findUnique = jest.fn().mockResolvedValue({
+      idx: 1,
+      ActiveBanner: null,
+    });
+
+    // 3. delete banner by idx
+    prismaMock.banner.update = jest.fn().mockResolvedValue({});
+
+    // 4. delete active banner
+    prismaMock.activeBanner.delete = jest.fn().mockResolvedValue({});
+
+    // 5. update other banner active
+    prismaMock.activeBanner.update = jest.fn().mockResolvedValue({});
+
+    await expect(service.deleteBanner(1)).resolves.toBeUndefined();
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
+    expect(prismaMock.banner.update).toHaveBeenCalledTimes(1);
+    expect(prismaMock.activeBanner.delete).toHaveBeenCalledTimes(0);
+    expect(prismaMock.activeBanner.update).toHaveBeenCalledTimes(0);
   });
 
   it('deleteBanner fail - banner not found', async () => {
-    // banner not ounf
+    prismaMock.$transaction = jest
+      .fn()
+      .mockResolvedValue(async (func: (tx: PrismaService) => Promise<any>) => {
+        func(prismaMock);
+      });
+
+    // banner not found
     prismaMock.banner.findUnique = jest.fn().mockResolvedValue(null);
 
     await expect(service.deleteBanner(1)).rejects.toThrow(
       BannerNotFoundException,
     );
-  });
-
-  it('deleteBanner fail - active banner', async () => {
-    // active banner
-    prismaMock.banner.findUnique = jest
-      .fn()
-      .mockResolvedValue({ idx: 1, ActiveBanner: { idx: 1 } });
-
-    await expect(service.deleteBanner(1)).rejects.toThrow(ConflictException);
   });
 });
