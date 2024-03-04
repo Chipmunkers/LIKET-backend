@@ -313,7 +313,7 @@ export class CultureContentController {
    * Delete culture-content request API
    * @summary Delete culture-content request API
    *
-   * @tag Cutlure-Content-Request
+   * @tag Culture-Content-Request
    */
   @Delete('/request/:idx')
   @HttpCode(201)
