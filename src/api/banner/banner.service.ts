@@ -8,6 +8,7 @@ import { BannerNotFoundException } from './exception/BannerNotFoundException';
 import { AlreadyActiveBannerException } from './exception/AlreadyActiveBannerException';
 import { AlreadyDeactiveBannerException } from './exception/AlreadyDeactiveBannerException';
 import { BannerOrderOutOfRangeException } from './exception/BannerOrderOutOfRangeException';
+import { CreateBannerDto } from './dto/CreateBannerDto';
 
 @Injectable()
 export class BannerService {
@@ -107,6 +108,23 @@ export class BannerService {
     });
 
     return;
+  };
+
+  /**
+   * 배너 생성하기
+   */
+  public createBanner: (createDto: CreateBannerDto) => Promise<number> = async (
+    createDto,
+  ) => {
+    const createdBanner = await this.prisma.banner.create({
+      data: {
+        name: createDto.name,
+        link: createDto.link,
+        imgPath: createDto.img.fileName,
+      },
+    });
+
+    return createdBanner.idx;
   };
 
   /**
