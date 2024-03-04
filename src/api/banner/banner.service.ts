@@ -5,6 +5,7 @@ import { BannerListPagerbleDto } from './dto/BannerListPagerbleDto';
 import { UpdateBannerDto } from './dto/UpdateBannerDto';
 import { UpdateBannerOrderDto } from './dto/UpdateBannerOrderDto';
 import { BannerNotFoundException } from './exception/BannerNotFoundException';
+import { AlreadyActiveBannerException } from './exception/AlreadyActiveBannerException';
 
 @Injectable()
 export class BannerService {
@@ -171,7 +172,54 @@ export class BannerService {
   /**
    * 배너 활성화하기
    */
-  public activateBanner: (bannerIdx: number) => Promise<void>;
+  public activateBanner: (bannerIdx: number) => Promise<void> = async (
+    bannerIdx,
+  ) => {
+    await this.prisma.$transaction(
+      async (tx) => {
+        const banner = await this.prisma.banner.findUnique({
+          include: {
+            ActiveBanner: true,
+          },
+          where: {
+            idx: bannerIdx,
+            deletedAt: null,
+          },
+        });
+
+        if (!banner) {
+          throw new BannerNotFoundException('Cannot find banner');
+        }
+
+        if (banner.ActiveBanner) {
+          throw new AlreadyActiveBannerException('Aready activated banner');
+        }
+
+        const lastActiveBanner = await this.prisma.activeBanner.findFirst({
+          select: {
+            order: true,
+          },
+          orderBy: {
+            order: 'desc',
+          },
+        });
+
+        await this.prisma.activeBanner.create({
+          data: {
+            idx: bannerIdx,
+            order: (lastActiveBanner?.order || 0) + 1,
+          },
+        });
+
+        return;
+      },
+      {
+        isolationLevel: 'RepeatableRead',
+      },
+    );
+
+    return;
+  };
 
   /**
    * 배너 비활성화하기
