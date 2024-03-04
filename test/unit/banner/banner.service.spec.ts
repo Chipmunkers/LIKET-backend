@@ -404,7 +404,7 @@ describe('BannerService', () => {
     );
   });
 
-  it('activeBanner fail - banner not found', async () => {
+  it('activateBanner fail - banner not found', async () => {
     prismaMock.$transaction = jest
       .fn()
       .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
@@ -419,7 +419,7 @@ describe('BannerService', () => {
     );
   });
 
-  it('activeBanner fail - already active banner', async () => {
+  it('activateBanner fail - already active banner', async () => {
     prismaMock.$transaction = jest
       .fn()
       .mockImplementation(async (func: (tx: PrismaService) => Promise<any>) => {
