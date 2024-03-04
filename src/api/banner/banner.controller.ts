@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   HttpCode,
@@ -130,12 +131,31 @@ export class BannerController {
   }
 
   /**
-   * 배너 삭제하기
+   * Delete banner API
+   * @summary Delete banner API
+   *
+   * @tag Banner
    */
-  public deleteBanner: (
-    idx: number,
-    updateDto: UpdateBannerDto,
-  ) => Promise<void>;
+  @Delete('/idx')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @TypedException<ExceptionDto>(404, 'Cannot find banner')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async deleteBanner(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<void> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.bannerService.deleteBanner(idx);
+
+    return;
+  }
 
   // User =====================================================
 
