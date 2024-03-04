@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { BannerEntity } from './entity/BannerEntity';
 import { BannerListPagerbleDto } from './dto/BannerListPagerbleDto';
@@ -7,6 +7,7 @@ import { UpdateBannerOrderDto } from './dto/UpdateBannerOrderDto';
 import { BannerNotFoundException } from './exception/BannerNotFoundException';
 import { AlreadyActiveBannerException } from './exception/AlreadyActiveBannerException';
 import { AlreadyDeactiveBannerException } from './exception/AlreadyDeactiveBannerException';
+import { BannerOrderOutOfRangeException } from './exception/BannerOrderOutOfRangeException';
 
 @Injectable()
 export class BannerService {
@@ -285,5 +286,91 @@ export class BannerService {
   public updateBannerOrder: (
     bannerIdx: number,
     updateOrderDto: UpdateBannerOrderDto,
-  ) => Promise<void>;
+  ) => Promise<void> = async (bannerIdx, updateOrderDto) => {
+    await this.prisma.$transaction(
+      async (tx) => {
+        const banner = await tx.activeBanner.findUnique({
+          where: {
+            idx: bannerIdx,
+          },
+        });
+
+        if (!banner) {
+          throw new BannerNotFoundException('Cannot find banner');
+        }
+
+        if (banner.order === updateOrderDto.order) {
+          throw new BadRequestException('Cannot change order to same order');
+        }
+
+        const lastActiveBanner = await tx.activeBanner.findFirst({
+          orderBy: {
+            order: 'desc',
+          },
+        });
+
+        if (!lastActiveBanner) {
+          throw new BannerOrderOutOfRangeException(
+            'Cannot be exceeded the maximum order',
+          );
+        }
+
+        if (updateOrderDto.order > lastActiveBanner.order) {
+          throw new BannerOrderOutOfRangeException(
+            'Cannot be exeeded the maximum order',
+          );
+        }
+
+        // 3 -> 1
+        if (banner.order > updateOrderDto.order) {
+          await tx.activeBanner.updateMany({
+            where: {
+              order: {
+                gt: updateOrderDto.order,
+                lte: banner.order,
+              },
+            },
+            data: {
+              order: {
+                increment: 1,
+              },
+            },
+          });
+        }
+
+        // 2 -> 6
+        if (banner.order < updateOrderDto.order) {
+          await tx.activeBanner.updateMany({
+            where: {
+              order: {
+                gt: banner.order,
+                lte: updateOrderDto.order,
+              },
+            },
+            data: {
+              order: {
+                decrement: 1,
+              },
+            },
+          });
+        }
+
+        await tx.activeBanner.update({
+          where: {
+            idx: bannerIdx,
+          },
+          data: {
+            order: updateOrderDto.order,
+          },
+        });
+
+        return;
+      },
+      {
+        isolationLevel: 'RepeatableRead',
+      },
+    );
+
+    return;
+  };
 }
