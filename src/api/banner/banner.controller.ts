@@ -1,9 +1,26 @@
-import { Controller } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { BannerService } from './banner.service';
 import { BannerEntity } from './entity/BannerEntity';
 import { BannerListPagerbleDto } from './dto/BannerListPagerbleDto';
 import { CreateBannerDto } from './dto/CreateBannerDto';
 import { UpdateBannerDto } from './dto/UpdateBannerDto';
+import { TypedException } from '@nestia/core';
+import { ExceptionDto } from '../../common/dto/ExceptionDto';
+import { GetBannerAllForAdminResponseDto } from './dto/response/GetBannerAllForAdminResponseDto';
+import { LoginAuthGuard } from '../../common/guard/auth.guard';
+import { User } from '../../common/decorator/user.decorator';
+import { LoginUserDto } from '../../common/dto/LoginUserDto';
 
 @Controller('banner')
 export class BannerController {
@@ -12,22 +29,76 @@ export class BannerController {
   // Admin ====================================================
 
   /**
-   * 관리자용 배너 전체 가져오기
+   * Get banner all API for admin
+   * @summary Get banner all API for admin
+   *
+   * @tag Banner
    */
-  public getBannerAllForAdmin: (pagerble: BannerListPagerbleDto) => Promise<{
-    bannerList: BannerEntity<'all'>[];
-    count: number;
-  }>;
+  @Get('/banner/all')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid querystring')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getBannerAllForAdmin(
+    @User() loginUser: LoginUserDto,
+    @Query() pagerble: BannerListPagerbleDto,
+  ): Promise<GetBannerAllForAdminResponseDto> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    return await this.bannerService.getBannerAllForAdmin(pagerble);
+  }
 
   /**
-   * 배너 자세히보기
+   * Get banner by idx API
+   * @summary Get banner by idx API
+   *
+   * @tag Banner
    */
-  public getBannerByIdxForAdmin: (idx: number) => Promise<BannerEntity<'all'>>;
+  @Get('/:idx')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid querystring')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @TypedException<ExceptionDto>(404, 'Cannot find banner')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getBannerByIdxForAdmin(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<BannerEntity<'all'>> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    return await this.bannerService.getBannerByIdxForAdmin(idx);
+  }
 
   /**
-   * 배너 생성하기
+   * Create banner API
+   * @summary Create banner API
+   *
+   * @tag Banner
    */
-  public createBanner: (createDto: CreateBannerDto) => Promise<number>;
+  @Post('/')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid querystring')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  public async createBanner(
+    @User() loginUser: LoginUserDto,
+    @Body() createDto: CreateBannerDto,
+  ): Promise<number> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    return await this.bannerService.createBanner(createDto);
+  }
 
   /**
    * 배너 수정하기
