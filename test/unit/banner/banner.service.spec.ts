@@ -104,6 +104,23 @@ describe('BannerService', () => {
     );
   });
 
+  it('createBanner success', async () => {
+    const createdBanner = { idx: 1 };
+    prismaMock.banner.create = jest.fn().mockResolvedValue(createdBanner);
+
+    await expect(
+      service.createBanner({
+        name: '',
+        link: '',
+        img: {
+          fileName: '',
+          fielExt: '',
+        },
+      }),
+    ).resolves.toBe(createdBanner.idx);
+    expect(prismaMock.banner.create).toHaveBeenCalledTimes(1);
+  });
+
   it('updateBanner success', async () => {
     // 1. update banner
     prismaMock.banner.update = jest.fn().mockResolvedValue({});
