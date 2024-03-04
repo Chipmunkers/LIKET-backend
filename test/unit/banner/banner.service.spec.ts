@@ -273,7 +273,7 @@ describe('BannerService', () => {
     });
 
     // the order of the last banner is 5
-    prismaMock.activeBanner.findFirst = jest.fn().mockRejectedValue({
+    prismaMock.activeBanner.findFirst = jest.fn().mockResolvedValue({
       idx: 1,
       order: 5,
     });
