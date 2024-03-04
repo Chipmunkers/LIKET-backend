@@ -147,6 +147,12 @@ describe('BannerService', () => {
 
     await expect(service.deleteBanner(1)).resolves.toBeUndefined();
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(prismaMock.$transaction).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        isolationLevel: 'RepeatableRead',
+      }),
+    );
     expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.banner.update).toHaveBeenCalledTimes(1);
     expect(prismaMock.activeBanner.delete).toHaveBeenCalledTimes(1);
@@ -172,6 +178,12 @@ describe('BannerService', () => {
 
     await expect(service.deleteBanner(1)).resolves.toBeUndefined();
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(prismaMock.$transaction).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        isolationLevel: 'RepeatableRead',
+      }),
+    );
     expect(prismaMock.banner.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.banner.update).toHaveBeenCalledTimes(1);
   });
