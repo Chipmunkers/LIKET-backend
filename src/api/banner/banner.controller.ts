@@ -7,6 +7,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -101,9 +102,32 @@ export class BannerController {
   }
 
   /**
-   * 배너 수정하기
+   * Update banner API
+   * @summary Update banner API
+   *
+   * @tag Banner
    */
-  public updateBanner: (idx: number) => Promise<void>;
+  @Put('/:idx')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid body')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No admin authorization')
+  @TypedException<ExceptionDto>(404, 'Cannot find banner')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async updateBanner(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) idx: number,
+    @Body() updateDto: UpdateBannerDto,
+  ): Promise<void> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.bannerService.updateBanner(idx, updateDto);
+
+    return;
+  }
 
   /**
    * 배너 삭제하기
