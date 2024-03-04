@@ -34,10 +34,35 @@ export class BannerService {
   /**
    * 배너 목록보기
    */
-  public getBannerAllForAdmin: (pagenation: BannerListPagerbleDto) => Promise<{
+  public getBannerAllForAdmin: (pagerble: BannerListPagerbleDto) => Promise<{
     bannerList: BannerEntity<'all'>[];
     count: number;
-  }>;
+  }> = async (pagerble) => {
+    const [bannerList, count] = await this.prisma.$transaction([
+      this.prisma.banner.findMany({
+        where: {
+          deletedAt: null,
+        },
+        orderBy: {
+          idx: pagerble.order,
+        },
+        take: 10,
+        skip: (pagerble.page - 1) * 10,
+      }),
+      this.prisma.banner.count({
+        where: {
+          deletedAt: null,
+        },
+      }),
+    ]);
+
+    return {
+      bannerList: bannerList.map((banner) =>
+        BannerEntity.createBannerEtity(banner),
+      ),
+      count,
+    };
+  };
 
   /**
    * 배너 자세히보기
