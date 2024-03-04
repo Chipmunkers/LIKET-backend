@@ -14,7 +14,20 @@ export class BannerService {
   /**
    * 배너 목록보기
    */
-  public getBannerAll: () => Promise<BannerEntity<'active'>[]>;
+  public getBannerAll: () => Promise<BannerEntity<'active'>[]> = async () => {
+    const bannerList = await this.prisma.activeBanner.findMany({
+      include: {
+        Banner: true,
+      },
+      orderBy: {
+        order: 'asc',
+      },
+    });
+
+    return bannerList.map((banner) =>
+      BannerEntity.createActiveBannerEntity(banner),
+    );
+  };
 
   // Admin =============================================
 
