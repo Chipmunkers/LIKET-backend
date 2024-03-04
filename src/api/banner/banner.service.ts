@@ -4,6 +4,7 @@ import { BannerEntity } from './entity/BannerEntity';
 import { BannerListPagerbleDto } from './dto/BannerListPagerbleDto';
 import { UpdateBannerDto } from './dto/UpdateBannerDto';
 import { UpdateBannerOrderDto } from './dto/UpdateBannerOrderDto';
+import { BannerNotFoundException } from './exception/BannerNotFoundException';
 
 @Injectable()
 export class BannerService {
@@ -69,7 +70,20 @@ export class BannerService {
    */
   public getBannerByIdxForAdmin: (
     bannerIdx: number,
-  ) => Promise<BannerEntity<'all'>>;
+  ) => Promise<BannerEntity<'all'>> = async (bannerIdx) => {
+    const banner = await this.prisma.banner.findUnique({
+      where: {
+        idx: bannerIdx,
+        deletedAt: null,
+      },
+    });
+
+    if (!banner) {
+      throw new BannerNotFoundException('Cannot find banner');
+    }
+
+    return BannerEntity.createBannerEtity(banner);
+  };
 
   /**
    * 배너 수정하기
@@ -77,12 +91,82 @@ export class BannerService {
   public updateBanner: (
     bannerIdx: number,
     updateDto: UpdateBannerDto,
-  ) => Promise<void>;
+  ) => Promise<void> = async (bannerIdx, updateDto) => {
+    await this.prisma.banner.update({
+      where: {
+        idx: bannerIdx,
+      },
+      data: {
+        imgPath: updateDto.img.fileName,
+        link: updateDto.link,
+        name: updateDto.name,
+      },
+    });
+
+    return;
+  };
 
   /**
    * 배너 삭제하기
    */
-  public deleteBanner: (bannerIdx: number) => Promise<void>;
+  public deleteBanner: (bannerIdx: number) => Promise<void> = async (
+    bannerIdx,
+  ) => {
+    await this.prisma.$transaction(
+      async (tx) => {
+        const banner = await tx.banner.findUnique({
+          include: {
+            ActiveBanner: true,
+          },
+          where: {
+            idx: bannerIdx,
+            deletedAt: null,
+          },
+        });
+
+        if (!banner) {
+          throw new BannerNotFoundException('Cannot find banner');
+        }
+
+        if (banner.ActiveBanner) {
+          await tx.activeBanner.delete({
+            where: {
+              idx: bannerIdx,
+            },
+          });
+
+          await tx.activeBanner.updateMany({
+            where: {
+              order: {
+                gt: banner.ActiveBanner.order,
+              },
+            },
+            data: {
+              order: {
+                decrement: 1,
+              },
+            },
+          });
+        }
+
+        await tx.banner.update({
+          where: {
+            idx: banner.idx,
+          },
+          data: {
+            deletedAt: new Date(),
+          },
+        });
+
+        return;
+      },
+      {
+        isolationLevel: 'RepeatableRead',
+      },
+    );
+
+    return;
+  };
 
   /**
    * 배너 활성화하기
