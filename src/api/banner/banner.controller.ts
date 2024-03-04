@@ -160,7 +160,15 @@ export class BannerController {
   // User =====================================================
 
   /**
-   * 활성 배너 전체 가져오기
+   * Get all active banner all API
+   * @summary Get all active banner all API
+   *
+   * @tag Banner
    */
-  public getActiveBannerAll: () => Promise<BannerEntity<'active'>[]>;
+  @Get('/active/all')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  public async getActiveBannerAll(): Promise<BannerEntity<'active'>[]> {
+    return await this.bannerService.getBannerAll();
+  }
 }
