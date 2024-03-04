@@ -136,7 +136,7 @@ export class BannerController {
    *
    * @tag Banner
    */
-  @Delete('/idx')
+  @Delete('/:idx')
   @HttpCode(201)
   @TypedException<ExceptionDto>(400, 'Invalid path parameter')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
