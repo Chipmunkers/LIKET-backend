@@ -397,8 +397,8 @@ describe('BannerService', () => {
     expect(prismaMock.activeBanner.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: {
-          number: 1,
           idx: bannerIdx,
+          order: 1,
         },
       }),
     );
