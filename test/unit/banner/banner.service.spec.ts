@@ -35,15 +35,42 @@ describe('BannerService', () => {
     // 1. get active banner all with prisma
     prismaMock.activeBanner.findMany = jest.fn().mockResolvedValue([]);
 
-    await expect(service.getBannerAll()).resolves.toBeInstanceOf(
-      BannerEntity<'active'>,
-    );
+    const bannerList = await service.getBannerAll();
+
+    for (const banner of bannerList) {
+      expect(banner).toBeInstanceOf(BannerEntity<'active'>);
+    }
     expect(prismaMock.activeBanner.findMany).toHaveBeenCalledTimes(1);
   });
 
   it('getBannerAllForAdmin success', async () => {
-    // 1. get banner all with prisma
-    prismaMock.banner.findMany = jest.fn().mockResolvedValue([]);
+    // 1. start transaction
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (taskList: Promise<any>[]) => {
+        const taskResult: any[] = [];
+
+        for (const task of taskList) {
+          taskResult.push(await task);
+        }
+
+        return taskResult;
+      });
+
+    // 2. find banner all
+    prismaMock.banner.findMany = jest.fn().mockResolvedValue([
+      {
+        idx: 1,
+        imgPath: 'img/123.png',
+        link: 'https://google.com',
+        name: 'banner',
+        createdAt: new Date(),
+      },
+    ]);
+
+    // 3. get banner count
+    const count = 1;
+    prismaMock.banner.count = jest.fn().mockResolvedValue(count);
 
     const result = await service.getBannerAllForAdmin({
       page: 1,
@@ -53,6 +80,7 @@ describe('BannerService', () => {
     for (const banner of result.bannerList) {
       expect(banner).toBeInstanceOf(BannerEntity);
     }
+    expect(result.count).toBe(count);
     expect(prismaMock.banner.findMany).toHaveBeenCalledTimes(1);
   });
 
@@ -81,7 +109,12 @@ describe('BannerService', () => {
     prismaMock.banner.update = jest.fn().mockResolvedValue({});
 
     await expect(
-      service.updateBanner(1, {} as UpdateBannerDto),
+      service.updateBanner(1, {
+        img: {
+          fileName: '',
+          fielExt: 'png',
+        },
+      } as UpdateBannerDto),
     ).resolves.toBeUndefined();
     expect(prismaMock.banner.update).toHaveBeenCalledTimes(1);
   });
