@@ -233,6 +233,12 @@ describe('BannerService', () => {
       service.updateBannerOrder(1, { order: 1 }),
     ).resolves.toBeUndefined();
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(prismaMock.$transaction).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        isolationLevel: 'RepeatableRead',
+      }),
+    );
     expect(prismaMock.activeBanner.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.activeBanner.findFirst).toHaveBeenCalledTimes(1);
     expect(prismaMock.activeBanner.updateMany).toHaveBeenCalledTimes(1);
@@ -312,7 +318,7 @@ describe('BannerService', () => {
     // there is no active banner
     prismaMock.activeBanner.findFirst = jest.fn().mockResolvedValue(null);
 
-    await expect(service.updateBannerOrder(1, { order: 1 })).rejects.toThrow(
+    await expect(service.updateBannerOrder(1, { order: 3 })).rejects.toThrow(
       BannerOrderOutOfRangeException,
     );
   });
