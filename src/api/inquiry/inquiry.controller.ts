@@ -4,6 +4,8 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  Param,
+  ParseIntPipe,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +17,7 @@ import { GetInquiryAllResponseDto } from './dto/response/GetInquiryAllResponseDt
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
+import { InquiryEntity } from './entity/InquiryEntity';
 
 @Controller('inquiry')
 export class InquiryController {
@@ -42,5 +45,36 @@ export class InquiryController {
     }
 
     return await this.inquiryService.getInquiryAll(pagerble);
+  }
+
+  /**
+   * Get inquiry by idx API
+   * @summary Get inquiry by idx API
+   *
+   * @tag Inquiry
+   */
+  @Get('/:idx')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No authorization')
+  @TypedException<ExceptionDto>(404, 'Cannot find inquiry')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getInquiryByIdx(
+    @User() loginUser: LoginUserDto,
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<InquiryEntity<'detail'>> {
+    if (loginUser.isAdmin) {
+      return await this.inquiryService.getInquiryByIdx(idx);
+    }
+
+    const inquiry = await this.inquiryService.getInquiryByIdx(idx);
+
+    if (loginUser.idx !== inquiry.author.idx) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    return inquiry;
   }
 }
