@@ -6,6 +6,7 @@ import {
   HttpCode,
   Param,
   ParseIntPipe,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,8 @@ import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { InquiryEntity } from './entity/InquiryEntity';
+import { CreateInquiryResponseDto } from './dto/response/CreateInquiryResponseDto';
+import { CreateInquiryDto } from './dto/CreateInquiryDto';
 
 @Controller('inquiry')
 export class InquiryController {
@@ -76,5 +79,31 @@ export class InquiryController {
     }
 
     return inquiry;
+  }
+
+  /**
+   * Create inquiry API
+   * @summary Create inquiry APi
+   *
+   * @tag Inquiry
+   */
+  @Post('/')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid body')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async createInquiry(
+    @User() loginUser: LoginUserDto,
+    @Body() createDto: CreateInquiryDto,
+  ): Promise<CreateInquiryResponseDto> {
+    const idx = await this.inquiryService.createInquiry(
+      loginUser.idx,
+      createDto,
+    );
+
+    return {
+      idx,
+    };
   }
 }
