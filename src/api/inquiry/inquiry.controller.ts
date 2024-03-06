@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   HttpCode,
@@ -105,5 +106,34 @@ export class InquiryController {
     return {
       idx,
     };
+  }
+
+  /**
+   * Delete inquiry API
+   * @summary Delete inquiry API
+   *
+   * @tag Inquiry
+   */
+  @Delete('/:idx')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid body')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'No authorization')
+  @TypedException<ExceptionDto>(404, 'Cannot find inquiry')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async updateInquiry(
+    @Param('idx', ParseIntPipe) inquiryIdx: number,
+    @User() loginUser: LoginUserDto,
+  ): Promise<void> {
+    const inquiry = await this.inquiryService.getInquiryByIdx(inquiryIdx);
+
+    if (inquiry.author.idx !== loginUser.idx && !loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.inquiryService.deleteInquiry(inquiryIdx);
+
+    return;
   }
 }
