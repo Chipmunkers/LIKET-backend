@@ -30,6 +30,7 @@ export class InquiryService {
               idx: 'asc',
             },
           },
+          User: true,
         },
         where: {
           deletedAt: null,
@@ -79,10 +80,14 @@ export class InquiryService {
               idx: 'asc',
             },
           },
+          User: true,
         },
         where: {
           idx,
           deletedAt: null,
+          User: {
+            deletedAt: null,
+          },
         },
       });
 
