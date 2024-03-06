@@ -34,6 +34,7 @@ describe('InquiryService', () => {
         idx: 1,
       },
       InquiryImg: [],
+      User: {},
     });
 
     await expect(service.getInquiryByIdx(1)).resolves.toBeInstanceOf(
