@@ -136,8 +136,4 @@ export class InquiryController {
 
     return;
   }
-
-  /**
-   *
-   */
 }
