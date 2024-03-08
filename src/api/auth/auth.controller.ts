@@ -7,10 +7,15 @@ import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { SendEmailVerificationCodeDto } from './dto/SendEmailVerificationCodeDto';
 import { CheckEmailVerificationCodeDto } from './dto/CheckEmailVerificationCodeDto';
 import { CheckEmailVerificationCodeResponseDto } from './dto/response/CheckEmailVerificationCodeResponseDto';
+import { Logger } from '../../logger/logger.decorator';
+import { LoggerService } from '../../logger/logger.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Logger('AuthService') private readonly logger: LoggerService,
+  ) {}
 
   /**
    * Login API
