@@ -11,6 +11,7 @@ import { InvalidEmailVerificationCodeException } from '../../../src/api/auth/exc
 import { BlockedUserException } from '../../../src/api/auth/exception/BlockedUserException';
 import { InvalidEmailAuthTokenException } from '../../../src/api/auth/exception/InvalidEmailAuthTokenException';
 import { InvalidLoginAccessTokenException } from '../../../src/api/auth/exception/InvalidLoginAccessTokenException';
+import { LoggerService } from '../../../src/logger/logger.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -19,6 +20,7 @@ describe('AuthService', () => {
   let hashServiceMock: HashService;
   let redisMock: RedisService;
   let mailerServiceMock: MailerService;
+  let loggerMock: LoggerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -45,6 +47,12 @@ describe('AuthService', () => {
         {
           provide: MailerService,
           useValue: {},
+        },
+        {
+          provide: 'LoggerServiceAuthService',
+          useValue: {
+            log: (msg: string) => {},
+          },
         },
       ],
     }).compile();
