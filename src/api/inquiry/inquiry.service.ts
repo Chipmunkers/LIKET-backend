@@ -106,6 +106,7 @@ export class InquiryService {
       data: {
         title: createDto.title,
         contents: createDto.contents,
+        userIdx,
         InquiryImg: {
           createMany: {
             data: createDto.imgList.map((img) => ({
