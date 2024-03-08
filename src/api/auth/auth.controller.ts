@@ -7,7 +7,6 @@ import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { SendEmailVerificationCodeDto } from './dto/SendEmailVerificationCodeDto';
 import { CheckEmailVerificationCodeDto } from './dto/CheckEmailVerificationCodeDto';
 import { CheckEmailVerificationCodeResponseDto } from './dto/response/CheckEmailVerificationCodeResponseDto';
-import { ApiResponse } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
