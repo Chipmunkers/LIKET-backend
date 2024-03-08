@@ -31,7 +31,7 @@ export class AuthService {
    * 로그인하기
    */
   public login: (loginDto: LoginDto) => Promise<string> = async (loginDto) => {
-    this.logger.log('find user');
+    this.logger.log('login', 'find user');
     const user = await this.prisma.user.findFirst({
       select: {
         idx: true,
@@ -62,7 +62,6 @@ export class AuthService {
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
-    this.logger.log('create login access token');
     const loginAccessToken = this.signLoginAccessToken(user.idx, user.isAdmin);
 
     return loginAccessToken;
@@ -75,12 +74,17 @@ export class AuthService {
     sendDto: SendEmailVerificationCodeDto,
   ) => Promise<void> = async (sendDto) => {
     // generate randon code
+    this.logger.log('sendEmailVerificationCode', 'create random code');
     const randomCode = Math.floor(Math.random() * 10 ** 6)
       .toString()
       .padStart(6, '0');
 
     await this.redis.setEmailVerificationCode(sendDto.email, randomCode);
 
+    this.logger.log(
+      'sendEmailVerificationCode',
+      'send a verification code to the email',
+    );
     await this.mailerService.sendMail({
       to: sendDto.email,
       subject: 'Liket 인증번호',
@@ -110,7 +114,13 @@ export class AuthService {
       );
     }
 
+    this.logger.log(
+      'checkEmailVerificationCode',
+      'delete email verification code',
+    );
     await this.redis.delEmailVerificationCode(checkDto.email);
+
+    this.logger.log('checkEmailVerificationCode', 'create email auth token');
     const token = this.signEmailAuthToken(checkDto.email);
 
     return token;
@@ -128,6 +138,7 @@ export class AuthService {
 
     let payload: any;
     try {
+      this.logger.log('verifyEmailAuthToken', 'try to verify email auth token');
       payload = this.jwtService.verify(emailToken);
     } catch (err) {
       throw new InvalidEmailAuthTokenException(
@@ -148,6 +159,7 @@ export class AuthService {
    * 이메일 인증 토큰 생성하기
    */
   public signEmailAuthToken: (email: string) => string = (email) => {
+    this.logger.log('signEmailAuthToken', 'sign email auth token');
     const token = this.jwtService.sign(
       {
         email: email,
@@ -167,6 +179,7 @@ export class AuthService {
     idx,
     isAdmin,
   ) => {
+    this.logger.log('signLoginAccessToken', 'create login access token');
     return this.jwtService.sign(
       {
         idx: idx,

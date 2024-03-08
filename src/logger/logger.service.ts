@@ -6,8 +6,10 @@ import { Injectable, Scope } from '@nestjs/common';
 export class LoggerService {
   private prefix?: string;
 
-  log(message: string) {
-    console.log(`[${new Date().toUTCString()}] ${this.prefix}: ${message}`);
+  log(methodName: string, message: string) {
+    console.log(
+      `[${new Date().toUTCString()}] ${this.prefix}.${methodName}: ${message}`,
+    );
   }
 
   setPrefix(prefix: string) {
