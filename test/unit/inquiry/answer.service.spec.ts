@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AnswerService } from '../../../src/api/inquiry/answer.service';
-import { PrismaService } from '../../../src/common/prisma/prisma.service';
+import { PrismaService } from '../../../src/prisma/prisma.service';
 import { AnswerEntity } from '../../../src/api/inquiry/entity/AnswerEntity';
 import { AnswerNotFoundException } from '../../../src/api/inquiry/exception/AnswerNotFoundException';
 import { CreateAnswerDto } from '../../../src/api/inquiry/dto/CreateAnswerDto';

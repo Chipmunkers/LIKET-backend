@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CultureContentController } from './culture-content.controller';
 import { CultureContentService } from './culture-content.service';
-import { PrismaModule } from '../../common/prisma/prisma.module';
+import { PrismaModule } from '../../prisma/prisma.module';
 import { TagService } from './tag.service';
 import { TagController } from './tag.controller';
 import { ContentReviewController } from './content-review.controller';

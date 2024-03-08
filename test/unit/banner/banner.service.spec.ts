@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BannerService } from '../../../src/api/banner/banner.service';
-import { PrismaService } from '../../../src/common/prisma/prisma.service';
+import { PrismaService } from '../../../src/prisma/prisma.service';
 import { BannerEntity } from '../../../src/api/banner/entity/BannerEntity';
 import { BannerNotFoundException } from '../../../src/api/banner/exception/BannerNotFoundException';
 import { BadRequestException, ConflictException } from '@nestjs/common';

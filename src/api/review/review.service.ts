@@ -1,5 +1,5 @@
 import { Injectable, Search } from '@nestjs/common';
-import { PrismaService } from '../../common/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { ReviewEntity } from './entity/ReviewEntity';
 import { ReviewListPagerbleDto } from './dto/ReviewListPagerbleDto';
 import { ReviewListByContentPagerbleDto } from '../culture-content/dto/ReviewListByContentPagerbleDto';

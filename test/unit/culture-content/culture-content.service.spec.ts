@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CultureContentService } from '../../../src/api/culture-content/culture-content.service';
-import { PrismaService } from '../../../src/common/prisma/prisma.service';
+import { PrismaService } from '../../../src/prisma/prisma.service';
 import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';
 import { UpdateContentDto } from '../../../src/api/culture-content/dto/UpdateContentDto';
 import { ConflictException, ForbiddenException } from '@nestjs/common';

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReviewService } from '../../../src/api/review/review.service';
-import { PrismaService } from '../../../src/common/prisma/prisma.service';
+import { PrismaService } from '../../../src/prisma/prisma.service';
 import { ReviewNotFoundException } from '../../../src/api/review/exception/ReviewNotFoundException';
 import { CreateReviewDto } from '../../../src/api/culture-content/dto/CreateReviewDto';
 import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';

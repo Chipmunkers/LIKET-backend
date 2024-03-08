@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { GuardsConsumer } from '@nestjs/core/guards';
 import { Request } from 'express';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from '../../api/auth/auth.service';
 import { InvalidLoginAccessTokenException } from '../../api/auth/exception/InvalidLoginAccessTokenException';

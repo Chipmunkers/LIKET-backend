@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { BannerEntity } from './entity/BannerEntity';
 import { BannerListPagerbleDto } from './dto/BannerListPagerbleDto';
 import { UpdateBannerDto } from './dto/UpdateBannerDto';

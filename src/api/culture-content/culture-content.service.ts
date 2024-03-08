@@ -3,7 +3,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { PrismaService } from '../../common/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateContentRequestDto } from './dto/CreateContentRequestDto';
 import { ContentRequestListPagenationDto } from './dto/ContentRequestListPagenationDto';
 import { UpdateContentDto } from './dto/UpdateContentDto';
