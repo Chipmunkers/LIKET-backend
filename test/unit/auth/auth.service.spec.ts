@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../../../src/prisma/prisma.service';
 import { AuthService } from '../../../src/api/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { HashService } from '../../../src/common/service/hash.service';
+import { HashService } from '../../../src/hash/hash.service';
 import { InvalidEmailOrPwException } from '../../../src/api/auth/exception/InvalidEmailOrPwException';
 import { RedisService } from '../../../src/common/redis/redis.service';
 import { MailerService } from '@nestjs-modules/mailer';

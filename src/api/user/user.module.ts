@@ -4,7 +4,7 @@ import { UserService } from './user.service';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
-import { HashService } from '../../common/service/hash.service';
+import { HashService } from '../../hash/hash.service';
 import { ReveiwModule } from '../review/reveiw.module';
 import { CultureContentModule } from '../culture-content/culture-content.module';
 

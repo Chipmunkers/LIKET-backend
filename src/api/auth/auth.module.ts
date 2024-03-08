@@ -2,14 +2,16 @@ import { Global, Module } from '@nestjs/common';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { HashService } from '../../common/service/hash.service';
+import { HashService } from '../../hash/hash.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisModule } from '../../common/redis/redis.module';
+import { HashModule } from '../../hash/hash.module';
 
 @Global()
 @Module({
   imports: [
+    HashModule,
     PrismaModule,
     RedisModule,
     JwtModule.registerAsync({
@@ -22,7 +24,7 @@ import { RedisModule } from '../../common/redis/redis.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, HashService],
+  providers: [AuthService],
   exports: [AuthService],
 })
 export class AuthModule {}

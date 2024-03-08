@@ -3,7 +3,7 @@ import { UserService } from '../../../src/api/user/user.service';
 import { PrismaService } from '../../../src/prisma/prisma.service';
 import { AuthService } from '../../../src/api/auth/auth.service';
 import { DuplicateUserException } from '../../../src/api/user/exception/DuplicateUserException';
-import { HashService } from '../../../src/common/service/hash.service';
+import { HashService } from '../../../src/hash/hash.service';
 import { AlreadyBlockedUserException } from '../../../src/api/user/exception/AlreadyBlockedUserException';
 import { UserNotFoundException } from '../../../src/api/user/exception/UserNotFoundException';
 import { UpdateProfileDto } from '../../../src/api/user/dto/UpdateProfileDto';

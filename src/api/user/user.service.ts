@@ -8,7 +8,7 @@ import { MyInfoEntity } from './entity/MyInfoEntity';
 import { UpdateProfileDto } from './dto/UpdateProfileDto';
 import { AuthService } from '../auth/auth.service';
 import { DuplicateUserException } from './exception/DuplicateUserException';
-import { HashService } from '../../common/service/hash.service';
+import { HashService } from '../../hash/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { AlreadyBlockedUserException } from './exception/AlreadyBlockedUserException';
 import { AlreadyNotBlockedUserException } from './exception/AlreadyNotBlockedUserException';
