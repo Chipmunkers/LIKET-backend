@@ -14,7 +14,7 @@ import { LoggerService } from '../../logger/logger.service';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    @Logger('AuthService') private readonly logger: LoggerService,
+    @Logger('AuthController') private readonly logger: LoggerService,
   ) {}
 
   /**

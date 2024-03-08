@@ -13,6 +13,8 @@ import { NotFoundVerificationCodeException } from '../../common/redis/exception/
 import { InvalidEmailVerificationCodeException } from './exception/InvalidEmailVerificationCodeException';
 import { InvalidEmailAuthTokenException } from './exception/InvalidEmailAuthTokenException';
 import { InvalidLoginAccessTokenException } from './exception/InvalidLoginAccessTokenException';
+import { Logger } from '../../logger/logger.decorator';
+import { LoggerService } from '../../logger/logger.service';
 
 @Injectable()
 export class AuthService {
@@ -22,12 +24,14 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly redis: RedisService,
     private readonly mailerService: MailerService,
+    @Logger('AuthService') private readonly logger: LoggerService,
   ) {}
 
   /**
    * 로그인하기
    */
   public login: (loginDto: LoginDto) => Promise<string> = async (loginDto) => {
+    this.logger.log('find user');
     const user = await this.prisma.user.findFirst({
       select: {
         idx: true,
@@ -58,6 +62,7 @@ export class AuthService {
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
+    this.logger.log('create login access token');
     const loginAccessToken = this.signLoginAccessToken(user.idx, user.isAdmin);
 
     return loginAccessToken;
