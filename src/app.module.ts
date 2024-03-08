@@ -14,9 +14,11 @@ import emailConfig from './common/config/email.config';
 import redisConfig from './common/config/redis.config';
 import jwtConfig from './common/config/jwt.config';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
   imports: [
+    LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [emailConfig, redisConfig, jwtConfig],
