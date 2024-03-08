@@ -7,7 +7,7 @@ export class LoggerService {
   private prefix?: string;
 
   log(message: string) {
-    console.log(`[${this.prefix}] ${message}`);
+    console.log(`[${new Date().toUTCString()}] ${this.prefix}: ${message}`);
   }
 
   setPrefix(prefix: string) {
