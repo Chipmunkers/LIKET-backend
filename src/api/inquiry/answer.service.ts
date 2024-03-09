@@ -10,6 +10,9 @@ import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
 export class AnswerService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Get answer by idx
+   */
   public getAnswerByIdx: (idx: number) => Promise<AnswerEntity> = async (
     idx,
   ) => {
@@ -33,6 +36,9 @@ export class AnswerService {
     return AnswerEntity.createAnswer(answer);
   };
 
+  /**
+   * Create answer with inquiry idx
+   */
   public createAnswer: (
     inquiryIdx: number,
     createDto: CreateAnswerDto,
@@ -81,6 +87,9 @@ export class AnswerService {
     return createdAnswer.idx;
   };
 
+  /**
+   * Update answer by answer idx
+   */
   public updateAnswer: (
     idx: number,
     updateDto: UpdateAnswerDto,
@@ -97,6 +106,9 @@ export class AnswerService {
     return;
   };
 
+  /**
+   * Delete answer by answer idx
+   */
   public deleteAnswer: (idx: number) => Promise<void> = async (idx) => {
     await this.prisma.answer.update({
       where: {

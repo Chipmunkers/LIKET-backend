@@ -9,6 +9,9 @@ import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
 export class InquiryService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Get all inquiries for admin user
+   */
   public getInquiryAll: (pagerble: InquiryListPagenationDto) => Promise<{
     count: number;
     inquiryList: InquiryEntity<'summary'>[];
@@ -62,6 +65,9 @@ export class InquiryService {
     };
   };
 
+  /**
+   * Get inquiry by idx
+   */
   public getInquiryByIdx: (idx: number) => Promise<InquiryEntity<'detail'>> =
     async (idx) => {
       const inquiry = await this.prisma.inquiry.findUnique({
@@ -98,6 +104,9 @@ export class InquiryService {
       return InquiryEntity.createDetailInquiry(inquiry);
     };
 
+  /**
+   * Create inquiry with user idx
+   */
   public createInquiry: (
     userIdx: number,
     createDto: CreateInquiryDto,
@@ -121,6 +130,9 @@ export class InquiryService {
     return createdInquiry.idx;
   };
 
+  /**
+   * Delete inquiry by idx
+   */
   public deleteInquiry: (idx: number) => Promise<void> = async (idx) => {
     await this.prisma.inquiry.update({
       where: {

@@ -7,6 +7,9 @@ import { InquiryTypeNotFoundException } from './exception/InquiryTypeNotFoundExc
 export class InquiryTypeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Get inquiry type all
+   */
   public getTypeAll: () => Promise<InquiryTypeEntity[]> = async () => {
     const typeList = await this.prisma.inquiryType.findMany({
       select: {
@@ -19,6 +22,9 @@ export class InquiryTypeService {
     return typeList.map((type) => InquiryTypeEntity.createInquiryType(type));
   };
 
+  /**
+   * Get inquiry type by type idx
+   */
   public getTypeByIdx: (idx: number) => Promise<InquiryTypeEntity> = async (
     idx,
   ) => {
