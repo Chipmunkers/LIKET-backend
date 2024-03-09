@@ -8,6 +8,7 @@ import { UpdateBannerDto } from '../../../src/api/banner/dto/UpdateBannerDto';
 import { BannerOrderOutOfRangeException } from '../../../src/api/banner/exception/BannerOrderOutOfRangeException';
 import { AlreadyActiveBannerException } from '../../../src/api/banner/exception/AlreadyActiveBannerException';
 import { AlreadyDeactiveBannerException } from '../../../src/api/banner/exception/AlreadyDeactiveBannerException';
+import { UploadService } from '../../../src/api/upload/upload.service';
 
 describe('BannerService', () => {
   let service: BannerService;
@@ -113,8 +114,7 @@ describe('BannerService', () => {
         name: '',
         link: '',
         img: {
-          fileName: '',
-          fielExt: '',
+          filePath: '',
         },
       }),
     ).resolves.toBe(createdBanner.idx);
@@ -128,8 +128,7 @@ describe('BannerService', () => {
     await expect(
       service.updateBanner(1, {
         img: {
-          fileName: '',
-          fielExt: 'png',
+          filePath: '',
         },
       } as UpdateBannerDto),
     ).resolves.toBeUndefined();
