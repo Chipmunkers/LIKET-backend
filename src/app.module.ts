@@ -15,13 +15,14 @@ import redisConfig from './common/config/redis.config';
 import jwtConfig from './common/config/jwt.config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { LoggerModule } from './logger/logger.module';
+import s3Config from './common/config/s3.config';
 
 @Module({
   imports: [
     LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [emailConfig, redisConfig, jwtConfig],
+      load: [emailConfig, redisConfig, jwtConfig, s3Config],
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],

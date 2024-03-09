@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UtilService {
   public getUUID(): string {
-    return uuid.v4();
+    return uuidv4();
   }
 
   public randomVerificationCode(): string {
