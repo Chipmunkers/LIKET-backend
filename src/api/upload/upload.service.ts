@@ -23,48 +23,6 @@ export class UploadService {
   }
 
   /**
-   * Upload file to S3
-   */
-  private async uploadToS3(
-    file: Express.Multer.File,
-    option: {
-      destination: string;
-    },
-  ): Promise<{
-    fullUrl: string;
-    fileName: string;
-    fileExt: string;
-    filePath: string;
-  }> {
-    const region = this.configService.get('AWS_REGION');
-    const bucketName = this.configService.get('S3_BUCKET_NAME');
-
-    const fileName = this.utilService.getUUID();
-    const fileExt = this.extractFileExt(file.originalname);
-
-    const command = new PutObjectCommand({
-      Bucket: `${bucketName}`,
-      Key: `${option.destination}/${fileName}.${fileExt}`,
-      Body: file.buffer,
-      ACL: 'public-read',
-      ContentType: file.mimetype,
-    });
-
-    this.logger.log(
-      'imageUploadToS3',
-      `upload file to s3\npath: /${option.destination}/${fileName}.${fileExt}`,
-    );
-    await this.s3Client.send(command);
-
-    return {
-      fullUrl: `https://s3.${region}.amazonaws.com/${bucketName}/${option.destination}/${fileName}.${fileExt}`,
-      fileName: fileName,
-      fileExt: fileExt,
-      filePath: `/${option.destination}/${bucketName}`,
-    };
-  }
-
-  /**
    * Upload a file and save the uploaded file information in database
    */
   public async uploadFileToS3(
@@ -130,7 +88,52 @@ export class UploadService {
     return results;
   }
 
-  extractFileExt(fileName: string): string {
+  /**
+   * Extract file extension from file name
+   */
+  private extractFileExt(fileName: string): string {
     return fileName.split('.')[fileName.split('.').length - 1];
+  }
+
+  /**
+   * Upload file to S3
+   */
+  private async uploadToS3(
+    file: Express.Multer.File,
+    option: {
+      destination: string;
+    },
+  ): Promise<{
+    fullUrl: string;
+    fileName: string;
+    fileExt: string;
+    filePath: string;
+  }> {
+    const region = this.configService.get('AWS_REGION');
+    const bucketName = this.configService.get('S3_BUCKET_NAME');
+
+    const fileName = this.utilService.getUUID();
+    const fileExt = this.extractFileExt(file.originalname);
+
+    const command = new PutObjectCommand({
+      Bucket: `${bucketName}`,
+      Key: `${option.destination}/${fileName}.${fileExt}`,
+      Body: file.buffer,
+      ACL: 'public-read',
+      ContentType: file.mimetype,
+    });
+
+    this.logger.log(
+      'imageUploadToS3',
+      `upload file to s3\npath: /${option.destination}/${fileName}.${fileExt}`,
+    );
+    await this.s3Client.send(command);
+
+    return {
+      fullUrl: `https://s3.${region}.amazonaws.com/${bucketName}/${option.destination}/${fileName}.${fileExt}`,
+      fileName: fileName,
+      fileExt: fileExt,
+      filePath: `/${option.destination}/${bucketName}`,
+    };
   }
 }
