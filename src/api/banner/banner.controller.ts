@@ -36,7 +36,7 @@ export class BannerController {
    *
    * @tag Banner
    */
-  @Get('/banner/all')
+  @Get('/all')
   @HttpCode(200)
   @TypedException<ExceptionDto>(400, 'Invalid querystring')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
