@@ -10,7 +10,7 @@ import { UploadFileNotFoundException } from './exception/UploadFileNotFoundExcep
 
 @Injectable()
 export class UploadService {
-  s3Client: S3Client;
+  private s3Client: S3Client;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -91,10 +91,12 @@ export class UploadService {
   public async checkExistFile(
     filePath: string,
     userIdx: number,
+    grouping: FILE_GROUPING,
   ): Promise<void> {
     const file = await this.prisma.uploadFile.findFirst({
       where: {
         filePath,
+        grouping,
         userIdx,
         deletedAt: null,
       },
@@ -113,19 +115,21 @@ export class UploadService {
   public async checkExistFiles(
     filePaths: string[],
     userIdx: number,
+    grouping: FILE_GROUPING,
   ): Promise<void> {
     const fileCount = await this.prisma.uploadFile.count({
       where: {
         filePath: {
           in: filePaths,
         },
+        grouping,
         userIdx,
         deletedAt: null,
       },
     });
 
     if (fileCount !== filePaths.length) {
-      throw new UploadFileNotFoundException('Cannot find files');
+      throw new UploadFileNotFoundException('Cannot find uploaded files');
     }
 
     return;
