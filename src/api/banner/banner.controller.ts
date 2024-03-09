@@ -91,6 +91,7 @@ export class BannerController {
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
   @TypedException<ExceptionDto>(403, 'No admin authorization')
   @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
   public async createBanner(
     @User() loginUser: LoginUserDto,
     @Body() createDto: CreateBannerDto,
