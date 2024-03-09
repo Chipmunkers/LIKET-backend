@@ -6,6 +6,7 @@ import { Logger } from '../../logger/logger.decorator';
 import { LoggerService } from '../../logger/logger.service';
 import { UtilService } from '../../util/util.service';
 import { FILE_GROUPING } from './file-grouping';
+import { UploadFileNotFoundException } from './exception/UploadFileNotFoundException';
 
 @Injectable()
 export class UploadService {
@@ -86,6 +87,52 @@ export class UploadService {
     });
 
     return results;
+  }
+
+  /**
+   * Check exist file
+   */
+  public async checkExistFile(
+    fileName: string,
+    userIdx: number,
+  ): Promise<void> {
+    const file = await this.prisma.uploadFile.findFirst({
+      where: {
+        fileName,
+        userIdx,
+        deletedAt: null,
+      },
+    });
+
+    if (!file) {
+      throw new UploadFileNotFoundException('Cannot find uploaded file');
+    }
+
+    return;
+  }
+
+  /**
+   * Check exist files
+   */
+  public async checkExistFiles(
+    fileNames: string[],
+    userIdx: number,
+  ): Promise<void> {
+    const fileCount = await this.prisma.uploadFile.count({
+      where: {
+        fileName: {
+          in: fileNames,
+        },
+        userIdx,
+        deletedAt: null,
+      },
+    });
+
+    if (fileCount !== fileNames.length) {
+      throw new UploadFileNotFoundException('Cannot find files');
+    }
+
+    return;
   }
 
   /**
