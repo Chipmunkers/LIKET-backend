@@ -111,7 +111,7 @@ export class BannerService {
   };
 
   /**
-   * 배너 생성하기
+   * Create banner
    */
   public createBanner: (createDto: CreateBannerDto) => Promise<number> = async (
     createDto,
