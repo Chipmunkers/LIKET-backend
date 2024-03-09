@@ -17,7 +17,7 @@ export class ReviewService {
   // User ======================================================
 
   /**
-   * 컨텐츠별 리뷰 목록 보기
+   * Get all reviews by culture-content idx
    */
   public getReviewAll: (
     contentIdx: number,
@@ -110,7 +110,7 @@ export class ReviewService {
   };
 
   /**
-   * 사용자별 리뷰 목록 보기
+   * Get all reviews by user idx
    */
   public getReviewAllByUserIdx: (
     userIdx: number,
@@ -213,7 +213,7 @@ export class ReviewService {
   };
 
   /**
-   * 리뷰 자세히보기
+   * Get detail review by idx
    */
   public getReviewByIdx: (
     idx: number,
@@ -276,7 +276,7 @@ export class ReviewService {
   };
 
   /**
-   * 리뷰 생성하기
+   * Create review with culture-content idx and user idx
    */
   public createReview: (
     contentIdx: number,
@@ -326,7 +326,7 @@ export class ReviewService {
   };
 
   /**
-   * 리뷰 수정하기
+   * Update review by idx
    */
   public updateReview: (
     idx: number,
@@ -358,7 +358,7 @@ export class ReviewService {
   };
 
   /**
-   * 리뷰 삭제하기
+   * Delete review by idx
    */
   public deleteReview: (idx: number) => Promise<void> = async (idx) => {
     await this.prisma.review.update({
@@ -376,7 +376,7 @@ export class ReviewService {
   // Admin =====================================================
 
   /**
-   * 관리자용 리뷰 전체 가져오기
+   * Get all reviews for admin
    */
   public getReviewAllForAdmin: (pagerble: ReviewListPagerbleDto) => Promise<{
     reviewList: ReviewEntity<'summary', 'admin'>[];
@@ -489,7 +489,7 @@ export class ReviewService {
   };
 
   /**
-   * 관리자용 리뷰 하나 가져오기
+   * Get a detail review by idx for admin
    */
   public getReviewByIdxForAdmin: (
     idx: number,
@@ -557,7 +557,7 @@ export class ReviewService {
   // Like ======================================================
 
   /**
-   * 리뷰 좋아요 누르기
+   * Like a review by idx
    */
   public likeReview: (userIdx: number, reviewIdx: number) => Promise<void> =
     async (userIdx, reviewIdx) => {
@@ -597,7 +597,7 @@ export class ReviewService {
     };
 
   /**
-   * 리뷰 좋아요 취소하기
+   * Cancel to like review by idx
    */
   public cancelToLikeReview: (
     userIdx: number,

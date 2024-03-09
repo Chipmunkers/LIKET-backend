@@ -6,6 +6,9 @@ import { TagEntity } from './entity/TagEntity';
 export class TagService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Get all tags of the genre
+   */
   public async getGenreAll(): Promise<{
     tagList: TagEntity[];
   }> {
@@ -23,6 +26,9 @@ export class TagService {
     };
   }
 
+  /**
+   * Get all tags of age
+   */
   public async getAgeAll(): Promise<{
     tagList: TagEntity[];
   }> {
@@ -40,6 +46,9 @@ export class TagService {
     };
   }
 
+  /**
+   * Get all tags of the style
+   */
   public async getStyleAll(): Promise<{
     tagList: TagEntity[];
   }> {
