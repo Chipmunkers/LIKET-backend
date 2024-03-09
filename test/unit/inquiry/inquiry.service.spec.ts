@@ -3,10 +3,12 @@ import { InquiryService } from '../../../src/api/inquiry/inquiry.service';
 import { PrismaService } from '../../../src/prisma/prisma.service';
 import { InquiryEntity } from '../../../src/api/inquiry/entity/InquiryEntity';
 import { InquiryNotFoundException } from '../../../src/api/inquiry/exception/InquiryNotFoundException';
+import { UploadService } from '../../../src/api/upload/upload.service';
 
 describe('InquiryService', () => {
   let service: InquiryService;
   let prismaMock: PrismaService;
+  let uploadServiceMock: UploadService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -18,11 +20,16 @@ describe('InquiryService', () => {
             inquiry: {},
           },
         },
+        {
+          provide: UploadService,
+          useValue: {},
+        },
       ],
     }).compile();
 
     service = module.get<InquiryService>(InquiryService);
     prismaMock = module.get<PrismaService>(PrismaService);
+    uploadServiceMock = module.get<UploadService>(UploadService);
   });
 
   it('getInquiryByIdx success', async () => {
