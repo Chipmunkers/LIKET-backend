@@ -7,6 +7,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { UploadFileDto } from '../../upload/dto/UploadFileDto';
+import { Type } from 'class-transformer';
 
 export class CreateInquiryDto {
   @IsString()
@@ -17,9 +18,10 @@ export class CreateInquiryDto {
   @Length(1, 2000)
   contents: string;
 
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @ArrayMaxSize(10)
   @IsOptional()
+  @Type(() => UploadFileDto)
   imgList: UploadFileDto[] = [];
 
   @IsInt()
