@@ -21,6 +21,9 @@ export class UserService {
     private readonly hashService: HashService,
   ) {}
 
+  /**
+   * Local user sign up
+   */
   public signUp: (signUpDto: SignUpDto) => Promise<string> = async (
     signUpDto,
   ) => {
@@ -73,6 +76,9 @@ export class UserService {
     return loginAccessToken;
   };
 
+  /**
+   * Get a login user's information
+   */
   public getMyInfo: (userIdx: number) => Promise<MyInfoEntity> = async (
     userIdx,
   ) => {
@@ -124,6 +130,9 @@ export class UserService {
     return MyInfoEntity.createMyInfoEntity(user);
   };
 
+  /**
+   * Get a detail user data by idx
+   */
   public getUserByIdx: (userIdx: number) => Promise<UserEntity<'my', 'admin'>> =
     async (userIdx) => {
       const user = await this.prisma.user.findUnique({
@@ -140,6 +149,9 @@ export class UserService {
       return UserEntity.createUserEntityForAdmin(user);
     };
 
+  /**
+   * Get all users for admin
+   */
   public getUserAll: (
     pagerble: UserListPagenationDto,
   ) => Promise<{ userList: UserEntity<'my', 'admin'>[]; count: number }> =
@@ -195,6 +207,9 @@ export class UserService {
       };
     };
 
+  /**
+   * Update a user's profile
+   */
   public updateProfile: (
     idx: number,
     updateDto: UpdateProfileDto,
@@ -225,6 +240,9 @@ export class UserService {
     });
   };
 
+  /**
+   * Update user's login password
+   */
   public updatePw: (idx: number, updateDto: UpdatePwDto) => Promise<void> =
     async (idx, updateDto) => {
       await this.getUserByIdx(idx);
@@ -241,6 +259,9 @@ export class UserService {
       return;
     };
 
+  /**
+   * Block user by idx
+   */
   public blockUser: (idx: number) => Promise<void> = async (idx) => {
     const user = await this.prisma.user.findUnique({
       select: {
@@ -272,6 +293,9 @@ export class UserService {
     return;
   };
 
+  /**
+   * Cancel to block user by idx
+   */
   public cancelToBlock: (idx: number) => Promise<void> = async (idx) => {
     const user = await this.prisma.user.findUnique({
       select: {
