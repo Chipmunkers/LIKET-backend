@@ -304,6 +304,7 @@ export class CultureContentController {
     await this.cultureContentService.updateContentRequest(
       contentIdx,
       updateDto,
+      loginUser.idx,
     );
 
     return;

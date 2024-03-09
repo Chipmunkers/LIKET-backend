@@ -748,7 +748,14 @@ export class CultureContentService {
   public updateContentRequest: (
     idx: number,
     updateDto: UpdateContentDto,
-  ) => Promise<void> = async (idx, updateDto) => {
+    userIdx: number,
+  ) => Promise<void> = async (idx, updateDto, userIdx) => {
+    await this.uploadService.checkExistFiles(
+      updateDto.imgList.map((file) => file.filePath),
+      userIdx,
+      FILE_GROUPING.CULTURE_CONTENT,
+    );
+
     await this.prisma.$transaction([
       this.prisma.location.update({
         where: {
@@ -767,7 +774,14 @@ export class CultureContentService {
           description: updateDto.description,
           websiteLink: updateDto.websiteLink,
           ContentImg: {
-            deleteMany: {},
+            updateMany: {
+              where: {
+                deletedAt: null,
+              },
+              data: {
+                deletedAt: new Date(),
+              },
+            },
             createMany: updateDto.imgList
               ? {
                   data: updateDto.imgList.map((img) => ({
