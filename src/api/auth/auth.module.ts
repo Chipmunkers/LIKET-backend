@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { RedisModule } from '../../common/redis/redis.module';
+import { RedisModule } from '../../redis/redis.module';
 import { HashModule } from '../../hash/hash.module';
 
 @Global()

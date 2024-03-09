@@ -4,12 +4,12 @@ import { SendEmailVerificationCodeDto } from './dto/SendEmailVerificationCodeDto
 import { CheckEmailVerificationCodeDto } from './dto/CheckEmailVerificationCodeDto';
 import { HashService } from '../../hash/hash.service';
 import { LoginDto } from './dto/LoginDto';
-import { RedisService } from '../../common/redis/redis.service';
+import { RedisService } from '../../redis/redis.service';
 import { BlockedUserException } from './exception/BlockedUserException';
 import { InvalidEmailOrPwException } from './exception/InvalidEmailOrPwException';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
-import { NotFoundVerificationCodeException } from '../../common/redis/exception/NotFoundVerificationCodeException';
+import { NotFoundVerificationCodeException } from '../../redis/exception/NotFoundVerificationCodeException';
 import { InvalidEmailVerificationCodeException } from './exception/InvalidEmailVerificationCodeException';
 import { InvalidEmailAuthTokenException } from './exception/InvalidEmailAuthTokenException';
 import { InvalidLoginAccessTokenException } from './exception/InvalidLoginAccessTokenException';
