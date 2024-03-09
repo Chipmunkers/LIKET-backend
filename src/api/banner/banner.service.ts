@@ -101,7 +101,7 @@ export class BannerService {
         idx: bannerIdx,
       },
       data: {
-        imgPath: updateDto.img.fileName,
+        imgPath: updateDto.img.filePath,
         link: updateDto.link,
         name: updateDto.name,
       },
@@ -120,7 +120,7 @@ export class BannerService {
       data: {
         name: createDto.name,
         link: createDto.link,
-        imgPath: createDto.img.fileName,
+        imgPath: createDto.img.filePath,
       },
     });
 

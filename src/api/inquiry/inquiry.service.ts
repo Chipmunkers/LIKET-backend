@@ -119,7 +119,7 @@ export class InquiryService {
         InquiryImg: {
           createMany: {
             data: createDto.imgList.map((img) => ({
-              imgPath: img.fileName,
+              imgPath: img.filePath,
             })),
           },
         },

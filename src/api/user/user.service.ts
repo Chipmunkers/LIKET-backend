@@ -63,7 +63,7 @@ export class UserService {
         pw: this.hashService.hashPw(signUpDto.pw),
         nickname: signUpDto.nickname,
         birth: signUpDto.birth,
-        profileImgPath: signUpDto.profileImg?.fileName,
+        profileImgPath: signUpDto.profileImg?.filePath,
         gender: signUpDto.gender,
       },
     });
@@ -235,7 +235,7 @@ export class UserService {
       data: {
         gender: updateDto.gender,
         birth: updateDto.birth,
-        profileImgPath: updateDto.profileImg?.fileName,
+        profileImgPath: updateDto.profileImg?.filePath,
       },
     });
   };
