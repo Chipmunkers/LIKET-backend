@@ -678,9 +678,7 @@ export class CultureContentService {
     userIdx: number,
     createDto: CreateContentRequestDto,
   ) => Promise<number> = async (userIdx, createDto) => {
-    let idx: number = 0;
-
-    await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       const createdLocation = await tx.location.create({
         data: {
           address: createDto.location.address,
@@ -729,12 +727,8 @@ export class CultureContentService {
         },
       });
 
-      idx = requestedCultureContent.idx;
-
-      return true;
+      return requestedCultureContent.idx;
     });
-
-    return idx;
   };
 
   /**

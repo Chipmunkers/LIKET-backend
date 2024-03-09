@@ -13,6 +13,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { UploadFileDto } from '../../upload/dto/UploadFileDto';
+import { Type } from 'class-transformer';
 
 export class CreateContentRequestDto {
   @IsString()
@@ -27,10 +28,11 @@ export class CreateContentRequestDto {
   @Length(1, 2000)
   websiteLink: string;
 
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @ArrayMaxSize(10)
   @IsOptional()
-  imgList?: UploadFileDto[];
+  @Type(() => UploadFileDto)
+  imgList: UploadFileDto[] = [];
 
   @IsInt()
   genreIdx: number;
