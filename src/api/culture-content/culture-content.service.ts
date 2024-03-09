@@ -21,7 +21,7 @@ export class CultureContentService {
   // Content ==================================================
 
   /**
-   * 컨텐츠 자세히보기
+   * Get detail culture-content for user
    */
   public getContentByIdx: (
     idx: number,
@@ -100,7 +100,7 @@ export class CultureContentService {
   };
 
   /**
-   * 컨텐츠 목록 보기
+   * Get all culture-contents for user
    */
   public getContentAll: (
     pagenation: ContentListPagenationDto,
@@ -244,7 +244,7 @@ export class CultureContentService {
   };
 
   /**
-   * 사용자로 컨텐츠 목록 보기
+   * Get all culture-contents by user idx
    */
   public async getContentByUserIdx(
     userIdx: number,
@@ -323,7 +323,7 @@ export class CultureContentService {
   }
 
   /**
-   * 오픈 예정 컨텐츠 보기
+   * Get all culture-contents that is opening soon
    */
   public async getSoonOpenContentAll(
     userIdx: number,
@@ -398,7 +398,7 @@ export class CultureContentService {
   }
 
   /**
-   * 종료 예정 컨텐츠 보기
+   * Get all culture-contents that is about to end
    */
   public async getSoonEndContentAll(
     userIdx: number,
@@ -475,7 +475,7 @@ export class CultureContentService {
   // Content Request ==========================================
 
   /**
-   * 컨텐츠 요청 자세히보기
+   * Get culture-content request by idx for admin
    */
   public getContentRequestByIdx: (
     idx: number,
@@ -543,7 +543,7 @@ export class CultureContentService {
   };
 
   /**
-   * 컨텐츠 요청 목록 보기
+   * Get all culture-content requests for admin
    */
   public getContentRequestAll: (
     pagenation: ContentRequestListPagenationDto,
@@ -672,7 +672,7 @@ export class CultureContentService {
   };
 
   /**
-   * 컨텐츠 요청하기
+   * Create culture-content request
    */
   public createContentRequest: (
     userIdx: number,
@@ -738,7 +738,7 @@ export class CultureContentService {
   };
 
   /**
-   * 컨텐츠 요청 수정하기
+   * Update culture-content request by idx
    */
   public updateContentRequest: (
     idx: number,
@@ -794,7 +794,7 @@ export class CultureContentService {
   };
 
   /**
-   * 컨텐츠 요청 삭제하기
+   * Delete culture-content request
    */
   public deleteContentRequest: (idx: number) => Promise<void> = async (idx) => {
     await this.prisma.cultureContent.update({
@@ -810,7 +810,7 @@ export class CultureContentService {
   };
 
   /**
-   * 요청 수락하기
+   * Accept culture-content request
    */
   public acceptContentRequest: (idx: number) => Promise<void> = async (idx) => {
     const content = await this.prisma.cultureContent.findUnique({
@@ -848,7 +848,8 @@ export class CultureContentService {
   };
 
   /**
-   * 비활성화 하기
+   * Make culture-content to culture-content request
+   * That means making culture-content deactivated
    */
   public deactivateContent: (idx: number) => Promise<void> = async (idx) => {
     const content = await this.prisma.cultureContent.findUnique({
@@ -886,7 +887,7 @@ export class CultureContentService {
   };
 
   /**
-   * 컨텐츠 좋아요 누르기
+   * Add like culture-content by idx
    */
   public likeContent: (userIdx: number, contentIdx: number) => Promise<void> =
     async (userIdx, contentIdx) => {
@@ -926,7 +927,7 @@ export class CultureContentService {
     };
 
   /**
-   * 컨텐츠 좋아요 취소하기
+   * Cancel to like culture-content by idx
    */
   public cancelToLikeContent: (
     userIdx: number,
