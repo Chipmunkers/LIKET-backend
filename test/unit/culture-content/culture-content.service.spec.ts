@@ -8,10 +8,12 @@ import { AlreadyLikeContentException } from '../../../src/api/culture-content/ex
 import { AlreadyNotLikeContentException } from '../../../src/api/culture-content/exception/AlreadyNotLikeContentException';
 import { ContentEntity } from '../../../src/api/culture-content/entity/ContentEntity';
 import { CreateLocationDto } from '../../../src/common/dto/CreateLocationDto';
+import { UploadService } from '../../../src/api/upload/upload.service';
 
 describe('CultureContentService', () => {
   let service: CultureContentService;
   let prismaMock: PrismaService;
+  let uploadServiceMock: UploadService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,11 +30,16 @@ describe('CultureContentService', () => {
             location: {},
           },
         },
+        {
+          provide: UploadService,
+          useValue: {},
+        },
       ],
     }).compile();
 
     service = module.get<CultureContentService>(CultureContentService);
     prismaMock = module.get<PrismaService>(PrismaService);
+    uploadServiceMock = module.get<UploadService>(UploadService);
   });
 
   it('getContentByIdx success', async () => {
@@ -111,31 +118,44 @@ describe('CultureContentService', () => {
   });
 
   it('updateContentRequest success', async () => {
-    // 1. update culture content with transaction
-    prismaMock.$transaction = jest.fn().mockImplementation(async (list) => {
-      list.map(async (task) => await task);
-    });
+    // 1. check file exist
+    uploadServiceMock.checkExistFiles = jest.fn().mockResolvedValue(undefined);
+
+    // 2. update culture content with transaction
+    prismaMock.$transaction = jest
+      .fn()
+      .mockImplementation(async (list: Promise<any>[]) => {
+        list.map(async (task) => await task);
+      });
+
+    // 3. update culture-content
     prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
+
+    // 4. update location
     prismaMock.location.update = jest.fn().mockResolvedValue({});
 
     await expect(
-      service.updateContentRequest(1, {
-        title: '',
-        description: '',
-        websiteLink: '',
-        startDate: '',
-        endDate: '',
-        openTime: '',
-        location: {} as CreateLocationDto,
-        genreIdx: 1,
-        styleIdxList: [],
-        ageIdx: 1,
-        isFee: true,
-        isParking: true,
-        isReservation: true,
-        isPet: true,
-        imgList: [],
-      }),
+      service.updateContentRequest(
+        1,
+        {
+          title: '',
+          description: '',
+          websiteLink: '',
+          startDate: '',
+          endDate: '',
+          openTime: '',
+          location: {} as CreateLocationDto,
+          genreIdx: 1,
+          styleIdxList: [],
+          ageIdx: 1,
+          isFee: true,
+          isParking: true,
+          isReservation: true,
+          isPet: true,
+          imgList: [],
+        },
+        1,
+      ),
     ).resolves.toBeUndefined();
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
     expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
