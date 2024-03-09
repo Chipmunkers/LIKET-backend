@@ -4,10 +4,15 @@ import { InquiryListPagenationDto } from './dto/InquiryListPagenationDto';
 import { InquiryEntity } from './entity/InquiryEntity';
 import { CreateInquiryDto } from './dto/CreateInquiryDto';
 import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
+import { UploadService } from '../upload/upload.service';
+import { FILE_GROUPING } from '../upload/file-grouping';
 
 @Injectable()
 export class InquiryService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   /**
    * Get all inquiries for admin user
@@ -111,6 +116,12 @@ export class InquiryService {
     userIdx: number,
     createDto: CreateInquiryDto,
   ) => Promise<number> = async (userIdx, createDto) => {
+    await this.uploadService.checkExistFiles(
+      createDto.imgList.map((file) => file.filePath),
+      userIdx,
+      FILE_GROUPING.INQUIRY,
+    );
+
     const createdInquiry = await this.prisma.inquiry.create({
       data: {
         title: createDto.title,
