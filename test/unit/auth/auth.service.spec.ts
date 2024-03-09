@@ -20,7 +20,6 @@ describe('AuthService', () => {
   let hashServiceMock: HashService;
   let redisMock: RedisService;
   let mailerServiceMock: MailerService;
-  let loggerMock: LoggerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
