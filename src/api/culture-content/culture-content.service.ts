@@ -13,10 +13,15 @@ import { ContentNotFoundException } from './exception/ContentNotFound';
 import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeContentException';
 import { ContentListByUserIdxPagerbleDto } from './dto/ContentListByUserIdxPagerbleDto';
+import { UploadService } from '../upload/upload.service';
+import { FILE_GROUPING } from '../upload/file-grouping';
 
 @Injectable()
 export class CultureContentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   // Content ==================================================
 
@@ -678,6 +683,12 @@ export class CultureContentService {
     userIdx: number,
     createDto: CreateContentRequestDto,
   ) => Promise<number> = async (userIdx, createDto) => {
+    await this.uploadService.checkExistFiles(
+      createDto.imgList.map((file) => file.filePath),
+      userIdx,
+      FILE_GROUPING.CULTURE_CONTENT,
+    );
+
     return await this.prisma.$transaction(async (tx) => {
       const createdLocation = await tx.location.create({
         data: {

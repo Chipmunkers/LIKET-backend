@@ -6,9 +6,10 @@ import { TagService } from './tag.service';
 import { TagController } from './tag.controller';
 import { ContentReviewController } from './content-review.controller';
 import { ReveiwModule } from '../review/reveiw.module';
+import { UploadModule } from '../upload/upload.module';
 
 @Module({
-  imports: [PrismaModule, ReveiwModule],
+  imports: [PrismaModule, ReveiwModule, UploadModule],
   controllers: [
     CultureContentController,
     TagController,
