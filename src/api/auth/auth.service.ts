@@ -28,7 +28,7 @@ export class AuthService {
   ) {}
 
   /**
-   * 로그인하기
+   * Local Login
    */
   public login: (loginDto: LoginDto) => Promise<string> = async (loginDto) => {
     this.logger.log('login', 'find user');
@@ -68,7 +68,7 @@ export class AuthService {
   };
 
   /**
-   * 이메일 인증번호 발송하기
+   * Send email verificaion code
    */
   public sendEmailVerificationCode: (
     sendDto: SendEmailVerificationCodeDto,
@@ -95,7 +95,7 @@ export class AuthService {
   };
 
   /**
-   * 이메일 인증번호 확인하기
+   * Check email verificiation code
    */
   public checkEmailVerificatioCode: (
     checkDto: CheckEmailVerificationCodeDto,
@@ -127,7 +127,7 @@ export class AuthService {
   };
 
   /**
-   * 이메일 인증 토큰 검사하기
+   * Verify email auth token
    */
   public verifyEmailAuthToken: (emailToken: string) => string = (
     emailToken,
@@ -156,7 +156,7 @@ export class AuthService {
   };
 
   /**
-   * 이메일 인증 토큰 생성하기
+   * Create email auth token
    */
   public signEmailAuthToken: (email: string) => string = (email) => {
     this.logger.log('signEmailAuthToken', 'sign email auth token');
@@ -173,7 +173,7 @@ export class AuthService {
   };
 
   /**
-   * 로그인 액세스 토큰 생성하기
+   * Create login access token
    */
   public signLoginAccessToken: (idx: number, isAdmin: boolean) => string = (
     idx,
@@ -192,7 +192,7 @@ export class AuthService {
   };
 
   /**
-   * 로그인 액세스 토큰 검증하기
+   * Verify email access token
    */
   public verifyLoginAccessToken: (token: string) => {
     idx: number;
