@@ -17,7 +17,7 @@ export class BannerService {
   // User ==============================================
 
   /**
-   * 배너 목록보기
+   * Get all banners for all user
    */
   public getBannerAll: () => Promise<BannerEntity<'active'>[]> = async () => {
     const bannerList = await this.prisma.activeBanner.findMany({
@@ -37,7 +37,7 @@ export class BannerService {
   // Admin =============================================
 
   /**
-   * 배너 목록보기
+   * Get all banners for admin
    */
   public getBannerAllForAdmin: (pagerble: BannerListPagerbleDto) => Promise<{
     bannerList: BannerEntity<'all'>[];
@@ -70,7 +70,7 @@ export class BannerService {
   };
 
   /**
-   * 배너 자세히보기
+   * Get banner by idx for admin
    */
   public getBannerByIdxForAdmin: (
     bannerIdx: number,
@@ -90,7 +90,7 @@ export class BannerService {
   };
 
   /**
-   * 배너 수정하기
+   * Update banner by idx
    */
   public updateBanner: (
     bannerIdx: number,
@@ -128,7 +128,7 @@ export class BannerService {
   };
 
   /**
-   * 배너 삭제하기
+   * Delete banner by idx
    */
   public deleteBanner: (bannerIdx: number) => Promise<void> = async (
     bannerIdx,
@@ -190,7 +190,7 @@ export class BannerService {
   };
 
   /**
-   * 배너 활성화하기
+   * Activate banner by idx for admin
    */
   public activateBanner: (bannerIdx: number) => Promise<void> = async (
     bannerIdx,
@@ -242,7 +242,7 @@ export class BannerService {
   };
 
   /**
-   * 배너 비활성화하기
+   * Deactivate banner by idx for admin
    */
   public deactivateBanner: (bannerIdx: number) => Promise<void> = async (
     bannerIdx,
@@ -299,7 +299,7 @@ export class BannerService {
   };
 
   /**
-   * 배너 순서 변경하기
+   * Update a order of a banner by banner idx for admin
    */
   public updateBannerOrder: (
     bannerIdx: number,
