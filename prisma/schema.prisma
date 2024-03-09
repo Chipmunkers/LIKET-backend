@@ -386,14 +386,12 @@ model UploadFile {
   idx       Int       @id @default(autoincrement())
   userIdx   Int?      @default(autoincrement()) @map("user_idx")
   grouping  Int       @db.SmallInt
-  fileName  String    @map("file_name") @db.VarChar
-  fileExt   String    @map("file_ext") @db.VarChar
-  urlPath   String    @map("url_path") @db.VarChar
+  filePath  String    @map("file_name") @db.VarChar
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
   User      User?     @relation(fields: [userIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_tb_to_upload_file_tb")
 
-  @@index([fileName])
+  @@index([filePath])
   @@map("upload_file_tb")
 }

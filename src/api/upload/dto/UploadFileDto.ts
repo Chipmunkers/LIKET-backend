@@ -1,4 +1,3 @@
 export class UploadFileDto {
-  fileName: string;
-  fielExt: string;
+  filePath: string;
 }

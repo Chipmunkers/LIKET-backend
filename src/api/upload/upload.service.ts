@@ -38,9 +38,7 @@ export class UploadService {
 
     await this.prisma.uploadFile.create({
       data: {
-        fileExt: result.fileExt,
-        fileName: result.fileName,
-        urlPath: result.fullUrl,
+        filePath: result.filePath,
         userIdx: userIdx || null,
         grouping: option.grouping,
       },
@@ -68,7 +66,7 @@ export class UploadService {
     }[]
   > {
     this.logger.log('uploadFilesToS3', 'try to upload files');
-    const results = await Promise.all(
+    const uploadFiles = await Promise.all(
       files.map((file) =>
         this.uploadToS3(file, {
           destination: option.destinaion,
@@ -77,28 +75,26 @@ export class UploadService {
     );
 
     await this.prisma.uploadFile.createMany({
-      data: results.map((file) => ({
-        fileName: file.fileName,
-        fileExt: file.fileExt,
-        urlPath: file.fullUrl,
+      data: uploadFiles.map((file) => ({
+        filePath: file.filePath,
         userIdx: userIdx || null,
         grouping: option.grouping,
       })),
     });
 
-    return results;
+    return uploadFiles;
   }
 
   /**
    * Check exist file
    */
   public async checkExistFile(
-    fileName: string,
+    filePath: string,
     userIdx: number,
   ): Promise<void> {
     const file = await this.prisma.uploadFile.findFirst({
       where: {
-        fileName,
+        filePath,
         userIdx,
         deletedAt: null,
       },
@@ -115,20 +111,20 @@ export class UploadService {
    * Check exist files
    */
   public async checkExistFiles(
-    fileNames: string[],
+    filePaths: string[],
     userIdx: number,
   ): Promise<void> {
     const fileCount = await this.prisma.uploadFile.count({
       where: {
-        fileName: {
-          in: fileNames,
+        filePath: {
+          in: filePaths,
         },
         userIdx,
         deletedAt: null,
       },
     });
 
-    if (fileCount !== fileNames.length) {
+    if (fileCount !== filePaths.length) {
       throw new UploadFileNotFoundException('Cannot find files');
     }
 
@@ -180,7 +176,7 @@ export class UploadService {
       fullUrl: `https://s3.${region}.amazonaws.com/${bucketName}/${option.destination}/${fileName}.${fileExt}`,
       fileName: fileName,
       fileExt: fileExt,
-      filePath: `/${option.destination}/${bucketName}`,
+      filePath: `/${option.destination}/${fileName}.${fileExt}`,
     };
   }
 }
