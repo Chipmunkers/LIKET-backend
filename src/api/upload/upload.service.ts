@@ -117,6 +117,7 @@ export class UploadService {
     userIdx: number,
     grouping: FILE_GROUPING,
   ): Promise<void> {
+    this.logger.log('checkExistFiles', `filePaths: ${filePaths.toString()}`);
     const fileCount = await this.prisma.uploadFile.count({
       where: {
         filePath: {
@@ -127,6 +128,8 @@ export class UploadService {
         deletedAt: null,
       },
     });
+
+    this.logger.log('checkExistFiles', `find file count: ${fileCount}`);
 
     if (fileCount !== filePaths.length) {
       throw new UploadFileNotFoundException('Cannot find uploaded files');
