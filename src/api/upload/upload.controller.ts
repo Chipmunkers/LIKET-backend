@@ -1,14 +1,16 @@
 import {
   BadRequestException,
   Controller,
+  ForbiddenException,
   HttpCode,
   Post,
+  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UtilService } from '../../util/util.service';
 import { MulterOptionProvider } from './multer-option.provider';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
@@ -94,5 +96,40 @@ export class UploadController {
       },
       loginUser.idx,
     );
+  }
+
+  /**
+   * Upload banner image
+   *
+   * @ignore
+   */
+  @Post('/banner')
+  @HttpCode(200)
+  @UseGuards(LoginAuthGuard)
+  @UseInterceptors(
+    FileInterceptor(
+      'file',
+      MulterOptionProvider.createOption({
+        mimetype: ['image/png', 'image/jpeg'],
+        limits: 1 * 1024 * 1024,
+      }),
+    ),
+  )
+  public async uploadBannerImg(
+    @User() loginUser: LoginUserDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ): Promise<UploadFileResponseDto> {
+    if (!loginUser.isAdmin) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    if (!file) {
+      throw new BadRequestException('Cannot find uploaded file');
+    }
+
+    return await this.uploadService.uploadFileToS3(file, {
+      destination: 'banner',
+      grouping: FILE_GROUPING.BANNER,
+    });
   }
 }

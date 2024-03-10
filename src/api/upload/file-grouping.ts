@@ -4,4 +4,5 @@ export enum FILE_GROUPING {
   CULTURE_CONTENT = 3,
   INQUIRY = 4,
   ANSWER = 5,
+  BANNER = 6,
 }
