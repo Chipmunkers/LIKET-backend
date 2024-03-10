@@ -133,7 +133,10 @@ describe('BannerService', () => {
   });
 
   it('updateBanner success', async () => {
-    // 1. update banner
+    // 1. check whether img is uploaded
+    uploadServiceMock.checkExistFile = jest.fn().mockResolvedValue(undefined);
+
+    // 2. update banner
     prismaMock.banner.update = jest.fn().mockResolvedValue({});
 
     await expect(
