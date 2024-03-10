@@ -9,10 +9,15 @@ import { AlreadyActiveBannerException } from './exception/AlreadyActiveBannerExc
 import { AlreadyDeactiveBannerException } from './exception/AlreadyDeactiveBannerException';
 import { BannerOrderOutOfRangeException } from './exception/BannerOrderOutOfRangeException';
 import { CreateBannerDto } from './dto/CreateBannerDto';
+import { UploadService } from '../upload/upload.service';
+import { FILE_GROUPING } from '../upload/file-grouping';
 
 @Injectable()
 export class BannerService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   // User ==============================================
 
@@ -116,6 +121,10 @@ export class BannerService {
   public createBanner: (createDto: CreateBannerDto) => Promise<number> = async (
     createDto,
   ) => {
+    await this.uploadService.checkExistFile(
+      createDto.img.filePath,
+      FILE_GROUPING.BANNER,
+    );
     const createdBanner = await this.prisma.banner.create({
       data: {
         name: createDto.name,
