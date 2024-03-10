@@ -11,19 +11,20 @@ import {
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { UtilService } from '../../util/util.service';
 import { MulterOptionProvider } from './multer-option.provider';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { FILE_GROUPING } from './file-grouping';
 import { UploadFileResponseDto } from './dto/response/UploadFileResponseDto';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
+import { Logger } from '../../logger/logger.decorator';
+import { LoggerService } from '../../logger/logger.service';
 
 @Controller('upload')
 export class UploadController {
   constructor(
     private readonly uploadService: UploadService,
-    private readonly utilService: UtilService,
+    @Logger('UploadController') private readonly logger: LoggerService,
   ) {}
 
   /**
@@ -119,10 +120,12 @@ export class UploadController {
     @User() loginUser: LoginUserDto,
     @UploadedFile() file?: Express.Multer.File,
   ): Promise<UploadFileResponseDto> {
+    this.logger.log('uploadBannerImg', 'check admin authenicate');
     if (!loginUser.isAdmin) {
       throw new ForbiddenException('Permission denied');
     }
 
+    this.logger.log('uploadBannerImg', 'check uploaded file');
     if (!file) {
       throw new BadRequestException('Cannot find uploaded file');
     }
