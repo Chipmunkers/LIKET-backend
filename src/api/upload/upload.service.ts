@@ -90,8 +90,8 @@ export class UploadService {
    */
   public async checkExistFile(
     filePath: string,
-    userIdx: number,
     grouping: FILE_GROUPING,
+    userIdx?: number,
   ): Promise<void> {
     const file = await this.prisma.uploadFile.findFirst({
       where: {
@@ -114,8 +114,8 @@ export class UploadService {
    */
   public async checkExistFiles(
     filePaths: string[],
-    userIdx: number,
     grouping: FILE_GROUPING,
+    userIdx?: number,
   ): Promise<void> {
     this.logger.log('checkExistFiles', `filePaths: ${filePaths.length}`);
     const fileCount = await this.prisma.uploadFile.count({
