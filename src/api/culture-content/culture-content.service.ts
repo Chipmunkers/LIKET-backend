@@ -685,8 +685,8 @@ export class CultureContentService {
   ) => Promise<number> = async (userIdx, createDto) => {
     await this.uploadService.checkExistFiles(
       createDto.imgList.map((file) => file.filePath),
-      userIdx,
       FILE_GROUPING.CULTURE_CONTENT,
+      userIdx,
     );
 
     return await this.prisma.$transaction(async (tx) => {
@@ -752,8 +752,8 @@ export class CultureContentService {
   ) => Promise<void> = async (idx, updateDto, userIdx) => {
     await this.uploadService.checkExistFiles(
       updateDto.imgList.map((file) => file.filePath),
-      userIdx,
       FILE_GROUPING.CULTURE_CONTENT,
+      userIdx,
     );
 
     await this.prisma.$transaction([

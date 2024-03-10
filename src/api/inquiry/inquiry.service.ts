@@ -118,8 +118,8 @@ export class InquiryService {
   ) => Promise<number> = async (userIdx, createDto) => {
     await this.uploadService.checkExistFiles(
       createDto.imgList.map((file) => file.filePath),
-      userIdx,
       FILE_GROUPING.INQUIRY,
+      userIdx,
     );
 
     const createdInquiry = await this.prisma.inquiry.create({
