@@ -101,6 +101,11 @@ export class BannerService {
     bannerIdx: number,
     updateDto: UpdateBannerDto,
   ) => Promise<void> = async (bannerIdx, updateDto) => {
+    await this.uploadService.checkExistFile(
+      updateDto.img.filePath,
+      FILE_GROUPING.BANNER,
+    );
+
     await this.prisma.banner.update({
       where: {
         idx: bannerIdx,
