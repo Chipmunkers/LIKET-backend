@@ -13,6 +13,7 @@ import { UploadService } from '../../../src/api/upload/upload.service';
 describe('BannerService', () => {
   let service: BannerService;
   let prismaMock: PrismaService;
+  let uploadServiceMock: UploadService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,11 +26,16 @@ describe('BannerService', () => {
             activeBanner: {},
           },
         },
+        {
+          provide: UploadService,
+          useValue: {},
+        },
       ],
     }).compile();
 
     service = module.get<BannerService>(BannerService);
     prismaMock = module.get<PrismaService>(PrismaService);
+    uploadServiceMock = module.get<UploadService>(UploadService);
   });
 
   it('getBannerAll success', async () => {
@@ -106,6 +112,10 @@ describe('BannerService', () => {
   });
 
   it('createBanner success', async () => {
+    // 1. check whether img file is uploded file.
+    uploadServiceMock.checkExistFile = jest.fn().mockResolvedValue(undefined);
+
+    // 2. create banner
     const createdBanner = { idx: 1 };
     prismaMock.banner.create = jest.fn().mockResolvedValue(createdBanner);
 
@@ -118,6 +128,7 @@ describe('BannerService', () => {
         },
       }),
     ).resolves.toBe(createdBanner.idx);
+    expect(uploadServiceMock.checkExistFile).toHaveBeenCalledTimes(1);
     expect(prismaMock.banner.create).toHaveBeenCalledTimes(1);
   });
 
