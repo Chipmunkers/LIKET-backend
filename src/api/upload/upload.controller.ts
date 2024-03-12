@@ -135,4 +135,36 @@ export class UploadController {
       grouping: FILE_GROUPING.BANNER,
     });
   }
+
+  /**
+   * Upload review images
+   *
+   * @ignore
+   */
+  @Post('/review')
+  @HttpCode(200)
+  @UseGuards(LoginAuthGuard)
+  @UseInterceptors(
+    FilesInterceptor(
+      'file',
+      10,
+      MulterOptionProvider.createOption({
+        mimetype: ['image/png', 'image/jpeg'],
+        limits: 1 * 1024 * 1024,
+      }),
+    ),
+  )
+  public async uploadReviewImgs(
+    @UploadedFiles() files?: Express.Multer.File[],
+  ): Promise<UploadFileResponseDto[]> {
+    this.logger.log('uploadBannerImg', 'check uploaded file');
+    if (!files || !files.length) {
+      throw new BadRequestException('Cannot find uploaded file');
+    }
+
+    return await this.uploadService.uploadFilesToS3(files, {
+      destinaion: 'review',
+      grouping: FILE_GROUPING.REVIEW,
+    });
+  }
 }
