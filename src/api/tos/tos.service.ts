@@ -11,7 +11,19 @@ export class TosService {
   /**
    * Get all TOS
    */
-  public getTosAll: () => Promise<TosEntity<'summary', 'user'>>;
+  public getTosAll: () => Promise<TosEntity<'summary', 'user'>[]> =
+    async () => {
+      const tosList = await this.prisma.tos.findMany({
+        where: {
+          deletedAt: null,
+        },
+        orderBy: {
+          idx: 'asc',
+        },
+      });
+
+      return tosList.map((tos) => TosEntity.createUserSummaryTos(tos));
+    };
 
   /**
    * Get a detail TOS
