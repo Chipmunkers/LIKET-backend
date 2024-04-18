@@ -83,7 +83,19 @@ export class TosService {
   /**
    * Create a TOS
    */
-  public createTos: (createDto: CreateTosDto) => Promise<void>;
+  public createTos: (createDto: CreateTosDto) => Promise<void> = async (
+    createDto,
+  ) => {
+    await this.prisma.tos.create({
+      data: {
+        title: createDto.title,
+        contents: createDto.contents,
+        isEssential: createDto.isEssential,
+      },
+    });
+
+    return;
+  };
 
   /**
    * Update a Tos by idx
