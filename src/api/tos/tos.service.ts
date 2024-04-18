@@ -65,7 +65,20 @@ export class TosService {
    */
   public getTosByIdxForAdmin: (
     idx: number,
-  ) => Promise<TosEntity<'detail', 'admin'>>;
+  ) => Promise<TosEntity<'detail', 'admin'>> = async (idx) => {
+    const tos = await this.prisma.tos.findUnique({
+      where: {
+        idx,
+        deletedAt: null,
+      },
+    });
+
+    if (!tos) {
+      throw new NotFoundException('Cannot find Terms of Service');
+    }
+
+    return TosEntity.createAdminDetailTos(tos);
+  };
 
   /**
    * Create a TOS
