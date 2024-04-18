@@ -49,7 +49,16 @@ export class TosService {
   /**
    * Get all TOS for admin
    */
-  public getTosAllForAdmin: () => Promise<TosEntity<'summary', 'admin'>[]>;
+  public getTosAllForAdmin: () => Promise<TosEntity<'summary', 'admin'>[]> =
+    async () => {
+      const tosList = await this.prisma.tos.findMany({
+        where: {
+          deletedAt: null,
+        },
+      });
+
+      return tosList.map((tos) => TosEntity.createAdminSummaryTos(tos));
+    };
 
   /**
    * Get a detail TOS for admin
