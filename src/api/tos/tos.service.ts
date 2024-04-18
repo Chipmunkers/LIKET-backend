@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTosDto } from './dto/CreateTosDto';
 import { UpdateTosDto } from './dto/UpdateTosDto';
@@ -28,7 +28,21 @@ export class TosService {
   /**
    * Get a detail TOS
    */
-  public getTosByIdx: () => Promise<TosEntity<'detail', 'user'>>;
+  public getTosByIdx: (idx: number) => Promise<TosEntity<'detail', 'user'>> =
+    async (idx) => {
+      const tos = await this.prisma.tos.findUnique({
+        where: {
+          idx,
+          deletedAt: null,
+        },
+      });
+
+      if (!tos) {
+        throw new NotFoundException('Cannot find Terms Of Service');
+      }
+
+      return TosEntity.createUserDetailTos(tos);
+    };
 
   // Admin
 
