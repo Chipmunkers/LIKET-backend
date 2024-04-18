@@ -1,7 +1,8 @@
-import { Controller, Get, HttpCode } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, ParseIntPipe } from '@nestjs/common';
 import { TosService } from './tos.service';
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
+import { GetUserTosAllResponseDto } from './dto/response/GetUserTosAllResponseDto';
 
 @Controller('tos')
 export class TosController {
@@ -10,9 +11,11 @@ export class TosController {
   @Get('/all')
   @HttpCode(200)
   @TypedException<ExceptionDto>(500, 'Server Error')
-  async getTosAll() {
+  async getUserTosAll(): Promise<GetUserTosAllResponseDto> {
     const tosList = await this.tosService.getTosAll();
 
-    return tosList;
+    return {
+      tosList,
+    };
   }
 }
