@@ -100,7 +100,21 @@ export class TosService {
   /**
    * Update a Tos by idx
    */
-  public updateTos: (idx: number, updateDto: UpdateTosDto) => Promise<void>;
+  public updateTos: (idx: number, updateDto: UpdateTosDto) => Promise<void> =
+    async (idx, updateDto) => {
+      await this.prisma.tos.update({
+        where: {
+          idx,
+        },
+        data: {
+          title: updateDto.title,
+          contents: updateDto.contents,
+          isEssential: updateDto.isEssential,
+        },
+      });
+
+      return;
+    };
 
   /**
    * Delete a TOS by idx
