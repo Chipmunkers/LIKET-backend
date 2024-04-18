@@ -119,5 +119,16 @@ export class TosService {
   /**
    * Delete a TOS by idx
    */
-  public deleteTos: (idx: number) => Promise<void>;
+  public deleteTos: (idx: number) => Promise<void> = async (idx) => {
+    await this.prisma.tos.update({
+      where: {
+        idx,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    return;
+  };
 }
