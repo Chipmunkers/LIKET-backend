@@ -1,8 +1,20 @@
-import { Controller, Get, HttpCode, Param, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { TosService } from './tos.service';
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { GetUserTosAllResponseDto } from './dto/response/GetUserTosAllResponseDto';
+import { GetAdminTosAllResponseDto } from './dto/response/GetAdminTosAllResponseDto';
+import { LoginAuthGuard } from '../../common/guard/auth.guard';
+import { User } from '../../common/decorator/user.decorator';
+import { LoginUserDto } from '../../common/dto/LoginUserDto';
 
 @Controller('tos')
 export class TosController {
@@ -40,5 +52,31 @@ export class TosController {
     const tos = await this.tosService.getTosByIdx(idx);
 
     return tos;
+  }
+
+  /**
+   * Get all Terms Of Service for Admin API
+   * @summary Get all Terms Of Service for Admin API
+   *
+   * @tag Terms Of Service
+   */
+  @Get('/admin/all')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  async getTosAllForAdmin(
+    @User() user: LoginUserDto,
+  ): Promise<GetAdminTosAllResponseDto> {
+    if (!user.isAdmin) {
+      throw new ForbiddenException('Permission Denied');
+    }
+
+    const tosList = await this.tosService.getTosAllForAdmin();
+
+    return {
+      tosList,
+    };
   }
 }
