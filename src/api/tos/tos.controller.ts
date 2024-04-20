@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   HttpCode,
@@ -166,6 +167,35 @@ export class TosController {
     await this.tosService.getTosByIdx(idx);
 
     await this.tosService.updateTos(idx, updateDto);
+
+    return;
+  }
+
+  /**
+   * Delete Terms of Service for admin API
+   * @summary Delete Terms of Service for admin API
+   *
+   * @tag Terms Of Service
+   */
+  @Delete('/:idx')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid body or path')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(404, 'Cannot find Terms of Service')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  async deleteTosByIdx(
+    @User() user: LoginUserDto,
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<void> {
+    if (!user.isAdmin) {
+      throw new ForbiddenException('Permission Denied');
+    }
+
+    await this.tosService.getTosByIdx(idx);
+
+    await this.tosService.deleteTos(idx);
 
     return;
   }
