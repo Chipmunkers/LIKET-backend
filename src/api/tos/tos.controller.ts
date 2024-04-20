@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   ForbiddenException,
   Get,
   HttpCode,
   Param,
   ParseIntPipe,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 import { TosService } from './tos.service';
@@ -16,6 +18,7 @@ import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { TosEntity } from './entity/TosEntity';
+import { CreateTosDto } from './dto/CreateTosDto';
 
 @Controller('tos')
 export class TosController {
@@ -107,5 +110,31 @@ export class TosController {
     const tos = await this.tosService.getTosByIdxForAdmin(idx);
 
     return tos;
+  }
+
+  /**
+   * Create Terms of Service for admin API
+   * @summary Create Terms of Service for admin API
+   *
+   * @tag Terms Of Service
+   */
+  @Post('/')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid body')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  async createTos(
+    @Body() createDto: CreateTosDto,
+    @User() user: LoginUserDto,
+  ): Promise<void> {
+    if (!user.isAdmin) {
+      throw new ForbiddenException('Permission Denied');
+    }
+
+    await this.tosService.createTos(createDto);
+
+    return;
   }
 }
