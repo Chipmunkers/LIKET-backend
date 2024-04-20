@@ -158,7 +158,7 @@ export class TosController {
     @Body() updateDto: UpdateTosDto,
     @User() user: LoginUserDto,
     @Param('idx', ParseIntPipe) idx: number,
-  ) {
+  ): Promise<void> {
     if (!user.isAdmin) {
       throw new ForbiddenException('Permission Denied');
     }
