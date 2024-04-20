@@ -7,6 +7,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { TosService } from './tos.service';
@@ -19,6 +20,7 @@ import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { TosEntity } from './entity/TosEntity';
 import { CreateTosDto } from './dto/CreateTosDto';
+import { UpdateTosDto } from './dto/UpdateTosDto';
 
 @Controller('tos')
 export class TosController {
@@ -134,6 +136,36 @@ export class TosController {
     }
 
     await this.tosService.createTos(createDto);
+
+    return;
+  }
+
+  /**
+   * Update Terms of Service for admin API
+   * @summary Update Terms of Service for admin API
+   *
+   * @tag Terms Of Service
+   */
+  @Put('/:idx')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid body or path')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(404, 'Cannot find Terms of Service')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  async updateTosByIdx(
+    @Body() updateDto: UpdateTosDto,
+    @User() user: LoginUserDto,
+    @Param('idx', ParseIntPipe) idx: number,
+  ) {
+    if (!user.isAdmin) {
+      throw new ForbiddenException('Permission Denied');
+    }
+
+    await this.tosService.getTosByIdx(idx);
+
+    await this.tosService.updateTos(idx, updateDto);
 
     return;
   }
