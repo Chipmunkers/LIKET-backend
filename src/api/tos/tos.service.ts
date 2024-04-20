@@ -55,6 +55,9 @@ export class TosService {
         where: {
           deletedAt: null,
         },
+        orderBy: {
+          idx: 'desc',
+        },
       });
 
       return tosList.map((tos) => TosEntity.createAdminSummaryTos(tos));
