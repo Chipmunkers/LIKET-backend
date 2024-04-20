@@ -15,6 +15,7 @@ import { GetAdminTosAllResponseDto } from './dto/response/GetAdminTosAllResponse
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
+import { TosEntity } from './entity/TosEntity';
 
 @Controller('tos')
 export class TosController {
@@ -48,7 +49,9 @@ export class TosController {
   @TypedException<ExceptionDto>(400, 'Invalid path parameter')
   @TypedException<ExceptionDto>(404, 'Cannot find Terms Of Service')
   @TypedException<ExceptionDto>(500, 'Server Error')
-  async getTosByIdx(@Param('idx', ParseIntPipe) idx: number) {
+  async getTosByIdx(
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<TosEntity<'detail', 'user'>> {
     const tos = await this.tosService.getTosByIdx(idx);
 
     return tos;
@@ -78,5 +81,31 @@ export class TosController {
     return {
       tosList,
     };
+  }
+
+  /**
+   * Get Terms of Service by idx for Admin API
+   * @summary Get Terms of Service by idx for Admin API
+   *
+   * @tag Terms Of Service
+   */
+  @Get('/admin/:idx')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(404, 'Cannot find Terms Of Service')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  async getTosByIdxForAdmin(
+    @Param('idx', ParseIntPipe) idx: number,
+    @User() user: LoginUserDto,
+  ): Promise<TosEntity<'detail', 'admin'>> {
+    if (!user.isAdmin) {
+      throw new ForbiddenException('Permission Denied');
+    }
+
+    const tos = await this.tosService.getTosByIdxForAdmin(idx);
+
+    return tos;
   }
 }
