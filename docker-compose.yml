@@ -1,0 +1,36 @@
+version: '3'
+services:
+  postgresql:
+    image: postgres:15.4
+    restart: always
+    container_name: liket-backend-psql-container
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - liket-backend-psql-volume:/var/lib/postgresql/data
+  redis:
+    image: redis:7.2.1
+    restart: always
+    container_name: liket-backend-redis-container
+    ports:
+      - '6379:6379'
+    volumes:
+      - liket-backend-redis-voume:/data
+  liket-backend-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3000'
+    env_file:
+      - .env
+    depends_on:
+      - postgresql
+      - redis
+
+volumes:
+  liket-backend-psql-volume:
+  liket-backend-redis-voume:
