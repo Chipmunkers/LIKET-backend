@@ -24,7 +24,7 @@ export class MyInfoController {
    *
    * @tag My-Info
    */
-  @Get('/culture-content')
+  @Get('/culture-content/all')
   @HttpCode(200)
   @TypedException<ExceptionDto>(400, 'Invalid querystring')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
@@ -47,7 +47,7 @@ export class MyInfoController {
    *
    * @tag My-Info
    */
-  @Get('/review')
+  @Get('/review/all')
   @HttpCode(200)
   @TypedException<ExceptionDto>(400, 'Invalid querystring')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
