@@ -9,17 +9,14 @@ import {
   ParseIntPipe,
   Post,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { BannerService } from './banner.service';
 import { BannerEntity } from './entity/BannerEntity';
-import { BannerListPagerbleDto } from './dto/BannerListPagerbleDto';
 import { CreateBannerDto } from './dto/CreateBannerDto';
 import { UpdateBannerDto } from './dto/UpdateBannerDto';
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { GetBannerAllForAdminResponseDto } from './dto/response/GetBannerAllForAdminResponseDto';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
@@ -27,57 +24,6 @@ import { LoginUserDto } from '../../common/dto/LoginUserDto';
 @Controller('banner')
 export class BannerController {
   constructor(private readonly bannerService: BannerService) {}
-
-  // Admin ====================================================
-
-  /**
-   * Get banner all API for admin
-   * @summary Get banner all API for admin
-   *
-   * @tag Banner
-   */
-  @Get('/all')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'No admin authorization')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async getBannerAllForAdmin(
-    @User() loginUser: LoginUserDto,
-    @Query() pagerble: BannerListPagerbleDto,
-  ): Promise<GetBannerAllForAdminResponseDto> {
-    if (!loginUser.isAdmin) {
-      throw new ForbiddenException('Permission denied');
-    }
-
-    return await this.bannerService.getBannerAllForAdmin(pagerble);
-  }
-
-  /**
-   * Get banner by idx API
-   * @summary Get banner by idx API
-   *
-   * @tag Banner
-   */
-  @Get('/:idx')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'No admin authorization')
-  @TypedException<ExceptionDto>(404, 'Cannot find banner')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async getBannerByIdxForAdmin(
-    @User() loginUser: LoginUserDto,
-    @Param('idx', ParseIntPipe) idx: number,
-  ): Promise<BannerEntity<'all'>> {
-    if (!loginUser.isAdmin) {
-      throw new ForbiddenException('Permission denied');
-    }
-
-    return await this.bannerService.getBannerByIdxForAdmin(idx);
-  }
 
   /**
    * Create banner API
