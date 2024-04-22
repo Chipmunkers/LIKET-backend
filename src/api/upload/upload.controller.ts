@@ -167,4 +167,32 @@ export class UploadController {
       grouping: FILE_GROUPING.REVIEW,
     });
   }
+
+  /**
+   * Upload LIKET images
+   *
+   * @ignore
+   */
+  @Post('/liket')
+  @HttpCode(200)
+  @UseGuards(LoginAuthGuard)
+  @UseInterceptors(
+    FileInterceptor(
+      'file',
+      MulterOptionProvider.createOption({
+        mimetype: ['image/png'],
+        limits: 1 * 1024 * 1024,
+      }),
+    ),
+  )
+  public async uploadLiketImg(@UploadedFiles() file?: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Cannot find uploaded file');
+    }
+
+    return await this.uploadService.uploadFileToS3(file, {
+      destination: 'liket',
+      grouping: FILE_GROUPING.LIKET,
+    });
+  }
 }
