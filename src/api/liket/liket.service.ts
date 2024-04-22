@@ -205,4 +205,20 @@ export class LiketService {
 
       return;
     };
+
+  /**
+   * Delete LIKET
+   */
+  deleteLiketByIdx: (idx: number) => Promise<void> = async (idx) => {
+    await this.prisma.liket.update({
+      where: {
+        idx,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    return;
+  };
 }
