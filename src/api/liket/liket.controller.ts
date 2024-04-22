@@ -67,7 +67,7 @@ export class LiketController {
     @Param('idx', ParseIntPipe) idx: number,
     @User() loginUser: LoginUserDto,
     @Body() updateDto: UpdateLiketDto,
-  ) {
+  ): Promise<void> {
     const liket = await this.liketService.getLiketByIdx(idx);
 
     if (liket.author.idx !== loginUser.idx) {
