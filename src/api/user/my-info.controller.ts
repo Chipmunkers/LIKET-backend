@@ -19,8 +19,8 @@ export class MyInfoController {
   ) {}
 
   /**
-   * Get all my culture-content requests
-   * @summary Get all my culture-content requests
+   * Get all my culture-content requests API
+   * @summary Get all my culture-content requests API
    *
    * @tag My-Info
    */
@@ -42,8 +42,8 @@ export class MyInfoController {
   }
 
   /**
-   * Get all my review
-   * @summary Get all my review
+   * Get all my review API
+   * @summary Get all my review API
    *
    * @tag My-Info
    */
