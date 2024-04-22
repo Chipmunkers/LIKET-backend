@@ -70,6 +70,7 @@ export class ContentEntity<
   avgStarRating: T extends 'detail' ? number : undefined;
 
   createdAt: Date;
+  acceptedAt: Date | null;
 
   constructor(
     data: {
@@ -83,6 +84,7 @@ export class ContentEntity<
       startDate: Date;
       endDate: Date;
       createdAt: Date;
+      acceptedAt: Date | null;
 
       openTime: T extends 'detail' ? string : undefined;
       description: T extends 'detail' ? string : undefined;
@@ -152,6 +154,7 @@ export class ContentEntity<
         likeState: data.ContentLike[0] ? true : false,
         reviewCount: undefined,
         createdAt: data.createdAt,
+        acceptedAt: data.acceptedAt,
       },
       undefined,
     );
@@ -185,6 +188,7 @@ export class ContentEntity<
         likeState: data.ContentLike[0] ? true : false,
         reviewCount: data._count.Review,
         createdAt: data.createdAt,
+        acceptedAt: data.acceptedAt,
       },
       totalSumStar / data._count.Review,
     );
@@ -218,6 +222,7 @@ export class ContentEntity<
         likeState: data.ContentLike[0] ? true : false,
         reviewCount: data._count.Review,
         createdAt: data.createdAt,
+        acceptedAt: data.acceptedAt,
       },
       totalSumStar / data._count.Review,
     );
