@@ -54,10 +54,24 @@ export class LiketService {
                   include: {
                     Genre: true,
                     Location: true,
-                    ContentImg: true,
+                    ContentImg: {
+                      where: {
+                        deletedAt: null,
+                      },
+                      orderBy: {
+                        idx: 'asc',
+                      },
+                    },
                   },
                 },
-                ReviewImg: true,
+                ReviewImg: {
+                  where: {
+                    deletedAt: null,
+                  },
+                  orderBy: {
+                    idx: 'asc',
+                  },
+                },
               },
             },
             User: true,
@@ -92,10 +106,24 @@ export class LiketService {
               include: {
                 Genre: true,
                 Location: true,
-                ContentImg: true,
+                ContentImg: {
+                  where: {
+                    deletedAt: null,
+                  },
+                  orderBy: {
+                    idx: 'asc',
+                  },
+                },
               },
             },
-            ReviewImg: true,
+            ReviewImg: {
+              where: {
+                deletedAt: null,
+              },
+              orderBy: {
+                idx: 'asc',
+              },
+            },
           },
         },
         User: true,
@@ -112,4 +140,51 @@ export class LiketService {
 
     return LiketEntity.createDetailLiket(liket);
   };
+
+  /**
+   * Get all liket by user idx
+   */
+  getAllLiketByUserIdx: (userIdx: number) => Promise<LiketEntity<'summary'>[]> =
+    async (userIdx: number) => {
+      const liketList = await this.prisma.liket.findMany({
+        include: {
+          Review: {
+            include: {
+              CultureContent: {
+                include: {
+                  Genre: true,
+                  Location: true,
+                  ContentImg: {
+                    where: {
+                      deletedAt: null,
+                    },
+                    orderBy: {
+                      idx: 'asc',
+                    },
+                  },
+                },
+              },
+              ReviewImg: {
+                where: {
+                  deletedAt: null,
+                },
+                orderBy: {
+                  idx: 'asc',
+                },
+              },
+            },
+          },
+          User: true,
+        },
+        where: {
+          userIdx,
+          deletedAt: null,
+          Review: {
+            deletedAt: null,
+          },
+        },
+      });
+
+      return liketList.map((liket) => LiketEntity.createSummaryLiket(liket));
+    };
 }
