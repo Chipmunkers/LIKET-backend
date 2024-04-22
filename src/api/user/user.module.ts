@@ -7,9 +7,16 @@ import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../../hash/hash.service';
 import { ReviewModule } from '../review/review.module';
 import { CultureContentModule } from '../culture-content/culture-content.module';
+import { LiketModule } from '../liket/liket.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ReviewModule, CultureContentModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    ReviewModule,
+    CultureContentModule,
+    LiketModule,
+  ],
   controllers: [UserController],
   providers: [UserService, JwtService, HashService],
 })

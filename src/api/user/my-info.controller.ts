@@ -10,12 +10,16 @@ import { GetMyContentAllResponseDto } from './dto/response/GetMyContentAllResepo
 import { ReviewListByUserPagerbleDto } from '../review/dto/ReviewListByUserPagerbleDto';
 import { GetMyReviewAllResponseDto } from './dto/response/GetMyReviewAllResponseDto';
 import { ReviewService } from '../review/review.service';
+import { GetMyLiketPagerbleDto } from './dto/GetMyLiketPagerbleDto';
+import { LiketService } from '../liket/liket.service';
+import { GetMyLiketAllResponseDto } from './dto/response/GetMyLiketAllReseponseDto';
 
 @Controller('/my-info')
 export class MyInfoController {
   constructor(
     private readonly contentService: CultureContentService,
     private readonly reviewService: ReviewService,
+    private readonly liketService: LiketService,
   ) {}
 
   /**
@@ -62,5 +66,30 @@ export class MyInfoController {
       loginUser.idx,
       pagerble,
     );
+  }
+
+  /**
+   * Get all my liket API
+   * @summary Get all my liket API
+   *
+   * @tag My-Info
+   */
+  @Get('/liket/all')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid querystring')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Suspended denied')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getMyLiket(
+    @User() loginUser: LoginUserDto,
+    @Query() pagerble: GetMyLiketPagerbleDto,
+  ): Promise<GetMyLiketAllResponseDto> {
+    return {
+      liketList: await this.liketService.getAllLiketByUserIdx(
+        loginUser.idx,
+        pagerble,
+      ),
+    };
   }
 }
