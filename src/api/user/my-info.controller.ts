@@ -22,7 +22,7 @@ export class MyInfoController {
   @HttpCode(200)
   @TypedException<ExceptionDto>(400, 'Invalid querystring')
   @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'No ')
+  @TypedException<ExceptionDto>(403, 'Suspended denied')
   @TypedException<ExceptionDto>(500, 'Server Error')
   @UseGuards(LoginAuthGuard)
   public async getMyAllContentRequest(
