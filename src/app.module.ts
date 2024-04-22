@@ -6,7 +6,6 @@ import { CultureContentModule } from './api/culture-content/culture-content.modu
 import { InquiryModule } from './api/inquiry/inquiry.module';
 import { LiketModule } from './api/liket/liket.module';
 import { ReveiwModule } from './api/review/reveiw.module';
-import { RouteModule } from './api/route/route.module';
 import { TosModule } from './api/tos/tos.module';
 import { UploadModule } from './api/upload/upload.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -38,7 +37,6 @@ import s3Config from './common/config/s3.config';
     InquiryModule,
     LiketModule,
     ReveiwModule,
-    RouteModule,
     TosModule,
     UploadModule,
   ],
