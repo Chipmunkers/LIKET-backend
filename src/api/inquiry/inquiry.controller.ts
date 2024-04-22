@@ -8,14 +8,11 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { InquiryService } from './inquiry.service';
-import { InquiryListPagenationDto } from './dto/InquiryListPagenationDto';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { GetInquiryAllResponseDto } from './dto/response/GetInquiryAllResponseDto';
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
