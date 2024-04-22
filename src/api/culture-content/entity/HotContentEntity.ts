@@ -16,7 +16,7 @@ const GenreWithInclude = Prisma.validator<Prisma.GenreDefaultArgs>()({
 
 type GenreWithInclude = Prisma.GenreGetPayload<typeof GenreWithInclude>;
 
-class ContentPart extends PickType(ContentEntity<'detail', 'user'>, [
+class ContentPart extends PickType(ContentEntity<'detail'>, [
   'idx',
   'title',
   'startDate',
