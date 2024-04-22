@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   HttpCode,
@@ -75,6 +76,35 @@ export class LiketController {
     }
 
     await this.liketService.updateLiketByIdx(idx, updateDto);
+
+    return;
+  }
+
+  /**
+   * Delete LIKET by idx API
+   * @summary Delete LIKET by idx API
+   *
+   * @tag LIKET
+   */
+  @Delete('/:idx')
+  @HttpCode(201)
+  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Permission denied')
+  @TypedException<ExceptionDto>(404, 'Cannot find LIKET')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async deleteLiketByIdx(
+    @Param('idx', ParseIntPipe) idx: number,
+    @User() loginUser: LoginUserDto,
+  ): Promise<void> {
+    const liket = await this.liketService.getLiketByIdx(idx);
+
+    if (liket.author.idx !== loginUser.idx) {
+      throw new ForbiddenException('Permission denied');
+    }
+
+    await this.liketService.deleteLiketByIdx(idx);
 
     return;
   }
