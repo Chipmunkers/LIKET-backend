@@ -1,6 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 
-const prismaClient = new PrismaClient();
+// Warning: 실제 배포할 서버에서는 절대 금지한다.
+const prismaClient = new PrismaClient({
+  datasourceUrl:
+    'postgresql://liket_test_deploy_admin:1234@liket-backend-psql-container:5432/liket?schema=public',
+});
 
 async function main() {
   const tosList = [
