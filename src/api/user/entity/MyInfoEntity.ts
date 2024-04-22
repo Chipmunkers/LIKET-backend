@@ -25,7 +25,7 @@ const UserInclude = Prisma.validator<Prisma.UserDefaultArgs>()({
 
 type UserInclude = Prisma.UserGetPayload<typeof UserInclude>;
 
-export class MyInfoEntity extends UserEntity<'my', 'user'> {
+export class MyInfoEntity extends UserEntity<'my'> {
   reviewCount: number;
   reviewList: {
     idx: number;
@@ -70,8 +70,6 @@ export class MyInfoEntity extends UserEntity<'my', 'user'> {
       email: myData.email,
       birth: myData.birth,
       createdAt: myData.createdAt,
-      isAdmin: undefined,
-      blockedAt: undefined,
     });
 
     this.reviewCount = myData.reviewCount;

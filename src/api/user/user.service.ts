@@ -133,79 +133,22 @@ export class UserService {
   /**
    * Get a detail user data by idx
    */
-  public getUserByIdx: (userIdx: number) => Promise<UserEntity<'my', 'admin'>> =
-    async (userIdx) => {
-      const user = await this.prisma.user.findUnique({
-        where: {
-          idx: userIdx,
-          deletedAt: null,
-        },
-      });
+  public getUserByIdx: (userIdx: number) => Promise<UserEntity<'my'>> = async (
+    userIdx,
+  ) => {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        idx: userIdx,
+        deletedAt: null,
+      },
+    });
 
-      if (!user) {
-        throw new UserNotFoundException('Cannot find user');
-      }
+    if (!user) {
+      throw new UserNotFoundException('Cannot find user');
+    }
 
-      return UserEntity.createUserEntityForAdmin(user);
-    };
-
-  /**
-   * Get all users for admin
-   */
-  public getUserAll: (
-    pagerble: UserListPagenationDto,
-  ) => Promise<{ userList: UserEntity<'my', 'admin'>[]; count: number }> =
-    async (pagerble) => {
-      console.log(pagerble);
-      const [userList, userCount] = await this.prisma.$transaction([
-        this.prisma.user.findMany({
-          where: {
-            deletedAt: null,
-            nickname: pagerble.search
-              ? {
-                  contains: pagerble.search,
-                }
-              : undefined,
-            blockedAt: pagerble.filter
-              ? pagerble.filter === 'block'
-                ? {
-                    not: null,
-                  }
-                : null
-              : undefined,
-          },
-          take: 10,
-          skip: (pagerble.page - 1) * 10,
-          orderBy: {
-            idx: pagerble.order,
-          },
-        }),
-        this.prisma.user.count({
-          where: {
-            deletedAt: null,
-            nickname: pagerble.search
-              ? {
-                  contains: pagerble.search,
-                }
-              : undefined,
-            blockedAt: pagerble.filter
-              ? pagerble.filter === 'block'
-                ? {
-                    not: null,
-                  }
-                : null
-              : undefined,
-          },
-        }),
-      ]);
-
-      return {
-        userList: userList.map((user) =>
-          UserEntity.createUserEntityForAdmin(user),
-        ),
-        count: userCount,
-      };
-    };
+    return UserEntity.createMyInfoEntity(user);
+  };
 
   /**
    * Update a user's profile
@@ -258,72 +201,4 @@ export class UserService {
 
       return;
     };
-
-  /**
-   * Block user by idx
-   */
-  public blockUser: (idx: number) => Promise<void> = async (idx) => {
-    const user = await this.prisma.user.findUnique({
-      select: {
-        blockedAt: true,
-      },
-      where: {
-        idx,
-        deletedAt: null,
-      },
-    });
-
-    if (!user) {
-      throw new UserNotFoundException('Cannot find user');
-    }
-
-    if (user.blockedAt) {
-      throw new AlreadyBlockedUserException('Already suspended user');
-    }
-
-    await this.prisma.user.update({
-      where: {
-        idx,
-      },
-      data: {
-        blockedAt: new Date(),
-      },
-    });
-
-    return;
-  };
-
-  /**
-   * Cancel to block user by idx
-   */
-  public cancelToBlock: (idx: number) => Promise<void> = async (idx) => {
-    const user = await this.prisma.user.findUnique({
-      select: {
-        blockedAt: true,
-      },
-      where: {
-        idx,
-        deletedAt: null,
-      },
-    });
-
-    if (!user) {
-      throw new UserNotFoundException('Cannot find user');
-    }
-
-    if (!user.blockedAt) {
-      throw new AlreadyNotBlockedUserException('Already not suspended user');
-    }
-
-    await this.prisma.user.update({
-      where: {
-        idx,
-      },
-      data: {
-        blockedAt: null,
-      },
-    });
-
-    return;
-  };
 }
