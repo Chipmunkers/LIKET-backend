@@ -375,7 +375,7 @@ model Banner {
 
 model ActiveBanner {
   idx         Int      @id @default(autoincrement())
-  order       Int      @db.Integer
+  order       Int      @map("banner_order") @db.Integer
   activatedAt DateTime @default(now()) @map("activated_at") @db.Timestamptz(6)
   Banner      Banner   @relation(fields: [idx], references: [idx])
 
