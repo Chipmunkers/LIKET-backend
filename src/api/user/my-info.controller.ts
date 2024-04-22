@@ -7,10 +7,16 @@ import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { ContentListByUserIdxPagerbleDto } from '../culture-content/dto/ContentListByUserIdxPagerbleDto';
 import { GetMyContentAllResponseDto } from './dto/response/GetMyContentAllReseponseDto';
+import { ReviewListByUserPagerbleDto } from '../review/dto/ReviewListByUserPagerbleDto';
+import { GetMyReviewAllResponseDto } from './dto/response/GetMyReviewAllResponseDto';
+import { ReviewService } from '../review/review.service';
 
 @Controller('/my-info')
 export class MyInfoController {
-  constructor(private readonly contentService: CultureContentService) {}
+  constructor(
+    private readonly contentService: CultureContentService,
+    private readonly reviewService: ReviewService,
+  ) {}
 
   /**
    * Get all my culture-content requests
@@ -30,6 +36,29 @@ export class MyInfoController {
     @Query() pagerble: ContentListByUserIdxPagerbleDto,
   ): Promise<GetMyContentAllResponseDto> {
     return await this.contentService.getContentByUserIdx(
+      loginUser.idx,
+      pagerble,
+    );
+  }
+
+  /**
+   * Get all my review
+   * @summary Get all my review
+   *
+   * @tag My-Info
+   */
+  @Get('/review')
+  @HttpCode(200)
+  @TypedException<ExceptionDto>(400, 'Invalid querystring')
+  @TypedException<ExceptionDto>(401, 'No token or invalid token')
+  @TypedException<ExceptionDto>(403, 'Suspended denied')
+  @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseGuards(LoginAuthGuard)
+  public async getMyReview(
+    @User() loginUser: LoginUserDto,
+    @Query() pagerble: ReviewListByUserPagerbleDto,
+  ): Promise<GetMyReviewAllResponseDto> {
+    return await this.reviewService.getReviewAllByUserIdx(
       loginUser.idx,
       pagerble,
     );

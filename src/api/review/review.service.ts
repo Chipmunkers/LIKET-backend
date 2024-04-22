@@ -113,12 +113,11 @@ export class ReviewService {
    */
   public getReviewAllByUserIdx: (
     userIdx: number,
-    loginUserIdx: number,
     pagerble: ReviewListByUserPagerbleDto,
   ) => Promise<{
     reviewList: ReviewEntity<'detail'>[];
     count: number;
-  }> = async (userIdx, loginUserIdx, pagerble) => {
+  }> = async (userIdx, pagerble) => {
     const [count, reviewList] = await this.prisma.$transaction([
       this.prisma.review.count({
         where: {
@@ -155,7 +154,7 @@ export class ReviewService {
           },
           ReviewLike: {
             where: {
-              userIdx: loginUserIdx,
+              userIdx,
             },
           },
           User: true,

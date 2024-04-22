@@ -21,11 +21,7 @@ import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { UpdateProfileDto } from './dto/UpdateProfileDto';
-import { GetReviewAllByUseridxResponseDto } from './dto/response/GetReviewAllByUserIdxResponseDto';
 import { ReviewService } from '../review/review.service';
-import { ReviewListByUserPagerbleDto } from '../review/dto/ReviewListByUserPagerbleDto';
-import { GetMyContentAllResponseDto } from './dto/response/GetMyContentAllReseponseDto';
-import { ContentListByUserIdxPagerbleDto } from '../culture-content/dto/ContentListByUserIdxPagerbleDto';
 import { CultureContentService } from '../culture-content/culture-content.service';
 
 @Controller('user')
@@ -96,57 +92,5 @@ export class UserController {
     await this.userService.updateProfile(loginUser.idx, updateDto);
 
     return;
-  }
-
-  /**
-   * Get review all by user idx API
-   * @summary Get review all by user idx API
-   *
-   * @tag User
-   */
-  @Get('/:idx/review/all')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async getReviewAllByUserIdx(
-    @User() loginUser: LoginUserDto,
-    @Query() pagerble: ReviewListByUserPagerbleDto,
-    @Param('idx', ParseIntPipe) userIdx: number,
-  ): Promise<GetReviewAllByUseridxResponseDto> {
-    if (loginUser.idx !== userIdx && !loginUser.isAdmin) {
-      throw new ForbiddenException('Permission denied');
-    }
-
-    return await this.reviewService.getReviewAllByUserIdx(
-      userIdx,
-      loginUser.idx,
-      pagerble,
-    );
-  }
-
-  /**
-   * Get my culture-content and request all API
-   * @summary Get my culture-content and request all API
-   *
-   * @tag User
-   */
-  @Get('/my/culture-content/all')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async getMyCultureContentAll(
-    @User() loginUser: LoginUserDto,
-    @Query() pagerble: ContentListByUserIdxPagerbleDto,
-  ): Promise<GetMyContentAllResponseDto> {
-    return await this.contentService.getContentByUserIdx(
-      loginUser.idx,
-      pagerble,
-    );
   }
 }
