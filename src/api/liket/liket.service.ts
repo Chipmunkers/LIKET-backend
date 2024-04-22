@@ -6,6 +6,7 @@ import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { AlreadyExistLiketException } from './exception/AlreadyExistLiketException';
 import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
+import { LiketNotFoundException } from './exception/LiketNotFoundException';
 
 @Injectable()
 export class LiketService {
@@ -75,5 +76,40 @@ export class LiketService {
     );
 
     return LiketEntity.createDetailLiket(createdLiket);
+  };
+
+  /**
+   * Get liket by idx
+   */
+  getLiketByIdx: (idx: number) => Promise<LiketEntity<'detail'>> = async (
+    idx,
+  ) => {
+    const liket = await this.prisma.liket.findUnique({
+      include: {
+        Review: {
+          include: {
+            CultureContent: {
+              include: {
+                Genre: true,
+                Location: true,
+                ContentImg: true,
+              },
+            },
+            ReviewImg: true,
+          },
+        },
+        User: true,
+      },
+      where: {
+        idx,
+        deletedAt: null,
+      },
+    });
+
+    if (!liket) {
+      throw new LiketNotFoundException('Cannot find LIKET');
+    }
+
+    return LiketEntity.createDetailLiket(liket);
   };
 }
