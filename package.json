@@ -20,7 +20,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "ts-patch install && typia patch",
     "swagger": "npx nestia swagger",
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts",
+    "test:deploy:up": "docker-compose -f test-deploy/docker-compose.yml up -d --build --force-recreate",
+    "test:deploy:down": "docker-compose -f test-deploy/docker-compose.yml down -v"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.529.1",
