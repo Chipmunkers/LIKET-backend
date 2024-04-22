@@ -15,6 +15,7 @@ import { InvalidEmailAuthTokenException } from './exception/InvalidEmailAuthToke
 import { InvalidLoginAccessTokenException } from './exception/InvalidLoginAccessTokenException';
 import { Logger } from '../../logger/logger.decorator';
 import { LoggerService } from '../../logger/logger.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly redis: RedisService,
     private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
     @Logger('AuthService') private readonly logger: LoggerService,
   ) {}
 
@@ -85,6 +87,12 @@ export class AuthService {
       'sendEmailVerificationCode',
       'send a verification code to the email',
     );
+
+    if (this.configService.get('mode') === 'develop') {
+      this.logger.log('sendEmailVerificationCode', randomCode);
+      return;
+    }
+
     await this.mailerService.sendMail({
       to: sendDto.email,
       subject: 'Liket 인증번호',
