@@ -21,9 +21,6 @@ import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { UpdateProfileDto } from './dto/UpdateProfileDto';
-import { UserListPagenationDto } from './dto/UserListPaginationDto';
-import { GetUserAllForAdminDto } from './dto/response/GetUserAllForAdminDto';
-import { UserEntity } from './entity/UserEntity';
 import { GetReviewAllByUseridxResponseDto } from './dto/response/GetReviewAllByUserIdxResponseDto';
 import { ReviewService } from '../review/review.service';
 import { ReviewListByUserPagerbleDto } from '../review/dto/ReviewListByUserPagerbleDto';
@@ -97,110 +94,6 @@ export class UserController {
     @Body() updateDto: UpdateProfileDto,
   ): Promise<void> {
     await this.userService.updateProfile(loginUser.idx, updateDto);
-
-    return;
-  }
-
-  /**
-   * Get user all for admin
-   * @summary Get user all API for admin
-   *
-   * @tag User
-   */
-  @Get('/all')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async getUserAllForAdmin(
-    @User() loginUser: LoginUserDto,
-    @Query() pagenation: UserListPagenationDto,
-  ): Promise<GetUserAllForAdminDto> {
-    if (!loginUser.isAdmin) {
-      throw new ForbiddenException('Permission denied');
-    }
-
-    return await this.userService.getUserAll(pagenation);
-  }
-
-  /**
-   * Get user by idx for admin API
-   * @summary Get user by idx API for admin
-   *
-   * @tag User
-   */
-  @Get('/:idx')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async getUserByIdx(
-    @User() loginUser: LoginUserDto,
-    @Param('idx', ParseIntPipe) userIdx: number,
-  ): Promise<UserEntity<'my', 'admin'>> {
-    if (!loginUser.isAdmin) {
-      throw new ForbiddenException('Permission denied');
-    }
-
-    return await this.userService.getUserByIdx(userIdx);
-  }
-
-  /**
-   * Suspend user by idx API for admin
-   * @summary Suspend user by idx API for admin
-   *
-   * @tag User
-   */
-  @Post('/:idx/block')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(404, 'Cannot find user')
-  @TypedException<ExceptionDto>(409, 'Already suspended user')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async blockUser(
-    @User() loginUser: LoginUserDto,
-    @Param('idx', ParseIntPipe) userIdx: number,
-  ): Promise<void> {
-    if (!loginUser.isAdmin) {
-      throw new ForbiddenException('Permission denied');
-    }
-
-    await this.userService.blockUser(userIdx);
-
-    return;
-  }
-
-  /**
-   * Suspend user by idx API for admin
-   * @summary Suspend user by idx API for admin
-   *
-   * @tag User
-   */
-  @Post('/:idx/cancel-block')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(404, 'Cannot find user')
-  @TypedException<ExceptionDto>(409, 'Already not suspended user')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async cancelToBlockUser(
-    @User() loginUser: LoginUserDto,
-    @Param('idx', ParseIntPipe) userIdx: number,
-  ): Promise<void> {
-    if (!loginUser.isAdmin) {
-      throw new ForbiddenException('Permission denied');
-    }
-
-    await this.userService.cancelToBlock(userIdx);
 
     return;
   }

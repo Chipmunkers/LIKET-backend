@@ -1,6 +1,8 @@
+import { ValidateNested } from 'class-validator';
 import { ContentEntity } from '../../../culture-content/entity/ContentEntity';
 
 export class GetMyContentAllResponseDto {
-  contentList: ContentEntity<'summary', 'admin'>[];
+  @ValidateNested()
+  contentList: ContentEntity<'summary'>[];
   count: number;
 }
