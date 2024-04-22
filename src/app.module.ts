@@ -5,7 +5,7 @@ import { BannerModule } from './api/banner/banner.module';
 import { CultureContentModule } from './api/culture-content/culture-content.module';
 import { InquiryModule } from './api/inquiry/inquiry.module';
 import { LiketModule } from './api/liket/liket.module';
-import { ReveiwModule } from './api/review/reveiw.module';
+import { ReviewModule } from './api/review/review.module';
 import { TosModule } from './api/tos/tos.module';
 import { UploadModule } from './api/upload/upload.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -37,7 +37,7 @@ import modeConfig from './common/config/mode.config';
     CultureContentModule,
     InquiryModule,
     LiketModule,
-    ReveiwModule,
+    ReviewModule,
     TosModule,
     UploadModule,
   ],

@@ -5,11 +5,11 @@ import { PrismaModule } from '../../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../../hash/hash.service';
-import { ReveiwModule } from '../review/reveiw.module';
+import { ReviewModule } from '../review/review.module';
 import { CultureContentModule } from '../culture-content/culture-content.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ReveiwModule, CultureContentModule],
+  imports: [PrismaModule, AuthModule, ReviewModule, CultureContentModule],
   controllers: [UserController],
   providers: [UserService, JwtService, HashService],
 })

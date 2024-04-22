@@ -5,11 +5,11 @@ import { PrismaModule } from '../../prisma/prisma.module';
 import { TagService } from './tag.service';
 import { TagController } from './tag.controller';
 import { ContentReviewController } from './content-review.controller';
-import { ReveiwModule } from '../review/reveiw.module';
+import { ReviewModule } from '../review/review.module';
 import { UploadModule } from '../upload/upload.module';
 
 @Module({
-  imports: [PrismaModule, ReveiwModule, UploadModule],
+  imports: [PrismaModule, ReviewModule, UploadModule],
   controllers: [
     CultureContentController,
     TagController,
