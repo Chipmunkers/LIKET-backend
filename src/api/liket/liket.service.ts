@@ -8,6 +8,7 @@ import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
 import { LiketNotFoundException } from './exception/LiketNotFoundException';
 import { UpdateLiketDto } from './dto/UpdateLiketDto';
+import { GetMyLiketPagerbleDto } from '../user/dto/GetMyLiketPagerbleDto';
 
 @Injectable()
 export class LiketService {
@@ -68,49 +69,56 @@ export class LiketService {
   /**
    * Get all liket by user idx
    */
-  getAllLiketByUserIdx: (userIdx: number) => Promise<LiketEntity<'summary'>[]> =
-    async (userIdx: number) => {
-      const liketList = await this.prisma.liket.findMany({
-        include: {
-          Review: {
-            include: {
-              CultureContent: {
-                include: {
-                  Genre: true,
-                  Location: true,
-                  ContentImg: {
-                    where: {
-                      deletedAt: null,
-                    },
-                    orderBy: {
-                      idx: 'asc',
-                    },
+  getAllLiketByUserIdx: (
+    userIdx: number,
+    pagerble: GetMyLiketPagerbleDto,
+  ) => Promise<LiketEntity<'summary'>[]> = async (userIdx, pagerble) => {
+    const liketList = await this.prisma.liket.findMany({
+      include: {
+        Review: {
+          include: {
+            CultureContent: {
+              include: {
+                Genre: true,
+                Location: true,
+                ContentImg: {
+                  where: {
+                    deletedAt: null,
+                  },
+                  orderBy: {
+                    idx: 'asc',
                   },
                 },
               },
-              ReviewImg: {
-                where: {
-                  deletedAt: null,
-                },
-                orderBy: {
-                  idx: 'asc',
-                },
+            },
+            ReviewImg: {
+              where: {
+                deletedAt: null,
+              },
+              orderBy: {
+                idx: 'asc',
               },
             },
           },
-          User: true,
         },
-        where: {
-          userIdx,
+        User: true,
+      },
+      where: {
+        userIdx,
+        deletedAt: null,
+        Review: {
           deletedAt: null,
-          Review: {
-            deletedAt: null,
-          },
         },
-      });
+      },
+      orderBy: {
+        idx: 'desc',
+      },
+      take: 10,
+      skip: (pagerble.page - 1) * 10,
+    });
 
-      return liketList.map((liket) => LiketEntity.createSummaryLiket(liket));
-    };
+    return liketList.map((liket) => LiketEntity.createSummaryLiket(liket));
+  };
 
   /**
    * Create LIKET
