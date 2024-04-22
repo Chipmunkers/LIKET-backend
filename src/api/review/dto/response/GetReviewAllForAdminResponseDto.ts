@@ -3,7 +3,7 @@ import { ReviewEntity } from '../../entity/ReviewEntity';
 
 export class GetReviewAllForAdminResponseDto {
   @ValidateNested()
-  reviewList: ReviewEntity<'summary', 'admin'>[];
+  reviewList: ReviewEntity<'summary'>[];
 
   count: number;
 }

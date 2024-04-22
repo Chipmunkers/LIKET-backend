@@ -3,75 +3,24 @@ import {
   Controller,
   Delete,
   ForbiddenException,
-  Get,
   HttpCode,
   Param,
   ParseIntPipe,
   Post,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { ReviewListPagerbleDto } from './dto/ReviewListPagerbleDto';
-import { GetReviewAllForAdminResponseDto } from './dto/response/GetReviewAllForAdminResponseDto';
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { ReviewEntity } from './entity/ReviewEntity';
 import { UpdateReviewDto } from './dto/UpdateReviewDto';
 
 @Controller('review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
-
-  /**
-   * Get review all API
-   * @summary Get review all API
-   *
-   * @tag Review
-   */
-  @Get('/all')
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'No admin authorization')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async getReviewAllForAdmin(
-    @User() loginUser: LoginUserDto,
-    @Query() pagerble: ReviewListPagerbleDto,
-  ): Promise<GetReviewAllForAdminResponseDto> {
-    if (!loginUser.isAdmin) {
-      throw new ForbiddenException('Permission denied');
-    }
-
-    return await this.reviewService.getReviewAllForAdmin(pagerble);
-  }
-
-  /**
-   * Get review by idx for admin API
-   * @summary Get review by idx for admin API
-   *
-   * @tag Review
-   */
-  @Get('/:idx')
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'No admin authorization')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async getReviewByIdxForAdmin(
-    @User() loginUser: LoginUserDto,
-    @Param('idx', ParseIntPipe) reviewIdx: number,
-  ): Promise<ReviewEntity<'detail', 'admin'>> {
-    if (!loginUser.isAdmin) {
-      throw new ForbiddenException('Permission denied');
-    }
-
-    return await this.reviewService.getReviewByIdxForAdmin(reviewIdx);
-  }
 
   /**
    * Update review by idx API
@@ -92,7 +41,10 @@ export class ReviewController {
     @Param('idx', ParseIntPipe) reviewIdx: number,
     @Body() updateDto: UpdateReviewDto,
   ): Promise<void> {
-    const review = await this.reviewService.getReviewByIdxForAdmin(reviewIdx);
+    const review = await this.reviewService.getReviewByIdx(
+      reviewIdx,
+      loginUser.idx,
+    );
 
     if (review.author.idx !== loginUser.idx) {
       throw new ForbiddenException('Permission denied');
@@ -120,9 +72,12 @@ export class ReviewController {
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
-    const review = await this.reviewService.getReviewByIdxForAdmin(reviewIdx);
+    const review = await this.reviewService.getReviewByIdx(
+      reviewIdx,
+      loginUser.idx,
+    );
 
-    if (review.author.idx !== loginUser.idx && !loginUser.isAdmin) {
+    if (review.author.idx !== loginUser.idx) {
       throw new ForbiddenException('Permission denied');
     }
 

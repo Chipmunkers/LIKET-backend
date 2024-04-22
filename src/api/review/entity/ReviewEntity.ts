@@ -53,10 +53,7 @@ class ReviewContent extends PickType(ContentEntity, [
   }
 }
 
-export class ReviewEntity<
-  T extends 'summary' | 'detail' = 'detail',
-  K extends 'user' | 'admin' = 'user',
-> {
+export class ReviewEntity<T extends 'summary' | 'detail' = 'detail'> {
   idx: number;
   visitTime: Date;
   thumbnail: string | null;
@@ -73,7 +70,7 @@ export class ReviewEntity<
   starRating: T extends 'detail' ? number : undefined;
   likeCount: T extends 'detail' ? number : undefined;
 
-  likeState: K extends 'user' ? boolean : undefined;
+  likeState: boolean;
 
   constructor(data: {
     idx: number;
@@ -89,7 +86,7 @@ export class ReviewEntity<
     starRating: T extends 'detail' ? number : undefined;
     likeCount: T extends 'detail' ? number : undefined;
 
-    likeState: K extends 'user' ? boolean : undefined;
+    likeState: boolean;
   }) {
     this.idx = data.idx;
     this.visitTime = data.visitTime;
@@ -108,7 +105,7 @@ export class ReviewEntity<
 
   static createSummaryUserReviewEntity(
     review: ReviewWithInclude,
-  ): ReviewEntity<'summary', 'user'> {
+  ): ReviewEntity<'summary'> {
     return new ReviewEntity({
       idx: review.idx,
       visitTime: review.visitTime,
@@ -132,35 +129,10 @@ export class ReviewEntity<
       likeState: review.ReviewLike[0] ? true : false,
     });
   }
-  static createSummaryAdminReviewEntity(
-    review: ReviewWithInclude,
-  ): ReviewEntity<'summary', 'admin'> {
-    return new ReviewEntity({
-      idx: review.idx,
-      visitTime: review.visitTime,
-      thumbnail: review.ReviewImg[0]?.imgPath || null,
-      cultureContent: new ReviewContent({
-        idx: review.CultureContent.idx,
-        genre: new TagEntity(
-          review.CultureContent.Genre.idx,
-          review.CultureContent.Genre.name,
-        ),
-        title: review.CultureContent.title,
-        likeCount: review.CultureContent.likeCount,
-        thumbnail: review.CultureContent.ContentImg[0]?.imgPath,
-      }),
-      author: new UserProfileEntity(review.User),
-      createdAt: review.createdAt,
-      imgList: undefined,
-      description: undefined,
-      starRating: undefined,
-      likeCount: undefined,
-      likeState: undefined,
-    });
-  }
+
   static createDetailUserReviewEntity(
     review: ReviewWithInclude,
-  ): ReviewEntity<'detail', 'user'> {
+  ): ReviewEntity<'detail'> {
     return new ReviewEntity({
       idx: review.idx,
       visitTime: review.visitTime,
@@ -182,32 +154,6 @@ export class ReviewEntity<
       starRating: review.starRating,
       likeCount: review.likeCount,
       likeState: review.ReviewLike[0] ? true : false,
-    });
-  }
-  static createDetailAdminReviewEntity(
-    review: ReviewWithInclude,
-  ): ReviewEntity<'detail', 'admin'> {
-    return new ReviewEntity({
-      idx: review.idx,
-      visitTime: review.visitTime,
-      thumbnail: review.ReviewImg[0]?.imgPath || null,
-      cultureContent: new ReviewContent({
-        idx: review.CultureContent.idx,
-        genre: new TagEntity(
-          review.CultureContent.Genre.idx,
-          review.CultureContent.Genre.name,
-        ),
-        title: review.CultureContent.title,
-        likeCount: review.CultureContent.likeCount,
-        thumbnail: review.CultureContent.ContentImg[0]?.imgPath,
-      }),
-      author: new UserProfileEntity(review.User),
-      createdAt: review.createdAt,
-      imgList: review.ReviewImg.map((img) => img.imgPath),
-      description: review.description,
-      starRating: review.starRating,
-      likeCount: review.likeCount,
-      likeState: undefined,
     });
   }
 }

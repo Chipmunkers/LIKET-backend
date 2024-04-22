@@ -1,7 +1,6 @@
-import { Injectable, Search } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ReviewEntity } from './entity/ReviewEntity';
-import { ReviewListPagerbleDto } from './dto/ReviewListPagerbleDto';
 import { ReviewListByContentPagerbleDto } from '../culture-content/dto/ReviewListByContentPagerbleDto';
 import { UpdateReviewDto } from './dto/UpdateReviewDto';
 import { CreateReviewDto } from '../culture-content/dto/CreateReviewDto';
@@ -24,7 +23,7 @@ export class ReviewService {
     userIdx: number,
     pagerble: ReviewListByContentPagerbleDto,
   ) => Promise<{
-    reviewList: ReviewEntity<'detail', 'user'>[];
+    reviewList: ReviewEntity<'detail'>[];
     count: number;
   }> = async (contentIdx, userIdx, pagerble) => {
     const [count, reviewList] = await this.prisma.$transaction([
@@ -117,7 +116,7 @@ export class ReviewService {
     loginUserIdx: number,
     pagerble: ReviewListByUserPagerbleDto,
   ) => Promise<{
-    reviewList: ReviewEntity<'detail', 'user'>[];
+    reviewList: ReviewEntity<'detail'>[];
     count: number;
   }> = async (userIdx, loginUserIdx, pagerble) => {
     const [count, reviewList] = await this.prisma.$transaction([
@@ -218,7 +217,7 @@ export class ReviewService {
   public getReviewByIdx: (
     idx: number,
     userIdx: number,
-  ) => Promise<ReviewEntity<'detail', 'user'>> = async (reviewIdx, userIdx) => {
+  ) => Promise<ReviewEntity<'detail'>> = async (reviewIdx, userIdx) => {
     const review = await this.prisma.review.findUnique({
       include: {
         ReviewImg: {
@@ -371,187 +370,6 @@ export class ReviewService {
     });
 
     return;
-  };
-
-  // Admin =====================================================
-
-  /**
-   * Get all reviews for admin
-   */
-  public getReviewAllForAdmin: (pagerble: ReviewListPagerbleDto) => Promise<{
-    reviewList: ReviewEntity<'summary', 'admin'>[];
-    count: number;
-  }> = async (pagerble) => {
-    const [reviewList, count] = await this.prisma.$transaction([
-      this.prisma.review.findMany({
-        include: {
-          ReviewImg: {
-            where: {
-              deletedAt: null,
-            },
-            orderBy: {
-              idx: 'asc',
-            },
-          },
-          ReviewLike: {
-            where: {
-              userIdx: 0,
-            },
-          },
-          User: true,
-          CultureContent: {
-            include: {
-              User: true,
-              ContentImg: {
-                where: {
-                  deletedAt: null,
-                },
-                orderBy: {
-                  idx: 'asc',
-                },
-              },
-              Genre: true,
-              Style: {
-                include: {
-                  Style: true,
-                },
-                where: {
-                  Style: {
-                    deletedAt: null,
-                  },
-                },
-              },
-              Age: true,
-              Location: true,
-            },
-          },
-        },
-        where: {
-          idx:
-            pagerble.searchby === 'idx' ? Number(pagerble.search) : undefined,
-          CultureContent: {
-            title:
-              pagerble.searchby === 'contents'
-                ? {
-                    contains: pagerble.search,
-                  }
-                : undefined,
-            deletedAt: null,
-            User: {
-              deletedAt: null,
-            },
-          },
-          deletedAt: null,
-          User: {
-            nickname:
-              pagerble.searchby === 'nickname'
-                ? {
-                    contains: pagerble.search,
-                  }
-                : undefined,
-            deletedAt: null,
-          },
-        },
-        orderBy: {
-          idx: pagerble.order,
-        },
-        take: 10,
-        skip: (pagerble.page - 1) * 10,
-      }),
-      this.prisma.review.count({
-        where: {
-          idx:
-            pagerble.searchby === 'idx' ? Number(pagerble.search) : undefined,
-          CultureContent: {
-            title:
-              pagerble.searchby === 'contents' ? pagerble.search : undefined,
-            deletedAt: null,
-            User: {
-              deletedAt: null,
-            },
-          },
-          deletedAt: null,
-          User: {
-            nickname:
-              pagerble.searchby === 'nickname' ? pagerble.search : undefined,
-            deletedAt: null,
-          },
-        },
-      }),
-    ]);
-
-    return {
-      reviewList: reviewList.map((review) =>
-        ReviewEntity.createSummaryAdminReviewEntity(review),
-      ),
-      count,
-    };
-  };
-
-  /**
-   * Get a detail review by idx for admin
-   */
-  public getReviewByIdxForAdmin: (
-    idx: number,
-  ) => Promise<ReviewEntity<'detail', 'admin'>> = async (idx) => {
-    const review = await this.prisma.review.findUnique({
-      include: {
-        ReviewImg: {
-          where: {
-            deletedAt: null,
-          },
-          orderBy: {
-            idx: 'asc',
-          },
-        },
-        ReviewLike: {
-          where: {
-            userIdx: 0,
-          },
-        },
-        User: true,
-        CultureContent: {
-          include: {
-            User: true,
-            ContentImg: {
-              where: {
-                deletedAt: null,
-              },
-              orderBy: {
-                idx: 'asc',
-              },
-            },
-            Genre: true,
-            Style: {
-              include: {
-                Style: true,
-              },
-            },
-            Age: true,
-            Location: true,
-          },
-        },
-      },
-      where: {
-        idx,
-        CultureContent: {
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-          },
-        },
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!review) {
-      throw new ReviewNotFoundException('Cannot find review');
-    }
-
-    return ReviewEntity.createDetailAdminReviewEntity(review);
   };
 
   // Like ======================================================
