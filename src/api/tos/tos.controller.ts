@@ -1,27 +1,9 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  ForbiddenException,
-  Get,
-  HttpCode,
-  Param,
-  ParseIntPipe,
-  Post,
-  Put,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, ParseIntPipe } from '@nestjs/common';
 import { TosService } from './tos.service';
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { GetUserTosAllResponseDto } from './dto/response/GetUserTosAllResponseDto';
-import { GetAdminTosAllResponseDto } from './dto/response/GetAdminTosAllResponseDto';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
-import { User } from '../../common/decorator/user.decorator';
-import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { TosEntity } from './entity/TosEntity';
-import { CreateTosDto } from './dto/CreateTosDto';
-import { UpdateTosDto } from './dto/UpdateTosDto';
 
 @Controller('tos')
 export class TosController {
@@ -57,146 +39,9 @@ export class TosController {
   @TypedException<ExceptionDto>(500, 'Server Error')
   async getTosByIdx(
     @Param('idx', ParseIntPipe) idx: number,
-  ): Promise<TosEntity<'detail', 'user'>> {
+  ): Promise<TosEntity<'detail'>> {
     const tos = await this.tosService.getTosByIdx(idx);
 
     return tos;
-  }
-
-  /**
-   * Get all Terms Of Service for Admin API
-   * @summary Get all Terms Of Service for Admin API
-   *
-   * @tag Terms Of Service
-   */
-  @Get('/admin/all')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  async getTosAllForAdmin(
-    @User() user: LoginUserDto,
-  ): Promise<GetAdminTosAllResponseDto> {
-    if (!user.isAdmin) {
-      throw new ForbiddenException('Permission Denied');
-    }
-
-    const tosList = await this.tosService.getTosAllForAdmin();
-
-    return {
-      tosList,
-    };
-  }
-
-  /**
-   * Get Terms of Service by idx for Admin API
-   * @summary Get Terms of Service by idx for Admin API
-   *
-   * @tag Terms Of Service
-   */
-  @Get('/admin/:idx')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(404, 'Cannot find Terms Of Service')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  async getTosByIdxForAdmin(
-    @Param('idx', ParseIntPipe) idx: number,
-    @User() user: LoginUserDto,
-  ): Promise<TosEntity<'detail', 'admin'>> {
-    if (!user.isAdmin) {
-      throw new ForbiddenException('Permission Denied');
-    }
-
-    const tos = await this.tosService.getTosByIdxForAdmin(idx);
-
-    return tos;
-  }
-
-  /**
-   * Create Terms of Service for admin API
-   * @summary Create Terms of Service for admin API
-   *
-   * @tag Terms Of Service
-   */
-  @Post('/')
-  @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid body')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  async createTos(
-    @Body() createDto: CreateTosDto,
-    @User() user: LoginUserDto,
-  ): Promise<void> {
-    if (!user.isAdmin) {
-      throw new ForbiddenException('Permission Denied');
-    }
-
-    await this.tosService.createTos(createDto);
-
-    return;
-  }
-
-  /**
-   * Update Terms of Service for admin API
-   * @summary Update Terms of Service for admin API
-   *
-   * @tag Terms Of Service
-   */
-  @Put('/:idx')
-  @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid body or path')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(404, 'Cannot find Terms of Service')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  async updateTosByIdx(
-    @Body() updateDto: UpdateTosDto,
-    @User() user: LoginUserDto,
-    @Param('idx', ParseIntPipe) idx: number,
-  ): Promise<void> {
-    if (!user.isAdmin) {
-      throw new ForbiddenException('Permission Denied');
-    }
-
-    await this.tosService.getTosByIdx(idx);
-
-    await this.tosService.updateTos(idx, updateDto);
-
-    return;
-  }
-
-  /**
-   * Delete Terms of Service for admin API
-   * @summary Delete Terms of Service for admin API
-   *
-   * @tag Terms Of Service
-   */
-  @Delete('/:idx')
-  @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid body or path')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(404, 'Cannot find Terms of Service')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  async deleteTosByIdx(
-    @User() user: LoginUserDto,
-    @Param('idx', ParseIntPipe) idx: number,
-  ): Promise<void> {
-    if (!user.isAdmin) {
-      throw new ForbiddenException('Permission Denied');
-    }
-
-    await this.tosService.getTosByIdx(idx);
-
-    await this.tosService.deleteTos(idx);
-
-    return;
   }
 }
