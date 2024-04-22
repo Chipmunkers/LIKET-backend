@@ -28,30 +28,6 @@ export class InquiryController {
   constructor(private readonly inquiryService: InquiryService) {}
 
   /**
-   * Get inquiry all API for admin
-   * @summary Get inquiry all API for admin
-   *
-   * @tag Inquiry
-   */
-  @Get('/all')
-  @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'No admin authorization')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
-  public async getInquiryAll(
-    @Query() pagerble: InquiryListPagenationDto,
-    @User() loginUser: LoginUserDto,
-  ): Promise<GetInquiryAllResponseDto> {
-    if (!loginUser.isAdmin) {
-      throw new ForbiddenException('No admin authorization');
-    }
-
-    return await this.inquiryService.getInquiryAll(pagerble);
-  }
-
-  /**
    * Get inquiry by idx API
    * @summary Get inquiry by idx API
    *
@@ -69,10 +45,6 @@ export class InquiryController {
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) idx: number,
   ): Promise<InquiryEntity<'detail'>> {
-    if (loginUser.isAdmin) {
-      return await this.inquiryService.getInquiryByIdx(idx);
-    }
-
     const inquiry = await this.inquiryService.getInquiryByIdx(idx);
 
     if (loginUser.idx !== inquiry.author.idx) {
@@ -128,7 +100,7 @@ export class InquiryController {
   ): Promise<void> {
     const inquiry = await this.inquiryService.getInquiryByIdx(inquiryIdx);
 
-    if (inquiry.author.idx !== loginUser.idx && !loginUser.isAdmin) {
+    if (inquiry.author.idx !== loginUser.idx) {
       throw new ForbiddenException('Permission denied');
     }
 
