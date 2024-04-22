@@ -27,6 +27,54 @@ const liketWithInclude = Prisma.validator<Prisma.LiketDefaultArgs>()({
 
 type LiketWithInclude = Prisma.LiketGetPayload<typeof liketWithInclude>;
 
+class LiketReview extends PickType(ReviewEntity, [
+  'idx',
+  'starRating',
+  'visitTime',
+  'thumbnail',
+  'createdAt',
+]) {
+  constructor(review: {
+    idx: number;
+    starRating: number;
+    visitTime: Date;
+    thumbnail: string | null;
+    createdAt: Date;
+  }) {
+    super();
+
+    this.idx = review.idx;
+    this.starRating = review.starRating;
+    this.visitTime = review.visitTime;
+    this.thumbnail = review.thumbnail;
+    this.createdAt = review.createdAt;
+  }
+}
+
+class LiketContent extends PickType(ContentEntity, [
+  'idx',
+  'title',
+  'genre',
+  'location',
+  'thumbnail',
+]) {
+  constructor(content: {
+    idx: number;
+    title: string;
+    genre: TagEntity;
+    location: LocationEntity;
+    thumbnail: string | null;
+  }) {
+    super();
+
+    this.idx = content.idx;
+    this.title = content.title;
+    this.genre = content.genre;
+    this.location = content.location;
+    this.thumbnail = content.thumbnail;
+  }
+}
+
 export class LiketEntity<T extends 'detail' | 'summary' = 'detail'> {
   idx: number;
   description: T extends 'detail' ? string : undefined;
@@ -120,53 +168,5 @@ export class LiketEntity<T extends 'detail' | 'summary' = 'detail'> {
       }),
       createdAt: liket.createdAt,
     });
-  }
-}
-
-class LiketReview extends PickType(ReviewEntity, [
-  'idx',
-  'starRating',
-  'visitTime',
-  'thumbnail',
-  'createdAt',
-]) {
-  constructor(review: {
-    idx: number;
-    starRating: number;
-    visitTime: Date;
-    thumbnail: string | null;
-    createdAt: Date;
-  }) {
-    super();
-
-    this.idx = review.idx;
-    this.starRating = review.starRating;
-    this.visitTime = review.visitTime;
-    this.thumbnail = review.thumbnail;
-    this.createdAt = review.createdAt;
-  }
-}
-
-class LiketContent extends PickType(ContentEntity, [
-  'idx',
-  'title',
-  'genre',
-  'location',
-  'thumbnail',
-]) {
-  constructor(content: {
-    idx: number;
-    title: string;
-    genre: TagEntity;
-    location: LocationEntity;
-    thumbnail: string | null;
-  }) {
-    super();
-
-    this.idx = content.idx;
-    this.title = content.title;
-    this.genre = content.genre;
-    this.location = content.location;
-    this.thumbnail = content.thumbnail;
   }
 }
