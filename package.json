@@ -1,8 +1,8 @@
 {
   "name": "project-name",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Liket Backend API Server",
+  "author": "jochongs",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
