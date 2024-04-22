@@ -2,15 +2,13 @@ FROM node:20.10
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY package*.json .
 
 RUN npm ci
 
 COPY . .
 
-RUN npx prisma db push
-
-RUN npm run seed
+RUN npx prisma generate
 
 RUN npm run build
 

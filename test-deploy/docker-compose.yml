@@ -22,12 +22,12 @@ services:
       - liket-backend-redis-voume:/data
   liket-backend-server:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: ./test-deploy/Dockerfile
     ports:
       - '3001:3000'
     env_file:
-      - .env
+      - .env.docker
     depends_on:
       - postgresql
       - redis
