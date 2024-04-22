@@ -6,7 +6,7 @@ export class GetCultureContentRequestAllResponseDto {
    * Culture-content list
    */
   @ValidateNested()
-  contentList: ContentEntity<'summary', 'admin'>[];
+  contentList: ContentEntity<'summary'>[];
 
   /**
    * Total count of culture-content

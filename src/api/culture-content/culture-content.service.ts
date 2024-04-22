@@ -31,7 +31,7 @@ export class CultureContentService {
   public getContentByIdx: (
     idx: number,
     userIdx: number,
-  ) => Promise<ContentEntity<'detail', 'user'>> = async (idx, userIdx) => {
+  ) => Promise<ContentEntity<'detail'>> = async (idx, userIdx) => {
     const content = await this.prisma.cultureContent.findUnique({
       include: {
         User: true,
@@ -111,7 +111,7 @@ export class CultureContentService {
     pagenation: ContentListPagenationDto,
     userIdx: number,
   ) => Promise<{
-    contentList: ContentEntity<'summary', 'user'>[];
+    contentList: ContentEntity<'summary'>[];
     count: number;
   }> = async (pagenation, userIdx) => {
     const [count, contentList] = await this.prisma.$transaction([
@@ -255,7 +255,7 @@ export class CultureContentService {
     userIdx: number,
     pagerble: ContentListByUserIdxPagerbleDto,
   ): Promise<{
-    contentList: ContentEntity<'summary', 'admin'>[];
+    contentList: ContentEntity<'summary'>[];
     count: number;
   }> {
     const [count, contentList] = await this.prisma.$transaction([
@@ -321,7 +321,7 @@ export class CultureContentService {
 
     return {
       contentList: contentList.map((content) =>
-        ContentEntity.createAdminSummaryContent(content),
+        ContentEntity.createUserSummaryContent(content),
       ),
       count,
     };
@@ -332,7 +332,7 @@ export class CultureContentService {
    */
   public async getSoonOpenContentAll(
     userIdx: number,
-  ): Promise<ContentEntity<'summary', 'user'>[]> {
+  ): Promise<ContentEntity<'summary'>[]> {
     const contentList = await this.prisma.cultureContent.findMany({
       include: {
         User: true,
@@ -407,7 +407,7 @@ export class CultureContentService {
    */
   public async getSoonEndContentAll(
     userIdx: number,
-  ): Promise<ContentEntity<'summary', 'user'>[]> {
+  ): Promise<ContentEntity<'summary'>[]> {
     const contentList = await this.prisma.cultureContent.findMany({
       include: {
         User: true,
@@ -480,11 +480,11 @@ export class CultureContentService {
   // Content Request ==========================================
 
   /**
-   * Get culture-content request by idx for admin
+   * Get culture-content request by idx with author
    */
   public getContentRequestByIdx: (
     idx: number,
-  ) => Promise<ContentEntity<'detail', 'admin'>> = async (idx) => {
+  ) => Promise<ContentEntity<'detail', 'author'>> = async (idx) => {
     const content = await this.prisma.cultureContent.findUnique({
       include: {
         User: true,
@@ -541,139 +541,10 @@ export class CultureContentService {
       },
     });
 
-    return ContentEntity.createAdminDetailContent(
+    return ContentEntity.createSummaryContentWithAuthor(
       content,
       starRatingSum._sum.starRating || 0,
     );
-  };
-
-  /**
-   * Get all culture-content requests for admin
-   */
-  public getContentRequestAll: (
-    pagenation: ContentRequestListPagenationDto,
-  ) => Promise<{
-    contentList: ContentEntity<'summary', 'admin'>[];
-    count: number;
-  }> = async (pagenation) => {
-    const [count, contentList] = await this.prisma.$transaction([
-      this.prisma.cultureContent.count({
-        where: {
-          genreIdx: pagenation.genre || undefined,
-          ageIdx: pagenation.age || undefined,
-          Style: pagenation.style
-            ? {
-                some: {
-                  Style: {
-                    deletedAt: null,
-                  },
-                },
-              }
-            : undefined,
-          Location: pagenation.region
-            ? {
-                hCode: pagenation.region,
-              }
-            : undefined,
-          startDate: pagenation.open
-            ? {
-                lte: new Date(),
-              }
-            : undefined,
-          endDate: pagenation.open
-            ? {
-                gte: new Date(),
-              }
-            : undefined,
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-            blockedAt: null,
-          },
-        },
-      }),
-      this.prisma.cultureContent.findMany({
-        include: {
-          User: true,
-          ContentImg: {
-            where: {
-              deletedAt: null,
-            },
-            orderBy: {
-              idx: 'asc',
-            },
-          },
-          Genre: true,
-          Style: {
-            include: {
-              Style: true,
-            },
-          },
-          Age: true,
-          Location: true,
-          ContentLike: {
-            where: {
-              userIdx: -1,
-            },
-          },
-          _count: {
-            select: {
-              Review: true,
-            },
-          },
-        },
-        where: {
-          genreIdx: pagenation.genre || undefined,
-          ageIdx: pagenation.age || undefined,
-          title: pagenation.search
-            ? {
-                contains: pagenation.search,
-              }
-            : undefined,
-          Style: pagenation.style
-            ? {
-                some: {
-                  Style: {
-                    deletedAt: null,
-                  },
-                },
-              }
-            : undefined,
-          Location: pagenation.region
-            ? {
-                hCode: pagenation.region,
-              }
-            : undefined,
-          startDate: pagenation.open
-            ? {
-                lte: new Date(),
-              }
-            : undefined,
-          endDate: pagenation.open
-            ? {
-                gte: new Date(),
-              }
-            : undefined,
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-            blockedAt: null,
-          },
-        },
-        orderBy: {
-          idx: pagenation.order,
-        },
-        take: 10,
-        skip: (pagenation.page - 1) * 10,
-      }),
-    ]);
-
-    return {
-      contentList: contentList.map((content) =>
-        ContentEntity.createAdminSummaryContent(content),
-      ),
-      count,
-    };
   };
 
   /**
@@ -822,83 +693,6 @@ export class CultureContentService {
       },
       data: {
         deletedAt: new Date(),
-      },
-    });
-
-    return;
-  };
-
-  /**
-   * Accept culture-content request
-   */
-  public acceptContentRequest: (idx: number) => Promise<void> = async (idx) => {
-    const content = await this.prisma.cultureContent.findUnique({
-      select: {
-        idx: true,
-        acceptedAt: true,
-      },
-      where: {
-        idx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find culture content');
-    }
-
-    if (content.acceptedAt) {
-      throw new ConflictException('Already accepted culture content');
-    }
-
-    await this.prisma.cultureContent.update({
-      where: {
-        idx,
-      },
-      data: {
-        acceptedAt: new Date(),
-      },
-    });
-
-    return;
-  };
-
-  /**
-   * Make culture-content to culture-content request
-   * That means making culture-content deactivated
-   */
-  public deactivateContent: (idx: number) => Promise<void> = async (idx) => {
-    const content = await this.prisma.cultureContent.findUnique({
-      select: {
-        idx: true,
-        acceptedAt: true,
-      },
-      where: {
-        idx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find culture content');
-    }
-
-    if (!content.acceptedAt) {
-      throw new ConflictException('Already deactivated culture content');
-    }
-
-    await this.prisma.cultureContent.update({
-      where: {
-        idx,
-      },
-      data: {
-        acceptedAt: null,
       },
     });
 

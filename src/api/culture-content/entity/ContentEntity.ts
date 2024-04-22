@@ -33,7 +33,7 @@ type CotnentWithInclude = Prisma.CultureContentGetPayload<
 
 export class ContentEntity<
   T extends 'summary' | 'detail' = 'detail',
-  K extends 'user' | 'admin' = 'user',
+  K extends 'author' | undefined = undefined,
 > {
   idx: number;
   title: string;
@@ -65,12 +65,9 @@ export class ContentEntity<
   likeCount: T extends 'detail' ? number : undefined;
   reviewCount: T extends 'detail' ? number : undefined;
 
-  likeState: K extends 'user' ? boolean : undefined;
+  author: K extends 'author' ? UserProfileEntity : undefined;
+  likeState: boolean;
   avgStarRating: T extends 'detail' ? number : undefined;
-
-  @ValidateNested()
-  author: K extends 'admin' ? UserProfileEntity : undefined;
-  acceptedAt: K extends 'admin' ? Date | null : undefined;
 
   createdAt: Date;
 
@@ -98,9 +95,8 @@ export class ContentEntity<
       likeCount: T extends 'detail' ? number : undefined;
       reviewCount: T extends 'detail' ? number : undefined;
 
-      acceptedAt: K extends 'admin' ? Date | null : undefined;
-      author: K extends 'admin' ? UserProfileEntity : undefined;
-      likeState: K extends 'user' ? boolean : undefined;
+      author: K extends 'author' ? UserProfileEntity : undefined;
+      likeState: boolean;
     },
     avgStarRating: T extends 'detail' ? number : undefined,
   ) {
@@ -122,7 +118,6 @@ export class ContentEntity<
     this.isPet = data.isPet;
     this.isParking = data.isParking;
     this.likeCount = data.likeCount;
-    this.acceptedAt = data.acceptedAt;
     this.author = data.author;
     this.likeState = data.likeState;
     this.avgStarRating = avgStarRating;
@@ -132,8 +127,8 @@ export class ContentEntity<
 
   static createUserSummaryContent(
     data: CotnentWithInclude,
-  ): ContentEntity<'summary', 'user'> {
-    return new ContentEntity<'summary', 'user'>(
+  ): ContentEntity<'summary'> {
+    return new ContentEntity<'summary'>(
       {
         idx: data.idx,
         title: data.title,
@@ -153,42 +148,8 @@ export class ContentEntity<
         isPet: undefined,
         isParking: undefined,
         likeCount: undefined,
-        acceptedAt: undefined,
         author: undefined,
         likeState: data.ContentLike[0] ? true : false,
-        reviewCount: undefined,
-        createdAt: data.createdAt,
-      },
-      undefined,
-    );
-  }
-
-  static createAdminSummaryContent(
-    data: CotnentWithInclude,
-  ): ContentEntity<'summary', 'admin'> {
-    return new ContentEntity<'summary', 'admin'>(
-      {
-        idx: data.idx,
-        title: data.title,
-        thumbnail: data.ContentImg[0]?.imgPath || null,
-        genre: TagEntity.createTag(data.Genre),
-        style: data.Style.map((style) => TagEntity.createTag(style.Style)),
-        age: TagEntity.createTag(data.Age),
-        location: LocationEntity.createDetailLocation(data.Location),
-        startDate: data.startDate,
-        endDate: data.endDate,
-        openTime: undefined,
-        description: undefined,
-        websiteLink: undefined,
-        imgList: undefined,
-        isFee: undefined,
-        isReservation: undefined,
-        isPet: undefined,
-        isParking: undefined,
-        likeCount: undefined,
-        acceptedAt: data.acceptedAt,
-        author: UserProfileEntity.createUserProfileEntity(data.User),
-        likeState: undefined,
         reviewCount: undefined,
         createdAt: data.createdAt,
       },
@@ -199,8 +160,8 @@ export class ContentEntity<
   static createUserDetailContent(
     data: CotnentWithInclude,
     totalSumStar: number,
-  ): ContentEntity<'detail', 'user'> {
-    return new ContentEntity<'detail', 'user'>(
+  ): ContentEntity<'detail'> {
+    return new ContentEntity<'detail'>(
       {
         idx: data.idx,
         title: data.title,
@@ -220,7 +181,6 @@ export class ContentEntity<
         isPet: data.isPet,
         isParking: data.isParking,
         likeCount: data.likeCount,
-        acceptedAt: undefined,
         author: undefined,
         likeState: data.ContentLike[0] ? true : false,
         reviewCount: data._count.Review,
@@ -230,11 +190,11 @@ export class ContentEntity<
     );
   }
 
-  static createAdminDetailContent(
+  static createSummaryContentWithAuthor(
     data: CotnentWithInclude,
     totalSumStar: number,
-  ): ContentEntity<'detail', 'admin'> {
-    return new ContentEntity<'detail', 'admin'>(
+  ) {
+    return new ContentEntity<'detail', 'author'>(
       {
         idx: data.idx,
         title: data.title,
@@ -254,9 +214,8 @@ export class ContentEntity<
         isPet: data.isPet,
         isParking: data.isParking,
         likeCount: data.likeCount,
-        acceptedAt: data.acceptedAt,
         author: UserProfileEntity.createUserProfileEntity(data.User),
-        likeState: undefined,
+        likeState: data.ContentLike[0] ? true : false,
         reviewCount: data._count.Review,
         createdAt: data.createdAt,
       },

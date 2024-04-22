@@ -3,7 +3,7 @@ import { ContentEntity } from '../../entity/ContentEntity';
 
 export class GetCultureContentAllResponseDto {
   @ValidateNested()
-  contentList: ContentEntity<'summary', 'user'>[];
+  contentList: ContentEntity<'summary'>[];
 
   count: number;
 }
