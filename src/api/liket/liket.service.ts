@@ -16,83 +16,6 @@ export class LiketService {
   ) {}
 
   /**
-   * Create LIKET
-   */
-  createLiket: (
-    reviewIdx: number,
-    loginUser: LoginUserDto,
-    createDto: CreateLiketDto,
-  ) => Promise<LiketEntity<'detail'>> = async (
-    reviewIdx,
-    loginUser,
-    createDto,
-  ) => {
-    await this.uploadService.checkExistFile(
-      createDto.img.filePath,
-      FILE_GROUPING.LIKET,
-    );
-
-    const createdLiket = await this.prisma.$transaction(
-      async (tx) => {
-        const liket = await tx.liket.findFirst({
-          where: {
-            userIdx: loginUser.idx,
-            reviewIdx,
-            deletedAt: null,
-          },
-        });
-
-        if (liket) {
-          throw new AlreadyExistLiketException('Already exist LIKET');
-        }
-
-        return await tx.liket.create({
-          include: {
-            Review: {
-              include: {
-                CultureContent: {
-                  include: {
-                    Genre: true,
-                    Location: true,
-                    ContentImg: {
-                      where: {
-                        deletedAt: null,
-                      },
-                      orderBy: {
-                        idx: 'asc',
-                      },
-                    },
-                  },
-                },
-                ReviewImg: {
-                  where: {
-                    deletedAt: null,
-                  },
-                  orderBy: {
-                    idx: 'asc',
-                  },
-                },
-              },
-            },
-            User: true,
-          },
-          data: {
-            imgPath: createDto.img.filePath,
-            description: createDto.description,
-            reviewIdx,
-            userIdx: loginUser.idx,
-          },
-        });
-      },
-      {
-        isolationLevel: 'Serializable',
-      },
-    );
-
-    return LiketEntity.createDetailLiket(createdLiket);
-  };
-
-  /**
    * Get liket by idx
    */
   getLiketByIdx: (idx: number) => Promise<LiketEntity<'detail'>> = async (
@@ -187,4 +110,81 @@ export class LiketService {
 
       return liketList.map((liket) => LiketEntity.createSummaryLiket(liket));
     };
+
+  /**
+   * Create LIKET
+   */
+  createLiket: (
+    reviewIdx: number,
+    loginUser: LoginUserDto,
+    createDto: CreateLiketDto,
+  ) => Promise<LiketEntity<'detail'>> = async (
+    reviewIdx,
+    loginUser,
+    createDto,
+  ) => {
+    await this.uploadService.checkExistFile(
+      createDto.img.filePath,
+      FILE_GROUPING.LIKET,
+    );
+
+    const createdLiket = await this.prisma.$transaction(
+      async (tx) => {
+        const liket = await tx.liket.findFirst({
+          where: {
+            userIdx: loginUser.idx,
+            reviewIdx,
+            deletedAt: null,
+          },
+        });
+
+        if (liket) {
+          throw new AlreadyExistLiketException('Already exist LIKET');
+        }
+
+        return await tx.liket.create({
+          include: {
+            Review: {
+              include: {
+                CultureContent: {
+                  include: {
+                    Genre: true,
+                    Location: true,
+                    ContentImg: {
+                      where: {
+                        deletedAt: null,
+                      },
+                      orderBy: {
+                        idx: 'asc',
+                      },
+                    },
+                  },
+                },
+                ReviewImg: {
+                  where: {
+                    deletedAt: null,
+                  },
+                  orderBy: {
+                    idx: 'asc',
+                  },
+                },
+              },
+            },
+            User: true,
+          },
+          data: {
+            imgPath: createDto.img.filePath,
+            description: createDto.description,
+            reviewIdx,
+            userIdx: loginUser.idx,
+          },
+        });
+      },
+      {
+        isolationLevel: 'Serializable',
+      },
+    );
+
+    return LiketEntity.createDetailLiket(createdLiket);
+  };
 }
