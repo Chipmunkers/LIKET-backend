@@ -7,6 +7,7 @@ import { AlreadyExistLiketException } from './exception/AlreadyExistLiketExcepti
 import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
 import { LiketNotFoundException } from './exception/LiketNotFoundException';
+import { UpdateLiketDto } from './dto/UpdateLiketDto';
 
 @Injectable()
 export class LiketService {
@@ -187,4 +188,21 @@ export class LiketService {
 
     return LiketEntity.createDetailLiket(createdLiket);
   };
+
+  /**
+   * Update LIKET
+   */
+  updateLiketByIdx: (idx: number, updateDto: UpdateLiketDto) => Promise<void> =
+    async (idx, updateDto) => {
+      await this.prisma.liket.update({
+        where: {
+          idx,
+        },
+        data: {
+          description: updateDto.description,
+        },
+      });
+
+      return;
+    };
 }
