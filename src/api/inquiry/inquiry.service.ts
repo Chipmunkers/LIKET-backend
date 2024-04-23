@@ -15,62 +15,6 @@ export class InquiryService {
   ) {}
 
   /**
-   * Get all inquiries for admin user
-   */
-  public getInquiryAll: (pagerble: InquiryListPagenationDto) => Promise<{
-    count: number;
-    inquiryList: InquiryEntity<'summary'>[];
-  }> = async (pagerble) => {
-    const [inquiryList, count] = await this.prisma.$transaction([
-      this.prisma.inquiry.findMany({
-        include: {
-          Answer: {
-            where: {
-              deletedAt: null,
-            },
-          },
-          InquiryType: true,
-          InquiryImg: {
-            where: {
-              deletedAt: null,
-            },
-            orderBy: {
-              idx: 'asc',
-            },
-          },
-          User: true,
-        },
-        where: {
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-          },
-        },
-        orderBy: {
-          idx: pagerble.order,
-        },
-        take: 10,
-        skip: (pagerble.page - 1) * 10,
-      }),
-      this.prisma.inquiry.count({
-        where: {
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-          },
-        },
-      }),
-    ]);
-
-    return {
-      inquiryList: inquiryList.map((inquiry) =>
-        InquiryEntity.createSummaryInquiry(inquiry),
-      ),
-      count,
-    };
-  };
-
-  /**
    * Get inquiry by idx
    */
   public getInquiryByIdx: (idx: number) => Promise<InquiryEntity<'detail'>> =
