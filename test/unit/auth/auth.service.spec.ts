@@ -12,6 +12,7 @@ import { BlockedUserException } from '../../../src/api/auth/exception/BlockedUse
 import { InvalidEmailAuthTokenException } from '../../../src/api/auth/exception/InvalidEmailAuthTokenException';
 import { InvalidLoginAccessTokenException } from '../../../src/api/auth/exception/InvalidLoginAccessTokenException';
 import { LoggerService } from '../../../src/logger/logger.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -47,6 +48,7 @@ describe('AuthService', () => {
           provide: MailerService,
           useValue: {},
         },
+        ConfigService,
         {
           provide: 'LoggerServiceAuthService',
           useValue: {
