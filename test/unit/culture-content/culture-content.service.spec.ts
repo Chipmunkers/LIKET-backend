@@ -2,8 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CultureContentService } from '../../../src/api/culture-content/culture-content.service';
 import { PrismaService } from '../../../src/prisma/prisma.service';
 import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';
-import { UpdateContentDto } from '../../../src/api/culture-content/dto/UpdateContentDto';
-import { ConflictException, ForbiddenException } from '@nestjs/common';
 import { AlreadyLikeContentException } from '../../../src/api/culture-content/exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from '../../../src/api/culture-content/exception/AlreadyNotLikeContentException';
 import { ContentEntity } from '../../../src/api/culture-content/entity/ContentEntity';
@@ -63,7 +61,7 @@ describe('CultureContentService', () => {
     });
 
     await expect(service.getContentByIdx(1, 1)).resolves.toBeInstanceOf(
-      ContentEntity<'detail', 'user'>,
+      ContentEntity<'detail'>,
     );
     expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
     expect(prismaMock.review.aggregate).toHaveBeenCalledTimes(1);
@@ -102,7 +100,7 @@ describe('CultureContentService', () => {
     });
 
     await expect(service.getContentRequestByIdx(1)).resolves.toBeInstanceOf(
-      ContentEntity<'detail', 'admin'>,
+      ContentEntity<'detail'>,
     );
     expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
   });
@@ -168,78 +166,6 @@ describe('CultureContentService', () => {
 
     await expect(service.deleteContentRequest(1)).resolves.toBeUndefined();
     expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
-  });
-
-  it('acceptContentRequest success', async () => {
-    // 1. check content request state
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      acceptedAt: null,
-    });
-
-    // 2. update content to accept
-    prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
-
-    await expect(service.acceptContentRequest(1)).resolves.toBeUndefined();
-    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
-    expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
-  });
-
-  it('acceptContentRequest fail - accepted content', async () => {
-    // accepted content
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      acceptedAt: new Date(),
-    });
-
-    await expect(service.acceptContentRequest(1)).rejects.toThrow(
-      ConflictException,
-    );
-  });
-
-  it('acceptContentRequest fail - not found content', async () => {
-    // not found content
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
-
-    await expect(service.acceptContentRequest(1)).rejects.toThrow(
-      ContentNotFoundException,
-    );
-  });
-
-  it('deactivateContent success', async () => {
-    // 1. check content request state
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      acceptedAt: new Date(),
-    });
-
-    // 2. update content
-    prismaMock.cultureContent.update = jest.fn().mockResolvedValue({});
-
-    await expect(service.deactivateContent(1)).resolves.toBeUndefined();
-    expect(prismaMock.cultureContent.findUnique).toHaveBeenCalledTimes(1);
-    expect(prismaMock.cultureContent.update).toHaveBeenCalledTimes(1);
-  });
-
-  it('deactivateContent fail - already deactivated content', async () => {
-    // already deactivated content
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      acceptedAt: null,
-    });
-
-    await expect(service.deactivateContent(1)).rejects.toThrow(
-      ConflictException,
-    );
-  });
-
-  it('deactivateContent fail - content not found', async () => {
-    // content not found
-    prismaMock.cultureContent.findUnique = jest.fn().mockResolvedValue(null);
-
-    await expect(service.deactivateContent(1)).rejects.toThrow(
-      ContentNotFoundException,
-    );
   });
 
   it('likeContent success', async () => {
