@@ -7,7 +7,7 @@ import { ContentEntity } from './entity/ContentEntity';
 import { ContentNotFoundException } from './exception/ContentNotFound';
 import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeContentException';
-import { ContentListByUserIdxPagerbleDto } from '../user/dto/ContentListByUserIdxPagerbleDto';
+import { GetMyCultureContentPagerble } from '../user/dto/GetMyCultureContentPagerble';
 import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
 
@@ -248,7 +248,7 @@ export class CultureContentService {
    */
   public async getContentByUserIdx(
     userIdx: number,
-    pagerble: ContentListByUserIdxPagerbleDto,
+    pagerble: GetMyCultureContentPagerble,
   ): Promise<{
     contentList: ContentEntity<'summary'>[];
     count: number;

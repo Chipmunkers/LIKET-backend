@@ -5,7 +5,7 @@ import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { ContentListByUserIdxPagerbleDto } from './dto/ContentListByUserIdxPagerbleDto';
+import { GetMyCultureContentPagerble } from './dto/GetMyCultureContentPagerble';
 import { GetMyContentAllResponseDto } from './dto/response/GetMyContentAllReseponseDto';
 import { ReviewListByUserPagerbleDto } from '../review/dto/ReviewListByUserPagerbleDto';
 import { GetMyReviewAllResponseDto } from './dto/response/GetMyReviewAllResponseDto';
@@ -37,7 +37,7 @@ export class MyInfoController {
   @UseGuards(LoginAuthGuard)
   public async getMyAllContentRequest(
     @User() loginUser: LoginUserDto,
-    @Query() pagerble: ContentListByUserIdxPagerbleDto,
+    @Query() pagerble: GetMyCultureContentPagerble,
   ): Promise<GetMyContentAllResponseDto> {
     return await this.contentService.getContentByUserIdx(
       loginUser.idx,
