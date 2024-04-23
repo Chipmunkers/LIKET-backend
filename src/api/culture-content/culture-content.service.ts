@@ -1,18 +1,13 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateContentRequestDto } from './dto/CreateContentRequestDto';
-import { ContentRequestListPagenationDto } from './dto/ContentRequestListPagenationDto';
 import { UpdateContentDto } from './dto/UpdateContentDto';
 import { ContentListPagenationDto } from './dto/ContentListPagenationDto';
 import { ContentEntity } from './entity/ContentEntity';
 import { ContentNotFoundException } from './exception/ContentNotFound';
 import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeContentException';
-import { ContentListByUserIdxPagerbleDto } from './dto/ContentListByUserIdxPagerbleDto';
+import { ContentListByUserIdxPagerbleDto } from '../user/dto/ContentListByUserIdxPagerbleDto';
 import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
 

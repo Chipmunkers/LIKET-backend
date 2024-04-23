@@ -5,7 +5,7 @@ import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { ContentListByUserIdxPagerbleDto } from '../culture-content/dto/ContentListByUserIdxPagerbleDto';
+import { ContentListByUserIdxPagerbleDto } from './dto/ContentListByUserIdxPagerbleDto';
 import { GetMyContentAllResponseDto } from './dto/response/GetMyContentAllReseponseDto';
 import { ReviewListByUserPagerbleDto } from '../review/dto/ReviewListByUserPagerbleDto';
 import { GetMyReviewAllResponseDto } from './dto/response/GetMyReviewAllResponseDto';
