@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ReviewEntity } from './entity/ReviewEntity';
-import { ReviewListByContentPagerbleDto } from '../culture-content/dto/ReviewListByContentPagerbleDto';
+import { GetReviewByContentPagerbleDto } from '../culture-content/dto/GetReviewByContentPagerbleDto';
 import { UpdateReviewDto } from './dto/UpdateReviewDto';
 import { CreateReviewDto } from '../culture-content/dto/CreateReviewDto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
@@ -21,7 +21,7 @@ export class ReviewService {
   public getReviewAll: (
     contentIdx: number,
     userIdx: number,
-    pagerble: ReviewListByContentPagerbleDto,
+    pagerble: GetReviewByContentPagerbleDto,
   ) => Promise<{
     reviewList: ReviewEntity<'detail'>[];
     count: number;

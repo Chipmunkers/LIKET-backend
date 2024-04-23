@@ -16,7 +16,7 @@ import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { CreateReviewDto } from './dto/CreateReviewDto';
 import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { ReviewListByContentPagerbleDto } from './dto/ReviewListByContentPagerbleDto';
+import { GetReviewByContentPagerbleDto } from './dto/GetReviewByContentPagerbleDto';
 import { CultureContentService } from './culture-content.service';
 import { GetReviewAllResponseDto } from './dto/response/GetReviewAllResponseDto';
 
@@ -68,7 +68,7 @@ export class ContentReviewController {
   public async getReviewAll(
     @Param('idx', ParseIntPipe) contentIdx: number,
     @User() loginUser: LoginUserDto,
-    @Query() pagerble: ReviewListByContentPagerbleDto,
+    @Query() pagerble: GetReviewByContentPagerbleDto,
   ): Promise<GetReviewAllResponseDto> {
     await this.cultureContentService.getContentByIdx(contentIdx, loginUser.idx);
 
