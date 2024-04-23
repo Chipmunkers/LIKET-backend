@@ -22,7 +22,7 @@ import { TypedException } from '@nestia/core';
 import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { ContentEntity } from './entity/ContentEntity';
 import { GetCultureContentAllResponseDto } from './dto/response/GetCultureContentAllResponseDto';
-import { ContentListPagenationDto } from './dto/ContentListPagenationDto';
+import { GetContentPagerbleDto } from './dto/GetContentPagerbleDto';
 import { GetSoonOpenCultureContentResponseDto } from './dto/response/GetSoonOpenCultureContentResponseDto';
 import { UpdateContentDto } from './dto/UpdateContentDto';
 
@@ -47,7 +47,7 @@ export class CultureContentController {
   @UseGuards(LoginAuthGuard)
   public async getCultureContentAll(
     @User() loginUser: LoginUserDto,
-    @Query() pagerble: ContentListPagenationDto,
+    @Query() pagerble: GetContentPagerbleDto,
   ): Promise<GetCultureContentAllResponseDto> {
     const result = await this.cultureContentService.getContentAll(
       pagerble,

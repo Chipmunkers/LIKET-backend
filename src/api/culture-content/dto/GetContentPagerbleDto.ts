@@ -10,9 +10,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class ContentListPagenationDto extends PickType(PagenationDto, [
-  'page',
-]) {
+export class GetContentPagerbleDto extends PickType(PagenationDto, ['page']) {
   /**
    * Genre idx
    */

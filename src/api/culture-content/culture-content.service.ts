@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateContentRequestDto } from './dto/CreateContentRequestDto';
 import { UpdateContentDto } from './dto/UpdateContentDto';
-import { ContentListPagenationDto } from './dto/ContentListPagenationDto';
+import { GetContentPagerbleDto } from './dto/GetContentPagerbleDto';
 import { ContentEntity } from './entity/ContentEntity';
 import { ContentNotFoundException } from './exception/ContentNotFound';
 import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
@@ -103,7 +103,7 @@ export class CultureContentService {
    * Get all culture-contents for user
    */
   public getContentAll: (
-    pagenation: ContentListPagenationDto,
+    pagenation: GetContentPagerbleDto,
     userIdx: number,
   ) => Promise<{
     contentList: ContentEntity<'summary'>[];
