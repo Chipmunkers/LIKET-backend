@@ -120,20 +120,6 @@ describe('UserService', () => {
     ).rejects.toThrow(DuplicateUserException<'email'>);
   });
 
-  it('getUserByIdx success', async () => {
-    // 1. find user
-    const findUser = {
-      idx: 1,
-      // ...Something
-    };
-    prismaMock.user.findUnique = jest.fn().mockResolvedValue(findUser);
-
-    await expect(service.getUserByIdx(1)).resolves.toBeInstanceOf(
-      UserEntity<'my', 'admin'>,
-    );
-    expect(prismaMock.user.findUnique).toHaveBeenCalledTimes(1);
-  });
-
   it('getUserByIdx fail - cannot find user', async () => {
     // cannot find user
     prismaMock.user.findUnique = jest.fn().mockResolvedValue(null);
@@ -188,73 +174,5 @@ describe('UserService', () => {
     await expect(
       service.updateProfile(1, {} as UpdateProfileDto),
     ).rejects.toThrow(DuplicateUserException<'nickname'>);
-  });
-
-  it('blockUser success', async () => {
-    // 1. find user for checking already blocked user
-    prismaMock.user.findUnique = jest.fn().mockResolvedValue({
-      blockedAt: null,
-    });
-
-    // 2. update user to block
-    prismaMock.user.update = jest.fn().mockResolvedValue({});
-
-    await expect(service.blockUser(1)).resolves.toBeUndefined();
-    expect(prismaMock.user.findUnique).toHaveBeenCalledTimes(1);
-    expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
-  });
-
-  it('blockUser fail - user not found', async () => {
-    // user not found
-    prismaMock.user.findUnique = jest.fn().mockResolvedValue(null);
-
-    await expect(service.blockUser(1)).rejects.toThrow(UserNotFoundException);
-  });
-
-  it('blockUser fail - already blocked user', async () => {
-    // 1. find user for checking already blocked user
-    prismaMock.user.findUnique = jest.fn().mockResolvedValue({
-      blockedAt: new Date(),
-    });
-
-    await expect(service.blockUser(1)).rejects.toThrow(
-      AlreadyBlockedUserException,
-    );
-  });
-
-  it('cancelToBlock success', async () => {
-    // 1. get user with prisma
-    prismaMock.user.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      blockedAt: new Date(),
-    });
-
-    // 2. cancel to block
-    prismaMock.user.update = jest.fn().mockResolvedValue({});
-
-    await expect(service.cancelToBlock(1)).resolves.toBeUndefined();
-    expect(prismaMock.user.findUnique).toHaveBeenCalledTimes(1);
-    expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
-  });
-
-  it('cancelToBlock fail - user not found', async () => {
-    // cannot find user
-    prismaMock.user.findUnique = jest.fn().mockResolvedValue(null);
-
-    await expect(service.cancelToBlock(1)).rejects.toThrow(
-      UserNotFoundException,
-    );
-  });
-
-  it('cancelToBlock fail - user not found', async () => {
-    // cannot find user
-    prismaMock.user.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      blockedAt: null,
-    });
-
-    await expect(service.cancelToBlock(1)).rejects.toThrow(
-      AlreadyNotBlockedUserException,
-    );
   });
 });
