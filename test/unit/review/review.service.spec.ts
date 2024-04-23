@@ -46,7 +46,7 @@ describe('ReviewService', () => {
     });
 
     await expect(service.getReviewByIdx(1, 1)).resolves.toBeInstanceOf(
-      ReviewEntity<'detail', 'user'>,
+      ReviewEntity<'detail'>,
     );
     expect(prismaMock.review.findUnique).toHaveBeenCalledTimes(1);
   });
@@ -101,35 +101,6 @@ describe('ReviewService', () => {
     await expect(
       service.createReview(1, 1, {} as CreateReviewDto),
     ).rejects.toThrow(ContentNotFoundException);
-  });
-
-  it('getReviewByIdxForAdmin success', async () => {
-    // 1. get review with prisma
-    prismaMock.review.findUnique = jest.fn().mockResolvedValue({
-      idx: 1,
-      author: {},
-      CultureContent: {
-        Genre: {},
-        ContentImg: [],
-      },
-      ReviewImg: [],
-      User: {},
-      ReviewLike: [],
-    });
-
-    await expect(service.getReviewByIdxForAdmin(1)).resolves.toBeInstanceOf(
-      ReviewEntity<'detail', 'admin'>,
-    );
-    expect(prismaMock.review.findUnique).toHaveBeenCalledTimes(1);
-  });
-
-  it('getReviewByIdxForAdmin fail - not found review', async () => {
-    // review not found
-    prismaMock.review.findUnique = jest.fn().mockResolvedValue(null);
-
-    await expect(service.getReviewByIdxForAdmin(1)).rejects.toThrow(
-      ReviewNotFoundException,
-    );
   });
 
   it('likeReview success', async () => {
