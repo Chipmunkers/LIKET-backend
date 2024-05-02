@@ -1,12 +1,9 @@
 import { CreateLocationDto } from '../../../common/dto/CreateLocationDto';
 import {
   ArrayMaxSize,
-  IsArray,
   IsBoolean,
   IsDateString,
-  IsISO8601,
   IsInt,
-  IsNumber,
   IsOptional,
   IsString,
   Length,
