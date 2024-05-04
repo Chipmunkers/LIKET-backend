@@ -130,7 +130,6 @@ model Inquiry {
   updatedAt   DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
   deletedAt   DateTime?    @map("deleted_at") @db.Timestamptz(6)
   typeIdx     Int          @default(autoincrement()) @map("type_idx")
-  answerIdx   Int          @default(autoincrement()) @map("answer_idx")
   Answer      Answer[]     @relation("answer_tb_inquiry_idxToinquiry_tb")
   InquiryImg  InquiryImg[]
   InquiryType InquiryType  @relation(fields: [typeIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_inquiry_type_tb_to_inquiry_tb")
