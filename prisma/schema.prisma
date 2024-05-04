@@ -329,29 +329,31 @@ model Tos {
 }
 
 model User {
-  idx            Int              @id @default(autoincrement())
-  isAdmin        Boolean          @default(false) @map("is_admin")
-  email          String           @db.VarChar
-  pw             String?          @db.VarChar
-  nickname       String           @db.VarChar
-  gender         Int?             @db.SmallInt
-  birth          Int?
-  snsId          String?          @map("sns_id") @db.VarChar
-  provider       String           @default("local") @db.VarChar
-  profileImgPath String?          @map("profile_img_path") @db.VarChar
-  blockedAt      DateTime?        @map("blocked_at") @db.Timestamptz(6)
-  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt      DateTime?        @map("deleted_at") @db.Timestamptz(6)
-  ContentLike    ContentLike[]
-  CultureContent CultureContent[]
-  Inquiry        Inquiry[]
-  ReviewLike     ReviewLike[]
-  Review         Review[]
-  Route          Route[]
-  TosAgree       TosAgree[]
-  UploadFile     UploadFile[]
-  Liket          Liket[]
+  idx              Int                @id @default(autoincrement())
+  isAdmin          Boolean            @default(false) @map("is_admin")
+  email            String             @db.VarChar
+  pw               String?            @db.VarChar
+  nickname         String             @db.VarChar
+  gender           Int?               @db.SmallInt
+  birth            Int?
+  snsId            String?            @map("sns_id") @db.VarChar
+  provider         String             @default("local") @db.VarChar
+  profileImgPath   String?            @map("profile_img_path") @db.VarChar
+  blockedAt        DateTime?          @map("blocked_at") @db.Timestamptz(6)
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt        DateTime?          @map("deleted_at") @db.Timestamptz(6)
+  ContentLike      ContentLike[]
+  CultureContent   CultureContent[]
+  Inquiry          Inquiry[]
+  ReviewLike       ReviewLike[]
+  Review           Review[]
+  Route            Route[]
+  TosAgree         TosAgree[]
+  UploadFile       UploadFile[]
+  Liket            Liket[]
+  BlockReason      BlockReason[]
+  DeleteUserReason DeleteUserReason[]
 
   @@unique([nickname, deletedAt], map: "uq_user_tb_nickname")
   @@index([email])
@@ -393,4 +395,34 @@ model UploadFile {
 
   @@index([filePath])
   @@map("upload_file_tb")
+}
+
+model BlockReason {
+  idx       Int      @id @default(autoincrement())
+  userIdx   Int      @map("user_idx")
+  reason    String   @db.VarChar
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  User      User     @relation(fields: [userIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_tb_to_block_reason_tb")
+
+  @@map("block_reason_tb")
+}
+
+model DeleteUserReason {
+  idx            Int            @id
+  typeIdx        Int
+  contents       String         @db.VarChar
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  DeleteUserType DeleteUserType @relation(fields: [typeIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_delete_user_type_tb_to_delete_user_reason_tb")
+  User           User           @relation(fields: [idx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_tb_to_delete_user_reason_tb")
+
+  @@map("delete_user_reason_tb")
+}
+
+model DeleteUserType {
+  idx              Int                @id @default(autoincrement())
+  name             String             @db.VarChar
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  DeleteUserReason DeleteUserReason[]
+
+  @@map("delete_user_type_tb")
 }
