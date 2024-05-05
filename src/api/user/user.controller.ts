@@ -1,15 +1,13 @@
 import {
   Body,
   Controller,
-  ForbiddenException,
   Get,
   HttpCode,
-  Param,
-  ParseIntPipe,
   Post,
   Put,
-  Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignUpDto } from './dto/SignUpDto';
@@ -21,15 +19,16 @@ import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../../common/dto/LoginUserDto';
 import { UpdateProfileDto } from './dto/UpdateProfileDto';
-import { ReviewService } from '../review/review.service';
-import { CultureContentService } from '../culture-content/culture-content.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { MulterOptionProvider } from '../upload/multer-option.provider';
+import { UploadService } from '../upload/upload.service';
+import { FILE_GROUPING } from '../upload/file-grouping';
 
 @Controller('user')
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly reviewService: ReviewService,
-    private readonly contentService: CultureContentService,
+    private readonly uploadService: UploadService,
   ) {}
 
   /**
@@ -44,9 +43,26 @@ export class UserController {
   @TypedException<ExceptionDto>(401, 'Invalid email auth token')
   @TypedException<ExceptionDto>(409, 'Duplicated email or nickname')
   @TypedException<ExceptionDto>(500, 'Server Error')
+  @UseInterceptors(
+    FileInterceptor(
+      'file',
+      MulterOptionProvider.createOption({
+        mimetype: ['image/png', 'image/jpeg'],
+        limits: 1 * 1024 * 1024,
+      }),
+    ),
+  )
   public async localSignUp(
     @Body() signUpDto: SignUpDto,
+    @UploadedFile() file?: Express.Multer.File,
   ): Promise<SignUpResponseDto> {
+    if (file) {
+      await this.uploadService.uploadFileToS3(file, {
+        destination: 'profile-img',
+        grouping: FILE_GROUPING.PROFILE_IMG,
+      });
+    }
+
     const token = await this.userService.signUp(signUpDto);
 
     return { token };
