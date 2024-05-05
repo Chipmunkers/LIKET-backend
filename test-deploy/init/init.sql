@@ -183,10 +183,15 @@ CREATE TABLE review_tb
   user_idx            int                      NOT NULL,
   description         text                     NOT NULL,
   visit_time          timestamp with time zone NOT NULL,
+  star_rating         smallint                 NOT NULL,
+  like_count          int                      NOT NULL default 0,
+  created_at          timestamp with time zone NOT NULL DEFAULT NOW(),
+  updated_at          timestamp with time zone NOT NULL DEFAULT NOW(),
+  deleted_at          timestamp with time zone,
   PRIMARY KEY (idx)
 );
 
-CREATE TABLE style_mappring_tb
+CREATE TABLE style_mapping_tb
 (
   style_idx   int NOT NULL,
   content_idx int NOT NULL,
@@ -238,6 +243,32 @@ CREATE TABLE upload_file_tb
   created_at timestamp with time zone NOT NULL DEFAULT NOW(),
   updated_at timestamp with time zone NOT NULL DEFAULT NOW(),
   deleted_at timestamp with time zone,
+  PRIMARY KEY (idx)
+);
+
+CREATE TABLE block_reason_tb
+(
+  idx        int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  user_idx   int                      NOT NULL,
+  reason     varchar                  NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (idx)
+);
+
+CREATE TABLE delete_user_type_tb
+(
+  idx        int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  name       varchar                  NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (idx)
+);
+
+CREATE TABLE delete_user_reason_tb
+(
+  idx        int                      NOT NULL,
+  type_idx   int                      NOT NULL,
+  contents     varchar                NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT NOW(),
   PRIMARY KEY (idx)
 );
 
@@ -345,12 +376,12 @@ ALTER TABLE active_banner_tb
     FOREIGN KEY (idx)
     REFERENCES banner_tb (idx);
 
-ALTER TABLE style_mappring_tb
+ALTER TABLE style_mapping_tb
   ADD CONSTRAINT FK_style_tb_TO_style_mappring_tb
     FOREIGN KEY (style_idx)
     REFERENCES style_tb (idx);
 
-ALTER TABLE style_mappring_tb
+ALTER TABLE style_mapping_tb
   ADD CONSTRAINT FK_culture_content_tb_TO_style_mappring_tb
     FOREIGN KEY (content_idx)
     REFERENCES culture_content_tb (idx);
@@ -379,6 +410,21 @@ ALTER TABLE liket_tb
   ADD CONSTRAINT FK_user_tb_TO_liket_tb
     FOREIGN KEY (user_idx)
     REFERENCES user_tb (idx);
+
+ALTER TABLE block_reason_tb
+  ADD CONSTRAINT FK_user_tb_TO_block_reason_tb
+    FOREIGN KEY (user_idx)
+    REFERENCES user_tb (idx);
+
+ALTER TABLE delete_user_reason_tb
+  ADD CONSTRAINT FK_user_tb_TO_delete_user_reason_tb
+    FOREIGN KEY (idx)
+    REFERENCES user_tb (idx);
+
+ALTER TABLE delete_user_reason_tb
+  ADD CONSTRAINT FK_delete_user_type_tb_TO_delete_user_reason_tb
+    FOREIGN KEY (type_idx)
+    REFERENCES delete_user_type_tb (idx);
 
 -- Seeding
 
