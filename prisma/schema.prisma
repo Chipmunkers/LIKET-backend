@@ -226,7 +226,7 @@ model ReviewImg {
   updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
   imgPath   String    @map("img_path") @db.VarChar
-  reviewIdx Int       @default(autoincrement())
+  reviewIdx Int       @default(autoincrement()) @map("review_idx")
   Review    Review    @relation(fields: [reviewIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_review_tb_to_review_img_tb")
 
   @@map("review_img_tb")
