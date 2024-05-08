@@ -6,7 +6,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { UploadFileDto } from '../../upload/dto/UploadFileDto';
+import { UploadFileDto } from '../../upload/dto/upload-file.dto';
 import { Type } from 'class-transformer';
 
 export class CreateInquiryDto {

@@ -11,7 +11,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { UploadFileDto } from '../../upload/dto/UploadFileDto';
+import { UploadFileDto } from '../../upload/dto/upload-file.dto';
 
 export class SignUpDto {
   /**

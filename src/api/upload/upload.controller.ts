@@ -1,27 +1,24 @@
 import {
   BadRequestException,
   Controller,
-  ForbiddenException,
   HttpCode,
   Post,
-  UploadedFile,
   UploadedFiles,
-  UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { MulterOptionProvider } from './multer-option.provider';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { FILE_GROUPING } from './file-grouping';
-import { UploadFileResponseDto } from './dto/response/UploadFileResponseDto';
+import { UploadFileResponseDto } from './dto/response/upload-file-response.dto';
 import { User } from '../../common/decorator/user.decorator';
 import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { Logger } from '../../logger/logger.decorator';
 import { LoggerService } from '../../logger/logger.service';
 import { LoginAuth } from '../auth/login-auth.decorator';
+import { UploadFile } from './upload-file.decorator';
+import { UploadFiles } from './upload-files.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('upload')
+@ApiTags('Upload')
 export class UploadController {
   constructor(
     private readonly uploadService: UploadService,
@@ -29,23 +26,12 @@ export class UploadController {
   ) {}
 
   /**
-   * Upload culture-content images
-   *
-   * @ignore
+   * 문화생활컨텐츠 사진 업로드하기
    */
   @Post('/content-img')
   @HttpCode(200)
   @LoginAuth()
-  @UseInterceptors(
-    FilesInterceptor(
-      'files',
-      10,
-      MulterOptionProvider.createOption({
-        mimetype: ['image/png', 'image/jpeg'],
-        limits: 1 * 1024 * 1024,
-      }),
-    ),
-  )
+  @UploadFiles('files', 10, 'img')
   public async uploadCulutrContentImgs(
     @User() loginUser: LoginUserDto,
     @UploadedFiles() files?: Express.Multer.File[],
@@ -65,23 +51,12 @@ export class UploadController {
   }
 
   /**
-   * Upload inquiry images
-   *
-   * @ignore
+   * 문의 의미지 입력하기
    */
   @Post('/inquiry')
   @HttpCode(200)
   @LoginAuth()
-  @UseInterceptors(
-    FilesInterceptor(
-      'files',
-      10,
-      MulterOptionProvider.createOption({
-        mimetype: ['image/png', 'image/jpeg'],
-        limits: 1 * 1024 * 1024,
-      }),
-    ),
-  )
+  @UploadFiles('files', 10, 'img')
   public async uploadInquiryImgs(
     @User() loginUser: LoginUserDto,
     @UploadedFiles() files?: Express.Multer.File[],
@@ -101,60 +76,12 @@ export class UploadController {
   }
 
   /**
-   * Upload banner image
-   *
-   * @ignore
-   */
-  @Post('/banner')
-  @HttpCode(200)
-  @LoginAuth()
-  @UseInterceptors(
-    FileInterceptor(
-      'file',
-      MulterOptionProvider.createOption({
-        mimetype: ['image/png', 'image/jpeg'],
-        limits: 1 * 1024 * 1024,
-      }),
-    ),
-  )
-  public async uploadBannerImg(
-    @User() loginUser: LoginUserDto,
-    @UploadedFile() file?: Express.Multer.File,
-  ): Promise<UploadFileResponseDto> {
-    this.logger.log('uploadBannerImg', 'check admin authenicate');
-    if (!loginUser.isAdmin) {
-      throw new ForbiddenException('Permission denied');
-    }
-
-    this.logger.log('uploadBannerImg', 'check uploaded file');
-    if (!file) {
-      throw new BadRequestException('Cannot find uploaded file');
-    }
-
-    return await this.uploadService.uploadFileToS3(file, {
-      destination: 'banner',
-      grouping: FILE_GROUPING.BANNER,
-    });
-  }
-
-  /**
-   * Upload review images
-   *
-   * @ignore
+   * 리뷰 이미지 업로드하기
    */
   @Post('/review')
   @HttpCode(200)
   @LoginAuth()
-  @UseInterceptors(
-    FilesInterceptor(
-      'file',
-      10,
-      MulterOptionProvider.createOption({
-        mimetype: ['image/png', 'image/jpeg'],
-        limits: 1 * 1024 * 1024,
-      }),
-    ),
-  )
+  @UploadFiles('files', 10, 'img')
   public async uploadReviewImgs(
     @UploadedFiles() files?: Express.Multer.File[],
   ): Promise<UploadFileResponseDto[]> {
@@ -170,22 +97,12 @@ export class UploadController {
   }
 
   /**
-   * Upload LIKET images
-   *
-   * @ignore
+   * 라이켓 이미지 업로드하기
    */
   @Post('/liket')
   @HttpCode(200)
   @LoginAuth()
-  @UseInterceptors(
-    FileInterceptor(
-      'file',
-      MulterOptionProvider.createOption({
-        mimetype: ['image/png'],
-        limits: 1 * 1024 * 1024,
-      }),
-    ),
-  )
+  @UploadFile('file', 'img')
   public async uploadLiketImg(@UploadedFiles() file?: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Cannot find uploaded file');
