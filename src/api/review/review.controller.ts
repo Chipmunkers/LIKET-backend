@@ -3,11 +3,13 @@ import {
   Controller,
   Delete,
   ForbiddenException,
+  Get,
   HttpCode,
   Param,
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { User } from '../../common/decorator/user.decorator';
@@ -16,17 +18,58 @@ import { UpdateReviewDto } from './dto/update-review.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { Exception } from '../../common/decorator/exception.decorator';
+import { CreateReviewDto } from './dto/create-review.dto';
+import { GetReviewByContentPagerbleDto } from './dto/get-review-by-content-pagerble.dto';
+import { GetReviewAllResponseDto } from './dto/response/get-review-all-response.dto';
 
-@Controller('review')
+@Controller()
+@ApiTags('Review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   /**
+   * 리뷰 생성하기
+   */
+  @Post('/culture-content/:idx/review')
+  @HttpCode(201)
+  @Exception(400, 'Invalid path or body')
+  @Exception(404, 'Cannot find culture-content')
+  @LoginAuth()
+  public async createReview(
+    @User() loginUser: LoginUserDto,
+    @Body() createDto: CreateReviewDto,
+    @Param('idx', ParseIntPipe) contentIdx: number,
+  ): Promise<void> {
+    await this.reviewService.createReview(contentIdx, loginUser.idx, createDto);
+
+    return;
+  }
+
+  /**
+   * 컨텐츠 리뷰 목록 보기
+   */
+  @Get('/culture-content/:idx/review/all')
+  @HttpCode(200)
+  @Exception(400, 'Invalid querystring')
+  @Exception(404, 'Cannot find culture-content')
+  @LoginAuth()
+  public async getReviewAll(
+    @Param('idx', ParseIntPipe) contentIdx: number,
+    @User() loginUser: LoginUserDto,
+    @Query() pagerble: GetReviewByContentPagerbleDto,
+  ): Promise<GetReviewAllResponseDto> {
+    return await this.reviewService.getReviewAll(
+      contentIdx,
+      loginUser.idx,
+      pagerble,
+    );
+  }
+
+  /**
    * 리뷰 수정하기
    */
-  @Put('/:idx')
+  @Put('/review/:idx')
   @HttpCode(201)
-  @ApiTags('Review')
   @Exception(400, 'Invalid path or body')
   @Exception(404, 'Cannot find review')
   @LoginAuth()
@@ -52,9 +95,8 @@ export class ReviewController {
   /**
    * 리뷰 삭제하기
    */
-  @Delete('/:idx')
+  @Delete('/review/:idx')
   @HttpCode(201)
-  @ApiTags('Review')
   @Exception(400, 'Invalid path or body')
   @Exception(404, 'Cannot find review')
   @LoginAuth()
@@ -79,9 +121,8 @@ export class ReviewController {
   /**
    * 리뷰 좋아요하기
    */
-  @Post('/:idx/like')
+  @Post('/review/:idx/like')
   @HttpCode(201)
-  @ApiTags('Review')
   @Exception(400, 'Invalid path parameter')
   @Exception(404, 'Cannot find review')
   @Exception(409, 'Already like review')
@@ -98,9 +139,8 @@ export class ReviewController {
   /**
    * 리뷰 좋아요 취소하기
    */
-  @Delete('/:idx/like')
+  @Delete('/review/:idx/like')
   @HttpCode(201)
-  @ApiTags('Review')
   @Exception(400, 'Invalid path parameter')
   @Exception(404, 'Cannot find review')
   @Exception(409, 'Already like review')

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { GetReviewByContentPagerbleDto } from '../culture-content/dto/get-review-by-content-pagerble.dto';
+import { GetReviewByContentPagerbleDto } from './dto/get-review-by-content-pagerble.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
-import { CreateReviewDto } from '../culture-content/dto/create-review.dto';
+import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { AlreadyLikeReviewException } from './exception/AlreadyLikeReviewException';
