@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ReviewEntity } from './entity/ReviewEntity';
-import { GetReviewByContentPagerbleDto } from '../culture-content/dto/GetReviewByContentPagerbleDto';
-import { UpdateReviewDto } from './dto/UpdateReviewDto';
-import { CreateReviewDto } from '../culture-content/dto/CreateReviewDto';
+import { GetReviewByContentPagerbleDto } from '../culture-content/dto/get-review-by-content-pagerble.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
+import { CreateReviewDto } from '../culture-content/dto/create-review.dto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { AlreadyLikeReviewException } from './exception/AlreadyLikeReviewException';
 import { AlreadyNotLikeReviewExcpetion } from './exception/AlreadyNotLikeReviewException';
-import { ReviewListByUserPagerbleDto } from './dto/ReviewListByUserPagerbleDto';
+import { GetMyReviewAllPagerbleDto } from '../user/dto/get-my-review-all-response.dto';
+import { ReviewEntity } from './entity/review.entity';
 
 @Injectable()
 export class ReviewService {
@@ -24,7 +24,7 @@ export class ReviewService {
     userIdx: number,
     pagerble: GetReviewByContentPagerbleDto,
   ) => Promise<{
-    reviewList: ReviewEntity<'detail'>[];
+    reviewList: ReviewEntity[];
     count: number;
   }> = async (contentIdx, userIdx, pagerble) => {
     const [count, reviewList] = await this.prisma.$transaction([
@@ -103,9 +103,7 @@ export class ReviewService {
 
     return {
       count,
-      reviewList: reviewList.map((review) =>
-        ReviewEntity.createDetailUserReviewEntity(review),
-      ),
+      reviewList: reviewList.map((review) => ReviewEntity.createEntity(review)),
     };
   };
 
@@ -114,9 +112,9 @@ export class ReviewService {
    */
   public getReviewAllByUserIdx: (
     userIdx: number,
-    pagerble: ReviewListByUserPagerbleDto,
+    pagerble: GetMyReviewAllPagerbleDto,
   ) => Promise<{
-    reviewList: ReviewEntity<'detail'>[];
+    reviewList: ReviewEntity[];
     count: number;
   }> = async (userIdx, pagerble) => {
     const [count, reviewList] = await this.prisma.$transaction([
@@ -198,15 +196,13 @@ export class ReviewService {
         orderBy: {
           idx: pagerble.order,
         },
-        take: pagerble.take,
-        skip: (pagerble.page - 1) * pagerble.take,
+        take: 10,
+        skip: (pagerble.page - 1) * 10,
       }),
     ]);
 
     return {
-      reviewList: reviewList.map((review) =>
-        ReviewEntity.createDetailUserReviewEntity(review),
-      ),
+      reviewList: reviewList.map((review) => ReviewEntity.createEntity(review)),
       count,
     };
   };
@@ -217,7 +213,7 @@ export class ReviewService {
   public getReviewByIdx: (
     idx: number,
     userIdx: number,
-  ) => Promise<ReviewEntity<'detail'>> = async (reviewIdx, userIdx) => {
+  ) => Promise<ReviewEntity> = async (reviewIdx, userIdx) => {
     const review = await this.prisma.review.findUnique({
       include: {
         ReviewImg: {
@@ -271,7 +267,7 @@ export class ReviewService {
       throw new ReviewNotFoundException('Cannot find review');
     }
 
-    return ReviewEntity.createDetailUserReviewEntity(review);
+    return ReviewEntity.createEntity(review);
   };
 
   /**

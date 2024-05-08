@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateTosDto } from './dto/CreateTosDto';
-import { UpdateTosDto } from './dto/UpdateTosDto';
-import { TosEntity } from './entity/TosEntity';
+import { SummaryTosEntity } from './entity/summary-tos.entity';
+import { TosEntity } from './entity/tos.entity';
 
 @Injectable()
 export class TosService {
@@ -11,7 +10,7 @@ export class TosService {
   /**
    * Get all TOS
    */
-  public getTosAll: () => Promise<TosEntity<'summary'>[]> = async () => {
+  public getTosAll: () => Promise<SummaryTosEntity[]> = async () => {
     const tosList = await this.prisma.tos.findMany({
       where: {
         deletedAt: null,
@@ -21,15 +20,13 @@ export class TosService {
       },
     });
 
-    return tosList.map((tos) => TosEntity.createUserSummaryTos(tos));
+    return tosList.map((tos) => SummaryTosEntity.createEntity(tos));
   };
 
   /**
    * Get a detail TOS
    */
-  public getTosByIdx: (idx: number) => Promise<TosEntity<'detail'>> = async (
-    idx,
-  ) => {
+  public getTosByIdx: (idx: number) => Promise<TosEntity> = async (idx) => {
     const tos = await this.prisma.tos.findUnique({
       where: {
         idx,
@@ -41,6 +38,6 @@ export class TosService {
       throw new NotFoundException('Cannot find Terms Of Service');
     }
 
-    return TosEntity.createUserDetailTos(tos);
+    return TosEntity.createEntity(tos);
   };
 }

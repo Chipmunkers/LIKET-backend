@@ -10,8 +10,7 @@
         "options": {
           "classValidatorShim": true,
           "introspectComments": true,
-          "dtoFileNameSuffix": [".ts", ".ts"],
-          "dtoKeyOfComment": "summary",
+          "dtoFileNameSuffix": ["dto.ts", "entity.ts"],
           "controllerKeyOfComment": "summary"
         }
       }

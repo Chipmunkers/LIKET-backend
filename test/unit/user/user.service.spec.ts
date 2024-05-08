@@ -6,8 +6,8 @@ import { DuplicateUserException } from '../../../src/api/user/exception/Duplicat
 import { HashService } from '../../../src/hash/hash.service';
 import { AlreadyBlockedUserException } from '../../../src/api/user/exception/AlreadyBlockedUserException';
 import { UserNotFoundException } from '../../../src/api/user/exception/UserNotFoundException';
-import { UpdateProfileDto } from '../../../src/api/user/dto/UpdateProfileDto';
-import { UserEntity } from '../../../src/api/user/entity/UserEntity';
+import { UpdateProfileDto } from '../../../src/api/user/dto/update-profile.dto';
+import { UserEntity } from '../../../src/api/user/entity/summary-user.entity';
 import { AlreadyNotBlockedUserException } from '../../../src/api/user/exception/AlreadyNotBlockedUserException';
 
 describe('UserService', () => {

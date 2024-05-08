@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { TagEntity } from './entity/TagEntity';
+import { TagEntity } from './entity/tag.entity';
 
 @Injectable()
 export class TagService {
@@ -22,7 +22,7 @@ export class TagService {
     });
 
     return {
-      tagList: genreList.map((tag) => TagEntity.createTag(tag)),
+      tagList: genreList.map((tag) => TagEntity.createEntity(tag)),
     };
   }
 
@@ -42,7 +42,7 @@ export class TagService {
     });
 
     return {
-      tagList: ageList.map((age) => TagEntity.createTag(age)),
+      tagList: ageList.map((age) => TagEntity.createEntity(age)),
     };
   }
 
@@ -62,7 +62,7 @@ export class TagService {
     });
 
     return {
-      tagList: styleList.map((style) => TagEntity.createTag(style)),
+      tagList: styleList.map((style) => TagEntity.createEntity(style)),
     };
   }
 }

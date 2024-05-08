@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
   Param,
@@ -10,41 +9,33 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { CultureContentService } from './culture-content.service';
-import { CreateContentRequestResponseDto } from './dto/response/CreateContentRequestResponseDto';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
-import { CreateContentRequestDto } from './dto/CreateContentRequestDto';
+import { CreateContentRequestResponseDto } from './dto/response/create-content-request-response.dto';
+import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { User } from '../../common/decorator/user.decorator';
-import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { ContentEntity } from './entity/ContentEntity';
-import { GetCultureContentAllResponseDto } from './dto/response/GetCultureContentAllResponseDto';
-import { GetContentPagerbleDto } from './dto/GetContentPagerbleDto';
-import { GetSoonOpenCultureContentResponseDto } from './dto/response/GetSoonOpenCultureContentResponseDto';
-import { UpdateContentDto } from './dto/UpdateContentDto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
+import { GetCultureContentAllResponseDto } from './dto/response/get-content-all.response.dto';
+import { GetContentPagerbleDto } from './dto/get-content-all-pagerble.dto';
+import { GetSoonOpenCultureContentResponseDto } from './dto/response/get-soon-open-content-response.dto';
+import { UpdateContentDto } from './dto/update-content.dto';
+import { ContentEntity } from './entity/content.entity';
+import { LoginAuth } from '../auth/login-auth.decorator';
+import { Exception } from '../../common/decorator/exception.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('culture-content')
 export class CultureContentController {
   constructor(private readonly cultureContentService: CultureContentService) {}
 
-  // Culture Content
-
   /**
-   * Get culture-content all API
-   * @summary Get culture-content all API
-   *
-   * @tag Culture-Content
+   * 문화생활컨텐츠 목록 보기
    */
   @Get('/all')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @Exception(400, 'Invalid querystring')
+  @LoginAuth()
   public async getCultureContentAll(
     @User() loginUser: LoginUserDto,
     @Query() pagerble: GetContentPagerbleDto,
@@ -58,17 +49,12 @@ export class CultureContentController {
   }
 
   /**
-   * Get soon open culture-content all API
-   * @summary Get soon open cultur-content all API
-   *
-   * @tag Culture-Content
+   * 오픈 예정 컨텐츠 목록 보기
    */
   @Get('/soon-open/all')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @LoginAuth()
   public async getSoonOpenCultureContentAll(
     @User() loginUser: LoginUserDto,
   ): Promise<GetSoonOpenCultureContentResponseDto> {
@@ -82,16 +68,11 @@ export class CultureContentController {
   }
 
   /**
-   * Get soon end culture-content all API
-   * @summary Get soon end culture-content API
-   *
-   * @tag Culture-Content
+   * 종료 예정 컨텐츠 목록보기
    */
   @Get('/soon-end/all')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @LoginAuth()
   public async getSoonEndCultureContentAll(
     @User() loginUser: LoginUserDto,
   ): Promise<GetSoonOpenCultureContentResponseDto> {
@@ -105,23 +86,18 @@ export class CultureContentController {
   }
 
   /**
-   * Get culture-content by idx API
-   * @summary Get culture-content by idx API
-   *
-   * @tag Culture-Content
+   * 컨텐츠 자세히보기
    */
   @Get('/:idx')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @Exception(400, 'Invalid querystring')
+  @Exception(404, 'Cannot find culture-content')
+  @LoginAuth()
   public async getCultureContentByIdx(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
-  ): Promise<ContentEntity<'detail'>> {
+  ): Promise<ContentEntity> {
     const content = await this.cultureContentService.getContentByIdx(
       contentIdx,
       loginUser.idx,
@@ -131,20 +107,15 @@ export class CultureContentController {
   }
 
   /**
-   * Like culture-content API
-   * @summary Like culture-content API
-   *
-   * @tag Culture-Content
+   * 컨텐츠 좋아요 하기
    */
   @Post('/:idx/like')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
-  @TypedException<ExceptionDto>(409, 'Already like culture-content')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @Exception(400, 'Invalid path parameter')
+  @Exception(404, 'Cannot find culture-content')
+  @Exception(409, 'Already like culture-content')
+  @LoginAuth()
   public async likeCultureContent(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
@@ -155,20 +126,15 @@ export class CultureContentController {
   }
 
   /**
-   * Cancel to like culture-content API
-   * @summary Cancel to like culture-content API
-   *
-   * @tag Culture-Content
+   * 컨텐츠 좋아요 취소하기
    */
   @Delete('/:idx/like')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
-  @TypedException<ExceptionDto>(409, 'Already like culture-content')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @Exception(400, 'Invalid path parameter')
+  @Exception(404, 'Cannot find culture-content')
+  @Exception(409, 'Already like culture-content')
+  @LoginAuth()
   public async cancelToLikeCutlureContent(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
@@ -181,50 +147,39 @@ export class CultureContentController {
     return;
   }
 
-  // Culture Content Reqeust
-
   /**
-   * Get culture-content by idx API
-   * @summary Get culture-content by idx API
-   *
-   * @tag Culture-Content-Request
+   * 컨텐츠 요청 자세히보기
    */
   @Get('/request/:idx')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'No admin authorization')
-  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @Exception(400, 'Invalid path parameter')
+  @Exception(404, 'Cannot find culture-content')
+  @LoginAuth()
   public async getCultureContentRequestByIdx(
     @Param('idx', ParseIntPipe) contentIdx: number,
     @User() loginUser: LoginUserDto,
-  ): Promise<ContentEntity<'detail', 'author'>> {
+  ): Promise<ContentEntity> {
     const content = await this.cultureContentService.getContentRequestByIdx(
       contentIdx,
     );
 
-    if (loginUser.idx !== content.author.idx) {
-      throw new ForbiddenException('Permission denied');
-    }
+    // TODO
+    // if (loginUser.idx !== content.author.idx) {
+    //   throw new ForbiddenException('Permission denied');
+    // }
 
     return content;
   }
 
   /**
-   * Create culture-content request API
-   * @summary Create culture-content reqeust API
-   *
-   * @tag Culture-Content-Request
+   * 컨텐츠 요청하기
    */
   @Post('/request')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid body')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @Exception(400, 'Invalid body')
+  @LoginAuth()
   public async createCultureContentRequest(
     @Body() createDto: CreateContentRequestDto,
     @User() loginUser: LoginUserDto,
@@ -240,20 +195,15 @@ export class CultureContentController {
   }
 
   /**
-   * Update culture-content request API
-   * @summary Update culture-content request API
-   *
-   * @tag Culture-Content-Request
+   * 컨텐츠 수정하기 (요청만 수정할 수 있습니다)
    */
   @Put('/request/:idx')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid body')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Accepted culture-content')
-  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
-  @TypedException<ExceptionDto>(409, 'Accepted request')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @Exception(400, 'Invalid body')
+  @Exception(404, 'Cannot find culture-content')
+  @Exception(409, 'Accepted request')
+  @LoginAuth()
   public async updateContentRequest(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
@@ -263,9 +213,10 @@ export class CultureContentController {
       contentIdx,
     );
 
-    if (content.author.idx !== loginUser.idx) {
-      throw new ForbiddenException('Permission denied');
-    }
+    // TODO
+    // if (content.author.idx !== loginUser.idx) {
+    //   throw new ForbiddenException('Permission denied');
+    // }
 
     await this.cultureContentService.updateContentRequest(
       contentIdx,
@@ -277,20 +228,15 @@ export class CultureContentController {
   }
 
   /**
-   * Delete culture-content request API
-   * @summary Delete culture-content request API
-   *
-   * @tag Culture-Content-Request
+   * 컨텐츠 삭제하기 (요청만 삭제할 수 있습니다)
    */
   @Delete('/request/:idx')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid body')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Accepted culture-content')
-  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
-  @TypedException<ExceptionDto>(409, 'Accepted request')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @Exception(400, 'Invalid body')
+  @Exception(404, 'Cannot find culture-content')
+  @Exception(409, 'Accepted request')
+  @LoginAuth()
   public async deleteContentRequest(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
@@ -299,9 +245,10 @@ export class CultureContentController {
       contentIdx,
     );
 
-    if (content.author.idx !== loginUser.idx) {
-      throw new ForbiddenException('Permission denied');
-    }
+    // TODO
+    // if (content.author.idx !== loginUser.idx) {
+    //   throw new ForbiddenException('Permission denied');
+    // }
 
     await this.cultureContentService.deleteContentRequest(contentIdx);
 

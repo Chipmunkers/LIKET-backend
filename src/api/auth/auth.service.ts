@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { SendEmailVerificationCodeDto } from './dto/SendEmailVerificationCodeDto';
-import { CheckEmailVerificationCodeDto } from './dto/CheckEmailVerificationCodeDto';
+import { SendEmailVerificationCodeDto } from './dto/send-email-verif-code.dto';
+import { CheckEmailVerificationCodeDto } from './dto/check-email-verif-code.dto';
 import { HashService } from '../../hash/hash.service';
-import { LoginDto } from './dto/LoginDto';
+import { LoginDto } from './dto/local-login.dto';
 import { RedisService } from '../../redis/redis.service';
 import { BlockedUserException } from './exception/BlockedUserException';
 import { InvalidEmailOrPwException } from './exception/InvalidEmailOrPwException';

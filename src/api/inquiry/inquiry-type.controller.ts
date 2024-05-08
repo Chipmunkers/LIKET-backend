@@ -1,24 +1,18 @@
-import { Controller, Get, HttpCode, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode } from '@nestjs/common';
 import { InquiryTypeService } from './inquiry-type.service';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
-import { GetInquiryTypeAllResponseDto } from './dto/response/GetInquiryTypeAllResponseDto';
+import { GetInquiryTypeAllResponseDto } from './dto/response/get-inquiry-type-response.dto';
+import { LoginAuth } from '../auth/login-auth.decorator';
 
 @Controller('/inquiry/type')
 export class InquiryTypeController {
   constructor(private readonly inquiryTypeService: InquiryTypeService) {}
 
   /**
-   * Get inquiry type all API
-   * @summary Get inquiry type all API
-   *
-   * @tag Inuqiry-Type
+   * 문의 유형 목록 보기
    */
   @Get('/all')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @LoginAuth()
   public async getInquiryTypeAll(): Promise<GetInquiryTypeAllResponseDto> {
     const typeList = await this.inquiryTypeService.getTypeAll();
 

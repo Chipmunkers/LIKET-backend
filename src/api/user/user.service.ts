@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { SignUpDto } from './dto/SignUpDto';
-import { UpdatePwDto } from './dto/UpdatePwDto';
-import { UserEntity } from './entity/UserEntity';
-import { MyInfoEntity } from './entity/MyInfoEntity';
-import { UpdateProfileDto } from './dto/UpdateProfileDto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { UpdatePwDto } from './dto/update-pw.dto';
+import { SummaryUserEntity } from './entity/summary-user.entity';
+import { MyInfoEntity } from './entity/my-info.entity';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { AuthService } from '../auth/auth.service';
 import { DuplicateUserException } from './exception/DuplicateUserException';
 import { HashService } from '../../hash/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
+import { UserEntity } from './entity/user.entity';
 
 @Injectable()
 export class UserService {
@@ -124,13 +125,13 @@ export class UserService {
       throw new UserNotFoundException('Cannot find user');
     }
 
-    return MyInfoEntity.createMyInfoEntity(user);
+    return MyInfoEntity.createEntity(user);
   };
 
   /**
    * Get a detail user data by idx
    */
-  public getUserByIdx: (userIdx: number) => Promise<UserEntity<'my'>> = async (
+  public getUserByIdx: (userIdx: number) => Promise<UserEntity> = async (
     userIdx,
   ) => {
     const user = await this.prisma.user.findUnique({
@@ -144,7 +145,7 @@ export class UserService {
       throw new UserNotFoundException('Cannot find user');
     }
 
-    return UserEntity.createMyInfoEntity(user);
+    return UserEntity.createEntity(user);
   };
 
   /**

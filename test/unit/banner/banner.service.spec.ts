@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BannerService } from '../../../src/api/banner/banner.service';
 import { PrismaService } from '../../../src/prisma/prisma.service';
-import { BannerEntity } from '../../../src/api/banner/entity/BannerEntity';
+import { BannerEntity } from '../../../src/api/banner/entity/banner.entity';
 import { BannerNotFoundException } from '../../../src/api/banner/exception/BannerNotFoundException';
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { UpdateBannerDto } from '../../../src/api/banner/dto/UpdateBannerDto';

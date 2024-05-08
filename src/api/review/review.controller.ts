@@ -8,34 +8,28 @@ import {
   ParseIntPipe,
   Post,
   Put,
-  UseGuards,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
-import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { UpdateReviewDto } from './dto/UpdateReviewDto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { LoginAuth } from '../auth/login-auth.decorator';
+import { Exception } from '../../common/decorator/exception.decorator';
 
 @Controller('review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   /**
-   * Update review by idx API
-   * @summary Update review by idx API
-   *
-   * @tag Review
+   * 리뷰 수정하기
    */
   @Put('/:idx')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid path or body')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(404, 'Cannot find review')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Review')
+  @Exception(400, 'Invalid path or body')
+  @Exception(404, 'Cannot find review')
+  @LoginAuth()
   public async updateReview(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) reviewIdx: number,
@@ -56,18 +50,14 @@ export class ReviewController {
   }
 
   /**
-   * Delete review by idx API
-   * @summary Delete Review by idx API
-   *
-   * @tag Review
+   * 리뷰 삭제하기
    */
   @Delete('/:idx')
-  @TypedException<ExceptionDto>(400, 'Invalid path or body')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(404, 'Cannot find review')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @HttpCode(201)
+  @ApiTags('Review')
+  @Exception(400, 'Invalid path or body')
+  @Exception(404, 'Cannot find review')
+  @LoginAuth()
   public async deleteReview(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) reviewIdx: number,
@@ -87,20 +77,15 @@ export class ReviewController {
   }
 
   /**
-   * Like review API
-   * @summary Like review API
-   *
-   * @tag Review
+   * 리뷰 좋아요하기
    */
   @Post('/:idx/like')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(404, 'Cannot find review')
-  @TypedException<ExceptionDto>(409, 'Already like review')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Review')
+  @Exception(400, 'Invalid path parameter')
+  @Exception(404, 'Cannot find review')
+  @Exception(409, 'Already like review')
+  @LoginAuth()
   public async likeReview(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) reviewIdx: number,
@@ -111,20 +96,15 @@ export class ReviewController {
   }
 
   /**
-   * Cancel to like review API
-   * @summary Cancel to like review API
-   *
-   * @tag Review
+   * 리뷰 좋아요 취소하기
    */
   @Delete('/:idx/like')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(404, 'Cannot find review')
-  @TypedException<ExceptionDto>(409, 'Already like review')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Review')
+  @Exception(400, 'Invalid path parameter')
+  @Exception(404, 'Cannot find review')
+  @Exception(409, 'Already like review')
+  @LoginAuth()
   public async cancelToLikeReview(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) reviewIdx: number,

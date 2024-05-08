@@ -4,7 +4,7 @@ import { PrismaService } from '../../../src/prisma/prisma.service';
 import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';
 import { AlreadyLikeContentException } from '../../../src/api/culture-content/exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from '../../../src/api/culture-content/exception/AlreadyNotLikeContentException';
-import { ContentEntity } from '../../../src/api/culture-content/entity/ContentEntity';
+import { ContentEntity } from '../../../src/api/culture-content/entity/summary-content.entity';
 import { CreateLocationDto } from '../../../src/common/dto/CreateLocationDto';
 import { UploadService } from '../../../src/api/upload/upload.service';
 

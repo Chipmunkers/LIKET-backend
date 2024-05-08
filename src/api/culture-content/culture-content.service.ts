@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateContentRequestDto } from './dto/CreateContentRequestDto';
-import { UpdateContentDto } from './dto/UpdateContentDto';
-import { GetContentPagerbleDto } from './dto/GetContentPagerbleDto';
-import { ContentEntity } from './entity/ContentEntity';
+import { CreateContentRequestDto } from './dto/create-content-request.dto';
+import { UpdateContentDto } from './dto/update-content.dto';
+import { GetContentPagerbleDto } from './dto/get-content-all-pagerble.dto';
 import { ContentNotFoundException } from './exception/ContentNotFound';
 import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeContentException';
-import { GetMyCultureContentPagerble } from '../user/dto/GetMyCultureContentPagerble';
+import { GetMyCultureContentPagerble } from '../user/dto/get-my-content-all-pageble.dto';
 import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
+import { ContentEntity } from './entity/content.entity';
+import { SummaryContentEntity } from './entity/summary-content.entity';
 
 @Injectable()
 export class CultureContentService {
@@ -26,7 +27,7 @@ export class CultureContentService {
   public getContentByIdx: (
     idx: number,
     userIdx: number,
-  ) => Promise<ContentEntity<'detail'>> = async (idx, userIdx) => {
+  ) => Promise<ContentEntity> = async (idx, userIdx) => {
     const content = await this.prisma.cultureContent.findUnique({
       include: {
         User: true,
@@ -93,10 +94,7 @@ export class CultureContentService {
       },
     });
 
-    return ContentEntity.createUserDetailContent(
-      content,
-      reviewStar._sum.starRating || 0,
-    );
+    return ContentEntity.createEntity(content, reviewStar._sum.starRating || 0);
   };
 
   /**
@@ -106,7 +104,7 @@ export class CultureContentService {
     pagenation: GetContentPagerbleDto,
     userIdx: number,
   ) => Promise<{
-    contentList: ContentEntity<'summary'>[];
+    contentList: SummaryContentEntity[];
     count: number;
   }> = async (pagenation, userIdx) => {
     const [count, contentList] = await this.prisma.$transaction([
@@ -237,7 +235,7 @@ export class CultureContentService {
 
     return {
       contentList: contentList.map((content) =>
-        ContentEntity.createUserSummaryContent(content),
+        SummaryContentEntity.createEntity(content),
       ),
       count: count,
     };
@@ -250,7 +248,7 @@ export class CultureContentService {
     userIdx: number,
     pagerble: GetMyCultureContentPagerble,
   ): Promise<{
-    contentList: ContentEntity<'summary'>[];
+    contentList: SummaryContentEntity[];
     count: number;
   }> {
     const [count, contentList] = await this.prisma.$transaction([
@@ -316,7 +314,7 @@ export class CultureContentService {
 
     return {
       contentList: contentList.map((content) =>
-        ContentEntity.createUserSummaryContent(content),
+        SummaryContentEntity.createEntity(content),
       ),
       count,
     };
@@ -327,7 +325,7 @@ export class CultureContentService {
    */
   public async getSoonOpenContentAll(
     userIdx: number,
-  ): Promise<ContentEntity<'summary'>[]> {
+  ): Promise<SummaryContentEntity[]> {
     const contentList = await this.prisma.cultureContent.findMany({
       include: {
         User: true,
@@ -393,7 +391,7 @@ export class CultureContentService {
     });
 
     return contentList.map((content) =>
-      ContentEntity.createUserSummaryContent(content),
+      SummaryContentEntity.createEntity(content),
     );
   }
 
@@ -402,7 +400,7 @@ export class CultureContentService {
    */
   public async getSoonEndContentAll(
     userIdx: number,
-  ): Promise<ContentEntity<'summary'>[]> {
+  ): Promise<SummaryContentEntity[]> {
     const contentList = await this.prisma.cultureContent.findMany({
       include: {
         User: true,
@@ -468,7 +466,7 @@ export class CultureContentService {
     });
 
     return contentList.map((content) =>
-      ContentEntity.createUserSummaryContent(content),
+      SummaryContentEntity.createEntity(content),
     );
   }
 
@@ -477,70 +475,71 @@ export class CultureContentService {
   /**
    * Get culture-content request by idx with author
    */
-  public getContentRequestByIdx: (
-    idx: number,
-  ) => Promise<ContentEntity<'detail', 'author'>> = async (idx) => {
-    const content = await this.prisma.cultureContent.findUnique({
-      include: {
-        User: true,
-        ContentImg: {
-          where: {
+  public getContentRequestByIdx: (idx: number) => Promise<ContentEntity> =
+    async (idx) => {
+      const content = await this.prisma.cultureContent.findUnique({
+        include: {
+          User: true,
+          ContentImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
+          Genre: true,
+          Style: {
+            include: {
+              Style: true,
+            },
+          },
+          Age: true,
+          Location: true,
+          ContentLike: {
+            where: {
+              userIdx: -1,
+            },
+          },
+          _count: {
+            select: {
+              Review: true,
+            },
+          },
+        },
+        where: {
+          idx,
+          deletedAt: null,
+          User: {
+            deletedAt: null,
+            blockedAt: null,
+          },
+        },
+      });
+
+      if (!content) {
+        throw new ContentNotFoundException(
+          'Cannot find culture content request',
+        );
+      }
+
+      const starRatingSum = await this.prisma.review.aggregate({
+        where: {
+          deletedAt: null,
+          User: {
             deletedAt: null,
           },
-          orderBy: {
-            idx: 'asc',
-          },
         },
-        Genre: true,
-        Style: {
-          include: {
-            Style: true,
-          },
+        _sum: {
+          starRating: true,
         },
-        Age: true,
-        Location: true,
-        ContentLike: {
-          where: {
-            userIdx: -1,
-          },
-        },
-        _count: {
-          select: {
-            Review: true,
-          },
-        },
-      },
-      where: {
-        idx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-          blockedAt: null,
-        },
-      },
-    });
+      });
 
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find culture content request');
-    }
-
-    const starRatingSum = await this.prisma.review.aggregate({
-      where: {
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-      },
-      _sum: {
-        starRating: true,
-      },
-    });
-
-    return ContentEntity.createSummaryContentWithAuthor(
-      content,
-      starRatingSum._sum.starRating || 0,
-    );
-  };
+      return ContentEntity.createEntity(
+        content,
+        starRatingSum._sum.starRating || 0,
+      );
+    };
 
   /**
    * Create culture-content request

@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ReviewService } from '../../../src/api/review/review.service';
 import { PrismaService } from '../../../src/prisma/prisma.service';
 import { ReviewNotFoundException } from '../../../src/api/review/exception/ReviewNotFoundException';
-import { CreateReviewDto } from '../../../src/api/culture-content/dto/CreateReviewDto';
+import { CreateReviewDto } from '../../../src/api/culture-content/dto/create-review.dto';
 import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';
-import { ReviewEntity } from '../../../src/api/review/entity/ReviewEntity';
+import { ReviewEntity } from '../../../src/api/review/entity/summary-review.entity';
 import { AlreadyLikeReviewException } from '../../../src/api/review/exception/AlreadyLikeReviewException';
 import { AlreadyNotLikeReviewExcpetion } from '../../../src/api/review/exception/AlreadyNotLikeReviewException';
 

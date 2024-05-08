@@ -7,18 +7,17 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { ReviewService } from '../review/review.service';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
-import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { CreateReviewDto } from './dto/CreateReviewDto';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { GetReviewByContentPagerbleDto } from './dto/GetReviewByContentPagerbleDto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
+import { CreateReviewDto } from './dto/create-review.dto';
+import { GetReviewByContentPagerbleDto } from './dto/get-review-by-content-pagerble.dto';
 import { CultureContentService } from './culture-content.service';
-import { GetReviewAllResponseDto } from './dto/response/GetReviewAllResponseDto';
+import { GetReviewAllResponseDto } from './dto/response/get-review-all-response.dto';
+import { Exception } from '../../common/decorator/exception.decorator';
+import { ApiTags } from '@nestjs/swagger';
+import { LoginAuth } from '../auth/login-auth.decorator';
 
 @Controller('culture-content')
 export class ContentReviewController {
@@ -28,19 +27,14 @@ export class ContentReviewController {
   ) {}
 
   /**
-   * Create review API
-   * @summary Create review APi
-   *
-   * @tag Culture-Content
+   * 리뷰 생성하기
    */
   @Post(':idx/review')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid path or body')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @Exception(400, 'Invalid path or body')
+  @Exception(404, 'Cannot find culture-content')
+  @LoginAuth()
   public async createReview(
     @User() loginUser: LoginUserDto,
     @Body() createDto: CreateReviewDto,
@@ -52,19 +46,14 @@ export class ContentReviewController {
   }
 
   /**
-   * Get review all API
-   * @summary Get review all API
-   *
-   * @tag Culture-Content
+   * 컨텐츠 리뷰 목록 보기
    */
   @Get(':idx/review/all')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(404, 'Cannot find culture-content')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Culture-Content')
+  @Exception(400, 'Invalid querystring')
+  @Exception(404, 'Cannot find culture-content')
+  @LoginAuth()
   public async getReviewAll(
     @Param('idx', ParseIntPipe) contentIdx: number,
     @User() loginUser: LoginUserDto,

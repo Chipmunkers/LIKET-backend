@@ -1,9 +1,9 @@
 import { Controller, Get, HttpCode, Param, ParseIntPipe } from '@nestjs/common';
 import { TosService } from './tos.service';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { GetUserTosAllResponseDto } from './dto/response/GetUserTosAllResponseDto';
-import { TosEntity } from './entity/TosEntity';
+import { GetTosAllResponseDto } from './dto/response/get-tos-all-response.dto';
+import { TosEntity } from './entity/tos.entity';
+import { Exception } from '../../common/decorator/exception.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('tos')
 export class TosController {
@@ -11,14 +11,11 @@ export class TosController {
 
   /**
    * Get all Terms Of Service API
-   * @summary Get Terms Of Service API
-   *
-   * @tag Terms Of Service
    */
   @Get('/all')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  async getUserTosAll(): Promise<GetUserTosAllResponseDto> {
+  @ApiTags('Terms of Service')
+  async getUserTosAll(): Promise<GetTosAllResponseDto> {
     const tosList = await this.tosService.getTosAll();
 
     return {
@@ -28,18 +25,15 @@ export class TosController {
 
   /**
    * Get Terms Of Service by idx API
-   * @summary Get Terms Of Service by idx API
-   *
-   * @tag Terms Of Service
    */
   @Get('/:idx')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(404, 'Cannot find Terms Of Service')
-  @TypedException<ExceptionDto>(500, 'Server Error')
+  @ApiTags('Terms of Service')
+  @Exception(400, 'Invalid path parameter')
+  @Exception(404, 'Cannot find Terms Of Service')
   async getTosByIdx(
     @Param('idx', ParseIntPipe) idx: number,
-  ): Promise<TosEntity<'detail'>> {
+  ): Promise<TosEntity> {
     const tos = await this.tosService.getTosByIdx(idx);
 
     return tos;

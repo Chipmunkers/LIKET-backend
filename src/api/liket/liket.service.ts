@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { LiketEntity } from './entity/LiketEntity';
-import { CreateLiketDto } from './dto/CreateLiketDto';
-import { LoginUserDto } from '../../common/dto/LoginUserDto';
+import { CreateLiketDto } from './dto/create-liket.dto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { AlreadyExistLiketException } from './exception/AlreadyExistLiketException';
 import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
 import { LiketNotFoundException } from './exception/LiketNotFoundException';
-import { UpdateLiketDto } from './dto/UpdateLiketDto';
-import { GetMyLiketPagerbleDto } from '../user/dto/GetMyLiketPagerbleDto';
+import { UpdateLiketDto } from './dto/update-liket.dto';
+import { GetMyLiketPagerbleDto } from '../user/dto/get-my-liket-all-pagerble.dto';
+import { LiketEntity } from './entity/liket.entity';
+import { SummaryLiketEntity } from './entity/summary-liket.entity';
 
 @Injectable()
 export class LiketService {
@@ -20,9 +21,7 @@ export class LiketService {
   /**
    * Get liket by idx
    */
-  getLiketByIdx: (idx: number) => Promise<LiketEntity<'detail'>> = async (
-    idx,
-  ) => {
+  getLiketByIdx: (idx: number) => Promise<LiketEntity> = async (idx) => {
     const liket = await this.prisma.liket.findUnique({
       include: {
         Review: {
@@ -63,7 +62,7 @@ export class LiketService {
       throw new LiketNotFoundException('Cannot find LIKET');
     }
 
-    return LiketEntity.createDetailLiket(liket);
+    return LiketEntity.createEntity(liket);
   };
 
   /**
@@ -72,7 +71,7 @@ export class LiketService {
   getAllLiketByUserIdx: (
     userIdx: number,
     pagerble: GetMyLiketPagerbleDto,
-  ) => Promise<LiketEntity<'summary'>[]> = async (userIdx, pagerble) => {
+  ) => Promise<SummaryLiketEntity[]> = async (userIdx, pagerble) => {
     const liketList = await this.prisma.liket.findMany({
       include: {
         Review: {
@@ -117,7 +116,7 @@ export class LiketService {
       skip: (pagerble.page - 1) * 10,
     });
 
-    return liketList.map((liket) => LiketEntity.createSummaryLiket(liket));
+    return liketList.map((liket) => LiketEntity.createEntity(liket));
   };
 
   /**
@@ -127,11 +126,7 @@ export class LiketService {
     reviewIdx: number,
     loginUser: LoginUserDto,
     createDto: CreateLiketDto,
-  ) => Promise<LiketEntity<'detail'>> = async (
-    reviewIdx,
-    loginUser,
-    createDto,
-  ) => {
+  ) => Promise<LiketEntity> = async (reviewIdx, loginUser, createDto) => {
     await this.uploadService.checkExistFile(
       createDto.img.filePath,
       FILE_GROUPING.LIKET,
@@ -194,7 +189,7 @@ export class LiketService {
       },
     );
 
-    return LiketEntity.createDetailLiket(createdLiket);
+    return LiketEntity.createEntity(createdLiket);
   };
 
   /**

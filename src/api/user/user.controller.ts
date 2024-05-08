@@ -6,23 +6,22 @@ import {
   Post,
   Put,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { SignUpDto } from './dto/SignUpDto';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { SignUpResponseDto } from './dto/response/SignUpResponseDto';
-import { MyInfoEntity } from './entity/MyInfoEntity';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
+import { SignUpDto } from './dto/sign-up.dto';
+import { SignUpResponseDto } from './dto/response/sign-up-response.dto';
+import { MyInfoEntity } from './entity/my-info.entity';
 import { User } from '../../common/decorator/user.decorator';
-import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { UpdateProfileDto } from './dto/UpdateProfileDto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MulterOptionProvider } from '../upload/multer-option.provider';
 import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
+import { ApiTags } from '@nestjs/swagger';
+import { Exception } from '../../common/decorator/exception.decorator';
+import { LoginAuth } from '../auth/login-auth.decorator';
 
 @Controller('user')
 export class UserController {
@@ -33,16 +32,13 @@ export class UserController {
 
   /**
    * Sign Up API
-   * @summary Sign Up API
-   *
-   * @tag User
    */
   @Post('/local')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid body')
-  @TypedException<ExceptionDto>(401, 'Invalid email auth token')
-  @TypedException<ExceptionDto>(409, 'Duplicated email or nickname')
-  @TypedException<ExceptionDto>(500, 'Server Error')
+  @ApiTags('User')
+  @Exception(400, 'Invalid body')
+  @Exception(401, 'Invalid email auth token')
+  @Exception(409, 'Duplicated email or nickname')
   @UseInterceptors(
     FileInterceptor(
       'file',
@@ -70,17 +66,13 @@ export class UserController {
 
   /**
    * Get my info API
-   * @summary Get my info API
-   *
-   * @tag User
    */
   @Get('/my')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(401, 'There is no login access token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(404, 'Cannot find user')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('User')
+  @Exception(401, 'There is no login access token')
+  @Exception(404, 'Cannot find user')
+  @LoginAuth()
   public async getMyInfo(
     @User() loginUser: LoginUserDto,
   ): Promise<MyInfoEntity> {
@@ -89,18 +81,13 @@ export class UserController {
 
   /**
    * Update login user profile API
-   * @summary Update login user profile API
-   *
-   * @tag User
    */
   @Put('/my/profile')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid body')
-  @TypedException<ExceptionDto>(401, 'There is no login access token')
-  @TypedException<ExceptionDto>(403, 'Suspended user')
-  @TypedException<ExceptionDto>(404, 'Cannot find user')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('User')
+  @Exception(400, 'Invalid body')
+  @Exception(404, 'Cannot find user')
+  @LoginAuth()
   public async udpateUserInfo(
     @User() loginUser: LoginUserDto,
     @Body() updateDto: UpdateProfileDto,

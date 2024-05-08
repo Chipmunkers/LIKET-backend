@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { InquiryTypeEntity } from './entity/InquiryTypeEntity';
+import { InquiryTypeEntity } from './entity/inquiry-type.entity';
 import { InquiryTypeNotFoundException } from './exception/InquiryTypeNotFoundException';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class InquiryTypeService {
       },
     });
 
-    return typeList.map((type) => InquiryTypeEntity.createInquiryType(type));
+    return typeList.map((type) => InquiryTypeEntity.createEntity(type));
   };
 
   /**
@@ -43,6 +43,6 @@ export class InquiryTypeService {
       throw new InquiryTypeNotFoundException('Cannot find inquiry type');
     }
 
-    return InquiryTypeEntity.createInquiryType(type);
+    return InquiryTypeEntity.createEntity(type);
   };
 }

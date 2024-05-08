@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { InquiryTypeService } from '../../../src/api/inquiry/inquiry-type.service';
 import { PrismaService } from '../../../src/prisma/prisma.service';
-import { InquiryTypeEntity } from '../../../src/api/inquiry/entity/InquiryTypeEntity';
+import { InquiryTypeEntity } from '../../../src/api/inquiry/entity/inquiry-type.entity';
 import { InquiryTypeNotFoundException } from '../../../src/api/inquiry/exception/InquiryTypeNotFoundException';
 
 describe('InquiryTypeService', () => {

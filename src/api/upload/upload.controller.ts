@@ -16,9 +16,10 @@ import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { FILE_GROUPING } from './file-grouping';
 import { UploadFileResponseDto } from './dto/response/UploadFileResponseDto';
 import { User } from '../../common/decorator/user.decorator';
-import { LoginUserDto } from '../../common/dto/LoginUserDto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { Logger } from '../../logger/logger.decorator';
 import { LoggerService } from '../../logger/logger.service';
+import { LoginAuth } from '../auth/login-auth.decorator';
 
 @Controller('upload')
 export class UploadController {
@@ -34,7 +35,7 @@ export class UploadController {
    */
   @Post('/content-img')
   @HttpCode(200)
-  @UseGuards(LoginAuthGuard)
+  @LoginAuth()
   @UseInterceptors(
     FilesInterceptor(
       'files',
@@ -70,7 +71,7 @@ export class UploadController {
    */
   @Post('/inquiry')
   @HttpCode(200)
-  @UseGuards(LoginAuthGuard)
+  @LoginAuth()
   @UseInterceptors(
     FilesInterceptor(
       'files',
@@ -106,7 +107,7 @@ export class UploadController {
    */
   @Post('/banner')
   @HttpCode(200)
-  @UseGuards(LoginAuthGuard)
+  @LoginAuth()
   @UseInterceptors(
     FileInterceptor(
       'file',
@@ -143,7 +144,7 @@ export class UploadController {
    */
   @Post('/review')
   @HttpCode(200)
-  @UseGuards(LoginAuthGuard)
+  @LoginAuth()
   @UseInterceptors(
     FilesInterceptor(
       'file',
@@ -175,7 +176,7 @@ export class UploadController {
    */
   @Post('/liket')
   @HttpCode(200)
-  @UseGuards(LoginAuthGuard)
+  @LoginAuth()
   @UseInterceptors(
     FileInterceptor(
       'file',

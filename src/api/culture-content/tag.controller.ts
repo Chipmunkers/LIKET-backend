@@ -1,45 +1,38 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpCode } from '@nestjs/common';
 import { TagService } from './tag.service';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { GetTagAllDto } from './dto/response/GetTagAllDto';
+import { GetTagAllDto } from './dto/response/get-tag-all.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('culture-content')
 export class TagController {
   constructor(private readonly tagService: TagService) {}
 
   /**
-   * Get style all API
-   * @summary Get style all API
-   *
-   * @tag Tag
+   * 스타일 목록 보기
    */
   @Get('/style/all')
-  @TypedException<ExceptionDto>(500, 'Server Error')
+  @HttpCode(200)
+  @ApiTags('Tag')
   public async getStyleAll(): Promise<GetTagAllDto> {
     return await this.tagService.getStyleAll();
   }
 
   /**
-   * Get age all API
-   * @summary Get age all API
-   *
-   * @tag Tag
+   * 연령대 목록 보기
    */
   @Get('/age/all')
-  @TypedException<ExceptionDto>(500, 'Server Error')
+  @HttpCode(200)
+  @ApiTags('Tag')
   public async getAgeAll(): Promise<GetTagAllDto> {
     return await this.tagService.getAgeAll();
   }
 
   /**
-   * Get genre all API
-   * @summary Get genre all API
-   *
-   * @tag Tag
+   * 장르 목록 보기
    */
   @Get('/genre/all')
-  @TypedException<ExceptionDto>(500, 'Server Error')
+  @HttpCode(200)
+  @ApiTags('Tag')
   public async getGenreAll(): Promise<GetTagAllDto> {
     return await this.tagService.getGenreAll();
   }

@@ -1,18 +1,17 @@
-import { Controller, Get, HttpCode, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, Query } from '@nestjs/common';
 import { CultureContentService } from '../culture-content/culture-content.service';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
 import { User } from '../../common/decorator/user.decorator';
-import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { GetMyCultureContentPagerble } from './dto/GetMyCultureContentPagerble';
-import { GetMyContentAllResponseDto } from './dto/response/GetMyContentAllReseponseDto';
-import { ReviewListByUserPagerbleDto } from '../review/dto/ReviewListByUserPagerbleDto';
-import { GetMyReviewAllResponseDto } from './dto/response/GetMyReviewAllResponseDto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
+import { GetMyCultureContentPagerble } from './dto/get-my-content-all-pageble.dto';
+import { GetMyContentAllResponseDto } from './dto/response/get-my-content-all-response.dto';
+import { GetMyReviewAllResponseDto } from './dto/response/get-my-review-all-response.dto';
 import { ReviewService } from '../review/review.service';
-import { GetMyLiketPagerbleDto } from './dto/GetMyLiketPagerbleDto';
+import { GetMyLiketPagerbleDto } from './dto/get-my-liket-all-pagerble.dto';
 import { LiketService } from '../liket/liket.service';
-import { GetMyLiketAllResponseDto } from './dto/response/GetMyLiketAllReseponseDto';
+import { GetMyLiketAllResponseDto } from './dto/response/get-my-liket-all-response.dto';
+import { GetMyReviewAllPagerbleDto } from './dto/get-my-review-all-response.dto';
+import { LoginAuth } from '../auth/login-auth.decorator';
+import { Exception } from '../../common/decorator/exception.decorator';
 
 @Controller('/my-info')
 export class MyInfoController {
@@ -24,17 +23,11 @@ export class MyInfoController {
 
   /**
    * Get all my culture-content requests API
-   * @summary Get all my culture-content requests API
-   *
-   * @tag My-Info
    */
   @Get('/culture-content/all')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended denied')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @Exception(400, 'Invalid querystring')
+  @LoginAuth()
   public async getMyAllContentRequest(
     @User() loginUser: LoginUserDto,
     @Query() pagerble: GetMyCultureContentPagerble,
@@ -47,20 +40,14 @@ export class MyInfoController {
 
   /**
    * Get all my review API
-   * @summary Get all my review API
-   *
-   * @tag My-Info
    */
   @Get('/review/all')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended denied')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @Exception(400, 'Invalid querystring')
+  @LoginAuth()
   public async getMyReview(
     @User() loginUser: LoginUserDto,
-    @Query() pagerble: ReviewListByUserPagerbleDto,
+    @Query() pagerble: GetMyReviewAllPagerbleDto,
   ): Promise<GetMyReviewAllResponseDto> {
     return await this.reviewService.getReviewAllByUserIdx(
       loginUser.idx,
@@ -70,17 +57,11 @@ export class MyInfoController {
 
   /**
    * Get all my liket API
-   * @summary Get all my liket API
-   *
-   * @tag My-Info
    */
   @Get('/liket/all')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid querystring')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Suspended denied')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @Exception(400, 'Invalid querystring')
+  @LoginAuth()
   public async getMyLiket(
     @User() loginUser: LoginUserDto,
     @Query() pagerble: GetMyLiketPagerbleDto,

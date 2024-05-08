@@ -1,14 +1,14 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/LoginDto';
-import { LoginResponseDto } from './dto/response/LoginResponseDto';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { SendEmailVerificationCodeDto } from './dto/SendEmailVerificationCodeDto';
-import { CheckEmailVerificationCodeDto } from './dto/CheckEmailVerificationCodeDto';
-import { CheckEmailVerificationCodeResponseDto } from './dto/response/CheckEmailVerificationCodeResponseDto';
+import { LoginDto } from './dto/local-login.dto';
+import { LoginResponseDto } from './dto/response/local-login-response.dto';
+import { SendEmailVerificationCodeDto } from './dto/send-email-verif-code.dto';
+import { CheckEmailVerificationCodeDto } from './dto/check-email-verif-code.dto';
+import { CheckEmailVerificationCodeResponseDto } from './dto/response/check-email-verif-code-repsonse.dto';
 import { Logger } from '../../logger/logger.decorator';
 import { LoggerService } from '../../logger/logger.service';
+import { ApiTags } from '@nestjs/swagger';
+import { Exception } from '../../common/decorator/exception.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -18,17 +18,14 @@ export class AuthController {
   ) {}
 
   /**
-   * Login API
-   * @summary Login API
-   *
-   * @tag Auth
+   * 로그인하기
    */
   @Post('/local')
+  @ApiTags('Auth')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid email or password format')
-  @TypedException<ExceptionDto>(401, 'Wrong email or password')
-  @TypedException<ExceptionDto>(403, 'Suspended User')
-  @TypedException<ExceptionDto>(500, 'Server Error')
+  @Exception(400, 'Invalid body format')
+  @Exception(401, 'Wrong email or password')
+  @Exception(403, 'Suspended user')
   public async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     const token = await this.authService.login(loginDto);
 
@@ -36,15 +33,12 @@ export class AuthController {
   }
 
   /**
-   * Send email verificiation code
-   * @summary Send email verification code API
-   *
-   * @tag Auth
+   * 이메일 인증번호 발송하기
    */
   @Post('/email/code/send')
+  @ApiTags('Auth')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid email format')
-  @TypedException<ExceptionDto>(500, 'Server Error')
+  @Exception(400, 'Invalid body format')
   public async sendEmailVerficationCode(
     @Body() sendDto: SendEmailVerificationCodeDto,
   ): Promise<void> {
@@ -54,16 +48,13 @@ export class AuthController {
   }
 
   /**
-   * Check email verification code
-   * @summary Check email verification code API
-   *
-   * @tag Auth
+   * 이메일 인증번호 확인하기
    */
   @Post('/email/code/check')
+  @ApiTags('Auth')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Wrong verification code')
-  @TypedException<ExceptionDto>(404, 'Verification code not found')
-  @TypedException<ExceptionDto>(500, 'Server Error')
+  @Exception(400, 'Invalid body format')
+  @Exception(404, 'Wrong verification code')
   public async checkEmailVerficationCode(
     @Body() checkDto: CheckEmailVerificationCodeDto,
   ): Promise<CheckEmailVerificationCodeResponseDto> {

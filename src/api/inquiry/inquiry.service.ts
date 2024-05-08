@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { InquiryListPagenationDto } from './dto/InquiryListPagenationDto';
-import { InquiryEntity } from './entity/InquiryEntity';
-import { CreateInquiryDto } from './dto/CreateInquiryDto';
+import { CreateInquiryDto } from './dto/create-inquiry.dto';
 import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
 import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
+import { InquiryEntity } from './entity/inquiry.entity';
 
 @Injectable()
 export class InquiryService {
@@ -17,41 +16,42 @@ export class InquiryService {
   /**
    * Get inquiry by idx
    */
-  public getInquiryByIdx: (idx: number) => Promise<InquiryEntity<'detail'>> =
-    async (idx) => {
-      const inquiry = await this.prisma.inquiry.findUnique({
-        include: {
-          Answer: {
-            where: {
-              deletedAt: null,
-            },
-          },
-          InquiryType: true,
-          InquiryImg: {
-            where: {
-              deletedAt: null,
-            },
-            orderBy: {
-              idx: 'asc',
-            },
-          },
-          User: true,
-        },
-        where: {
-          idx,
-          deletedAt: null,
-          User: {
+  public getInquiryByIdx: (idx: number) => Promise<InquiryEntity> = async (
+    idx,
+  ) => {
+    const inquiry = await this.prisma.inquiry.findUnique({
+      include: {
+        Answer: {
+          where: {
             deletedAt: null,
           },
         },
-      });
+        InquiryType: true,
+        InquiryImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
+        User: true,
+      },
+      where: {
+        idx,
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+      },
+    });
 
-      if (!inquiry) {
-        throw new InquiryNotFoundException('Cannot find inquiry');
-      }
+    if (!inquiry) {
+      throw new InquiryNotFoundException('Cannot find inquiry');
+    }
 
-      return InquiryEntity.createDetailInquiry(inquiry);
-    };
+    return InquiryEntity.createEntity(inquiry);
+  };
 
   /**
    * Create inquiry with user idx

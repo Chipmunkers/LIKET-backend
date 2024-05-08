@@ -8,39 +8,33 @@ import {
   Param,
   ParseIntPipe,
   Put,
-  UseGuards,
 } from '@nestjs/common';
 import { LiketService } from './liket.service';
-import { LiketEntity } from './entity/LiketEntity';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
 import { User } from '../../common/decorator/user.decorator';
-import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { UpdateLiketDto } from './dto/UpdateLiketDto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
+import { UpdateLiketDto } from './dto/update-liket.dto';
+import { LiketEntity } from './entity/liket.entity';
+import { ApiTags } from '@nestjs/swagger';
+import { Exception } from '../../common/decorator/exception.decorator';
+import { LoginAuth } from '../auth/login-auth.decorator';
 
 @Controller('liket')
 export class LiketController {
   constructor(private readonly liketService: LiketService) {}
 
   /**
-   * Get LIKET by idx API
-   * @summary Get LIKET by idx API
-   *
-   * @tag LIKET
+   * 라이켓 자세히보기
    */
   @Get('/:idx')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(404, 'Cannot find LIKET')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Liket')
+  @Exception(400, 'Invalid path parameter')
+  @Exception(404, 'Cannot find LIKET')
+  @LoginAuth()
   public async getLiketByIdx(
     @Param('idx', ParseIntPipe) idx: number,
     @User() loginUser: LoginUserDto,
-  ): Promise<LiketEntity<'detail'>> {
+  ): Promise<LiketEntity> {
     const liket = await this.liketService.getLiketByIdx(idx);
 
     if (liket.author.idx !== loginUser.idx) {
@@ -51,19 +45,14 @@ export class LiketController {
   }
 
   /**
-   * Update LIKET by idx API
-   * @summary Update LIKET by idx API
-   *
-   * @tag LIKET
+   * 라이켓 수정하기
    */
   @Put('/:idx')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter or body')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(404, 'Cannot find LIKET')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Liket')
+  @Exception(400, 'Invalid path parameter or body')
+  @Exception(404, 'Cannot find LIKET')
+  @LoginAuth()
   public async updateLiketByIdx(
     @Param('idx', ParseIntPipe) idx: number,
     @User() loginUser: LoginUserDto,
@@ -81,19 +70,14 @@ export class LiketController {
   }
 
   /**
-   * Delete LIKET by idx API
-   * @summary Delete LIKET by idx API
-   *
-   * @tag LIKET
+   * 라이켓 삭제하기
    */
   @Delete('/:idx')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'Permission denied')
-  @TypedException<ExceptionDto>(404, 'Cannot find LIKET')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Liket')
+  @Exception(400, 'Invalid path parameter')
+  @Exception(404, 'Cannot find LIKET')
+  @LoginAuth()
   public async deleteLiketByIdx(
     @Param('idx', ParseIntPipe) idx: number,
     @User() loginUser: LoginUserDto,

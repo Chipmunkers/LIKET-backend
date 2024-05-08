@@ -8,40 +8,34 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { InquiryService } from './inquiry.service';
 import { User } from '../../common/decorator/user.decorator';
-import { LoginUserDto } from '../../common/dto/LoginUserDto';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
-import { InquiryEntity } from './entity/InquiryEntity';
-import { CreateInquiryResponseDto } from './dto/response/CreateInquiryResponseDto';
-import { CreateInquiryDto } from './dto/CreateInquiryDto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
+import { CreateInquiryResponseDto } from './dto/response/create-inquiry-response.dto';
+import { CreateInquiryDto } from './dto/create-inquiry.dto';
+import { InquiryEntity } from './entity/inquiry.entity';
+import { ApiTags } from '@nestjs/swagger';
+import { Exception } from '../../common/decorator/exception.decorator';
+import { LoginAuth } from '../auth/login-auth.decorator';
 
 @Controller('inquiry')
 export class InquiryController {
   constructor(private readonly inquiryService: InquiryService) {}
 
   /**
-   * Get inquiry by idx API
-   * @summary Get inquiry by idx API
-   *
-   * @tag Inquiry
+   * 문의 자세히보기
    */
   @Get('/:idx')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid path parameter')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'No authorization')
-  @TypedException<ExceptionDto>(404, 'Cannot find inquiry')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Inquiry')
+  @Exception(400, 'Invalid path parameter')
+  @Exception(404, 'Cannot find inquiry')
+  @LoginAuth()
   public async getInquiryByIdx(
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) idx: number,
-  ): Promise<InquiryEntity<'detail'>> {
+  ): Promise<InquiryEntity> {
     const inquiry = await this.inquiryService.getInquiryByIdx(idx);
 
     if (loginUser.idx !== inquiry.author.idx) {
@@ -52,17 +46,13 @@ export class InquiryController {
   }
 
   /**
-   * Create inquiry API
-   * @summary Create inquiry APi
-   *
-   * @tag Inquiry
+   * 문의 생성하기
    */
   @Post('/')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(400, 'Invalid body')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Inquiry')
+  @Exception(400, 'Invalid body')
+  @LoginAuth()
   public async createInquiry(
     @User() loginUser: LoginUserDto,
     @Body() createDto: CreateInquiryDto,
@@ -78,19 +68,14 @@ export class InquiryController {
   }
 
   /**
-   * Delete inquiry API
-   * @summary Delete inquiry API
-   *
-   * @tag Inquiry
+   * 문의 삭제하기
    */
   @Delete('/:idx')
   @HttpCode(201)
-  @TypedException<ExceptionDto>(400, 'Invalid body')
-  @TypedException<ExceptionDto>(401, 'No token or invalid token')
-  @TypedException<ExceptionDto>(403, 'No authorization')
-  @TypedException<ExceptionDto>(404, 'Cannot find inquiry')
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  @UseGuards(LoginAuthGuard)
+  @ApiTags('Inquiry')
+  @Exception(400, 'Invalid body')
+  @Exception(404, 'Cannot find inquiry')
+  @LoginAuth()
   public async updateInquiry(
     @Param('idx', ParseIntPipe) inquiryIdx: number,
     @User() loginUser: LoginUserDto,

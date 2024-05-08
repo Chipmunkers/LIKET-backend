@@ -1,23 +1,23 @@
 import { Controller, Get, HttpCode } from '@nestjs/common';
 import { BannerService } from './banner.service';
-import { BannerEntity } from './entity/BannerEntity';
-import { TypedException } from '@nestia/core';
-import { ExceptionDto } from '../../common/dto/ExceptionDto';
+import { ApiTags } from '@nestjs/swagger';
+import { GetBannerAllResponseDto } from './dto/response/get-banner-all-response.dto';
 
 @Controller('banner')
 export class BannerController {
   constructor(private readonly bannerService: BannerService) {}
 
   /**
-   * Get all active banner all API
-   * @summary Get all active banner all API
-   *
-   * @tag Banner
+   * 배너 목록 보기
    */
-  @Get('/active/all')
+  @Get('/all')
+  @ApiTags('Banner')
   @HttpCode(200)
-  @TypedException<ExceptionDto>(500, 'Server Error')
-  public async getActiveBannerAll(): Promise<BannerEntity<'active'>[]> {
-    return await this.bannerService.getBannerAll();
+  public async getActiveBannerAll(): Promise<GetBannerAllResponseDto> {
+    const bannerList = await this.bannerService.getBannerAll();
+
+    return {
+      bannerList,
+    };
   }
 }
