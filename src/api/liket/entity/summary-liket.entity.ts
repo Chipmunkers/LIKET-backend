@@ -1,6 +1,6 @@
 import { PickType } from '@nestjs/swagger';
 import { UserProfileEntity } from '../../user/entity/user-profile.entity';
-import { TagEntity } from '../../culture-content/entity/tag.entity';
+import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { Prisma } from '@prisma/client';
 import { ReviewEntity } from '../../review/entity/review.entity';
 import { ContentEntity } from '../../culture-content/entity/content.entity';

@@ -1,7 +1,7 @@
 import { ValidateNested } from 'class-validator';
 import { UserProfileEntity } from '../../user/entity/user-profile.entity';
 import { Prisma } from '@prisma/client';
-import { TagEntity } from '../../culture-content/entity/tag.entity';
+import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { PickType } from '@nestjs/swagger';
 import { ContentEntity } from '../../culture-content/entity/content.entity';
 

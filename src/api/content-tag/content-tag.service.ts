@@ -3,7 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TagEntity } from './entity/tag.entity';
 
 @Injectable()
-export class TagService {
+export class ContentTagService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**

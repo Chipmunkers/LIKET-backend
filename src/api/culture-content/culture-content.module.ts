@@ -2,20 +2,14 @@ import { Module } from '@nestjs/common';
 import { CultureContentController } from './culture-content.controller';
 import { CultureContentService } from './culture-content.service';
 import { PrismaModule } from '../../prisma/prisma.module';
-import { TagService } from './tag.service';
-import { TagController } from './tag.controller';
 import { ContentReviewController } from './content-review.controller';
 import { ReviewModule } from '../review/review.module';
 import { UploadModule } from '../upload/upload.module';
 
 @Module({
   imports: [PrismaModule, ReviewModule, UploadModule],
-  controllers: [
-    CultureContentController,
-    TagController,
-    ContentReviewController,
-  ],
-  providers: [CultureContentService, TagService],
+  controllers: [CultureContentController, ContentReviewController],
+  providers: [CultureContentService],
   exports: [CultureContentService],
 })
 export class CultureContentModule {}

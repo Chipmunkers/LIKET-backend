@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { PickType } from '@nestjs/swagger';
-import { TagEntity } from './tag.entity';
+import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { ValidateNested } from 'class-validator';
 import { ContentEntity } from './content.entity';
 

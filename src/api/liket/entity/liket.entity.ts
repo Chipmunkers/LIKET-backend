@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { SummaryLiketEntity } from './summary-liket.entity';
 import { LocationEntity } from '../../culture-content/entity/location.entity';
-import { TagEntity } from '../../culture-content/entity/tag.entity';
+import { TagEntity } from '../../content-tag/entity/tag.entity';
 
 const liketWithInclude = Prisma.validator<Prisma.LiketDefaultArgs>()({
   include: {

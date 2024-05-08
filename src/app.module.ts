@@ -16,6 +16,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { LoggerModule } from './logger/logger.module';
 import s3Config from './common/config/s3.config';
 import modeConfig from './common/config/mode.config';
+import { ContentTagModule } from './api/content-tag/content-tag.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import modeConfig from './common/config/mode.config';
     ReviewModule,
     TosModule,
     UploadModule,
+    ContentTagModule,
   ],
 })
 export class AppModule {}

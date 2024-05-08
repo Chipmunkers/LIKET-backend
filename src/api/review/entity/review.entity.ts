@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { SummaryReviewEntity } from './summary-review.entity';
 import { UserProfileEntity } from '../../user/entity/user-profile.entity';
-import { TagEntity } from '../../culture-content/entity/tag.entity';
+import { TagEntity } from '../../content-tag/entity/tag.entity';
 
 const reviewWithInclude = Prisma.validator<Prisma.ReviewDefaultArgs>()({
   include: {

@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { TagEntity } from './tag.entity';
+import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { SummaryContentEntity } from './summary-content.entity';
 import { LocationEntity } from './location.entity';
 
