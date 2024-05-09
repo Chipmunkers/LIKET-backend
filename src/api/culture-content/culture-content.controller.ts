@@ -23,10 +23,14 @@ import { ContentEntity } from './entity/content.entity';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { ApiTags } from '@nestjs/swagger';
+import { ContentAuthService } from './content-auth.service';
 
 @Controller('culture-content')
 export class CultureContentController {
-  constructor(private readonly cultureContentService: CultureContentService) {}
+  constructor(
+    private readonly cultureContentService: CultureContentService,
+    private readonly contentAuthService: ContentAuthService,
+  ) {}
 
   /**
    * 문화생활컨텐츠 목록 보기
@@ -40,6 +44,8 @@ export class CultureContentController {
     @User() loginUser: LoginUserDto,
     @Query() pagerble: GetContentPagerbleDto,
   ): Promise<GetCultureContentAllResponseDto> {
+    await this.contentAuthService.checkReadAllPermission(loginUser, pagerble);
+
     const result = await this.cultureContentService.getContentAll(
       pagerble,
       loginUser.idx,
@@ -98,6 +104,8 @@ export class CultureContentController {
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
   ): Promise<ContentEntity> {
+    await this.contentAuthService.checkReadPermission(loginUser, contentIdx);
+
     const content = await this.cultureContentService.getContentByIdx(
       contentIdx,
       loginUser.idx,
@@ -160,14 +168,11 @@ export class CultureContentController {
     @Param('idx', ParseIntPipe) contentIdx: number,
     @User() loginUser: LoginUserDto,
   ): Promise<ContentEntity> {
+    await this.contentAuthService.checkReadPermission(loginUser, contentIdx);
+
     const content = await this.cultureContentService.getContentRequestByIdx(
       contentIdx,
     );
-
-    // TODO
-    // if (loginUser.idx !== content.author.idx) {
-    //   throw new ForbiddenException('Permission denied');
-    // }
 
     return content;
   }
@@ -209,14 +214,11 @@ export class CultureContentController {
     @Param('idx', ParseIntPipe) contentIdx: number,
     @Body() updateDto: UpdateContentDto,
   ): Promise<void> {
-    const content = await this.cultureContentService.getContentRequestByIdx(
+    await this.contentAuthService.checkUpdatePermission(
+      loginUser,
       contentIdx,
+      updateDto,
     );
-
-    // TODO
-    // if (content.author.idx !== loginUser.idx) {
-    //   throw new ForbiddenException('Permission denied');
-    // }
 
     await this.cultureContentService.updateContentRequest(
       contentIdx,
@@ -241,14 +243,7 @@ export class CultureContentController {
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
   ): Promise<void> {
-    const content = await this.cultureContentService.getContentRequestByIdx(
-      contentIdx,
-    );
-
-    // TODO
-    // if (content.author.idx !== loginUser.idx) {
-    //   throw new ForbiddenException('Permission denied');
-    // }
+    await this.contentAuthService.checkDeletePermission(loginUser, contentIdx);
 
     await this.cultureContentService.deleteContentRequest(contentIdx);
 
