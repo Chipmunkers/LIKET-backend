@@ -1,12 +1,14 @@
 import { Location } from '@prisma/client';
-import { SummaryLocationEntity } from './summary-location.entity';
+import { IsDecimal, IsString, Length } from 'class-validator';
 
-export class LocationEntity extends SummaryLocationEntity {
+export class LocationEntity {
   /**
    * 자세한 주소
    *
    * @example "LH아파트 1205호"
    */
+  @IsString()
+  @Length(1, 200)
   public detailAddress: string;
 
   /**
@@ -14,13 +16,34 @@ export class LocationEntity extends SummaryLocationEntity {
    *
    * @example "전북 익산시 부송동 100"
    */
+  @IsString()
+  @Length(1, 200)
   public address: string;
+
+  /**
+   * 1깊이 리전 명
+   *
+   * @example 서울
+   */
+  @IsString()
+  @Length(1, 20)
+  public region1Depth: string;
+
+  /**
+   * 2깊이 리전 명
+   *
+   * @example 강동구
+   */
+  @IsString()
+  @Length(1, 20)
+  public region2Depth: string;
 
   /**
    * X좌표
    *
    * @example "126.99597295767953"
    */
+  @IsDecimal()
   public positionX: number;
 
   /**
@@ -28,6 +51,7 @@ export class LocationEntity extends SummaryLocationEntity {
    *
    * @example "35.97664845766847"
    */
+  @IsDecimal()
   public positionY: number;
 
   /**
@@ -35,6 +59,8 @@ export class LocationEntity extends SummaryLocationEntity {
    *
    * @example "4514069000"
    */
+  @IsString()
+  @Length(10, 10)
   public hCode: string;
 
   /**
@@ -42,10 +68,11 @@ export class LocationEntity extends SummaryLocationEntity {
    *
    * @example "4514013400"
    */
+  @IsString()
+  @Length(10, 10)
   public bCode: string;
 
   constructor(data: LocationEntity) {
-    super(data);
     Object.assign(this, data);
   }
 

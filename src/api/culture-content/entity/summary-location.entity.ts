@@ -1,21 +1,13 @@
+import { PickType } from '@nestjs/swagger';
 import { Location } from '@prisma/client';
+import { LocationEntity } from './location.entity';
 
-export class SummaryLocationEntity {
-  /**
-   * 1깊이 리전 명
-   *
-   * @example 서울
-   */
-  public region1Depth: string;
-
-  /**
-   * 2깊이 리전 명
-   *
-   * @example 강동구
-   */
-  public region2Depth: string;
-
+export class SummaryLocationEntity extends PickType(LocationEntity, [
+  'region1Depth',
+  'region2Depth',
+] as const) {
   constructor(data: SummaryLocationEntity) {
+    super();
     Object.assign(this, data);
   }
 

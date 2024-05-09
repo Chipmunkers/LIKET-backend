@@ -1,4 +1,4 @@
-import { CreateLocationDto } from '../../../common/dto/CreateLocationDto';
+import { CreateLocationDto } from '../entity/create-location.dto';
 import {
   ArrayMaxSize,
   IsBoolean,
