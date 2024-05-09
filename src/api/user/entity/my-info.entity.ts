@@ -1,32 +1,8 @@
-import { Prisma } from '@prisma/client';
 import { PickType } from '@nestjs/swagger';
 import { LiketEntity } from '../../liket/entity/liket.entity';
 import { ReviewEntity } from '../../review/entity/review.entity';
 import { UserEntity } from './user.entity';
-
-const UserInclude = Prisma.validator<Prisma.UserDefaultArgs>()({
-  include: {
-    Review: {
-      include: {
-        ReviewImg: true,
-      },
-    },
-    Liket: {
-      select: {
-        idx: true,
-        imgPath: true,
-      },
-    },
-    _count: {
-      select: {
-        Review: true,
-        Liket: true,
-      },
-    },
-  },
-});
-
-type UserInclude = Prisma.UserGetPayload<typeof UserInclude>;
+import { UserWithInclude } from './prisma-type/user-with-include';
 
 class MyReview extends PickType(ReviewEntity, ['idx', 'thumbnail']) {}
 class MyLiket extends PickType(LiketEntity, ['idx', 'imgPath'] as const) {}
@@ -61,7 +37,7 @@ export class MyInfoEntity extends UserEntity {
     Object.assign(this, data);
   }
 
-  static createEntity(user: UserInclude): MyInfoEntity {
+  static createEntity(user: UserWithInclude): MyInfoEntity {
     return new MyInfoEntity({
       idx: user.idx,
       profileImgPath: user.profileImgPath || null,

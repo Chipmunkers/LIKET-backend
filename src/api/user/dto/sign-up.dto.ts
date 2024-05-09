@@ -1,19 +1,20 @@
 import {
-  IsIn,
-  IsInt,
   IsJWT,
+  IsObject,
   IsOptional,
-  IsString,
   IsStrongPassword,
   Length,
-  Matches,
-  Max,
-  Min,
   ValidateNested,
 } from 'class-validator';
 import { UploadFileDto } from '../../upload/dto/upload-file.dto';
+import { PickType } from '@nestjs/swagger';
+import { UserEntity } from '../entity/user.entity';
 
-export class SignUpDto {
+export class SignUpDto extends PickType(UserEntity, [
+  'nickname',
+  'gender',
+  'birth',
+]) {
   /**
    * 이메일 인증 토큰
    *
@@ -37,40 +38,12 @@ export class SignUpDto {
   public pw: string;
 
   /**
-   * 닉네임
-   *
-   * @example jochong
-   */
-  @Matches('^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,8}$')
-  public nickname: string;
-
-  /**
-   * 성별 1: 남자, 2: 여자
-   *
-   * @example
-   */
-  @IsOptional()
-  @IsInt()
-  @IsIn([1, 2])
-  public gender?: 1 | 2;
-
-  /**
-   * 생년월일
-   *
-   * @example 2002
-   */
-  @IsInt()
-  @Min(1900)
-  @Max(new Date().getFullYear())
-  @IsOptional()
-  public birth?: number;
-
-  /**
    * 프로필 이미지
    *
    * @example "/profile-img/img_0000001.png"
    */
   @IsOptional()
   @ValidateNested()
+  @IsObject()
   public profileImg?: UploadFileDto;
 }

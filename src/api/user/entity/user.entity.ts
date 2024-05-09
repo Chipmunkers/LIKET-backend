@@ -1,12 +1,44 @@
 import { User } from '@prisma/client';
-import { SummaryUserEntity } from './summary-user.entity';
+import { IsIn, IsInt, IsOptional, Matches, Max, Min } from 'class-validator';
 
-export class UserEntity extends SummaryUserEntity {
+export class UserEntity {
+  /**
+   * 사용자 인덱스
+   *
+   * @example 12
+   */
+  public idx: number;
+
+  /**
+   * 프로필 이미지
+   *
+   * @example "/profile_img/img_000001.png"
+   */
+  public profileImgPath: string | null;
+
+  /**
+   * 닉네임
+   *
+   * @example jochong
+   */
+  @Matches('^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,8}$')
+  public nickname: string;
+
+  /**
+   * 로그인 프로바이더
+   *
+   * @example local
+   */
+  public provider: string;
+
   /**
    * 성별
    *
    * @example 1
    */
+  @IsOptional()
+  @IsInt()
+  @IsIn([1, 2])
   public gender: number | null;
 
   /**
@@ -21,6 +53,10 @@ export class UserEntity extends SummaryUserEntity {
    *
    * @example 2002
    */
+  @IsInt()
+  @Min(1900)
+  @Max(new Date().getFullYear())
+  @IsOptional()
   public birth: number | null;
 
   /**
@@ -31,7 +67,6 @@ export class UserEntity extends SummaryUserEntity {
   public createdAt: Date;
 
   constructor(data: UserEntity) {
-    super(data);
     Object.assign(this, data);
   }
 

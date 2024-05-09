@@ -1,35 +1,15 @@
+import { PickType } from '@nestjs/swagger';
 import { User } from '@prisma/client';
+import { UserEntity } from './user.entity';
 
-export class UserProfileEntity {
-  /**
-   * 사용자 인덱스
-   *
-   * @example 12
-   */
-  public idx: number;
-
-  /**
-   * 프로필 이미지
-   *
-   * @example "/profile_img/img_000001.png"
-   */
-  public profileImgPath: string | null;
-
-  /**
-   * 닉네임
-   *
-   * @example jochong
-   */
-  public nickname: string;
-
-  /**
-   * 로그인 프로바이더
-   *
-   * @example local
-   */
-  public provider: string;
-
+export class UserProfileEntity extends PickType(UserEntity, [
+  'idx',
+  'profileImgPath',
+  'nickname',
+  'provider',
+]) {
   constructor(data: UserProfileEntity) {
+    super();
     Object.assign(this, data);
   }
 

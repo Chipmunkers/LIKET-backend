@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { UpdatePwDto } from './dto/update-pw.dto';
-import { SummaryUserEntity } from './entity/summary-user.entity';
 import { MyInfoEntity } from './entity/my-info.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { AuthService } from '../auth/auth.service';
