@@ -1,28 +1,12 @@
+import { OmitType } from '@nestjs/swagger';
 import { Tos } from '@prisma/client';
+import { TosEntity } from './tos.entity';
 
-export class SummaryTosEntity {
-  /**
-   * 약관 인덱스
-   *
-   * @example 12
-   */
-  public idx: number;
-
-  /**
-   * 약관 제목
-   *
-   * @example "서비스 이용 약관"
-   */
-  public title: string;
-
-  /**
-   * 필수 동의 약관 여부
-   *
-   * @example true
-   */
-  public isEssential: boolean;
-
+export class SummaryTosEntity extends OmitType(TosEntity, [
+  'contents',
+] as const) {
   constructor(data: SummaryTosEntity) {
+    super();
     Object.assign(this, data);
   }
 
