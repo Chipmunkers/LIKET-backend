@@ -1,20 +1,7 @@
-import { Prisma } from '@prisma/client';
 import { PickType } from '@nestjs/swagger';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
-import { ValidateNested } from 'class-validator';
 import { ContentEntity } from './content.entity';
-
-const GenreWithInclude = Prisma.validator<Prisma.GenreDefaultArgs>()({
-  include: {
-    CultureContent: {
-      include: {
-        ContentImg: true,
-      },
-    },
-  },
-});
-
-type GenreWithInclude = Prisma.GenreGetPayload<typeof GenreWithInclude>;
+import { GenreWithContent } from './prisma-type/genre-with-content';
 
 class HotCultureContent extends PickType(ContentEntity, [
   'idx',
@@ -35,7 +22,7 @@ export class HotCultureContentEntity extends PickType(TagEntity, [
     Object.assign(this, data);
   }
 
-  static createHotContent(genre: GenreWithInclude) {
+  static createHotContent(genre: GenreWithContent) {
     return new HotCultureContentEntity({
       idx: genre.idx,
       name: genre.name,
