@@ -1,56 +1,40 @@
-import { Prisma } from '@prisma/client';
+import { IsBoolean, IsDateString, IsString, Length } from 'class-validator';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
-import { SummaryContentEntity } from './summary-content.entity';
 import { LocationEntity } from './location.entity';
+import { CotnentWithInclude } from './prisma-type/content-with-include';
 
-const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()(
-  {
-    include: {
-      User: true,
-      ContentImg: true,
-      Genre: true,
-      Style: {
-        include: {
-          Style: true,
-        },
-      },
-      Age: true,
-      Location: true,
-      ContentLike: true,
-      _count: {
-        select: {
-          Review: true,
-        },
-      },
-    },
-  },
-);
-
-type CotnentWithInclude = Prisma.CultureContentGetPayload<
-  typeof ContentWithInclude
->;
-
-export class ContentEntity extends SummaryContentEntity {
+export class ContentEntity {
   /**
-   * 오픈 시간
+   * 컨텐츠 인덱스
    *
-   * @example "월-금 12:00-20:00   토-일 11:00-20:00"
+   * @example 1
    */
-  public openTime: string;
+  public idx: number;
+
+  /**
+   * 컨텐츠 명
+   *
+   * @example 디올 팝업스토어
+   */
+  @IsString()
+  @Length(1, 40)
+  public title: string;
 
   /**
    * 컨텐츠 설명
    *
    * @example "서울에서 만나는 디올의 특별한 컨셉 스토어\nDIOR SEONGSU에서 펼쳐지는\n매혹적인 홀리데이 시즌을 경험해보세요.\n주중 | DIOR SEONGSU 앱을 통한 방문 예약 \n또는 현장 접수 가능\n주말 | 현장 접수만 가능\n12월 예약 서비스는 12월 4일 오후12시에 오픈 되오니,\n많은 관심 부탁드립니다."
    */
+  @IsString()
+  @Length(1, 200)
   public description: string;
 
   /**
-   * 컨텐츠 웹사이트 링크
+   * 컨텐츠 썸네일
    *
-   * @example "https://google.com"
+   * @example /culture-content/img_00001.png
    */
-  public websiteLink: string;
+  public thumbnail: string | null;
 
   /**
    * 컨텐츠 이미지 배열
@@ -60,10 +44,70 @@ export class ContentEntity extends SummaryContentEntity {
   public imgList: string[];
 
   /**
+   * 장르
+   */
+  public genre: TagEntity;
+
+  /**
+   * 스타일 배열
+   */
+  public style: TagEntity[];
+
+  /**
+   * 연령대
+   */
+  public age: TagEntity;
+
+  /**
+   * 지역
+   */
+  public location: LocationEntity;
+
+  /**
+   * 시작 날짜
+   *
+   * @example 2024-05-07T00:00:00.000Z
+   */
+  @IsDateString()
+  public startDate: Date;
+
+  /**
+   * 끝나는 날짜
+   *
+   * @example 2024-05-07T00:00:00.000Z
+   */
+  @IsDateString()
+  public endDate: Date;
+
+  /**
+   * 로그인 사용자의 좋아요 상태
+   */
+  public likeState: boolean;
+
+  /**
+   * 오픈 시간
+   *
+   * @example "월-금 12:00-20:00   토-일 11:00-20:00"
+   */
+  @IsString()
+  @Length(1, 30)
+  public openTime: string;
+
+  /**
+   * 컨텐츠 웹사이트 링크
+   *
+   * @example "https://google.com"
+   */
+  @IsString()
+  @Length(1, 2000)
+  public websiteLink: string;
+
+  /**
    * 요금 여부
    *
    * @example true
    */
+  @IsBoolean()
   public isFee: boolean;
 
   /**
@@ -71,6 +115,7 @@ export class ContentEntity extends SummaryContentEntity {
    *
    * @example false
    */
+  @IsBoolean()
   public isReservation: boolean;
 
   /**
@@ -78,6 +123,7 @@ export class ContentEntity extends SummaryContentEntity {
    *
    * @example true
    */
+  @IsBoolean()
   public isPet: boolean;
 
   /**
@@ -85,6 +131,7 @@ export class ContentEntity extends SummaryContentEntity {
    *
    * @example true
    */
+  @IsBoolean()
   public isParking: boolean;
 
   /**
@@ -108,8 +155,21 @@ export class ContentEntity extends SummaryContentEntity {
    */
   public avgStarRating: number;
 
+  /**
+   * 컨텐츠 생성 시간
+   *
+   * @example 2024-05-07T00:00:00.000Z
+   */
+  public createdAt: Date;
+
+  /**
+   * 컨텐츠 활성 시간
+   *
+   * @example 2024-05-07T00:00:00.000Z
+   */
+  public acceptedAt: Date | null;
+
   constructor(data: ContentEntity) {
-    super(data);
     Object.assign(this, data);
   }
 

@@ -5,7 +5,7 @@ import { ContentNotFoundException } from '../../../src/api/culture-content/excep
 import { AlreadyLikeContentException } from '../../../src/api/culture-content/exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from '../../../src/api/culture-content/exception/AlreadyNotLikeContentException';
 import { ContentEntity } from '../../../src/api/culture-content/entity/summary-content.entity';
-import { CreateLocationDto } from '../../../src/api/culture-content/entity/create-location.dto';
+import { CreateLocationDto } from '../../../src/api/culture-content/dto/create-location.dto';
 import { UploadService } from '../../../src/api/upload/upload.service';
 
 describe('CultureContentService', () => {
