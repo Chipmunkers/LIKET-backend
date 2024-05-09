@@ -1,33 +1,71 @@
-import { Prisma } from '@prisma/client';
-import { SummaryReviewEntity } from './summary-review.entity';
 import { UserProfileEntity } from '../../user/entity/user-profile.entity';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
+import { ReviewWithInclude } from './prisma-type/review-with-include';
+import { PickType } from '@nestjs/swagger';
+import { ContentEntity } from '../../culture-content/entity/content.entity';
+import {
+  IsDateString,
+  IsIn,
+  IsNumber,
+  IsString,
+  Length,
+} from 'class-validator';
 
-const reviewWithInclude = Prisma.validator<Prisma.ReviewDefaultArgs>()({
-  include: {
-    ReviewImg: true,
-    ReviewLike: true,
-    User: true,
-    CultureContent: {
-      include: {
-        User: true,
-        ContentImg: true,
-        Genre: true,
-        Style: {
-          include: {
-            Style: true,
-          },
-        },
-        Age: true,
-        Location: true,
-      },
-    },
-  },
-});
+class ReviewContent extends PickType(ContentEntity, [
+  'idx',
+  'title',
+  'genre',
+  'likeCount',
+  'thumbnail',
+] as const) {}
 
-type ReviewWithInclude = Prisma.ReviewGetPayload<typeof reviewWithInclude>;
+export class ReviewEntity {
+  /**
+   * 리뷰 인덱스
+   *
+   * @example 12
+   */
+  public idx: number;
 
-export class ReviewEntity extends SummaryReviewEntity {
+  /**
+   * 방문 시간
+   *
+   * @example 2024-05-07T12:12:12.000Z
+   */
+  public visitTime: Date;
+
+  /**
+   * 리뷰 썸네일 이미지
+   *
+   * @example "/review/img_00002.png"
+   */
+  public thumbnail: string | null;
+
+  /**
+   * 문화생활컨텐츠 정보
+   */
+  public cultureContent: ReviewContent;
+
+  /**
+   * 작성자
+   */
+  public author: UserProfileEntity;
+
+  /**
+   * 리뷰 작성 시간
+   *
+   * @example 2024-05-07T00:00:00.000Z
+   */
+  @IsDateString()
+  public createdAt: Date;
+
+  /**
+   * 좋아요 여부
+   *
+   * @example true
+   */
+  public likeState: boolean;
+
   /**
    * 리뷰 이미지 배열
    *
@@ -40,6 +78,8 @@ export class ReviewEntity extends SummaryReviewEntity {
    *
    * @example "성수 디올 팝업스토어 디올 뷰티, 들어가자 마자 예쁜 야외 정원이 있는"
    */
+  @IsString()
+  @Length(1, 2000)
   public description: string;
 
   /**
@@ -47,6 +87,8 @@ export class ReviewEntity extends SummaryReviewEntity {
    *
    * @example 4
    */
+  @IsNumber()
+  @IsIn([1, 2, 3, 4, 5])
   public starRating: number;
 
   /**
@@ -57,7 +99,6 @@ export class ReviewEntity extends SummaryReviewEntity {
   public likeCount: number;
 
   constructor(data: ReviewEntity) {
-    super(data);
     Object.assign(data);
   }
 

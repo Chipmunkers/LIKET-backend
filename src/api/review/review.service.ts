@@ -14,12 +14,10 @@ import { ReviewEntity } from './entity/review.entity';
 export class ReviewService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // User ======================================================
-
   /**
    * Get all reviews by culture-content idx
    */
-  public getReviewAll: (
+  public getReviewAllByContentIdx: (
     contentIdx: number,
     userIdx: number,
     pagerble: GetReviewByContentPagerbleDto,
@@ -367,8 +365,6 @@ export class ReviewService {
 
     return;
   };
-
-  // Like ======================================================
 
   /**
    * Like a review by idx

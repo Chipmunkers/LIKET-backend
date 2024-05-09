@@ -21,11 +21,15 @@ import { Exception } from '../../common/decorator/exception.decorator';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { GetReviewByContentPagerbleDto } from './dto/get-review-by-content-pagerble.dto';
 import { GetReviewAllResponseDto } from './dto/response/get-review-all-response.dto';
+import { ReviewAuthService } from './review-auth.service';
 
 @Controller()
 @ApiTags('Review')
 export class ReviewController {
-  constructor(private readonly reviewService: ReviewService) {}
+  constructor(
+    private readonly reviewService: ReviewService,
+    private readonly reviewAuthService: ReviewAuthService,
+  ) {}
 
   /**
    * 리뷰 생성하기
@@ -58,7 +62,7 @@ export class ReviewController {
     @User() loginUser: LoginUserDto,
     @Query() pagerble: GetReviewByContentPagerbleDto,
   ): Promise<GetReviewAllResponseDto> {
-    return await this.reviewService.getReviewAll(
+    return await this.reviewService.getReviewAllByContentIdx(
       contentIdx,
       loginUser.idx,
       pagerble,
@@ -78,14 +82,11 @@ export class ReviewController {
     @Param('idx', ParseIntPipe) reviewIdx: number,
     @Body() updateDto: UpdateReviewDto,
   ): Promise<void> {
-    const review = await this.reviewService.getReviewByIdx(
+    await this.reviewAuthService.checkUpdatePermission(
+      loginUser,
       reviewIdx,
-      loginUser.idx,
+      updateDto,
     );
-
-    if (review.author.idx !== loginUser.idx) {
-      throw new ForbiddenException('Permission denied');
-    }
 
     await this.reviewService.updateReview(reviewIdx, updateDto);
 
@@ -104,14 +105,7 @@ export class ReviewController {
     @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
-    const review = await this.reviewService.getReviewByIdx(
-      reviewIdx,
-      loginUser.idx,
-    );
-
-    if (review.author.idx !== loginUser.idx) {
-      throw new ForbiddenException('Permission denied');
-    }
+    await this.reviewAuthService.checkDeletePermission(loginUser, reviewIdx);
 
     await this.reviewService.deleteReview(reviewIdx);
 
