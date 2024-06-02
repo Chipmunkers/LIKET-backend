@@ -1,4 +1,12 @@
 services:
+  redis:
+    image: redis:7.2.1
+    restart: always
+    container_name: liket-backend-redis-container
+    ports:
+      - '6380:6379'
+    volumes:
+      - liket-backend-redis-voume:/data
   liket-backend-server:
     build:
       context: ../
@@ -7,3 +15,8 @@ services:
       - '3003:3000'
     env_file:
       - .env.docker
+    depends_on:
+      - redis
+
+volumes:
+  liket-backend-redis-voume:
