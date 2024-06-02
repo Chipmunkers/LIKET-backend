@@ -22,18 +22,30 @@ docker --version
 git clone https://github.com/Chipmunkers/liket-mobile-backend.git
 ```
 
-### 3. 도커 컴포즈 실행
+### 3. 도커 컴포즈 실행 명령어
 
-실행하는 명령어
+PostgreSQL 실행
 
 ```bash
-npm run test:deploy:up
+npm run depoly-psql:up
 ```
 
-끄는 명령어
+PostgreSQL 끄기
 
 ```bash
-npm run test:deploy:down
+npm run deploy-psql:down
+```
+
+서버 실행
+
+```bash
+npm run dev-deploy:up
+```
+
+서버 끄기
+
+```bash
+npm run dev-deploy:down
 ```
 
 ## 💡안될 경우

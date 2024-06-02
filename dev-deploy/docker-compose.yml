@@ -1,0 +1,9 @@
+services:
+  liket-backend-server:
+    build:
+      context: ../
+      dockerfile: ./dev-deploy/Dockerfile
+    ports:
+      - '3003:3000'
+    env_file:
+      - .env.docker
