@@ -20,10 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "ts-patch install && typia patch",
     "seed": "ts-node prisma/seed.ts",
-    "deploy-psql:up": "docker compose  -p liket-mobile -f dev-deploy/psql-docker-compose.yml up -d",
-    "deploy-psql:down": "docker compose -f dev-deploy/psql-docker-compose.yml down -v",
     "dev-deploy:up": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml up -d --build --force-recreate",
-    "dev-deploy:down": "docker compose -f dev-deploy/docker-compose.yml down -v"
+    "dev-deploy:down": "docker compose -f dev-deploy/docker-compose.yml down"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.529.1",
