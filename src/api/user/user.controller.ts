@@ -12,7 +12,7 @@ import { UserService } from './user.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignUpResponseDto } from './dto/response/sign-up-response.dto';
 import { MyInfoEntity } from './entity/my-info.entity';
-import { User } from '../../common/decorator/user.decorator';
+import { User } from './user.decorator';
 import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';

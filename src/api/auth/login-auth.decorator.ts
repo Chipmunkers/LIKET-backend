@@ -1,6 +1,6 @@
 import { UseGuards, applyDecorators } from '@nestjs/common';
 import { Exception } from '../../common/decorator/exception.decorator';
-import { LoginAuthGuard } from '../../common/guard/auth.guard';
+import { LoginAuthGuard } from './auth.guard';
 
 export const LoginAuth = () => {
   return applyDecorators(

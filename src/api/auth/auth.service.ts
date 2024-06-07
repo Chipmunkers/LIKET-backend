@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { SendEmailVerificationCodeDto } from './dto/send-email-verif-code.dto';
 import { CheckEmailVerificationCodeDto } from './dto/check-email-verif-code.dto';
-import { HashService } from '../../hash/hash.service';
+import { HashService } from '../../common/module/hash/hash.service';
 import { LoginDto } from './dto/local-login.dto';
-import { RedisService } from '../../redis/redis.service';
+import { RedisService } from '../../common/module/redis/redis.service';
 import { BlockedUserException } from './exception/BlockedUserException';
 import { InvalidEmailOrPwException } from './exception/InvalidEmailOrPwException';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
-import { NotFoundVerificationCodeException } from '../../redis/exception/NotFoundVerificationCodeException';
+import { NotFoundVerificationCodeException } from '../../common/module/redis/exception/NotFoundVerificationCodeException';
 import { InvalidEmailVerificationCodeException } from './exception/InvalidEmailVerificationCodeException';
 import { InvalidEmailAuthTokenException } from './exception/InvalidEmailAuthTokenException';
 import { InvalidLoginAccessTokenException } from './exception/InvalidLoginAccessTokenException';
-import { Logger } from '../../logger/logger.decorator';
-import { LoggerService } from '../../logger/logger.service';
+import { Logger } from '../../common/module/logger/logger.decorator';
+import { LoggerService } from '../../common/module/logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

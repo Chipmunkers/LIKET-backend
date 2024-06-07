@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { PrismaModule } from '../../common/module/prisma/prisma.module';
 import { JwtService } from '@nestjs/jwt';
-import { HashService } from '../../hash/hash.service';
+import { HashService } from '../../common/module/hash/hash.service';
 import { UploadModule } from '../upload/upload.module';
-import { HashModule } from '../../hash/hash.module';
+import { HashModule } from '../../common/module/hash/hash.module';
 
 @Module({
   imports: [PrismaModule, UploadModule, HashModule],

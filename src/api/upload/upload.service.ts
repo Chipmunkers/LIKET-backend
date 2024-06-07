@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { PutObjectCommand, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
-import { Logger } from '../../logger/logger.decorator';
-import { LoggerService } from '../../logger/logger.service';
-import { UtilService } from '../../util/util.service';
+import { Logger } from '../../common/module/logger/logger.decorator';
+import { LoggerService } from '../../common/module/logger/logger.service';
+import { UtilService } from '../../common/module/util/util.service';
 import { FILE_GROUPING } from './file-grouping';
 import { UploadFileNotFoundException } from './exception/UploadFileNotFoundException';
 

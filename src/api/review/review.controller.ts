@@ -12,7 +12,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
-import { User } from '../../common/decorator/user.decorator';
+import { User } from '../user/user.decorator';
 import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { ApiTags } from '@nestjs/swagger';

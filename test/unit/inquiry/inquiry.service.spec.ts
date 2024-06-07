@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { InquiryService } from '../../../src/api/inquiry/inquiry.service';
-import { PrismaService } from '../../../src/prisma/prisma.service';
+import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
 import { InquiryEntity } from '../../../src/api/inquiry/entity/summary-inquiry.entity';
 import { InquiryNotFoundException } from '../../../src/api/inquiry/exception/InquiryNotFoundException';
 import { UploadService } from '../../../src/api/upload/upload.service';

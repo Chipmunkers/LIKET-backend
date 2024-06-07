@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { GetContentPagerbleDto } from './dto/get-content-all-pagerble.dto';

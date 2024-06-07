@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { SummaryTosEntity } from './entity/summary-tos.entity';
 import { TosEntity } from './entity/tos.entity';
 

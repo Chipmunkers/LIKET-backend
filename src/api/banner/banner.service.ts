@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { BannerEntity } from './entity/banner.entity';
 import { BannerNotFoundException } from './exception/BannerNotFoundException';
 import { AlreadyActiveBannerException } from './exception/AlreadyActiveBannerException';

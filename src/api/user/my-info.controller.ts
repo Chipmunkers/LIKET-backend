@@ -1,6 +1,6 @@
 import { Controller, Get, HttpCode, Query } from '@nestjs/common';
 import { CultureContentService } from '../culture-content/culture-content.service';
-import { User } from '../../common/decorator/user.decorator';
+import { User } from './user.decorator';
 import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { GetMyCultureContentPagerble } from './dto/get-my-content-all-pageble.dto';
 import { GetMyContentAllResponseDto } from './dto/response/get-my-content-all-response.dto';

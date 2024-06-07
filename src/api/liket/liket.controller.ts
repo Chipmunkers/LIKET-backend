@@ -10,7 +10,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { LiketService } from './liket.service';
-import { User } from '../../common/decorator/user.decorator';
+import { User } from '../user/user.decorator';
 import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { UpdateLiketDto } from './dto/update-liket.dto';
 import { LiketEntity } from './entity/liket.entity';

@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../../../src/prisma/prisma.service';
+import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
 import { AuthService } from '../../../src/api/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../../../src/hash/hash.service';
 import { InvalidEmailOrPwException } from '../../../src/api/auth/exception/InvalidEmailOrPwException';
-import { RedisService } from '../../../src/redis/redis.service';
+import { RedisService } from '../../../src/common/module/redis/redis.service';
 import { MailerService } from '@nestjs-modules/mailer';
-import { NotFoundVerificationCodeException } from '../../../src/redis/exception/NotFoundVerificationCodeException';
+import { NotFoundVerificationCodeException } from '../../../src/common/module/redis/exception/NotFoundVerificationCodeException';
 import { InvalidEmailVerificationCodeException } from '../../../src/api/auth/exception/InvalidEmailVerificationCodeException';
 import { BlockedUserException } from '../../../src/api/auth/exception/BlockedUserException';
 import { InvalidEmailAuthTokenException } from '../../../src/api/auth/exception/InvalidEmailAuthTokenException';
 import { InvalidLoginAccessTokenException } from '../../../src/api/auth/exception/InvalidLoginAccessTokenException';
-import { LoggerService } from '../../../src/logger/logger.service';
+import { LoggerService } from '../../../src/common/module/logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 
 describe('AuthService', () => {

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { PrismaModule } from '../../common/module/prisma/prisma.module';
 import { InquiryService } from './inquiry.service';
 import { InquiryController } from './inquiry.controller';
 import { InquiryTypeController } from './inquiry-type.controller';

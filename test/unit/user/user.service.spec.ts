@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../../../src/api/user/user.service';
-import { PrismaService } from '../../../src/prisma/prisma.service';
+import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
 import { AuthService } from '../../../src/api/auth/auth.service';
 import { DuplicateUserException } from '../../../src/api/user/exception/DuplicateUserException';
 import { HashService } from '../../../src/hash/hash.service';

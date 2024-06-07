@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CultureContentService } from '../../../src/api/culture-content/culture-content.service';
-import { PrismaService } from '../../../src/prisma/prisma.service';
+import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
 import { ContentNotFoundException } from '../../../src/api/culture-content/exception/ContentNotFound';
 import { AlreadyLikeContentException } from '../../../src/api/culture-content/exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from '../../../src/api/culture-content/exception/AlreadyNotLikeContentException';

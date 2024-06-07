@@ -10,7 +10,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { InquiryService } from './inquiry.service';
-import { User } from '../../common/decorator/user.decorator';
+import { User } from '../user/user.decorator';
 import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { CreateInquiryResponseDto } from './dto/response/create-inquiry-response.dto';
 import { CreateInquiryDto } from './dto/create-inquiry.dto';

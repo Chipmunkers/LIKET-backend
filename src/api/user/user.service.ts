@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { UpdatePwDto } from './dto/update-pw.dto';
 import { MyInfoEntity } from './entity/my-info.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { AuthService } from '../auth/auth.service';
 import { DuplicateUserException } from './exception/DuplicateUserException';
-import { HashService } from '../../hash/hash.service';
+import { HashService } from '../../common/module/hash/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { UserEntity } from './entity/user.entity';
 

@@ -1,17 +1,14 @@
 import {
-  ContextType,
   CanActivate,
   Injectable,
   ExecutionContext,
   UnauthorizedException,
   ForbiddenException,
 } from '@nestjs/common';
-import { GuardsConsumer } from '@nestjs/core/guards';
 import { Request } from 'express';
-import { PrismaService } from '../../prisma/prisma.service';
-import { JwtService } from '@nestjs/jwt';
-import { AuthService } from '../../api/auth/auth.service';
-import { InvalidLoginAccessTokenException } from '../../api/auth/exception/InvalidLoginAccessTokenException';
+import { PrismaService } from '../../common/module/prisma/prisma.service';
+import { AuthService } from './auth.service';
+import { InvalidLoginAccessTokenException } from './exception/InvalidLoginAccessTokenException';
 
 @Injectable()
 export class LoginAuthGuard implements CanActivate {

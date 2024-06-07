@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { CreateInquiryDto } from './dto/create-inquiry.dto';
 import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
 import { UploadService } from '../upload/upload.service';

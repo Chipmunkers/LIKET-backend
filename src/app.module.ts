@@ -13,7 +13,7 @@ import emailConfig from './common/config/email.config';
 import redisConfig from './common/config/redis.config';
 import jwtConfig from './common/config/jwt.config';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { LoggerModule } from './logger/logger.module';
+import { LoggerModule } from './common/module/logger/logger.module';
 import s3Config from './common/config/s3.config';
 import modeConfig from './common/config/mode.config';
 import { ContentTagModule } from './api/content-tag/content-tag.module';

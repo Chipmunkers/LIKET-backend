@@ -5,8 +5,8 @@ import { LoginResponseDto } from './dto/response/local-login-response.dto';
 import { SendEmailVerificationCodeDto } from './dto/send-email-verif-code.dto';
 import { CheckEmailVerificationCodeDto } from './dto/check-email-verif-code.dto';
 import { CheckEmailVerificationCodeResponseDto } from './dto/response/check-email-verif-code-repsonse.dto';
-import { Logger } from '../../logger/logger.decorator';
-import { LoggerService } from '../../logger/logger.service';
+import { Logger } from '../../common/module/logger/logger.decorator';
+import { LoggerService } from '../../common/module/logger/logger.service';
 import { ApiTags } from '@nestjs/swagger';
 import { Exception } from '../../common/decorator/exception.decorator';
 

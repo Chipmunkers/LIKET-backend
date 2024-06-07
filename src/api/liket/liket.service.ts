@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { CreateLiketDto } from './dto/create-liket.dto';
 import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { AlreadyExistLiketException } from './exception/AlreadyExistLiketException';
