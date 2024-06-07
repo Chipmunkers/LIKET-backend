@@ -21,7 +21,7 @@
     "prepare": "ts-patch install && typia patch",
     "seed": "ts-node prisma/seed.ts",
     "dev-deploy:up": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml up -d --build --force-recreate",
-    "dev-deploy:down": "docker compose -f dev-deploy/docker-compose.yml down"
+    "dev-deploy:down": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml down"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.529.1",
