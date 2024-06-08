@@ -9,11 +9,32 @@ import {
   Length,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ToBoolean } from '../../../common/decorator/to-boolean.decorator';
 
-export class GetContentPagerbleDto extends PickType(PagerbleDto, [
+export class ContentPagerbleDto extends PickType(PagerbleDto, [
   'page',
   'order',
 ]) {
+  /**
+   * 활성화 여부 (비활성화 컨텐츠를 보는 것은 로그인 본인 user 필터링을 함께 사용했을 경우에만 가능합니다.)
+   *
+   * @example true
+   */
+  @ToBoolean()
+  @IsBoolean()
+  @IsOptional()
+  accept?: boolean;
+
+  /**
+   * 작성자 필터링
+   *
+   * @example 12
+   */
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  user?: number;
+
   /**
    * 필터링 할 장르 인덱스
    *
@@ -58,7 +79,7 @@ export class GetContentPagerbleDto extends PickType(PagerbleDto, [
    *
    * @example true
    */
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   @IsOptional()
   open?: boolean;

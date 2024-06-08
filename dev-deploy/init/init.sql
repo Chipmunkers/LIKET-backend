@@ -171,9 +171,10 @@ CREATE TABLE review_img_tb
 
 CREATE TABLE review_like_tb
 (
-  review_tb int NOT NULL,
+  review_idx int NOT NULL,
   user_idx  int NOT NULL,
-  PRIMARY KEY (review_tb, user_idx)
+  created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (review_idx, user_idx)
 );
 
 CREATE TABLE review_tb
@@ -348,7 +349,7 @@ ALTER TABLE liket_tb
 
 ALTER TABLE review_like_tb
   ADD CONSTRAINT FK_review_tb_TO_review_like_tb
-    FOREIGN KEY (review_tb)
+    FOREIGN KEY (review_idx)
     REFERENCES review_tb (idx);
 
 ALTER TABLE review_like_tb
@@ -1656,11 +1657,11 @@ INSERT INTO review_tb
     (culture_content_idx, user_idx, description, visit_time, star_rating)
 VALUES
     -- 1
-    (1, 5, '정말 재미있었습니다.', '2024-05-05', 4),
+    (1, 2, '정말 재미있었습니다.', '2024-05-05', 4),
     -- 2
-    (1, 4, '꼭 가보세요. 다비드 자맹의 작품 정말 역대급입니다.', '2024-05-06', 5),
+    (1, 2, '꼭 가보세요. 다비드 자맹의 작품 정말 역대급입니다.', '2024-05-06', 5),
     -- 3
-    (1, 6, '전 막 그렇게까지 좋은지는 모르겟네요.', '2024-05-06', 1),
+    (1, 2, '전 막 그렇게까지 좋은지는 모르겟네요.', '2024-05-06', 1),
     -- 4
     (1, 7, '적당히 좋았습니다.', '2024-05-06', 3),
     -- 5

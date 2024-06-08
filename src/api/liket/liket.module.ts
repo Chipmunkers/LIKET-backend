@@ -3,10 +3,11 @@ import { PrismaModule } from '../../common/module/prisma/prisma.module';
 import { LiketService } from './liket.service';
 import { LiketController } from './liket.controller';
 import { UploadModule } from '../upload/upload.module';
+import { LiketAuthService } from './liket-auth.service';
 
 @Module({
   imports: [PrismaModule, UploadModule],
   controllers: [LiketController],
-  providers: [LiketService],
+  providers: [LiketService, LiketAuthService],
 })
 export class LiketModule {}

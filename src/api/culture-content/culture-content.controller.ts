@@ -16,7 +16,7 @@ import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { User } from '../user/user.decorator';
 import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { GetCultureContentAllResponseDto } from './dto/response/get-content-all.response.dto';
-import { GetContentPagerbleDto } from './dto/get-content-all-pagerble.dto';
+import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { GetSoonOpenCultureContentResponseDto } from './dto/response/get-soon-open-content-response.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { ContentEntity } from './entity/content.entity';
@@ -26,6 +26,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ContentAuthService } from './content-auth.service';
 
 @Controller('culture-content')
+@ApiTags('Culture-Content')
 export class CultureContentController {
   constructor(
     private readonly cultureContentService: CultureContentService,
@@ -37,12 +38,11 @@ export class CultureContentController {
    */
   @Get('/all')
   @HttpCode(200)
-  @ApiTags('Culture-Content')
   @Exception(400, 'Invalid querystring')
   @LoginAuth()
   public async getCultureContentAll(
     @User() loginUser: LoginUserDto,
-    @Query() pagerble: GetContentPagerbleDto,
+    @Query() pagerble: ContentPagerbleDto,
   ): Promise<GetCultureContentAllResponseDto> {
     await this.contentAuthService.checkReadAllPermission(loginUser, pagerble);
 
@@ -59,7 +59,6 @@ export class CultureContentController {
    */
   @Get('/soon-open/all')
   @HttpCode(200)
-  @ApiTags('Culture-Content')
   @LoginAuth()
   public async getSoonOpenCultureContentAll(
     @User() loginUser: LoginUserDto,
@@ -77,7 +76,6 @@ export class CultureContentController {
    * 종료 예정 컨텐츠 목록보기
    */
   @Get('/soon-end/all')
-  @ApiTags('Culture-Content')
   @LoginAuth()
   public async getSoonEndCultureContentAll(
     @User() loginUser: LoginUserDto,
@@ -96,7 +94,6 @@ export class CultureContentController {
    */
   @Get('/:idx')
   @HttpCode(200)
-  @ApiTags('Culture-Content')
   @Exception(400, 'Invalid querystring')
   @Exception(404, 'Cannot find culture-content')
   @LoginAuth()
@@ -119,7 +116,6 @@ export class CultureContentController {
    */
   @Post('/:idx/like')
   @HttpCode(201)
-  @ApiTags('Culture-Content')
   @Exception(400, 'Invalid path parameter')
   @Exception(404, 'Cannot find culture-content')
   @Exception(409, 'Already like culture-content')
@@ -138,7 +134,6 @@ export class CultureContentController {
    */
   @Delete('/:idx/like')
   @HttpCode(201)
-  @ApiTags('Culture-Content')
   @Exception(400, 'Invalid path parameter')
   @Exception(404, 'Cannot find culture-content')
   @Exception(409, 'Already like culture-content')
@@ -160,7 +155,6 @@ export class CultureContentController {
    */
   @Get('/request/:idx')
   @HttpCode(200)
-  @ApiTags('Culture-Content')
   @Exception(400, 'Invalid path parameter')
   @Exception(404, 'Cannot find culture-content')
   @LoginAuth()
@@ -182,7 +176,6 @@ export class CultureContentController {
    */
   @Post('/request')
   @HttpCode(200)
-  @ApiTags('Culture-Content')
   @Exception(400, 'Invalid body')
   @LoginAuth()
   public async createCultureContentRequest(
@@ -200,11 +193,10 @@ export class CultureContentController {
   }
 
   /**
-   * 컨텐츠 수정하기 (요청만 수정할 수 있습니다)
+   * 컨텐츠 수정하기 (수락하지 않은 컨텐츠만 수정 가능)
    */
   @Put('/request/:idx')
   @HttpCode(201)
-  @ApiTags('Culture-Content')
   @Exception(400, 'Invalid body')
   @Exception(404, 'Cannot find culture-content')
   @Exception(409, 'Accepted request')
@@ -230,11 +222,10 @@ export class CultureContentController {
   }
 
   /**
-   * 컨텐츠 삭제하기 (요청만 삭제할 수 있습니다)
+   * 컨텐츠 삭제하기 (수락하지 않은 컨텐츠만 수정 가능)
    */
   @Delete('/request/:idx')
   @HttpCode(201)
-  @ApiTags('Culture-Content')
   @Exception(400, 'Invalid body')
   @Exception(404, 'Cannot find culture-content')
   @Exception(409, 'Accepted request')

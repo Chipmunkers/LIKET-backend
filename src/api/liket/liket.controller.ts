@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Put,
+  Query,
 } from '@nestjs/common';
 import { LiketService } from './liket.service';
 import { User } from '../user/user.decorator';
@@ -17,10 +18,34 @@ import { LiketEntity } from './entity/liket.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { LoginAuth } from '../auth/login-auth.decorator';
+import { LiketAuthService } from './liket-auth.service';
+import { LiketPagerbleDto } from './dto/liket-pagerble.dto';
+import { GetLiketAllResponseDto } from './dto/response/get-liket-all.dto';
 
 @Controller('liket')
 export class LiketController {
-  constructor(private readonly liketService: LiketService) {}
+  constructor(
+    private readonly liketService: LiketService,
+    private readonly liektAuthService: LiketAuthService,
+  ) {}
+
+  /**
+   * 라이켓 목록 보기
+   */
+  @Get('/all')
+  @HttpCode(200)
+  @ApiTags('Liket')
+  @Exception(400, 'Invalid querystring')
+  @Exception(403, 'Permission denied')
+  @LoginAuth()
+  public async getLiketAll(
+    @User() loginUser: LoginUserDto,
+    @Query() pagerble: LiketPagerbleDto,
+  ): Promise<GetLiketAllResponseDto> {
+    await this.liektAuthService.checkReadAllPermission(loginUser, pagerble);
+
+    return await this.liketService.getLiketAll(loginUser, pagerble);
+  }
 
   /**
    * 라이켓 자세히보기
@@ -35,11 +60,9 @@ export class LiketController {
     @Param('idx', ParseIntPipe) idx: number,
     @User() loginUser: LoginUserDto,
   ): Promise<LiketEntity> {
-    const liket = await this.liketService.getLiketByIdx(idx);
+    await this.liektAuthService.checkReadPermission(loginUser, idx);
 
-    if (liket.author.idx !== loginUser.idx) {
-      throw new ForbiddenException('Permission denied');
-    }
+    const liket = await this.liketService.getLiketByIdx(idx);
 
     return liket;
   }
@@ -58,11 +81,11 @@ export class LiketController {
     @User() loginUser: LoginUserDto,
     @Body() updateDto: UpdateLiketDto,
   ): Promise<void> {
-    const liket = await this.liketService.getLiketByIdx(idx);
-
-    if (liket.author.idx !== loginUser.idx) {
-      throw new ForbiddenException('Permission denied');
-    }
+    await this.liektAuthService.checkUpdatePermission(
+      loginUser,
+      idx,
+      updateDto,
+    );
 
     await this.liketService.updateLiketByIdx(idx, updateDto);
 
@@ -82,11 +105,7 @@ export class LiketController {
     @Param('idx', ParseIntPipe) idx: number,
     @User() loginUser: LoginUserDto,
   ): Promise<void> {
-    const liket = await this.liketService.getLiketByIdx(idx);
-
-    if (liket.author.idx !== loginUser.idx) {
-      throw new ForbiddenException('Permission denied');
-    }
+    await this.liektAuthService.checkDeletePermission(loginUser, idx);
 
     await this.liketService.deleteLiketByIdx(idx);
 

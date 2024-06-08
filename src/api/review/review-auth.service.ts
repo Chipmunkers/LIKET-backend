@@ -5,10 +5,49 @@ import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { PermissionDeniedException } from '../../common/exception/PermissionDeniedException';
+import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
+import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 
 @Injectable()
 export class ReviewAuthService {
   constructor(private readonly prisma: PrismaService) {}
+
+  checkReadAllPermisison: (
+    loginUser: LoginUserDto,
+    pagerlbe: ReviewPagerbleDto,
+  ) => Promise<void> = async (loginUser, pagerble) => {
+    if (pagerble.user && pagerble.user !== loginUser.idx) {
+      throw new PermissionDeniedException();
+    }
+
+    if (pagerble.content) {
+      const content = await this.prisma.cultureContent.findUnique({
+        select: {
+          idx: true,
+          userIdx: true,
+          acceptedAt: true,
+        },
+        where: {
+          idx: pagerble.content,
+          deletedAt: null,
+          User: {
+            deletedAt: null,
+          },
+        },
+      });
+
+      if (!content) {
+        throw new ContentNotFoundException('Cannot find content');
+      }
+
+      // 수락되지 않은 컨텐츠의 리뷰는 작성자만 볼 수 있음
+      if (!content.acceptedAt && content.userIdx !== loginUser.idx) {
+        throw new PermissionDeniedException();
+      }
+    }
+
+    return;
+  };
 
   checkWritePermission: (
     loginUser: LoginUserDto,

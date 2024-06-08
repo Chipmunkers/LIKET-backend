@@ -190,7 +190,7 @@ model Location {
 }
 
 model ReviewLike {
-  reviewIdx Int      @default(autoincrement()) @map("review_tb")
+  reviewIdx Int      @default(autoincrement()) @map("review_idx")
   userIdx   Int      @default(autoincrement()) @map("user_idx")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   Review    Review   @relation("review_like_tb_review_tbToreview_tb", fields: [reviewIdx], references: [idx], onDelete: Cascade, map: "fk_review_tb_to_review_like_tb")

@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
-import { GetContentPagerbleDto } from './dto/get-content-all-pagerble.dto';
+import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { ContentNotFoundException } from './exception/ContentNotFound';
 import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeContentException';
-import { GetMyCultureContentPagerble } from '../user/dto/get-my-content-all-pageble.dto';
 import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
 import { ContentEntity } from './entity/content.entity';
 import { SummaryContentEntity } from './entity/summary-content.entity';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CultureContentService {
@@ -19,11 +19,6 @@ export class CultureContentService {
     private readonly uploadService: UploadService,
   ) {}
 
-  // Content ==================================================
-
-  /**
-   * Get detail culture-content for user
-   */
   public getContentByIdx: (
     idx: number,
     userIdx: number,
@@ -97,55 +92,58 @@ export class CultureContentService {
     return ContentEntity.createEntity(content, reviewStar._sum.starRating || 0);
   };
 
-  /**
-   * Get all culture-contents for user
-   */
   public getContentAll: (
-    pagenation: GetContentPagerbleDto,
+    pagenation: ContentPagerbleDto,
     userIdx: number,
   ) => Promise<{
     contentList: SummaryContentEntity[];
     count: number;
-  }> = async (pagenation, userIdx) => {
+  }> = async (pagerble, userIdx) => {
+    const where: Prisma.CultureContentWhereInput = {
+      genreIdx: pagerble.genre || undefined,
+      ageIdx: pagerble.age || undefined,
+      Style: pagerble.style
+        ? {
+            some: {
+              Style: {
+                deletedAt: null,
+              },
+            },
+          }
+        : undefined,
+      Location: pagerble.region
+        ? {
+            hCode: pagerble.region,
+          }
+        : undefined,
+      startDate: pagerble.open
+        ? {
+            lte: new Date(),
+          }
+        : undefined,
+      endDate: pagerble.open
+        ? {
+            gte: new Date(),
+          }
+        : undefined,
+      acceptedAt:
+        pagerble.accept !== undefined
+          ? pagerble.accept
+            ? {
+                not: null,
+              }
+            : null
+          : undefined,
+      deletedAt: null,
+      User: {
+        idx: pagerble.user,
+        deletedAt: null,
+        blockedAt: null,
+      },
+    };
+
     const [count, contentList] = await this.prisma.$transaction([
-      this.prisma.cultureContent.count({
-        where: {
-          genreIdx: pagenation.genre || undefined,
-          ageIdx: pagenation.age || undefined,
-          Style: pagenation.style
-            ? {
-                some: {
-                  Style: {
-                    deletedAt: null,
-                  },
-                },
-              }
-            : undefined,
-          Location: pagenation.region
-            ? {
-                hCode: pagenation.region,
-              }
-            : undefined,
-          startDate: pagenation.open
-            ? {
-                lte: new Date(),
-              }
-            : undefined,
-          endDate: pagenation.open
-            ? {
-                gte: new Date(),
-              }
-            : undefined,
-          acceptedAt: {
-            not: null,
-          },
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-            blockedAt: null,
-          },
-        },
-      }),
+      this.prisma.cultureContent.count({ where }),
       this.prisma.cultureContent.findMany({
         include: {
           User: true,
@@ -188,48 +186,12 @@ export class CultureContentService {
             },
           },
         },
-        where: {
-          genreIdx: pagenation.genre || undefined,
-          ageIdx: pagenation.age || undefined,
-          Style: pagenation.style
-            ? {
-                some: {
-                  Style: {
-                    deletedAt: null,
-                  },
-                },
-              }
-            : undefined,
-          Location: pagenation.region
-            ? {
-                hCode: pagenation.region,
-              }
-            : undefined,
-          startDate: pagenation.open
-            ? {
-                lte: new Date(),
-              }
-            : undefined,
-          endDate: pagenation.open
-            ? {
-                gte: new Date(),
-              }
-            : undefined,
-          acceptedAt: {
-            not: null,
-          },
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-            blockedAt: null,
-          },
-        },
+        where,
         orderBy: {
-          [pagenation.orderby === 'time' ? 'idx' : 'likeCount']:
-            pagenation.order,
+          [pagerble.orderby === 'time' ? 'idx' : 'likeCount']: pagerble.order,
         },
         take: 10,
-        skip: (pagenation.page - 1) * 10,
+        skip: (pagerble.page - 1) * 10,
       }),
     ]);
 
@@ -241,88 +203,6 @@ export class CultureContentService {
     };
   };
 
-  /**
-   * Get all culture-contents by user idx
-   */
-  public async getContentByUserIdx(
-    userIdx: number,
-    pagerble: GetMyCultureContentPagerble,
-  ): Promise<{
-    contentList: SummaryContentEntity[];
-    count: number;
-  }> {
-    const [count, contentList] = await this.prisma.$transaction([
-      this.prisma.cultureContent.count({
-        where: {
-          userIdx,
-          deletedAt: null,
-        },
-      }),
-      this.prisma.cultureContent.findMany({
-        include: {
-          User: true,
-          ContentImg: {
-            where: {
-              deletedAt: null,
-            },
-            orderBy: {
-              idx: 'asc',
-            },
-          },
-          Genre: true,
-          Style: {
-            include: {
-              Style: true,
-            },
-            where: {
-              Style: {
-                deletedAt: null,
-              },
-            },
-          },
-          Age: true,
-          Location: true,
-          ContentLike: {
-            where: {
-              userIdx,
-            },
-          },
-          _count: {
-            select: {
-              Review: {
-                where: {
-                  deletedAt: null,
-                  User: {
-                    deletedAt: null,
-                  },
-                },
-              },
-            },
-          },
-        },
-        where: {
-          userIdx,
-          deletedAt: null,
-        },
-        orderBy: {
-          idx: 'desc',
-        },
-        take: 10,
-        skip: (pagerble.page - 1) * 10,
-      }),
-    ]);
-
-    return {
-      contentList: contentList.map((content) =>
-        SummaryContentEntity.createEntity(content),
-      ),
-      count,
-    };
-  }
-
-  /**
-   * Get all culture-contents that is opening soon
-   */
   public async getSoonOpenContentAll(
     userIdx: number,
   ): Promise<SummaryContentEntity[]> {
@@ -395,9 +275,6 @@ export class CultureContentService {
     );
   }
 
-  /**
-   * Get all culture-contents that is about to end
-   */
   public async getSoonEndContentAll(
     userIdx: number,
   ): Promise<SummaryContentEntity[]> {

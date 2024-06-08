@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { LoginUserDto } from '../auth/dto/login-user.dto';
-import { GetContentPagerbleDto } from './dto/get-content-all-pagerble.dto';
+import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { ContentNotFoundException } from './exception/ContentNotFound';
@@ -13,8 +13,16 @@ export class ContentAuthService {
 
   checkReadAllPermission: (
     loginUser: LoginUserDto,
-    pagerble: GetContentPagerbleDto,
+    pagerble: ContentPagerbleDto,
   ) => Promise<void> = async (loginUser, pagerble) => {
+    if (pagerble.user && pagerble.user !== loginUser.idx) {
+      throw new PermissionDeniedException();
+    }
+
+    if (!pagerble.accept && pagerble.user !== loginUser.idx) {
+      throw new PermissionDeniedException();
+    }
+
     return;
   };
 

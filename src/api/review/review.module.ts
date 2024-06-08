@@ -8,6 +8,5 @@ import { ReviewAuthService } from './review-auth.service';
   imports: [PrismaModule],
   controllers: [ReviewController],
   providers: [ReviewService, ReviewAuthService],
-  exports: [ReviewService],
 })
 export class ReviewModule {}

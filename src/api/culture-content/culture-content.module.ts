@@ -10,6 +10,5 @@ import { ContentAuthService } from './content-auth.service';
   imports: [PrismaModule, ReviewModule, UploadModule],
   controllers: [CultureContentController],
   providers: [CultureContentService, ContentAuthService],
-  exports: [CultureContentService],
 })
 export class CultureContentModule {}

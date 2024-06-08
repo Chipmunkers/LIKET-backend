@@ -19,7 +19,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { GetReviewByContentPagerbleDto } from './dto/get-review-by-content-pagerble.dto';
+import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
 import { GetReviewAllResponseDto } from './dto/response/get-review-all-response.dto';
 import { ReviewAuthService } from './review-auth.service';
 
@@ -30,6 +30,23 @@ export class ReviewController {
     private readonly reviewService: ReviewService,
     private readonly reviewAuthService: ReviewAuthService,
   ) {}
+
+  /**
+   * 컨텐츠 리뷰 목록 보기
+   */
+  @Get('review/all')
+  @HttpCode(200)
+  @Exception(400, 'Invalid querystring')
+  @Exception(404, 'Cannot find culture-content')
+  @LoginAuth()
+  public async getReviewAll(
+    @User() loginUser: LoginUserDto,
+    @Query() pagerble: ReviewPagerbleDto,
+  ): Promise<GetReviewAllResponseDto> {
+    await this.reviewAuthService.checkReadAllPermisison(loginUser, pagerble);
+
+    return await this.reviewService.getReviewAll(loginUser.idx, pagerble);
+  }
 
   /**
    * 리뷰 생성하기
@@ -47,26 +64,6 @@ export class ReviewController {
     await this.reviewService.createReview(contentIdx, loginUser.idx, createDto);
 
     return;
-  }
-
-  /**
-   * 컨텐츠 리뷰 목록 보기
-   */
-  @Get('/culture-content/:idx/review/all')
-  @HttpCode(200)
-  @Exception(400, 'Invalid querystring')
-  @Exception(404, 'Cannot find culture-content')
-  @LoginAuth()
-  public async getReviewAll(
-    @Param('idx', ParseIntPipe) contentIdx: number,
-    @User() loginUser: LoginUserDto,
-    @Query() pagerble: GetReviewByContentPagerbleDto,
-  ): Promise<GetReviewAllResponseDto> {
-    return await this.reviewService.getReviewAllByContentIdx(
-      contentIdx,
-      loginUser.idx,
-      pagerble,
-    );
   }
 
   /**

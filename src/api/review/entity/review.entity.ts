@@ -99,7 +99,7 @@ export class ReviewEntity {
   public likeCount: number;
 
   constructor(data: ReviewEntity) {
-    Object.assign(data);
+    Object.assign(this, data);
   }
 
   static createEntity(review: ReviewWithInclude) {

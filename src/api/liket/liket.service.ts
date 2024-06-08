@@ -7,9 +7,10 @@ import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
 import { LiketNotFoundException } from './exception/LiketNotFoundException';
 import { UpdateLiketDto } from './dto/update-liket.dto';
-import { GetMyLiketPagerbleDto } from '../user/dto/get-my-liket-all-pagerble.dto';
 import { LiketEntity } from './entity/liket.entity';
 import { SummaryLiketEntity } from './entity/summary-liket.entity';
+import { Prisma } from '@prisma/client';
+import { LiketPagerbleDto } from './dto/liket-pagerble.dto';
 
 @Injectable()
 export class LiketService {
@@ -18,9 +19,6 @@ export class LiketService {
     private readonly uploadService: UploadService,
   ) {}
 
-  /**
-   * Get liket by idx
-   */
   getLiketByIdx: (idx: number) => Promise<LiketEntity> = async (idx) => {
     const liket = await this.prisma.liket.findUnique({
       include: {
@@ -65,63 +63,68 @@ export class LiketService {
     return LiketEntity.createEntity(liket);
   };
 
-  /**
-   * Get all liket by user idx
-   */
-  getAllLiketByUserIdx: (
-    userIdx: number,
-    pagerble: GetMyLiketPagerbleDto,
-  ) => Promise<SummaryLiketEntity[]> = async (userIdx, pagerble) => {
-    const liketList = await this.prisma.liket.findMany({
-      include: {
-        Review: {
-          include: {
-            CultureContent: {
-              include: {
-                Genre: true,
-                Location: true,
-                ContentImg: {
-                  where: {
-                    deletedAt: null,
-                  },
-                  orderBy: {
-                    idx: 'asc',
+  getLiketAll: (
+    loginUser: LoginUserDto,
+    pagerble: LiketPagerbleDto,
+  ) => Promise<{
+    liketList: SummaryLiketEntity[];
+    count: number;
+  }> = async (loginUser, pagerble) => {
+    const where: Prisma.LiketWhereInput = {
+      userIdx: pagerble.user,
+      deletedAt: null,
+      Review: {
+        deletedAt: null,
+      },
+    };
+
+    const [liketList, count] = await this.prisma.$transaction([
+      this.prisma.liket.findMany({
+        include: {
+          Review: {
+            include: {
+              CultureContent: {
+                include: {
+                  Genre: true,
+                  Location: true,
+                  ContentImg: {
+                    where: {
+                      deletedAt: null,
+                    },
+                    orderBy: {
+                      idx: 'asc',
+                    },
                   },
                 },
               },
-            },
-            ReviewImg: {
-              where: {
-                deletedAt: null,
-              },
-              orderBy: {
-                idx: 'asc',
+              ReviewImg: {
+                where: {
+                  deletedAt: null,
+                },
+                orderBy: {
+                  idx: 'asc',
+                },
               },
             },
           },
+          User: true,
         },
-        User: true,
-      },
-      where: {
-        userIdx,
-        deletedAt: null,
-        Review: {
-          deletedAt: null,
+        where,
+        orderBy: {
+          idx: 'desc',
         },
-      },
-      orderBy: {
-        idx: 'desc',
-      },
-      take: 10,
-      skip: (pagerble.page - 1) * 10,
-    });
+        take: 10,
+        skip: (pagerble.page - 1) * 10,
+      }),
+      this.prisma.liket.count({ where }),
+    ]);
 
-    return liketList.map((liket) => LiketEntity.createEntity(liket));
+    return {
+      liketList: liketList.map((liket) => LiketEntity.createEntity(liket)),
+      count,
+    };
   };
 
-  /**
-   * Create LIKET
-   */
   createLiket: (
     reviewIdx: number,
     loginUser: LoginUserDto,
@@ -192,9 +195,6 @@ export class LiketService {
     return LiketEntity.createEntity(createdLiket);
   };
 
-  /**
-   * Update LIKET
-   */
   updateLiketByIdx: (idx: number, updateDto: UpdateLiketDto) => Promise<void> =
     async (idx, updateDto) => {
       await this.prisma.liket.update({
@@ -209,9 +209,6 @@ export class LiketService {
       return;
     };
 
-  /**
-   * Delete LIKET
-   */
   deleteLiketByIdx: (idx: number) => Promise<void> = async (idx) => {
     await this.prisma.liket.update({
       where: {
