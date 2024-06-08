@@ -6,7 +6,6 @@ import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { ContentNotFoundException } from './exception/ContentNotFound';
 import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeContentException';
-import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
 import { ContentEntity } from './entity/content.entity';
 import { SummaryContentEntity } from './entity/summary-content.entity';
@@ -14,10 +13,7 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CultureContentService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly uploadService: UploadService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   public getContentByIdx: (
     idx: number,
@@ -425,12 +421,6 @@ export class CultureContentService {
     userIdx: number,
     createDto: CreateContentRequestDto,
   ) => Promise<number> = async (userIdx, createDto) => {
-    await this.uploadService.checkExistFiles(
-      createDto.imgList.map((file) => file.filePath),
-      FILE_GROUPING.CULTURE_CONTENT,
-      userIdx,
-    );
-
     return await this.prisma.$transaction(async (tx) => {
       const createdLocation = await tx.location.create({
         data: {
@@ -492,12 +482,6 @@ export class CultureContentService {
     updateDto: UpdateContentDto,
     userIdx: number,
   ) => Promise<void> = async (idx, updateDto, userIdx) => {
-    await this.uploadService.checkExistFiles(
-      updateDto.imgList.map((file) => file.filePath),
-      FILE_GROUPING.CULTURE_CONTENT,
-      userIdx,
-    );
-
     await this.prisma.$transaction([
       this.prisma.location.update({
         where: {

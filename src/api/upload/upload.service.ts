@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { PutObjectCommand, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '../../common/module/logger/logger.decorator';
@@ -13,7 +12,6 @@ export class UploadService {
   private s3Client: S3Client;
 
   constructor(
-    private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly utilService: UtilService,
     @Logger('UploadService') private readonly logger: LoggerService,
@@ -35,14 +33,6 @@ export class UploadService {
     userIdx?: number,
   ) {
     const result = await this.uploadToS3(file, option);
-
-    await this.prisma.uploadFile.create({
-      data: {
-        filePath: result.filePath,
-        userIdx: userIdx || null,
-        grouping: option.grouping,
-      },
-    });
 
     return result;
   }
@@ -74,67 +64,7 @@ export class UploadService {
       ),
     );
 
-    await this.prisma.uploadFile.createMany({
-      data: uploadFiles.map((file) => ({
-        filePath: file.filePath,
-        userIdx: userIdx || null,
-        grouping: option.grouping,
-      })),
-    });
-
     return uploadFiles;
-  }
-
-  /**
-   * Check exist file
-   */
-  public async checkExistFile(
-    filePath: string,
-    grouping: FILE_GROUPING,
-    userIdx?: number,
-  ): Promise<void> {
-    const file = await this.prisma.uploadFile.findFirst({
-      where: {
-        filePath,
-        grouping,
-        userIdx,
-        deletedAt: null,
-      },
-    });
-
-    if (!file) {
-      throw new UploadFileNotFoundException('Cannot find uploaded file');
-    }
-
-    return;
-  }
-
-  /**
-   * Check exist files
-   */
-  public async checkExistFiles(
-    filePaths: string[],
-    grouping: FILE_GROUPING,
-    userIdx?: number,
-  ): Promise<void> {
-    this.logger.log('checkExistFiles', `filePaths: ${filePaths.length}`);
-    const fileCount = await this.prisma.uploadFile.count({
-      where: {
-        filePath: {
-          in: filePaths,
-        },
-        grouping,
-        userIdx,
-        deletedAt: null,
-      },
-    });
-
-    this.logger.log('checkExistFiles', `find file count: ${fileCount}`);
-    if (fileCount !== filePaths.length) {
-      throw new UploadFileNotFoundException('Cannot find uploaded files');
-    }
-
-    return;
   }
 
   /**

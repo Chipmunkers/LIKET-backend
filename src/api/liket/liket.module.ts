@@ -6,7 +6,7 @@ import { UploadModule } from '../upload/upload.module';
 import { LiketAuthService } from './liket-auth.service';
 
 @Module({
-  imports: [PrismaModule, UploadModule],
+  imports: [PrismaModule],
   controllers: [LiketController],
   providers: [LiketService, LiketAuthService],
 })

@@ -350,7 +350,6 @@ model User {
   Review           Review[]
   Route            Route[]
   TosAgree         TosAgree[]
-  UploadFile       UploadFile[]
   Liket            Liket[]
   BlockReason      BlockReason[]
   DeleteUserReason DeleteUserReason[]
@@ -381,20 +380,6 @@ model ActiveBanner {
   Banner      Banner   @relation(fields: [idx], references: [idx])
 
   @@map("active_banner_tb")
-}
-
-model UploadFile {
-  idx       Int       @id @default(autoincrement())
-  userIdx   Int?      @default(autoincrement()) @map("user_idx")
-  grouping  Int       @db.SmallInt
-  filePath  String    @map("file_name") @db.VarChar
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  User      User?     @relation(fields: [userIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_tb_to_upload_file_tb")
-
-  @@index([filePath])
-  @@map("upload_file_tb")
 }
 
 model BlockReason {

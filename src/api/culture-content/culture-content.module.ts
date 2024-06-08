@@ -3,11 +3,10 @@ import { CultureContentController } from './culture-content.controller';
 import { CultureContentService } from './culture-content.service';
 import { PrismaModule } from '../../common/module/prisma/prisma.module';
 import { ReviewModule } from '../review/review.module';
-import { UploadModule } from '../upload/upload.module';
 import { ContentAuthService } from './content-auth.service';
 
 @Module({
-  imports: [PrismaModule, ReviewModule, UploadModule],
+  imports: [PrismaModule, ReviewModule],
   controllers: [CultureContentController],
   providers: [CultureContentService, ContentAuthService],
 })

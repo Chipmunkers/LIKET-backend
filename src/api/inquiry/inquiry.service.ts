@@ -2,16 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { CreateInquiryDto } from './dto/create-inquiry.dto';
 import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
-import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
 import { InquiryEntity } from './entity/inquiry.entity';
 
 @Injectable()
 export class InquiryService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly uploadService: UploadService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Get inquiry by idx
@@ -60,12 +56,6 @@ export class InquiryService {
     userIdx: number,
     createDto: CreateInquiryDto,
   ) => Promise<number> = async (userIdx, createDto) => {
-    await this.uploadService.checkExistFiles(
-      createDto.imgList.map((file) => file.filePath),
-      FILE_GROUPING.INQUIRY,
-      userIdx,
-    );
-
     const createdInquiry = await this.prisma.inquiry.create({
       data: {
         title: createDto.title,

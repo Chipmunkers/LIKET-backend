@@ -3,8 +3,6 @@ import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { CreateLiketDto } from './dto/create-liket.dto';
 import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { AlreadyExistLiketException } from './exception/AlreadyExistLiketException';
-import { UploadService } from '../upload/upload.service';
-import { FILE_GROUPING } from '../upload/file-grouping';
 import { LiketNotFoundException } from './exception/LiketNotFoundException';
 import { UpdateLiketDto } from './dto/update-liket.dto';
 import { LiketEntity } from './entity/liket.entity';
@@ -14,10 +12,7 @@ import { LiketPagerbleDto } from './dto/liket-pagerble.dto';
 
 @Injectable()
 export class LiketService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly uploadService: UploadService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   getLiketByIdx: (idx: number) => Promise<LiketEntity> = async (idx) => {
     const liket = await this.prisma.liket.findUnique({
@@ -130,11 +125,6 @@ export class LiketService {
     loginUser: LoginUserDto,
     createDto: CreateLiketDto,
   ) => Promise<LiketEntity> = async (reviewIdx, loginUser, createDto) => {
-    await this.uploadService.checkExistFile(
-      createDto.img.filePath,
-      FILE_GROUPING.LIKET,
-    );
-
     const createdLiket = await this.prisma.$transaction(
       async (tx) => {
         const liket = await tx.liket.findFirst({

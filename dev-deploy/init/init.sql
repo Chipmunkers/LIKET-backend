@@ -233,20 +233,6 @@ CREATE TABLE tos_tb
   PRIMARY KEY (idx)
 );
 
-CREATE TABLE upload_file_tb
-(
-  idx        int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
-  user_idx   int                      NULL,
-  grouping   smallint                 NOT NULL,
-  file_name  varchar                  NOT NULL,
-  file_ext   varchar                  NOT NULL,
-  url_path   varchar                  NOT NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT NOW(),
-  updated_at timestamp with time zone NOT NULL DEFAULT NOW(),
-  deleted_at timestamp with time zone,
-  PRIMARY KEY (idx)
-);
-
 CREATE TABLE block_reason_tb
 (
   idx        int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -364,11 +350,6 @@ ALTER TABLE content_like_tb
 
 ALTER TABLE content_like_tb
   ADD CONSTRAINT FK_user_tb_TO_content_like_tb
-    FOREIGN KEY (user_idx)
-    REFERENCES user_tb (idx);
-
-ALTER TABLE upload_file_tb
-  ADD CONSTRAINT FK_user_tb_TO_upload_file_tb
     FOREIGN KEY (user_idx)
     REFERENCES user_tb (idx);
 
