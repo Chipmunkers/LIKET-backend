@@ -6,7 +6,6 @@ import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { ContentNotFoundException } from './exception/ContentNotFound';
 import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
 import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeContentException';
-import { FILE_GROUPING } from '../upload/file-grouping';
 import { ContentEntity } from './entity/content.entity';
 import { SummaryContentEntity } from './entity/summary-content.entity';
 import { Prisma } from '@prisma/client';
@@ -340,80 +339,6 @@ export class CultureContentService {
     );
   }
 
-  // Content Request ==========================================
-
-  /**
-   * Get culture-content request by idx with author
-   */
-  public getContentRequestByIdx: (idx: number) => Promise<ContentEntity> =
-    async (idx) => {
-      const content = await this.prisma.cultureContent.findUnique({
-        include: {
-          User: true,
-          ContentImg: {
-            where: {
-              deletedAt: null,
-            },
-            orderBy: {
-              idx: 'asc',
-            },
-          },
-          Genre: true,
-          Style: {
-            include: {
-              Style: true,
-            },
-          },
-          Age: true,
-          Location: true,
-          ContentLike: {
-            where: {
-              userIdx: -1,
-            },
-          },
-          _count: {
-            select: {
-              Review: true,
-            },
-          },
-        },
-        where: {
-          idx,
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-            blockedAt: null,
-          },
-        },
-      });
-
-      if (!content) {
-        throw new ContentNotFoundException(
-          'Cannot find culture content request',
-        );
-      }
-
-      const starRatingSum = await this.prisma.review.aggregate({
-        where: {
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-          },
-        },
-        _sum: {
-          starRating: true,
-        },
-      });
-
-      return ContentEntity.createEntity(
-        content,
-        starRatingSum._sum.starRating || 0,
-      );
-    };
-
-  /**
-   * Create culture-content request
-   */
   public createContentRequest: (
     userIdx: number,
     createDto: CreateContentRequestDto,
@@ -471,9 +396,6 @@ export class CultureContentService {
     });
   };
 
-  /**
-   * Update culture-content request by idx
-   */
   public updateContentRequest: (
     idx: number,
     updateDto: UpdateContentDto,
@@ -535,9 +457,6 @@ export class CultureContentService {
     return;
   };
 
-  /**
-   * Delete culture-content request
-   */
   public deleteContentRequest: (idx: number) => Promise<void> = async (idx) => {
     await this.prisma.cultureContent.update({
       where: {
@@ -551,9 +470,6 @@ export class CultureContentService {
     return;
   };
 
-  /**
-   * Add like culture-content by idx
-   */
   public likeContent: (userIdx: number, contentIdx: number) => Promise<void> =
     async (userIdx, contentIdx) => {
       const likeState = await this.prisma.contentLike.findUnique({
@@ -591,9 +507,6 @@ export class CultureContentService {
       return;
     };
 
-  /**
-   * Cancel to like culture-content by idx
-   */
   public cancelToLikeContent: (
     userIdx: number,
     contentIdx: number,

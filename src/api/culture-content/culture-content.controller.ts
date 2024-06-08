@@ -151,27 +151,6 @@ export class CultureContentController {
   }
 
   /**
-   * 컨텐츠 요청 자세히보기
-   */
-  @Get('/request/:idx')
-  @HttpCode(200)
-  @Exception(400, 'Invalid path parameter')
-  @Exception(404, 'Cannot find culture-content')
-  @LoginAuth()
-  public async getCultureContentRequestByIdx(
-    @Param('idx', ParseIntPipe) contentIdx: number,
-    @User() loginUser: LoginUserDto,
-  ): Promise<ContentEntity> {
-    await this.contentAuthService.checkReadPermission(loginUser, contentIdx);
-
-    const content = await this.cultureContentService.getContentRequestByIdx(
-      contentIdx,
-    );
-
-    return content;
-  }
-
-  /**
    * 컨텐츠 요청하기
    */
   @Post('/request')
