@@ -236,7 +236,7 @@ CREATE TABLE tos_tb
 CREATE TABLE upload_file_tb
 (
   idx        int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
-  user_idx   int                      NOT NULL,
+  user_idx   int                      NULL,
   grouping   smallint                 NOT NULL,
   file_name  varchar                  NOT NULL,
   file_ext   varchar                  NOT NULL,
