@@ -9,6 +9,7 @@ import { DuplicateUserException } from './exception/DuplicateUserException';
 import { HashService } from '../../common/module/hash/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { UserEntity } from './entity/user.entity';
+import { UploadedFileEntity } from '../upload/entity/uploaded-file.entity';
 
 @Injectable()
 export class UserService {
@@ -18,12 +19,10 @@ export class UserService {
     private readonly hashService: HashService,
   ) {}
 
-  /**
-   * Local user sign up
-   */
-  public signUp: (signUpDto: SignUpDto) => Promise<string> = async (
-    signUpDto,
-  ) => {
+  public signUp: (
+    signUpDto: SignUpDto,
+    profileImg?: UploadedFileEntity,
+  ) => Promise<string> = async (signUpDto, profileImg) => {
     const email = this.authService.verifyEmailAuthToken(signUpDto.emailToken);
 
     const duplicatedUser = await this.prisma.user.findFirst({
@@ -60,7 +59,7 @@ export class UserService {
         pw: this.hashService.hashPw(signUpDto.pw),
         nickname: signUpDto.nickname,
         birth: signUpDto.birth,
-        profileImgPath: signUpDto.profileImg?.filePath,
+        profileImgPath: profileImg?.filePath || null,
         gender: signUpDto.gender,
       },
     });
@@ -73,9 +72,6 @@ export class UserService {
     return loginAccessToken;
   };
 
-  /**
-   * Get a login user's information
-   */
   public getMyInfo: (userIdx: number) => Promise<MyInfoEntity> = async (
     userIdx,
   ) => {
@@ -127,9 +123,6 @@ export class UserService {
     return MyInfoEntity.createEntity(user);
   };
 
-  /**
-   * Get a detail user data by idx
-   */
   public getUserByIdx: (userIdx: number) => Promise<UserEntity> = async (
     userIdx,
   ) => {
@@ -147,9 +140,6 @@ export class UserService {
     return UserEntity.createEntity(user);
   };
 
-  /**
-   * Update a user's profile
-   */
   public updateProfile: (
     idx: number,
     updateDto: UpdateProfileDto,
@@ -175,14 +165,11 @@ export class UserService {
       data: {
         gender: updateDto.gender,
         birth: updateDto.birth,
-        profileImgPath: updateDto.profileImg?.filePath,
+        profileImgPath: updateDto.profileImg || null,
       },
     });
   };
 
-  /**
-   * Update user's login password
-   */
   public updatePw: (idx: number, updateDto: UpdatePwDto) => Promise<void> =
     async (idx, updateDto) => {
       await this.getUserByIdx(idx);

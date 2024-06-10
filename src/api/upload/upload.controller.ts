@@ -26,6 +26,24 @@ export class UploadController {
   ) {}
 
   /**
+   * 프로필 이미지 업로드하기
+   */
+  @Post('/profile-img')
+  @HttpCode(200)
+  @LoginAuth()
+  @UploadFile('file', 'img')
+  public async uploadProfileImg(@UploadedFiles() file?: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Cannot find uploaded file');
+    }
+
+    return await this.uploadService.uploadFileToS3(file, {
+      destination: 'profile-img',
+      grouping: FILE_GROUPING.PROFILE_IMG,
+    });
+  }
+
+  /**
    * 문화생활컨텐츠 사진 업로드하기
    */
   @Post('/content-img')

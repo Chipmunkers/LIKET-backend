@@ -5,7 +5,7 @@ import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { UtilService } from '../../common/module/util/util.service';
 import { FILE_GROUPING } from './file-grouping';
-import { UploadFileNotFoundException } from './exception/UploadFileNotFoundException';
+import { UploadedFileEntity } from './entity/uploaded-file.entity';
 
 @Injectable()
 export class UploadService {
@@ -47,14 +47,7 @@ export class UploadService {
       grouping: FILE_GROUPING;
     },
     userIdx?: number,
-  ): Promise<
-    {
-      fullUrl: string;
-      fileName: string;
-      fileExt: string;
-      filePath: string;
-    }[]
-  > {
+  ): Promise<UploadedFileEntity[]> {
     this.logger.log('uploadFilesToS3', 'try to upload files');
     const uploadFiles = await Promise.all(
       files.map((file) =>
@@ -82,12 +75,7 @@ export class UploadService {
     option: {
       destination: string;
     },
-  ): Promise<{
-    fullUrl: string;
-    fileName: string;
-    fileExt: string;
-    filePath: string;
-  }> {
+  ): Promise<UploadedFileEntity> {
     const region = this.configService.get('AWS_REGION');
     const bucketName = this.configService.get('S3_BUCKET_NAME');
 

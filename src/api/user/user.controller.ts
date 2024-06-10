@@ -19,11 +19,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { MulterOptionProvider } from '../upload/multer-option.provider';
 import { UploadService } from '../upload/upload.service';
 import { FILE_GROUPING } from '../upload/file-grouping';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { LoginAuth } from '../auth/login-auth.decorator';
+import { UploadedFileEntity } from '../upload/entity/uploaded-file.entity';
 
 @Controller('user')
+@ApiTags('User')
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -31,14 +33,14 @@ export class UserController {
   ) {}
 
   /**
-   * Sign Up API
+   * 회원가입하기 (file 필드로 이미지 전송)
    */
   @Post('/local')
   @HttpCode(200)
-  @ApiTags('User')
   @Exception(400, 'Invalid body')
   @Exception(401, 'Invalid email auth token')
   @Exception(409, 'Duplicated email or nickname')
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor(
       'file',
@@ -52,24 +54,24 @@ export class UserController {
     @Body() signUpDto: SignUpDto,
     @UploadedFile() file?: Express.Multer.File,
   ): Promise<SignUpResponseDto> {
+    let uploadedFile: UploadedFileEntity | undefined;
     if (file) {
-      await this.uploadService.uploadFileToS3(file, {
+      uploadedFile = await this.uploadService.uploadFileToS3(file, {
         destination: 'profile-img',
         grouping: FILE_GROUPING.PROFILE_IMG,
       });
     }
 
-    const token = await this.userService.signUp(signUpDto);
+    const token = await this.userService.signUp(signUpDto, uploadedFile);
 
     return { token };
   }
 
   /**
-   * Get my info API
+   * 내 정보 보기
    */
   @Get('/my')
   @HttpCode(200)
-  @ApiTags('User')
   @Exception(401, 'There is no login access token')
   @Exception(404, 'Cannot find user')
   @LoginAuth()
@@ -80,11 +82,10 @@ export class UserController {
   }
 
   /**
-   * Update login user profile API
+   * 프로필 수정하기
    */
   @Put('/my/profile')
   @HttpCode(201)
-  @ApiTags('User')
   @Exception(400, 'Invalid body')
   @Exception(404, 'Cannot find user')
   @LoginAuth()

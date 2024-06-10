@@ -1,12 +1,4 @@
-import {
-  IsJWT,
-  IsObject,
-  IsOptional,
-  IsStrongPassword,
-  Length,
-  ValidateNested,
-} from 'class-validator';
-import { UploadFileDto } from '../../upload/dto/upload-file.dto';
+import { IsJWT, IsStrongPassword, Length } from 'class-validator';
 import { PickType } from '@nestjs/swagger';
 import { UserEntity } from '../entity/user.entity';
 
@@ -36,14 +28,4 @@ export class SignUpDto extends PickType(UserEntity, [
   })
   @Length(6, 20)
   public pw: string;
-
-  /**
-   * 프로필 이미지
-   *
-   * @example "/profile-img/img_0000001.png"
-   */
-  @IsOptional()
-  @ValidateNested()
-  @IsObject()
-  public profileImg?: UploadFileDto;
 }
