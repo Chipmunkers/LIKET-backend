@@ -1,4 +1,4 @@
-export class LoginUserDto {
+export class LoginJwtPayload {
   idx: number;
   isAdmin: boolean;
 }

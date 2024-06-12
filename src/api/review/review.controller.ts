@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
   Param,
@@ -13,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { User } from '../user/user.decorator';
-import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginAuth } from '../auth/login-auth.decorator';
@@ -22,6 +20,8 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
 import { GetReviewAllResponseDto } from './dto/response/get-review-all-response.dto';
 import { ReviewAuthService } from './review-auth.service';
+import { LoginUser } from '../auth/model/login-user';
+import { ReviewEntity } from './entity/review.entity';
 
 @Controller()
 @ApiTags('Review')
@@ -34,18 +34,28 @@ export class ReviewController {
   /**
    * 컨텐츠 리뷰 목록 보기
    */
-  @Get('review/all')
+  @Get('/review/all')
   @HttpCode(200)
   @Exception(400, 'Invalid querystring')
   @Exception(404, 'Cannot find culture-content')
-  @LoginAuth()
   public async getReviewAll(
-    @User() loginUser: LoginUserDto,
     @Query() pagerble: ReviewPagerbleDto,
+    @User() loginUser?: LoginUser,
   ): Promise<GetReviewAllResponseDto> {
-    await this.reviewAuthService.checkReadAllPermisison(loginUser, pagerble);
+    await this.reviewAuthService.checkReadAllPermisison(pagerble, loginUser);
 
-    return await this.reviewService.getReviewAll(loginUser.idx, pagerble);
+    return await this.reviewService.getReviewAll(pagerble, loginUser?.idx);
+  }
+
+  /**
+   * 최근 인기 리뷰 목록 보기
+   */
+  @Get('/review/hot/all')
+  @HttpCode(200)
+  public async getHotReviewAll(
+    @User() loginUser?: LoginUser,
+  ): Promise<ReviewEntity[]> {
+    return await this.reviewService.getHotReviewAll(loginUser);
   }
 
   /**
@@ -57,7 +67,7 @@ export class ReviewController {
   @Exception(404, 'Cannot find culture-content')
   @LoginAuth()
   public async createReview(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Body() createDto: CreateReviewDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
   ): Promise<void> {
@@ -75,7 +85,7 @@ export class ReviewController {
   @Exception(404, 'Cannot find review')
   @LoginAuth()
   public async updateReview(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) reviewIdx: number,
     @Body() updateDto: UpdateReviewDto,
   ): Promise<void> {
@@ -99,7 +109,7 @@ export class ReviewController {
   @Exception(404, 'Cannot find review')
   @LoginAuth()
   public async deleteReview(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
     await this.reviewAuthService.checkDeletePermission(loginUser, reviewIdx);
@@ -119,7 +129,7 @@ export class ReviewController {
   @Exception(409, 'Already like review')
   @LoginAuth()
   public async likeReview(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
     await this.reviewService.likeReview(loginUser.idx, reviewIdx);
@@ -137,7 +147,7 @@ export class ReviewController {
   @Exception(409, 'Already like review')
   @LoginAuth()
   public async cancelToLikeReview(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
     await this.reviewService.cancelToLikeReview(loginUser.idx, reviewIdx);

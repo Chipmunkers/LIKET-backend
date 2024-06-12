@@ -9,13 +9,13 @@ import { UploadService } from './upload.service';
 import { FILE_GROUPING } from './file-grouping';
 import { UploadFileResponseDto } from './dto/response/upload-file-response.dto';
 import { User } from '../user/user.decorator';
-import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { UploadFile } from './upload-file.decorator';
 import { UploadFiles } from './upload-files.decorator';
 import { ApiTags } from '@nestjs/swagger';
+import { LoginUser } from '../auth/model/login-user';
 
 @Controller('upload')
 @ApiTags('Upload')
@@ -51,7 +51,7 @@ export class UploadController {
   @LoginAuth()
   @UploadFiles('files', 10, 'img')
   public async uploadCulutrContentImgs(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @UploadedFiles() files?: Express.Multer.File[],
   ): Promise<UploadFileResponseDto[]> {
     if (!files || !files.length) {
@@ -76,7 +76,7 @@ export class UploadController {
   @LoginAuth()
   @UploadFiles('files', 10, 'img')
   public async uploadInquiryImgs(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @UploadedFiles() files?: Express.Multer.File[],
   ): Promise<UploadFileResponseDto[]> {
     if (!files || !files.length) {

@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
   Param,
@@ -12,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { LiketService } from './liket.service';
 import { User } from '../user/user.decorator';
-import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { UpdateLiketDto } from './dto/update-liket.dto';
 import { LiketEntity } from './entity/liket.entity';
 import { ApiTags } from '@nestjs/swagger';
@@ -21,6 +19,7 @@ import { LoginAuth } from '../auth/login-auth.decorator';
 import { LiketAuthService } from './liket-auth.service';
 import { LiketPagerbleDto } from './dto/liket-pagerble.dto';
 import { GetLiketAllResponseDto } from './dto/response/get-liket-all.dto';
+import { LoginUser } from '../auth/model/login-user';
 
 @Controller('liket')
 export class LiketController {
@@ -39,7 +38,7 @@ export class LiketController {
   @Exception(403, 'Permission denied')
   @LoginAuth()
   public async getLiketAll(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Query() pagerble: LiketPagerbleDto,
   ): Promise<GetLiketAllResponseDto> {
     await this.liektAuthService.checkReadAllPermission(loginUser, pagerble);
@@ -58,7 +57,7 @@ export class LiketController {
   @LoginAuth()
   public async getLiketByIdx(
     @Param('idx', ParseIntPipe) idx: number,
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
   ): Promise<LiketEntity> {
     await this.liektAuthService.checkReadPermission(loginUser, idx);
 
@@ -78,7 +77,7 @@ export class LiketController {
   @LoginAuth()
   public async updateLiketByIdx(
     @Param('idx', ParseIntPipe) idx: number,
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Body() updateDto: UpdateLiketDto,
   ): Promise<void> {
     await this.liektAuthService.checkUpdatePermission(
@@ -103,7 +102,7 @@ export class LiketController {
   @LoginAuth()
   public async deleteLiketByIdx(
     @Param('idx', ParseIntPipe) idx: number,
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
   ): Promise<void> {
     await this.liektAuthService.checkDeletePermission(loginUser, idx);
 

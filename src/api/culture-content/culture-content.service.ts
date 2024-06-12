@@ -9,6 +9,8 @@ import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeConten
 import { ContentEntity } from './entity/content.entity';
 import { SummaryContentEntity } from './entity/summary-content.entity';
 import { Prisma } from '@prisma/client';
+import { LoginUser } from '../auth/model/login-user';
+import { HotCultureContentEntity } from './entity/hot-content.entity';
 
 @Injectable()
 export class CultureContentService {
@@ -16,7 +18,7 @@ export class CultureContentService {
 
   public getContentByIdx: (
     idx: number,
-    userIdx: number,
+    userIdx?: number,
   ) => Promise<ContentEntity> = async (idx, userIdx) => {
     const content = await this.prisma.cultureContent.findUnique({
       include: {
@@ -39,7 +41,7 @@ export class CultureContentService {
         Location: true,
         ContentLike: {
           where: {
-            userIdx,
+            userIdx: userIdx || -1,
           },
         },
         _count: {
@@ -86,7 +88,7 @@ export class CultureContentService {
 
   public getContentAll: (
     pagenation: ContentPagerbleDto,
-    userIdx: number,
+    userIdx?: number,
   ) => Promise<{
     contentList: SummaryContentEntity[];
     count: number;
@@ -162,19 +164,7 @@ export class CultureContentService {
           Location: true,
           ContentLike: {
             where: {
-              userIdx,
-            },
-          },
-          _count: {
-            select: {
-              Review: {
-                where: {
-                  deletedAt: null,
-                  User: {
-                    deletedAt: null,
-                  },
-                },
-              },
+              userIdx: userIdx || -1,
             },
           },
         },
@@ -196,7 +186,7 @@ export class CultureContentService {
   };
 
   public async getSoonOpenContentAll(
-    userIdx: number,
+    userIdx?: number,
   ): Promise<SummaryContentEntity[]> {
     const contentList = await this.prisma.cultureContent.findMany({
       include: {
@@ -224,19 +214,7 @@ export class CultureContentService {
         Location: true,
         ContentLike: {
           where: {
-            userIdx,
-          },
-        },
-        _count: {
-          select: {
-            Review: {
-              where: {
-                deletedAt: null,
-                User: {
-                  deletedAt: null,
-                },
-              },
-            },
+            userIdx: userIdx || -1,
           },
         },
       },
@@ -268,7 +246,7 @@ export class CultureContentService {
   }
 
   public async getSoonEndContentAll(
-    userIdx: number,
+    userIdx?: number,
   ): Promise<SummaryContentEntity[]> {
     const contentList = await this.prisma.cultureContent.findMany({
       include: {
@@ -296,19 +274,7 @@ export class CultureContentService {
         Location: true,
         ContentLike: {
           where: {
-            userIdx,
-          },
-        },
-        _count: {
-          select: {
-            Review: {
-              where: {
-                deletedAt: null,
-                User: {
-                  deletedAt: null,
-                },
-              },
-            },
+            userIdx: userIdx || -1,
           },
         },
       },
@@ -330,6 +296,120 @@ export class CultureContentService {
       },
       orderBy: {
         endDate: 'asc',
+      },
+      take: 5,
+    });
+
+    return contentList.map((content) =>
+      SummaryContentEntity.createEntity(content),
+    );
+  }
+
+  public async getHotContentAll() {
+    const genre = await this.prisma.genre.findMany({
+      include: {
+        CultureContent: {
+          include: {
+            ContentImg: {
+              where: {
+                deletedAt: null,
+              },
+              orderBy: {
+                idx: 'asc',
+              },
+            },
+          },
+          where: {
+            deletedAt: null,
+            acceptedAt: {
+              not: null,
+            },
+            User: {
+              deletedAt: null,
+              blockedAt: null,
+            },
+            likeCount: {
+              not: 0,
+            },
+            startDate: {
+              lte: new Date(),
+            },
+            endDate: {
+              gte: new Date(),
+            },
+          },
+          take: 4,
+          orderBy: {
+            likeCount: 'desc',
+          },
+        },
+      },
+      where: {
+        deletedAt: null,
+      },
+    });
+
+    return genre.map((genre) =>
+      HotCultureContentEntity.createHotContent(genre),
+    );
+  }
+
+  public async getHotContentByAge(
+    ageIdx?: number,
+    loginUser?: LoginUser,
+  ): Promise<SummaryContentEntity[]> {
+    const contentList = await this.prisma.cultureContent.findMany({
+      include: {
+        User: true,
+        ContentImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
+        Genre: true,
+        Style: {
+          include: {
+            Style: true,
+          },
+          where: {
+            Style: {
+              deletedAt: null,
+            },
+          },
+        },
+        Age: true,
+        Location: true,
+        ContentLike: {
+          where: {
+            userIdx: loginUser?.idx || -1,
+          },
+        },
+      },
+      where: {
+        deletedAt: null,
+        acceptedAt: {
+          not: null,
+        },
+        User: {
+          deletedAt: null,
+          blockedAt: null,
+        },
+        likeCount: {
+          not: 0,
+        },
+        ageIdx,
+        startDate: {
+          lte: new Date(),
+        },
+        endDate: {
+          gte: new Date(),
+        },
+      },
+      orderBy: {
+        likeCount: 'desc',
       },
       take: 5,
     });

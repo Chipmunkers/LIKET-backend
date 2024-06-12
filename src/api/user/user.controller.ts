@@ -13,7 +13,6 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { SignUpResponseDto } from './dto/response/sign-up-response.dto';
 import { MyInfoEntity } from './entity/my-info.entity';
 import { User } from './user.decorator';
-import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MulterOptionProvider } from '../upload/multer-option.provider';
@@ -23,6 +22,7 @@ import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { UploadedFileEntity } from '../upload/entity/uploaded-file.entity';
+import { LoginUser } from '../auth/model/login-user';
 
 @Controller('user')
 @ApiTags('User')
@@ -75,9 +75,7 @@ export class UserController {
   @Exception(401, 'There is no login access token')
   @Exception(404, 'Cannot find user')
   @LoginAuth()
-  public async getMyInfo(
-    @User() loginUser: LoginUserDto,
-  ): Promise<MyInfoEntity> {
+  public async getMyInfo(@User() loginUser: LoginUser): Promise<MyInfoEntity> {
     return await this.userService.getMyInfo(loginUser.idx);
   }
 
@@ -90,7 +88,7 @@ export class UserController {
   @Exception(404, 'Cannot find user')
   @LoginAuth()
   public async udpateUserInfo(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Body() updateDto: UpdateProfileDto,
   ): Promise<void> {
     await this.userService.updateProfile(loginUser.idx, updateDto);

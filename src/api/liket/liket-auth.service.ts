@@ -1,6 +1,6 @@
 import { PermissionDeniedException } from '../../common/exception/PermissionDeniedException';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
-import { LoginUserDto } from '../auth/dto/login-user.dto';
+import { LoginUser } from '../auth/model/login-user';
 import { ReviewNotFoundException } from '../review/exception/ReviewNotFoundException';
 import { CreateLiketDto } from './dto/create-liket.dto';
 import { LiketPagerbleDto } from './dto/liket-pagerble.dto';
@@ -11,7 +11,7 @@ export class LiketAuthService {
   constructor(private readonly prisma: PrismaService) {}
 
   checkReadAllPermission: (
-    loginUser: LoginUserDto,
+    loginUser: LoginUser,
     pagerble: LiketPagerbleDto,
   ) => Promise<void> = async (loginUser, pagerble) => {
     if (!pagerble.user) {
@@ -25,13 +25,13 @@ export class LiketAuthService {
     return;
   };
 
-  checkReadPermission: (loginUser: LoginUserDto, idx: number) => Promise<void> =
+  checkReadPermission: (loginUser: LoginUser, idx: number) => Promise<void> =
     async (loginUser, idx) => {
       return;
     };
 
   checkWritePermission: (
-    loginUser: LoginUserDto,
+    loginUser: LoginUser,
     reviewIdx: number,
     createDto: CreateLiketDto,
   ) => Promise<void> = async (loginUser, reviewIdx, createDto) => {
@@ -57,7 +57,7 @@ export class LiketAuthService {
   };
 
   checkUpdatePermission: (
-    loginUser: LoginUserDto,
+    loginUser: LoginUser,
     idx: number,
     updateDto: UpdateLiketDto,
   ) => Promise<void> = async (loginUser, idx) => {
@@ -79,25 +79,23 @@ export class LiketAuthService {
     return;
   };
 
-  checkDeletePermission: (
-    loginUser: LoginUserDto,
-    idx: number,
-  ) => Promise<void> = async (loginUser, idx) => {
-    const liket = await this.prisma.liket.findUnique({
-      where: {
-        idx,
-        deletedAt: null,
-      },
-    });
+  checkDeletePermission: (loginUser: LoginUser, idx: number) => Promise<void> =
+    async (loginUser, idx) => {
+      const liket = await this.prisma.liket.findUnique({
+        where: {
+          idx,
+          deletedAt: null,
+        },
+      });
 
-    if (!liket) {
-      throw new LiketNotFoundException('Cannot find LIKET');
-    }
+      if (!liket) {
+        throw new LiketNotFoundException('Cannot find LIKET');
+      }
 
-    if (liket.userIdx !== loginUser.idx) {
-      throw new PermissionDeniedException();
-    }
+      if (liket.userIdx !== loginUser.idx) {
+        throw new PermissionDeniedException();
+      }
 
-    return;
-  };
+      return;
+    };
 }

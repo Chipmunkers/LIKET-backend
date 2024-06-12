@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { CreateLiketDto } from './dto/create-liket.dto';
-import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { AlreadyExistLiketException } from './exception/AlreadyExistLiketException';
 import { LiketNotFoundException } from './exception/LiketNotFoundException';
 import { UpdateLiketDto } from './dto/update-liket.dto';
@@ -9,6 +8,7 @@ import { LiketEntity } from './entity/liket.entity';
 import { SummaryLiketEntity } from './entity/summary-liket.entity';
 import { Prisma } from '@prisma/client';
 import { LiketPagerbleDto } from './dto/liket-pagerble.dto';
+import { LoginUser } from '../auth/model/login-user';
 
 @Injectable()
 export class LiketService {
@@ -59,7 +59,7 @@ export class LiketService {
   };
 
   getLiketAll: (
-    loginUser: LoginUserDto,
+    loginUser: LoginUser,
     pagerble: LiketPagerbleDto,
   ) => Promise<{
     liketList: SummaryLiketEntity[];
@@ -122,7 +122,7 @@ export class LiketService {
 
   createLiket: (
     reviewIdx: number,
-    loginUser: LoginUserDto,
+    loginUser: LoginUser,
     createDto: CreateLiketDto,
   ) => Promise<LiketEntity> = async (reviewIdx, loginUser, createDto) => {
     const createdLiket = await this.prisma.$transaction(

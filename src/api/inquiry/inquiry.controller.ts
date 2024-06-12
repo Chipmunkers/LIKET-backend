@@ -11,13 +11,13 @@ import {
 } from '@nestjs/common';
 import { InquiryService } from './inquiry.service';
 import { User } from '../user/user.decorator';
-import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { CreateInquiryResponseDto } from './dto/response/create-inquiry-response.dto';
 import { CreateInquiryDto } from './dto/create-inquiry.dto';
 import { InquiryEntity } from './entity/inquiry.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { LoginAuth } from '../auth/login-auth.decorator';
+import { LoginUser } from '../auth/model/login-user';
 
 @Controller('inquiry')
 export class InquiryController {
@@ -33,7 +33,7 @@ export class InquiryController {
   @Exception(404, 'Cannot find inquiry')
   @LoginAuth()
   public async getInquiryByIdx(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) idx: number,
   ): Promise<InquiryEntity> {
     const inquiry = await this.inquiryService.getInquiryByIdx(idx);
@@ -54,7 +54,7 @@ export class InquiryController {
   @Exception(400, 'Invalid body')
   @LoginAuth()
   public async createInquiry(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Body() createDto: CreateInquiryDto,
   ): Promise<CreateInquiryResponseDto> {
     const idx = await this.inquiryService.createInquiry(
@@ -78,7 +78,7 @@ export class InquiryController {
   @LoginAuth()
   public async updateInquiry(
     @Param('idx', ParseIntPipe) inquiryIdx: number,
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
   ): Promise<void> {
     const inquiry = await this.inquiryService.getInquiryByIdx(inquiryIdx);
 

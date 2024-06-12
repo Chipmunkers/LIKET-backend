@@ -14,7 +14,6 @@ import { CultureContentService } from './culture-content.service';
 import { CreateContentRequestResponseDto } from './dto/response/create-content-request-response.dto';
 import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { User } from '../user/user.decorator';
-import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { GetCultureContentAllResponseDto } from './dto/response/get-content-all.response.dto';
 import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { GetSoonOpenCultureContentResponseDto } from './dto/response/get-soon-open-content-response.dto';
@@ -24,6 +23,9 @@ import { LoginAuth } from '../auth/login-auth.decorator';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { ContentAuthService } from './content-auth.service';
+import { LoginUser } from '../auth/model/login-user';
+import { HotCultureContentEntity } from './entity/hot-content.entity';
+import { SummaryContentEntity } from './entity/summary-content.entity';
 
 @Controller('culture-content')
 @ApiTags('Culture-Content')
@@ -41,7 +43,7 @@ export class CultureContentController {
   @Exception(400, 'Invalid querystring')
   @LoginAuth()
   public async getCultureContentAll(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Query() pagerble: ContentPagerbleDto,
   ): Promise<GetCultureContentAllResponseDto> {
     await this.contentAuthService.checkReadAllPermission(loginUser, pagerble);
@@ -59,12 +61,11 @@ export class CultureContentController {
    */
   @Get('/soon-open/all')
   @HttpCode(200)
-  @LoginAuth()
   public async getSoonOpenCultureContentAll(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser?: LoginUser,
   ): Promise<GetSoonOpenCultureContentResponseDto> {
     const contentList = await this.cultureContentService.getSoonOpenContentAll(
-      loginUser.idx,
+      loginUser?.idx,
     );
 
     return {
@@ -76,17 +77,38 @@ export class CultureContentController {
    * 종료 예정 컨텐츠 목록보기
    */
   @Get('/soon-end/all')
-  @LoginAuth()
   public async getSoonEndCultureContentAll(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser?: LoginUser,
   ): Promise<GetSoonOpenCultureContentResponseDto> {
     const contentList = await this.cultureContentService.getSoonEndContentAll(
-      loginUser.idx,
+      loginUser?.idx,
     );
 
     return {
       contentList,
     };
+  }
+
+  /**
+   * 핫플 차트 보기
+   */
+  @Get('/hot/all')
+  public async getHotCultureContentAll(): Promise<HotCultureContentEntity[]> {
+    return await this.cultureContentService.getHotContentAll();
+  }
+
+  /**
+   * 연령대의 인기 컨텐츠 보기
+   */
+  @Get('/hot-age/:ageIdx/all')
+  public async getHotAgeCultureContentAll(
+    @Param('ageIdx', ParseIntPipe) ageIdx: number,
+    @User() loginUser?: LoginUser,
+  ): Promise<SummaryContentEntity[]> {
+    return await this.cultureContentService.getHotContentByAge(
+      ageIdx,
+      loginUser,
+    );
   }
 
   /**
@@ -96,16 +118,15 @@ export class CultureContentController {
   @HttpCode(200)
   @Exception(400, 'Invalid querystring')
   @Exception(404, 'Cannot find culture-content')
-  @LoginAuth()
   public async getCultureContentByIdx(
-    @User() loginUser: LoginUserDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
+    @User() loginUser?: LoginUser,
   ): Promise<ContentEntity> {
-    await this.contentAuthService.checkReadPermission(loginUser, contentIdx);
+    await this.contentAuthService.checkReadPermission(contentIdx, loginUser);
 
     const content = await this.cultureContentService.getContentByIdx(
       contentIdx,
-      loginUser.idx,
+      loginUser?.idx,
     );
 
     return content;
@@ -121,7 +142,7 @@ export class CultureContentController {
   @Exception(409, 'Already like culture-content')
   @LoginAuth()
   public async likeCultureContent(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) contentIdx: number,
   ): Promise<void> {
     await this.cultureContentService.likeContent(loginUser.idx, contentIdx);
@@ -139,7 +160,7 @@ export class CultureContentController {
   @Exception(409, 'Already like culture-content')
   @LoginAuth()
   public async cancelToLikeCutlureContent(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) contentIdx: number,
   ): Promise<void> {
     await this.cultureContentService.cancelToLikeContent(
@@ -159,7 +180,7 @@ export class CultureContentController {
   @LoginAuth()
   public async createCultureContentRequest(
     @Body() createDto: CreateContentRequestDto,
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
   ): Promise<CreateContentRequestResponseDto> {
     const contentIdx = await this.cultureContentService.createContentRequest(
       loginUser.idx,
@@ -181,7 +202,7 @@ export class CultureContentController {
   @Exception(409, 'Accepted request')
   @LoginAuth()
   public async updateContentRequest(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) contentIdx: number,
     @Body() updateDto: UpdateContentDto,
   ): Promise<void> {
@@ -210,7 +231,7 @@ export class CultureContentController {
   @Exception(409, 'Accepted request')
   @LoginAuth()
   public async deleteContentRequest(
-    @User() loginUser: LoginUserDto,
+    @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) contentIdx: number,
   ): Promise<void> {
     await this.contentAuthService.checkDeletePermission(loginUser, contentIdx);

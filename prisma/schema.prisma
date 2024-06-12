@@ -394,7 +394,7 @@ model BlockReason {
 
 model DeleteUserReason {
   idx            Int            @id
-  typeIdx        Int
+  typeIdx        Int            @map("type_idx")
   contents       String         @db.VarChar
   createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   DeleteUserType DeleteUserType @relation(fields: [typeIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_delete_user_type_tb_to_delete_user_reason_tb")
@@ -410,4 +410,14 @@ model DeleteUserType {
   DeleteUserReason DeleteUserReason[]
 
   @@map("delete_user_type_tb")
+}
+
+model EmailCertCode {
+  idx       Int      @id @default(autoincrement())
+  email     String   @db.VarChar
+  code      String   @db.VarChar
+  type      Int      @db.SmallInt
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("email_cert_code_tb")
 }

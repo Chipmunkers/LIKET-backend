@@ -3,24 +3,24 @@ import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { AlreadyLikeReviewException } from './exception/AlreadyLikeReviewException';
 import { AlreadyNotLikeReviewExcpetion } from './exception/AlreadyNotLikeReviewException';
 import { ReviewEntity } from './entity/review.entity';
 import { Prisma } from '@prisma/client';
+import { LoginUser } from '../auth/model/login-user';
 
 @Injectable()
 export class ReviewService {
   constructor(private readonly prisma: PrismaService) {}
 
   public getReviewAll: (
-    userIdx: number,
     pagerble: ReviewPagerbleDto,
+    userIdx?: number,
   ) => Promise<{
     reviewList: ReviewEntity[];
     count: number;
-  }> = async (userIdx, pagerble) => {
+  }> = async (pagerble, userIdx) => {
     const where: Prisma.ReviewWhereInput = {
       cultureContentIdx: pagerble.content,
       userIdx: pagerble.user,
@@ -44,7 +44,7 @@ export class ReviewService {
           },
           ReviewLike: {
             where: {
-              userIdx,
+              userIdx: userIdx || -1,
             },
           },
           User: true,
@@ -77,6 +77,73 @@ export class ReviewService {
       reviewList: reviewList.map((review) => ReviewEntity.createEntity(review)),
     };
   };
+
+  public getHotReviewAll: (loginUser?: LoginUser) => Promise<ReviewEntity[]> =
+    async (loginUser) => {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const reviewList = await this.prisma.review.findMany({
+        include: {
+          ReviewImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
+          ReviewLike: {
+            where: {
+              userIdx: loginUser?.idx || -1,
+            },
+          },
+          User: true,
+          CultureContent: {
+            include: {
+              User: true,
+              ContentImg: true,
+              Genre: true,
+              Style: {
+                include: {
+                  Style: true,
+                },
+              },
+              Age: true,
+              Location: true,
+            },
+          },
+        },
+        where: {
+          deletedAt: null,
+          CultureContent: {
+            deletedAt: null,
+            User: {
+              blockedAt: null,
+              deletedAt: null,
+            },
+            acceptedAt: {
+              not: null,
+            },
+          },
+          User: {
+            deletedAt: null,
+          },
+          createdAt: {
+            gte: sevenDaysAgo,
+          },
+          likeCount: {
+            gte: 3,
+          },
+        },
+        orderBy: {
+          likeCount: 'desc',
+        },
+        take: 5,
+      });
+
+      return reviewList.map((review) => ReviewEntity.createEntity(review));
+    };
 
   public createReview: (
     contentIdx: number,

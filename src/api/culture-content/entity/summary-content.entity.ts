@@ -3,6 +3,7 @@ import { LocationEntity } from './location.entity';
 import { PickType } from '@nestjs/swagger';
 import { ContentEntity } from './content.entity';
 import { CotnentWithInclude } from './prisma-type/content-with-include';
+import { SummaryCotnentWithInclude } from './prisma-type/summary-content-with-include';
 
 export class SummaryContentEntity extends PickType(ContentEntity, [
   'idx',
@@ -23,7 +24,7 @@ export class SummaryContentEntity extends PickType(ContentEntity, [
     Object.assign(this, data);
   }
 
-  static createEntity(data: CotnentWithInclude) {
+  static createEntity(data: SummaryCotnentWithInclude) {
     return new SummaryContentEntity({
       idx: data.idx,
       title: data.title,

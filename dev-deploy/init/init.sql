@@ -4,6 +4,16 @@ CREATE DATABASE liket OWNER liket_admin_deploy;
 
 \c liket liket_admin_deploy
 
+CREATE TABLE email_cert_code_tb
+(
+  idx        int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  email      varchar                  NOT NULL,
+  code       varchar                  NOT NULL,
+  type       smallint                 NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (idx)
+);
+
 CREATE TABLE active_banner_tb
 (
   idx          int                      NOT NULL,
@@ -456,30 +466,30 @@ VALUES
 INSERT INTO style_tb
   (name)
 VALUES
-  ('혼자'),
-  ('함께'),
-  ('반려동물'),
-  ('포토존'),
-  ('체험'),
-  ('굿즈'),
-  ('재미있는'),
-  ('귀여운'),
-  ('힙한'),
-  ('세련된'),
-  ('미니멀'),
-  ('편안한'),
-  ('힐링');
+  ('혼자'), -- 1
+  ('함께'), -- 2
+  ('반려동물'), -- 3
+  ('포토존'), -- 4
+  ('체험'), -- 5
+  ('굿즈'), -- 6
+  ('재미있는'), -- 7
+  ('귀여운'), -- 8
+  ('힙한'), -- 9
+  ('세련된'), -- 10
+  ('미니멀'), -- 11
+  ('편안한'), -- 12
+  ('힐링'); -- 13
 
 -- Age
 INSERT INTO age_tb
   (name)
 VALUES
-  ('전체'),
-  ('아이들'),
-  ('10대'),
-  ('20대'),
-  ('30대'),
-  ('40-50대');
+  ('전체'), -- 1
+  ('아이들'), -- 2
+  ('10대'), -- 3
+  ('20대'), -- 4
+  ('30대'), -- 5 
+  ('40-50대'); -- 6
 
 -- Inquiry Type
 INSERT INTO inquiry_type_tb
@@ -1567,6 +1577,684 @@ VALUES
         true -- is_parking
     );
 
+-- 인기 컨텐츠
+INSERT INTO culture_content_tb
+    (
+        genre_idx,
+        user_idx,
+        location_idx,
+        age_idx,
+        title,
+        description,
+        website_link,
+        start_date,
+        end_date,
+        open_time,
+        is_fee,
+        is_reservation,
+        is_pet,
+        is_parking,
+        like_count,
+        accepted_at
+    )
+VALUES
+    ( -- 팝업스토어
+        1, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        3, -- age_idx
+        '1등 팝업스토어', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        1, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        2, -- age_idx
+        '최강 팝업스토어', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        1, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        2, -- age_idx
+        '히타기 팝업스토어', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        8, -- like_count
+        NOW()
+    ),
+    (
+        1, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        4, -- age_idx
+        '아차차 팝업스토어', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    ( -- 전시회
+        2, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        3, -- age_idx
+        'A 전시회', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        2, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        2, -- age_idx
+        'B 전시회', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        2, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        2, -- age_idx
+        'C 전시회', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        2, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        1, -- age_idx
+        'D 전시회', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    ( -- 연극
+        3, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        4, -- age_idx
+        '오리 연극회', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        4, -- like_count
+        NOW()
+    ),
+    ( 
+        3, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        4, -- age_idx
+        '거위 연극회', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        122, -- like_count
+        NOW()
+    ),
+    ( 
+        3, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        1, -- age_idx
+        '심심한 연극회', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        112, -- like_count
+        NOW()
+    ),
+    ( -- 뮤지컬 
+        4, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        4, -- age_idx
+        '이세계 뮤지컬', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        3, -- like_count
+        NOW()
+    ),
+    (
+        4, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        2, -- age_idx
+        'A 뮤지컬', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        5, -- like_count
+        NOW()
+    ),
+    (
+        4, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        3, -- age_idx
+        'C 뮤지컬', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        5, -- like_count
+        NOW()
+    ),
+    (
+        4, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        4, -- age_idx
+        '뿡뿡이 뮤지컬', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        10, -- like_count
+        NOW()
+    ),
+    (
+        4, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        2, -- age_idx
+        '심심한 뮤지컬', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        13, -- like_count
+        NOW()
+    ),
+    ( -- 콘서트
+        5, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        4, -- age_idx
+        '싸이 콘서트', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        11, -- like_count
+        NOW()
+    ),
+    (
+        5, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        2, -- age_idx
+        '무슨무슨 콘서트', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        5, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        3, -- age_idx
+        '인하대 콘서트', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        2, -- like_count
+        NOW()
+    ),
+    (
+        5, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        4, -- age_idx
+        '고세구의 노래 자랑', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        4, -- like_count
+        NOW()
+    ),
+    ( -- 페스티벌
+        6, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        3, -- age_idx
+        'A 페스티벌', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        43, -- like_count
+        NOW()
+    ),
+    (
+        6, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        3, -- age_idx
+        'B 페스티벌', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        2, -- like_count
+        NOW()
+    ),
+    (
+        6, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        3, -- age_idx
+        'C 페스티벌', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        5, -- like_count
+        NOW()
+    ),
+    (
+        6, -- genre_idx
+        6, -- user_idx
+        4, -- location_idx
+        4, -- age_idx
+        'D 페스티벌', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        4, -- like_count
+        NOW()
+    );
+
+-- 오픈 예정
+INSERT INTO culture_content_tb
+    (
+        genre_idx,
+        user_idx,
+        location_idx,
+        age_idx,
+        title,
+        description,
+        website_link,
+        start_date,
+        end_date,
+        open_time,
+        is_fee,
+        is_reservation,
+        is_pet,
+        is_parking,
+        like_count,
+        accepted_at
+    )
+VALUES
+    (
+        1, -- genre_idx
+        6, -- user_idx
+        1, -- location_idx
+        4, -- age_idx
+        '곧 오픈하는 짱짱 컨텐츠', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() + INTERVAL '2 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        2, -- genre_idx
+        3, -- user_idx
+        2, -- location_idx
+        4, -- age_idx
+        '진짜로 곧 오픈하는 컨텐츠', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() + INTERVAL '1 days', -- start_date
+        NOW() + INTERVAL '60 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ), 
+    (
+        5, -- genre_idx
+        6, -- user_idx
+        3, -- location_idx
+        4, -- age_idx
+        '한시적으로 운영하는 빠스티벌', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() + INTERVAL '4 days', -- start_date
+        NOW() + INTERVAL '100 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        5, -- genre_idx
+        6, -- user_idx
+        3, -- location_idx
+        4, -- age_idx
+        '감사합니다 컨텐츠', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() + INTERVAL '12 days', -- start_date
+        NOW() + INTERVAL '100 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        4, -- genre_idx
+        6, -- user_idx
+        3, -- location_idx
+        4, -- age_idx
+        '꽁꽁 얼어붙은 한강위로', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() + INTERVAL '12 days', -- start_date
+        NOW() + INTERVAL '100 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    );
+
+-- 종료 예정
+INSERT INTO culture_content_tb
+    (
+        genre_idx,
+        user_idx,
+        location_idx,
+        age_idx,
+        title,
+        description,
+        website_link,
+        start_date,
+        end_date,
+        open_time,
+        is_fee,
+        is_reservation,
+        is_pet,
+        is_parking,
+        like_count,
+        accepted_at
+    )
+VALUES
+    (
+        1, -- genre_idx
+        6, -- user_idx
+        1, -- location_idx
+        4, -- age_idx
+        '곧 끝나는 컨텐츠', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '30 days', -- start_date
+        NOW() + INTERVAL '5 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        2, -- genre_idx
+        6, -- user_idx
+        2, -- location_idx
+        4, -- age_idx
+        '곧 끝나는 컨텐츠', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '20 days', -- start_date
+        NOW() + INTERVAL '4 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        3, -- genre_idx
+        6, -- user_idx
+        2, -- location_idx
+        4, -- age_idx
+        '짱재밌었다 컨텐츠', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '3 days', -- start_date
+        NOW() + INTERVAL '5 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        6, -- genre_idx
+        6, -- user_idx
+        2, -- location_idx
+        4, -- age_idx
+        '짱재밌었다 컨텐츠', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '2 days', -- start_date
+        NOW() + INTERVAL '6 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    ),
+    (
+        2, -- genre_idx
+        6, -- user_idx
+        3, -- location_idx
+        4, -- age_idx
+        '짱재밌었다 컨텐츠', -- title
+        '한시적으로 운영되는 이 독특한 공간에서는 몽테뉴가 30번지의 전설적인 외관을 연상시키는 화려한 구조와 함께 시즌 및 컬렉션별로 다채로운 풍경을 펼쳐 보입니다.', -- description
+        'https://www.dior.com/ko_kr/fashion/', -- web
+        NOW() - INTERVAL '1 days', -- start_date
+        NOW() + INTERVAL '10 days', -- end_date
+        '평일 10:30-18:00 / 주말 10:30-20:30',
+        false, -- is_fee
+        false, -- is_reservation
+        false, -- is_pet
+        true, -- is_parking
+        12, -- like_count
+        NOW()
+    );
+
 UPDATE culture_content_tb SET accepted_at = NOW() WHERE idx = 1 OR idx = 4;
     
 -- 다비드 자맹
@@ -1659,3 +2347,95 @@ VALUES
     (5, '/review/fe1b34c5-98e8-401d-b0a4-99cbf51a1f71.jpeg'),
     (5, '/review/d8967bb2-05d6-4d3f-a907-0dbd8e25ba40.jpeg'),
     (6, '/review/dbc9bc4d-7b4f-4516-b721-76a6e7828957.jpeg');
+
+-- 인기 리뷰
+-- idx: 7
+INSERT INTO review_tb
+    (culture_content_idx, user_idx, description, visit_time, star_rating, like_count)
+VALUES
+    (1, 2, '정말 재미있었습니다.', '2024-05-05', 4, 3);
+
+INSERT INTO review_like_tb
+    (review_idx, user_idx, created_at)
+VALUES 
+    (7, 1, NOW() + INTERVAL '1 days'),
+    (7, 2, NOW() + INTERVAL '1 days'),
+    (7, 3, NOW() + INTERVAL '1 days');
+
+INSERT INTO review_img_tb
+    (review_idx, img_path)
+VALUES
+    (7, '/review/d883e234-d137-4815-8526-2ff58cb2bf45.jpeg');
+
+-- idx: 8
+INSERT INTO review_tb
+    (culture_content_idx, user_idx, description, visit_time, star_rating, like_count)
+VALUES
+    (1, 2, '정말 재미있었습니다.', '2024-05-05', 4, 4);
+
+INSERT INTO review_like_tb
+    (review_idx, user_idx, created_at)
+VALUES 
+    (8, 1, NOW() + INTERVAL '1 days'),
+    (8, 2, NOW() + INTERVAL '2 days'),
+    (8, 5, NOW() + INTERVAL '1 days'),
+    (8, 3, NOW() + INTERVAL '2 days');
+
+INSERT INTO review_img_tb
+    (review_idx, img_path)
+VALUES
+    (8, '/review/27cd5a21-8691-4982-ad6f-47b8b43fe5b8.jpeg');
+
+-- idx: 9
+INSERT INTO review_tb
+    (culture_content_idx, user_idx, description, visit_time, star_rating, like_count)
+VALUES
+    (1, 2, '재밌었어요', '2024-05-05', 4, 6);
+
+INSERT INTO review_like_tb
+    (review_idx, user_idx, created_at)
+VALUES 
+    (9, 1, NOW() + INTERVAL '1 days'),
+    (9, 2, NOW() + INTERVAL '2 days'),
+    (9, 5, NOW() + INTERVAL '1 days'),
+    (9, 12, NOW() + INTERVAL '1 days'),
+    (9, 11, NOW() + INTERVAL '1 days'),
+    (9, 3, NOW() + INTERVAL '2 days');
+
+INSERT INTO review_img_tb
+    (review_idx, img_path)
+VALUES
+    (9, '/review/dbc9bc4d-7b4f-4516-b721-76a6e7828957.jpeg');
+
+-- idx: 10
+INSERT INTO review_tb
+    (culture_content_idx, user_idx, description, visit_time, star_rating, like_count)
+VALUES
+    (1, 2, '와 진짜 예술', '2024-05-05', 4, 7);
+
+INSERT INTO review_like_tb
+    (review_idx, user_idx, created_at)
+VALUES 
+    (10, 1, NOW() + INTERVAL '1 days'),
+    (10, 2, NOW() + INTERVAL '2 days'),
+    (10, 5, NOW() + INTERVAL '1 days'),
+    (10, 12, NOW() + INTERVAL '1 days'),
+    (10, 11, NOW() + INTERVAL '1 days'),
+    (10, 3, NOW() + INTERVAL '2 days'),
+    (10, 13, NOW() + INTERVAL '2 days');
+
+-- idx: 11
+INSERT INTO review_tb
+    (culture_content_idx, user_idx, description, visit_time, star_rating, like_count)
+VALUES
+    (1, 2, '와 진짜 예술', '2024-05-05', 4, 6);
+
+INSERT INTO review_like_tb
+    (review_idx, user_idx, created_at)
+VALUES 
+    (11, 1, NOW() + INTERVAL '1 days'),
+    (11, 5, NOW() + INTERVAL '1 days'),
+    (11, 12, NOW() + INTERVAL '1 days'),
+    (11, 11, NOW() + INTERVAL '1 days'),
+    (11, 3, NOW() + INTERVAL '2 days'),
+    (11, 13, NOW() + INTERVAL '2 days');

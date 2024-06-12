@@ -1,6 +1,6 @@
 import { UnauthorizedException } from '@nestjs/common';
 
-export class InvalidEmailAuthTokenException extends UnauthorizedException {
+export class InvalidLoginJwtException extends UnauthorizedException {
   constructor(message: string) {
     super(message);
   }

@@ -10,20 +10,27 @@ import { HashService } from '../../common/module/hash/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { UserEntity } from './entity/user.entity';
 import { UploadedFileEntity } from '../upload/entity/uploaded-file.entity';
+import { EmailJwtService } from '../email-cert/email-jwt.service';
+import { EmailCertType } from '../email-cert/model/email-cert-type';
+import { LoginJwtService } from '../auth/login-jwt.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authService: AuthService,
     private readonly hashService: HashService,
+    private readonly emailJwtService: EmailJwtService,
+    private readonly loginJwtService: LoginJwtService,
   ) {}
 
   public signUp: (
     signUpDto: SignUpDto,
     profileImg?: UploadedFileEntity,
   ) => Promise<string> = async (signUpDto, profileImg) => {
-    const email = this.authService.verifyEmailAuthToken(signUpDto.emailToken);
+    const email = await this.emailJwtService.verify(
+      signUpDto.emailToken,
+      EmailCertType.SIGN_UP,
+    );
 
     const duplicatedUser = await this.prisma.user.findFirst({
       where: {
@@ -64,7 +71,7 @@ export class UserService {
       },
     });
 
-    const loginAccessToken = this.authService.signLoginAccessToken(
+    const loginAccessToken = this.loginJwtService.sign(
       signUpUser.idx,
       signUpUser.isAdmin,
     );

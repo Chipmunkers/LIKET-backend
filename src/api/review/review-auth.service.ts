@@ -1,22 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
-import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { PermissionDeniedException } from '../../common/exception/PermissionDeniedException';
 import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
+import { LoginUser } from '../auth/model/login-user';
 
 @Injectable()
 export class ReviewAuthService {
   constructor(private readonly prisma: PrismaService) {}
 
   checkReadAllPermisison: (
-    loginUser: LoginUserDto,
     pagerlbe: ReviewPagerbleDto,
-  ) => Promise<void> = async (loginUser, pagerble) => {
-    if (pagerble.user && pagerble.user !== loginUser.idx) {
+    loginUser?: LoginUser,
+  ) => Promise<void> = async (pagerble, loginUser) => {
+    if (pagerble.user && pagerble.user !== loginUser?.idx) {
       throw new PermissionDeniedException();
     }
 
@@ -41,7 +41,7 @@ export class ReviewAuthService {
       }
 
       // 수락되지 않은 컨텐츠의 리뷰는 작성자만 볼 수 있음
-      if (!content.acceptedAt && content.userIdx !== loginUser.idx) {
+      if (!content.acceptedAt && content.userIdx !== loginUser?.idx) {
         throw new PermissionDeniedException();
       }
     }
@@ -50,7 +50,7 @@ export class ReviewAuthService {
   };
 
   checkWritePermission: (
-    loginUser: LoginUserDto,
+    loginUser: LoginUser,
     contentIdx: number,
     createDto: CreateReviewDto,
   ) => Promise<void> = async (loginUser, contentIdx, createDto) => {
@@ -58,7 +58,7 @@ export class ReviewAuthService {
   };
 
   checkUpdatePermission: (
-    loginUser: LoginUserDto,
+    loginUser: LoginUser,
     reviewIdx: number,
     updateDto: UpdateReviewDto,
   ) => Promise<void> = async (loginUser, reviewIdx, updateDto) => {
@@ -87,7 +87,7 @@ export class ReviewAuthService {
   };
 
   checkDeletePermission: (
-    loginUser: LoginUserDto,
+    loginUser: LoginUser,
     reviewIdx: number,
   ) => Promise<void> = async (loginUser, reviewIdx) => {
     const review = await this.prisma.review.findUnique({
