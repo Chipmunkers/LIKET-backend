@@ -93,7 +93,7 @@ export class SummaryLiketEntity {
         idx: review.idx,
         starRating: review.starRating,
         visitTime: review.visitTime,
-        thumbnail: review.ReviewImg[0]?.imgPath || null,
+        thumbnail: review.ReviewImg[0]?.imgPath || '',
         createdAt: review.createdAt,
       },
       cultureContent: {
@@ -101,7 +101,7 @@ export class SummaryLiketEntity {
         title: content.title,
         genre: TagEntity.createEntity(content.Genre),
         location: LocationEntity.createEntity(content.Location),
-        thumbnail: content.ContentImg[0]?.imgPath || null,
+        thumbnail: content.ContentImg[0]?.imgPath || '',
       },
       author: {
         idx: author.idx,

@@ -1,13 +1,14 @@
 import { CreateLocationDto } from './create-location.dto';
 import {
   ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
   IsInt,
   IsObject,
-  IsOptional,
+  IsString,
+  Length,
   ValidateNested,
 } from 'class-validator';
-import { UploadFileDto } from '../../upload/dto/upload-file.dto';
-import { Type } from 'class-transformer';
 import { PickType } from '@nestjs/swagger';
 import { ContentEntity } from '../entity/content.entity';
 
@@ -26,11 +27,12 @@ export class CreateContentRequestDto extends PickType(ContentEntity, [
   /**
    * 컨텐츠 이미지 배열
    */
-  @ValidateNested({ each: true })
+  @IsArray()
+  @IsString({ each: true })
+  @Length(1, 200, { each: true })
+  @ArrayMinSize(1)
   @ArrayMaxSize(10)
-  @IsOptional()
-  @Type(() => UploadFileDto)
-  imgList: UploadFileDto[] = [];
+  imgList: string[];
 
   /**
    * 장르 인덱스

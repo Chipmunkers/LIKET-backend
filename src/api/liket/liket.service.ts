@@ -170,7 +170,7 @@ export class LiketService {
             User: true,
           },
           data: {
-            imgPath: createDto.img.filePath,
+            imgPath: createDto.img,
             description: createDto.description,
             reviewIdx,
             userIdx: loginUser.idx,

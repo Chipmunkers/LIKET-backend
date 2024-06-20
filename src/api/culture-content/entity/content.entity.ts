@@ -34,7 +34,7 @@ export class ContentEntity {
    *
    * @example /culture-content/img_00001.png
    */
-  public thumbnail: string | null;
+  public thumbnail: string;
 
   /**
    * 컨텐츠 이미지 배열
@@ -177,7 +177,7 @@ export class ContentEntity {
     return new ContentEntity({
       idx: data.idx,
       title: data.title,
-      thumbnail: data.ContentImg[0]?.imgPath || null,
+      thumbnail: data.ContentImg[0]?.imgPath || '',
       genre: TagEntity.createEntity(data.Genre),
       style: data.Style.map((style) => TagEntity.createEntity(style.Style)),
       age: TagEntity.createEntity(data.Age),

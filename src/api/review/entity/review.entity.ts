@@ -39,7 +39,7 @@ export class ReviewEntity {
    *
    * @example "/review/img_00002.png"
    */
-  public thumbnail: string | null;
+  public thumbnail: string;
 
   /**
    * 문화생활컨텐츠 정보
@@ -106,7 +106,7 @@ export class ReviewEntity {
     return new ReviewEntity({
       idx: review.idx,
       visitTime: review.visitTime,
-      thumbnail: review.ReviewImg[0]?.imgPath || null,
+      thumbnail: review.ReviewImg[0]?.imgPath || '',
       cultureContent: {
         idx: review.CultureContent.idx,
         genre: TagEntity.createEntity(review.CultureContent.Genre),

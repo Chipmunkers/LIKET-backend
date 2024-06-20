@@ -1,14 +1,23 @@
-import { ArrayMaxSize, IsArray, ValidateNested } from 'class-validator';
-import { UploadFileDto } from '../../upload/dto/upload-file.dto';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsString,
+  Length,
+} from 'class-validator';
 
 export class CreateLiketDto {
   /**
    * 이미지 목록
+   *
+   * @example ['/liket/img_0000.1png']
    */
   @IsArray()
-  @ValidateNested({ each: true })
+  @IsString({ each: true })
+  @Length(1, 200, { each: true })
+  @ArrayMinSize(1)
   @ArrayMaxSize(10)
-  public img: UploadFileDto;
+  public img: string;
 
   /**
    * 라이켓 내용

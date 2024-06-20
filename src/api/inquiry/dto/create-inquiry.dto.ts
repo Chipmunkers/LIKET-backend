@@ -1,13 +1,11 @@
 import {
   ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
   IsInt,
-  IsOptional,
   IsString,
   Length,
-  ValidateNested,
 } from 'class-validator';
-import { UploadFileDto } from '../../upload/dto/upload-file.dto';
-import { Type } from 'class-transformer';
 
 export class CreateInquiryDto {
   @IsString()
@@ -18,11 +16,12 @@ export class CreateInquiryDto {
   @Length(1, 2000)
   contents: string;
 
-  @ValidateNested({ each: true })
+  @IsArray()
+  @IsString({ each: true })
+  @Length(1, 200, { each: true })
+  @ArrayMinSize(0)
   @ArrayMaxSize(10)
-  @IsOptional()
-  @Type(() => UploadFileDto)
-  imgList: UploadFileDto[] = [];
+  imgList: string[];
 
   @IsInt()
   typeIdx: number;

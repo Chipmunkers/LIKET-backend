@@ -28,7 +28,7 @@ export class SummaryContentEntity extends PickType(ContentEntity, [
     return new SummaryContentEntity({
       idx: data.idx,
       title: data.title,
-      thumbnail: data.ContentImg[0]?.imgPath || null,
+      thumbnail: data.ContentImg[0]?.imgPath || '',
       genre: TagEntity.createEntity(data.Genre),
       style: data.Style.map((style) => TagEntity.createEntity(style.Style)),
       age: TagEntity.createEntity(data.Age),

@@ -181,7 +181,7 @@ export class ReviewService {
         ReviewImg: {
           createMany: {
             data: createDto.imgList.map((img) => ({
-              imgPath: img.filePath,
+              imgPath: img,
             })),
           },
         },
@@ -212,7 +212,7 @@ export class ReviewService {
           },
           createMany: {
             data: updateDto.imgList.map((img) => ({
-              imgPath: img.filePath,
+              imgPath: img,
             })),
           },
         },

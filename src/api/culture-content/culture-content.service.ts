@@ -454,7 +454,7 @@ export class CultureContentService {
             ? {
                 createMany: {
                   data: createDto.imgList.map((img) => ({
-                    imgPath: img.filePath,
+                    imgPath: img,
                   })),
                 },
               }
@@ -510,7 +510,7 @@ export class CultureContentService {
             createMany: updateDto.imgList
               ? {
                   data: updateDto.imgList.map((img) => ({
-                    imgPath: img.filePath,
+                    imgPath: img,
                   })),
                 }
               : undefined,

@@ -31,7 +31,7 @@ export class HotCultureContentEntity extends PickType(TagEntity, [
         title: content.title,
         startDate: content.startDate,
         endDate: content.endDate,
-        thumbnail: content.ContentImg[0]?.imgPath || null,
+        thumbnail: content.ContentImg[0]?.imgPath || '',
       })),
     });
   }
