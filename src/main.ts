@@ -23,7 +23,7 @@ async function bootstrap() {
       단, 성공을 제외한 모든 예외 상태코드의 Response Body는 개발 편의를 위한 것이므로 코드에서는 사용하지 않는 것을 권장드립니다.
       `,
     )
-    .setVersion('0.1.0')
+    .setVersion('0.1.1')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
