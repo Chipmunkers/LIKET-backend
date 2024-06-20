@@ -1,5 +1,5 @@
 import { UseInterceptors, applyDecorators } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { MulterOptionProvider } from './multer-option.provider';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
@@ -16,8 +16,9 @@ export const UploadFiles = (
 
   return applyDecorators(
     UseInterceptors(
-      FileInterceptor(
+      FilesInterceptor(
         field,
+        fileLimitCount,
         MulterOptionProvider.createOption({
           mimetype,
           limits,

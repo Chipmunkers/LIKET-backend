@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   Post,
+  UploadedFile,
   UploadedFiles,
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
@@ -32,7 +33,7 @@ export class UploadController {
   @HttpCode(200)
   @LoginAuth()
   @UploadFile('file', 'img')
-  public async uploadProfileImg(@UploadedFiles() file?: Express.Multer.File) {
+  public async uploadProfileImg(@UploadedFile() file?: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Cannot find uploaded file');
     }
