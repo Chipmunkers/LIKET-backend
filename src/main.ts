@@ -12,6 +12,10 @@ async function bootstrap() {
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
+  if (process.env.MODE === 'develop') {
+    app.enableCors();
+  }
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Liket Mobile Backend API')
     .setDescription(
