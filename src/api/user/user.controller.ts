@@ -28,6 +28,7 @@ import { SocialSignUpDto } from './dto/social-sign-up.dto';
 import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { Response } from 'express';
 import cookieConfig from '../auth/config/cookie.config';
+import { NicknameDuplicateCheckDto } from './dto/nickname-duplicate-check.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -155,5 +156,17 @@ export class UserController {
     @Body() checkDto: EmailDuplicateCheckDto,
   ): Promise<void> {
     return await this.userService.checkEmailDuplicate(checkDto);
+  }
+
+  /**
+   * 닉네임 중복 확인하기
+   */
+  @Post('/nickname/duplicate-check')
+  @HttpCode(201)
+  @Exception(400, 'invalid body')
+  @Exception(409, '이미 가입된 닉네임')
+  async checkNicknameDuplicate(@Body() checkDto: NicknameDuplicateCheckDto) {
+    await this.userService.checkNicknameDuplicate(checkDto);
+    return;
   }
 }

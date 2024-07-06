@@ -17,6 +17,8 @@ import { SocialLoginJwtService } from '../../common/module/social-login-jwt/soci
 import { EmailDuplicateException } from './exception/EmailDuplicateException';
 import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { LoginToken } from '../auth/model/login-token';
+import { NicknameDuplicateCheckDto } from './dto/nickname-duplicate-check.dto';
+import { NicknameDuplicateException } from './exception/NicknameDuplicateException';
 
 @Injectable()
 export class UserService {
@@ -258,6 +260,31 @@ export class UserService {
     }
 
     throw new EmailDuplicateException('duplicated email');
+  }
+
+  public async checkNicknameDuplicate(checkDto: NicknameDuplicateCheckDto) {
+    try {
+      await this.getUserByNickname(checkDto.nickname);
+    } catch (err) {
+      return;
+    }
+
+    throw new NicknameDuplicateException('duplicated nickname');
+  }
+
+  private async getUserByNickname(nickname: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        nickname,
+        deletedAt: null,
+      },
+    });
+
+    if (!user) {
+      throw new UserNotFoundException('Cannot find user');
+    }
+
+    return UserEntity.createEntity(user);
   }
 
   private async getUserByEmail(email: string) {
