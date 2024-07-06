@@ -15,9 +15,17 @@ import { ContentTagModule } from './api/content-tag/content-tag.module';
 import { EmailCertModule } from './api/email-cert/email-cert.module';
 import { VerifyLoginJwtMiddleware } from './common/middleware/verify-login-jwt.middleware';
 import { LoginJwtModule } from './common/module/login-jwt/login-jwt.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 5 * 1000,
+        limit: 50,
+      },
+    ]),
     LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -35,6 +43,12 @@ import { LoginJwtModule } from './common/module/login-jwt/login-jwt.module';
     UploadModule,
     ContentTagModule,
     LoginJwtModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule implements NestModule {

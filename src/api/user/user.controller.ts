@@ -44,7 +44,7 @@ export class UserController {
   @HttpCode(200)
   @Exception(400, 'Invalid body')
   @Exception(401, 'Invalid email auth token')
-  @Exception(409, 'Duplicated email or nickname')
+  @Exception(409, 'Duplicated email or nickname (Body)')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor(
