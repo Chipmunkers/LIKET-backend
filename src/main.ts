@@ -13,8 +13,11 @@ async function bootstrap() {
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  if (process.env.MODE === 'develop') {
-    app.enableCors();
+  if (process.env.MODE === 'product') {
+    app.enableCors({
+      origin: ['https://liket.site', 'http://liket.site'],
+      credentials: true,
+    });
   }
 
   app.use(cookieParser(process.env.COOKIE_SECRET));
