@@ -23,6 +23,7 @@ import { Exception } from '../../common/decorator/exception.decorator';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { UploadedFileEntity } from '../upload/entity/uploaded-file.entity';
 import { LoginUser } from '../auth/model/login-user';
+import { SocialSignUpDto } from './dto/social-sign-up.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -68,6 +69,44 @@ export class UserController {
   }
 
   /**
+   * 소셜 회원가입 하기 (프로필 이미지 file로 전달)
+   */
+  @Post('/social')
+  @ApiTags('Auth')
+  @HttpCode(200)
+  @Exception(400, 'Invalid body')
+  @Exception(401, 'Invalid social jwt')
+  @Exception(409, 'Duplicate email or nickname')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor(
+      'file',
+      MulterOptionProvider.createOption({
+        mimetype: ['image/png', 'image/jpeg'],
+        limits: 1 * 1024 * 1024,
+      }),
+    ),
+  )
+  public async socialSignUp(
+    @Body() signUpDto: SocialSignUpDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ): Promise<SignUpResponseDto> {
+    let uploadedFile: UploadedFileEntity | undefined;
+    if (file) {
+      uploadedFile = await this.uploadService.uploadFileToS3(file, {
+        destination: 'profile-img',
+        grouping: FILE_GROUPING.PROFILE_IMG,
+      });
+    }
+
+    const token = await this.userService.socialUserSignUp(
+      signUpDto,
+      uploadedFile,
+    );
+    return { token };
+  }
+
+  /**
    * 내 정보 보기
    */
   @Get('/my')
@@ -87,7 +126,7 @@ export class UserController {
   @Exception(400, 'Invalid body')
   @Exception(404, 'Cannot find user')
   @LoginAuth()
-  public async udpateUserInfo(
+  public async updateUserInfo(
     @User() loginUser: LoginUser,
     @Body() updateDto: UpdateProfileDto,
   ): Promise<void> {

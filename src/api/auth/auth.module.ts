@@ -3,26 +3,33 @@ import { PrismaModule } from '../../common/module/prisma/prisma.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { HashModule } from '../../common/module/hash/hash.module';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import jwtConfig from './config/jwt.config';
-import { LoginJwtService } from './login-jwt.service';
+import kakaoLoginConfig from './strategy/kakao/config/kakao-login.config';
+import { KakaoLoginStrategy } from './strategy/kakao/kakao-login.strategy';
+import { UserModule } from '../user/user.module';
+import { HttpModule } from '@nestjs/axios';
+import httpConfig from './config/http.config';
+import { SocialLoginJwtModule } from '../../common/module/social-login-jwt/social-login-jwt.module';
+import { LoginJwtModule } from '../../common/module/login-jwt/login-jwt.module';
 
-@Global()
 @Module({
   imports: [
     HashModule,
     PrismaModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule.forFeature(jwtConfig)],
-      useFactory: (configService: ConfigService) => ({
-        ...configService.get('jwt'),
+    UserModule,
+    LoginJwtModule,
+    SocialLoginJwtModule,
+    ConfigModule.forFeature(kakaoLoginConfig),
+    HttpModule.registerAsync({
+      imports: [ConfigModule.forFeature(httpConfig)],
+      useFactory: async (configService: ConfigService) => ({
+        timeout: configService.get('HTTP_TIMEOUT'),
+        maxRedirects: configService.get('HTTP_MAX_REDIRECTS'),
       }),
       inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LoginJwtService],
-  exports: [LoginJwtService],
+  providers: [AuthService, KakaoLoginStrategy],
 })
 export class AuthModule {}

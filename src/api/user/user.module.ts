@@ -7,7 +7,9 @@ import { HashService } from '../../common/module/hash/hash.service';
 import { UploadModule } from '../upload/upload.module';
 import { HashModule } from '../../common/module/hash/hash.module';
 import { EmailCertModule } from '../email-cert/email-cert.module';
-import { AuthModule } from '../auth/auth.module';
+import { SocialLoginUserService } from './social-login-user.service';
+import { LoginJwtModule } from '../../common/module/login-jwt/login-jwt.module';
+import { SocialLoginJwtModule } from '../../common/module/social-login-jwt/social-login-jwt.module';
 
 @Module({
   imports: [
@@ -15,9 +17,11 @@ import { AuthModule } from '../auth/auth.module';
     UploadModule,
     HashModule,
     EmailCertModule,
-    AuthModule,
+    LoginJwtModule,
+    SocialLoginJwtModule,
   ],
   controllers: [UserController],
-  providers: [UserService, JwtService, HashService],
+  providers: [UserService, JwtService, HashService, SocialLoginUserService],
+  exports: [SocialLoginUserService],
 })
 export class UserModule {}

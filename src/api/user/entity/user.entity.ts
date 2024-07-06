@@ -1,4 +1,5 @@
 import { User } from '@prisma/client';
+import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, Matches, Max, Min } from 'class-validator';
 
 export class UserEntity {
@@ -37,6 +38,7 @@ export class UserEntity {
    * @example 1
    */
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @IsIn([1, 2])
   public gender: number | null;
@@ -53,6 +55,7 @@ export class UserEntity {
    *
    * @example 2002
    */
+  @Type(() => Number)
   @IsInt()
   @Min(1900)
   @Max(new Date().getFullYear())

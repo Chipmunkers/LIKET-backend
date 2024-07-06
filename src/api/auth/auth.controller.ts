@@ -1,4 +1,13 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/local-login.dto';
 import { LoginResponseDto } from './dto/response/local-login-response.dto';
@@ -6,6 +15,9 @@ import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { ApiTags } from '@nestjs/swagger';
 import { Exception } from '../../common/decorator/exception.decorator';
+import { Request, Response } from 'express';
+import { SocialProvider } from './strategy/social-provider.enum';
+import { SocialProviderPipe } from './pipe/social-provider.pipe';
 
 @Controller('auth')
 export class AuthController {
@@ -27,5 +39,33 @@ export class AuthController {
     const token = await this.authService.login(loginDto);
 
     return { token };
+  }
+
+  /**
+   * 소셜 로그인 시도
+   */
+  @Get('/:provider')
+  @ApiTags('Auth')
+  @HttpCode(200)
+  public async socialLogin(
+    @Param('provider', SocialProviderPipe) provider: SocialProvider,
+    @Res() res: Response,
+  ) {
+    const url = this.authService.getSocialLoginUrl(provider);
+    res.redirect(url);
+  }
+
+  /**
+   * 소셜 로그인 콜백 API
+   */
+  @Get('/:provider/callback')
+  @ApiTags('Auth')
+  @HttpCode(200)
+  public async socialLoginCallback(
+    @Param('provider', SocialProviderPipe) provider: SocialProvider,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    await this.authService.socialLogin(req, res, provider);
   }
 }

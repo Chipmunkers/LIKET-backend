@@ -4,7 +4,6 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { UpdatePwDto } from './dto/update-pw.dto';
 import { MyInfoEntity } from './entity/my-info.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { AuthService } from '../auth/auth.service';
 import { DuplicateUserException } from './exception/DuplicateUserException';
 import { HashService } from '../../common/module/hash/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
@@ -12,7 +11,9 @@ import { UserEntity } from './entity/user.entity';
 import { UploadedFileEntity } from '../upload/entity/uploaded-file.entity';
 import { EmailJwtService } from '../email-cert/email-jwt.service';
 import { EmailCertType } from '../email-cert/model/email-cert-type';
-import { LoginJwtService } from '../auth/login-jwt.service';
+import { LoginJwtService } from '../../common/module/login-jwt/login-jwt.service';
+import { SocialSignUpDto } from './dto/social-sign-up.dto';
+import { SocialLoginJwtService } from '../../common/module/social-login-jwt/social-login-jwt.service';
 
 @Injectable()
 export class UserService {
@@ -21,6 +22,7 @@ export class UserService {
     private readonly hashService: HashService,
     private readonly emailJwtService: EmailJwtService,
     private readonly loginJwtService: LoginJwtService,
+    private readonly socialLoginJwtService: SocialLoginJwtService,
   ) {}
 
   public signUp: (
@@ -32,33 +34,7 @@ export class UserService {
       EmailCertType.SIGN_UP,
     );
 
-    const duplicatedUser = await this.prisma.user.findFirst({
-      where: {
-        OR: [
-          {
-            email,
-          },
-          {
-            nickname: signUpDto.nickname,
-          },
-        ],
-        deletedAt: null,
-      },
-    });
-
-    if (duplicatedUser?.email === email) {
-      throw new DuplicateUserException<'email'>(
-        'This email is already in use',
-        'email',
-      );
-    }
-
-    if (duplicatedUser?.nickname === signUpDto.nickname) {
-      throw new DuplicateUserException<'nickname'>(
-        'This nickname is already in use',
-        'nickname',
-      );
-    }
+    await this.checkEmailAndNicknameDuplicate(email, signUpDto.nickname);
 
     const signUpUser = await this.prisma.user.create({
       data: {
@@ -79,9 +55,74 @@ export class UserService {
     return loginAccessToken;
   };
 
-  public getMyInfo: (userIdx: number) => Promise<MyInfoEntity> = async (
-    userIdx,
-  ) => {
+  public async socialUserSignUp(
+    signUpDto: SocialSignUpDto,
+    profileImg?: UploadedFileEntity,
+  ): Promise<string> {
+    const socialUser = await this.socialLoginJwtService.verify(signUpDto.token);
+
+    await this.checkEmailAndNicknameDuplicate(
+      socialUser.email,
+      signUpDto.nickname,
+    );
+
+    const signUpUser = await this.prisma.user.create({
+      data: {
+        email: socialUser.email,
+        pw: 'social',
+        nickname: socialUser.nickname,
+        snsId: socialUser.id,
+        birth: signUpDto.birth || null,
+        gender: signUpDto.gender || null,
+        profileImgPath: profileImg?.filePath || null,
+        provider: socialUser.provider,
+      },
+    });
+
+    const loginAccessToken = this.loginJwtService.sign(
+      signUpUser.idx,
+      signUpUser.isAdmin,
+    );
+
+    return loginAccessToken;
+  }
+
+  private async checkEmailAndNicknameDuplicate(
+    email: string,
+    nickname: string,
+  ) {
+    const duplicatedUser = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            email: email,
+          },
+          {
+            nickname: nickname,
+          },
+        ],
+        deletedAt: null,
+      },
+    });
+
+    if (duplicatedUser?.email === email) {
+      throw new DuplicateUserException<'email'>(
+        'This email is already in use',
+        'email',
+      );
+    }
+
+    if (duplicatedUser?.nickname === nickname) {
+      throw new DuplicateUserException<'nickname'>(
+        'This nickname is already in use',
+        'nickname',
+      );
+    }
+
+    return;
+  }
+
+  public async getMyInfo(userIdx: number): Promise<MyInfoEntity> {
     const user = await this.prisma.user.findFirst({
       include: {
         Review: {
@@ -128,11 +169,9 @@ export class UserService {
     }
 
     return MyInfoEntity.createEntity(user);
-  };
+  }
 
-  public getUserByIdx: (userIdx: number) => Promise<UserEntity> = async (
-    userIdx,
-  ) => {
+  public async getUserByIdx(userIdx: number): Promise<UserEntity> {
     const user = await this.prisma.user.findUnique({
       where: {
         idx: userIdx,
@@ -145,12 +184,12 @@ export class UserService {
     }
 
     return UserEntity.createEntity(user);
-  };
+  }
 
-  public updateProfile: (
+  public async updateProfile(
     idx: number,
     updateDto: UpdateProfileDto,
-  ) => Promise<void> = async (idx, updateDto) => {
+  ): Promise<void> {
     const duplicatedUser = await this.prisma.user.findFirst({
       where: {
         nickname: updateDto.nickname,
@@ -175,21 +214,20 @@ export class UserService {
         profileImgPath: updateDto.profileImg || null,
       },
     });
-  };
+  }
 
-  public updatePw: (idx: number, updateDto: UpdatePwDto) => Promise<void> =
-    async (idx, updateDto) => {
-      await this.getUserByIdx(idx);
+  public async updatePw(idx: number, updateDto: UpdatePwDto): Promise<void> {
+    await this.getUserByIdx(idx);
 
-      await this.prisma.user.update({
-        where: {
-          idx,
-        },
-        data: {
-          pw: this.hashService.hashPw(updateDto.pw),
-        },
-      });
+    await this.prisma.user.update({
+      where: {
+        idx,
+      },
+      data: {
+        pw: this.hashService.hashPw(updateDto.pw),
+      },
+    });
 
-      return;
-    };
+    return;
+  }
 }

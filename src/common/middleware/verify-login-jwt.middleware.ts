@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
-import { LoginJwtService } from '../../api/auth/login-jwt.service';
+import { LoginJwtService } from '../module/login-jwt/login-jwt.service';
 import { LoginJwtPayload } from '../../api/auth/model/login-jwt-payload';
 
 @Injectable()

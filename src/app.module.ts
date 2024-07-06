@@ -14,6 +14,7 @@ import modeConfig from './common/config/mode.config';
 import { ContentTagModule } from './api/content-tag/content-tag.module';
 import { EmailCertModule } from './api/email-cert/email-cert.module';
 import { VerifyLoginJwtMiddleware } from './common/middleware/verify-login-jwt.middleware';
+import { LoginJwtModule } from './common/module/login-jwt/login-jwt.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { VerifyLoginJwtMiddleware } from './common/middleware/verify-login-jwt.m
     TosModule,
     UploadModule,
     ContentTagModule,
+    LoginJwtModule,
   ],
 })
 export class AppModule implements NestModule {
