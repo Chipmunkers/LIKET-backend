@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import { SocialLoginUser } from '../model/social-login-user';
+import { LoginToken } from '../model/login-token';
 
 export interface ISocialLoginStrategy {
   /**
@@ -10,7 +11,7 @@ export interface ISocialLoginStrategy {
   /**
    * 로그인
    */
-  login: (socialLoginUser: SocialLoginUser) => Promise<string>;
+  login: (socialLoginUser: SocialLoginUser) => Promise<LoginToken>;
 
   /**
    * 리다이렉트 경로 가져오기

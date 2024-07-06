@@ -5,6 +5,7 @@ import {
   HttpCode,
   Post,
   Put,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -25,6 +26,8 @@ import { UploadedFileEntity } from '../upload/entity/uploaded-file.entity';
 import { LoginUser } from '../auth/model/login-user';
 import { SocialSignUpDto } from './dto/social-sign-up.dto';
 import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
+import { Response } from 'express';
+import cookieConfig from '../auth/config/cookie.config';
 
 @Controller('user')
 @ApiTags('User')
@@ -54,6 +57,7 @@ export class UserController {
   )
   public async localSignUp(
     @Body() signUpDto: SignUpDto,
+    @Res({ passthrough: true }) res: Response,
     @UploadedFile() file?: Express.Multer.File,
   ): Promise<SignUpResponseDto> {
     let uploadedFile: UploadedFileEntity | undefined;
@@ -64,9 +68,10 @@ export class UserController {
       });
     }
 
-    const token = await this.userService.signUp(signUpDto, uploadedFile);
+    const loginToken = await this.userService.signUp(signUpDto, uploadedFile);
+    res.cookie('refreshToken', loginToken.refreshToken, cookieConfig());
 
-    return { token };
+    return { token: loginToken.accessToken };
   }
 
   /**
@@ -90,6 +95,7 @@ export class UserController {
   )
   public async socialSignUp(
     @Body() signUpDto: SocialSignUpDto,
+    @Res({ passthrough: true }) res: Response,
     @UploadedFile() file?: Express.Multer.File,
   ): Promise<SignUpResponseDto> {
     let uploadedFile: UploadedFileEntity | undefined;
@@ -100,11 +106,13 @@ export class UserController {
       });
     }
 
-    const token = await this.userService.socialUserSignUp(
+    const loginToken = await this.userService.socialUserSignUp(
       signUpDto,
       uploadedFile,
     );
-    return { token };
+    res.cookie('refreshToken', loginToken.refreshToken, cookieConfig());
+
+    return { token: loginToken.accessToken };
   }
 
   /**

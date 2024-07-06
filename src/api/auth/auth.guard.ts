@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { InvalidLoginJwtException } from './exception/InvalidLoginJwtException';
-import { LoginJwtPayload } from './model/login-jwt-payload';
+import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-payload';
 import { LoginUser } from './model/login-user';
 
 @Injectable()

@@ -2,6 +2,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,6 +16,8 @@ async function bootstrap() {
   if (process.env.MODE === 'develop') {
     app.enableCors();
   }
+
+  app.use(cookieParser(process.env.COOKIE_SECRET));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Liket Mobile Backend API')

@@ -37,7 +37,16 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
       SocialProvider.KAKAO,
     );
 
-    return this.loginJwtService.sign(user.idx, false);
+    const accessToken = this.loginJwtService.sign(user.idx, false);
+    const refreshToken = await this.loginJwtService.signRefreshToken(
+      user.idx,
+      false,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   async getSocialLoginUser(req: Request) {
@@ -87,7 +96,7 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
         nickname: response.data.kakao_account.profile.nickname,
         email: response.data.kakao_account.email,
         gender: this.getGenderFromString(response.data.kakao_account.gender),
-      } as any);
+      });
     } catch (err) {
       throw err;
     }

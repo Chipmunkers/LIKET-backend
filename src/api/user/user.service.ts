@@ -16,6 +16,7 @@ import { SocialSignUpDto } from './dto/social-sign-up.dto';
 import { SocialLoginJwtService } from '../../common/module/social-login-jwt/social-login-jwt.service';
 import { EmailDuplicateException } from './exception/EmailDuplicateException';
 import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
+import { LoginToken } from '../auth/model/login-token';
 
 @Injectable()
 export class UserService {
@@ -30,7 +31,7 @@ export class UserService {
   public signUp: (
     signUpDto: SignUpDto,
     profileImg?: UploadedFileEntity,
-  ) => Promise<string> = async (signUpDto, profileImg) => {
+  ) => Promise<LoginToken> = async (signUpDto, profileImg) => {
     const email = await this.emailJwtService.verify(
       signUpDto.emailToken,
       EmailCertType.SIGN_UP,
@@ -49,18 +50,25 @@ export class UserService {
       },
     });
 
-    const loginAccessToken = this.loginJwtService.sign(
+    const accessToken = this.loginJwtService.sign(
+      signUpUser.idx,
+      signUpUser.isAdmin,
+    );
+    const refreshToken = await this.loginJwtService.signRefreshToken(
       signUpUser.idx,
       signUpUser.isAdmin,
     );
 
-    return loginAccessToken;
+    return {
+      accessToken,
+      refreshToken,
+    };
   };
 
   public async socialUserSignUp(
     signUpDto: SocialSignUpDto,
     profileImg?: UploadedFileEntity,
-  ): Promise<string> {
+  ): Promise<LoginToken> {
     const socialUser = await this.socialLoginJwtService.verify(signUpDto.token);
 
     await this.checkEmailAndNicknameDuplicate(
@@ -81,12 +89,19 @@ export class UserService {
       },
     });
 
-    const loginAccessToken = this.loginJwtService.sign(
+    const accessToken = this.loginJwtService.sign(
+      signUpUser.idx,
+      signUpUser.isAdmin,
+    );
+    const refreshToken = await this.loginJwtService.signRefreshToken(
       signUpUser.idx,
       signUpUser.isAdmin,
     );
 
-    return loginAccessToken;
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   private async checkEmailAndNicknameDuplicate(

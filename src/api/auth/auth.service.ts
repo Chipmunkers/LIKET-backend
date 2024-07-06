@@ -13,6 +13,9 @@ import { KakaoLoginStrategy } from './strategy/kakao/kakao-login.strategy';
 import { Request, Response } from 'express';
 import { SocialLoginUser } from './model/social-login-user';
 import { SocialLoginJwtService } from '../../common/module/social-login-jwt/social-login-jwt.service';
+import { LoginToken } from './model/login-token';
+import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
+import cookieConfig from './config/cookie.config';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +40,7 @@ export class AuthService {
   /**
    * 로컬 로그인
    */
-  public login: (loginDto: LoginDto) => Promise<string> = async (loginDto) => {
+  public async login(loginDto: LoginDto): Promise<LoginToken> {
     this.logger.log('login', 'find user');
     const user = await this.prisma.user.findFirst({
       select: {
@@ -69,10 +72,17 @@ export class AuthService {
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
-    const loginAccessToken = this.loginJwtService.sign(user.idx, user.isAdmin);
+    const accessToken = this.loginJwtService.sign(user.idx, user.isAdmin);
+    const refreshToken = await this.loginJwtService.signRefreshToken(
+      user.idx,
+      user.isAdmin,
+    );
 
-    return loginAccessToken;
-  };
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
 
   /**
    * 소셜 로그인
@@ -107,8 +117,10 @@ export class AuthService {
         return;
       }
 
-      await strategy.login(socialLoginUser);
-      res.redirect('/');
+      const loginToken = await strategy.login(socialLoginUser);
+      res.cookie('refreshToken', loginToken.refreshToken, cookieConfig());
+      // TODO: 변경이 필요합니다.
+      res.redirect('/social-login-complete');
     } catch (err) {
       res.redirect('/error');
     }
@@ -121,6 +133,19 @@ export class AuthService {
     const strategy = this.socialLoginStrategyMap[provider];
 
     return strategy.getRedirectURL();
+  }
+
+  /**
+   * Access token 재발급하기
+   */
+  public async reissueAccessToken(refreshToken?: string) {
+    if (!refreshToken) {
+      throw new InvalidRefreshTokenException('Invalid refresh token');
+    }
+
+    const payload = await this.loginJwtService.verifyRefreshToken(refreshToken);
+
+    return this.loginJwtService.sign(payload.idx, payload.isAdmin);
   }
 
   private async checkFirstSocialLogin(

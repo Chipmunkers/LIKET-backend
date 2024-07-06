@@ -18,6 +18,8 @@ import { Exception } from '../../common/decorator/exception.decorator';
 import { Request, Response } from 'express';
 import { SocialProvider } from './strategy/social-provider.enum';
 import { SocialProviderPipe } from './pipe/social-provider.pipe';
+import cookieConfig from './config/cookie.config';
+import { Cookies } from '../../common/decorator/cookies.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -35,10 +37,14 @@ export class AuthController {
   @Exception(400, 'Invalid body format')
   @Exception(401, 'Wrong email or password')
   @Exception(403, 'Suspended user')
-  public async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
-    const token = await this.authService.login(loginDto);
+  public async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginResponseDto> {
+    const loginToken = await this.authService.login(loginDto);
+    res.cookie('refreshToken', loginToken.refreshToken, cookieConfig());
 
-    return { token };
+    return { token: loginToken.accessToken };
   }
 
   /**
@@ -67,5 +73,17 @@ export class AuthController {
     @Res() res: Response,
   ) {
     await this.authService.socialLogin(req, res, provider);
+  }
+
+  /**
+   * Access Token 재발급하기
+   */
+  @Post('/access-token')
+  @ApiTags('Auth')
+  @Exception(401, 'Invalid refresh token')
+  public async reissueAccessToken(
+    @Cookies('refreshToken') refreshToken?: string,
+  ): Promise<String> {
+    return await this.authService.reissueAccessToken(refreshToken);
   }
 }

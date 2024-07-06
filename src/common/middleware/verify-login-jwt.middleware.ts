@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { LoginJwtService } from '../module/login-jwt/login-jwt.service';
-import { LoginJwtPayload } from '../../api/auth/model/login-jwt-payload';
+import { LoginJwtPayload } from '../module/login-jwt/model/login-jwt-payload';
 
 @Injectable()
 export class VerifyLoginJwtMiddleware implements NestMiddleware {

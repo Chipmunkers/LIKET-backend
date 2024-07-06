@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { LoginJwtPayload } from '../../../api/auth/model/login-jwt-payload';
+import { LoginJwtPayload } from './model/login-jwt-payload';
 import { JwtService } from '@nestjs/jwt';
 import { Logger } from '../logger/logger.decorator';
 import { LoggerService } from '../logger/logger.service';
@@ -30,7 +30,7 @@ export class LoginJwtService {
     };
 
     return this.jwtService.sign(payload, {
-      expiresIn: '14d',
+      expiresIn: '30m',
     });
   };
 
