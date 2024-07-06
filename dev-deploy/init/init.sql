@@ -288,6 +288,12 @@ CREATE TABLE user_tb
   PRIMARY KEY (idx)
 );
 
+ALTER TABLE user_tb
+    ADD CONSTRAINT email_uni UNIQUE NULLS NOT DISTINCT (email, deleted_at);
+
+ALTER TABLE user_tb
+    ADD CONSTRAINT nickname_uni UNIQUE NULLS NOT DISTINCT (nickname, deleted_at);
+
 ALTER TABLE culture_content_tb
   ADD CONSTRAINT FK_genre_tb_TO_culture_content_tb
     FOREIGN KEY (genre_idx)
