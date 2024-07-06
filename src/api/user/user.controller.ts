@@ -24,6 +24,7 @@ import { LoginAuth } from '../auth/login-auth.decorator';
 import { UploadedFileEntity } from '../upload/entity/uploaded-file.entity';
 import { LoginUser } from '../auth/model/login-user';
 import { SocialSignUpDto } from './dto/social-sign-up.dto';
+import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -133,5 +134,18 @@ export class UserController {
     await this.userService.updateProfile(loginUser.idx, updateDto);
 
     return;
+  }
+
+  /**
+   * 이메일 중복 확안하기
+   */
+  @Post('/email/duplicate-check')
+  @HttpCode(201)
+  @Exception(400, 'invalid param')
+  @Exception(409, '이미 가입된 이메일')
+  async checkEmailDuplicate(
+    @Body() checkDto: EmailDuplicateCheckDto,
+  ): Promise<void> {
+    return await this.userService.checkEmailDuplicate(checkDto);
   }
 }

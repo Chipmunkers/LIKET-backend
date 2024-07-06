@@ -14,6 +14,8 @@ import { EmailCertType } from '../email-cert/model/email-cert-type';
 import { LoginJwtService } from '../../common/module/login-jwt/login-jwt.service';
 import { SocialSignUpDto } from './dto/social-sign-up.dto';
 import { SocialLoginJwtService } from '../../common/module/social-login-jwt/social-login-jwt.service';
+import { EmailDuplicateException } from './exception/EmailDuplicateException';
+import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 
 @Injectable()
 export class UserService {
@@ -229,5 +231,32 @@ export class UserService {
     });
 
     return;
+  }
+
+  public async checkEmailDuplicate(
+    checkDto: EmailDuplicateCheckDto,
+  ): Promise<void> {
+    try {
+      await this.getUserByEmail(checkDto.email);
+    } catch (err) {
+      return;
+    }
+
+    throw new EmailDuplicateException('duplicated email');
+  }
+
+  private async getUserByEmail(email: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email,
+        deletedAt: null,
+      },
+    });
+
+    if (!user) {
+      throw new UserNotFoundException('Cannot find user');
+    }
+
+    return UserEntity.createEntity(user);
   }
 }
