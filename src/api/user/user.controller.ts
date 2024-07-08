@@ -29,12 +29,15 @@ import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { Response } from 'express';
 import cookieConfig from '../auth/config/cookie.config';
 import { NicknameDuplicateCheckDto } from './dto/nickname-duplicate-check.dto';
+import { FindPwDto } from './dto/find-pw.dto';
+import { UserPwService } from './user-pw.service';
 
 @Controller('user')
 @ApiTags('User')
 export class UserController {
   constructor(
     private readonly userService: UserService,
+    private readonly userPwService: UserPwService,
     private readonly uploadService: UploadService,
   ) {}
 
@@ -167,6 +170,19 @@ export class UserController {
   @Exception(409, '이미 가입된 닉네임')
   async checkNicknameDuplicate(@Body() checkDto: NicknameDuplicateCheckDto) {
     await this.userService.checkNicknameDuplicate(checkDto);
+    return;
+  }
+
+  /**
+   * 비밀번호 찾기
+   */
+  @Post('/pw/find')
+  @HttpCode(201)
+  @Exception(400, 'invalid body')
+  @Exception(401, 'invalid email token')
+  @Exception(404, 'Cannot find user from email')
+  async findPw(@Body() findPwDto: FindPwDto) {
+    await this.userPwService.findPw(findPwDto);
     return;
   }
 }

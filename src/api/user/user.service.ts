@@ -235,21 +235,6 @@ export class UserService {
     });
   }
 
-  public async updatePw(idx: number, updateDto: UpdatePwDto): Promise<void> {
-    await this.getUserByIdx(idx);
-
-    await this.prisma.user.update({
-      where: {
-        idx,
-      },
-      data: {
-        pw: this.hashService.hashPw(updateDto.pw),
-      },
-    });
-
-    return;
-  }
-
   public async checkEmailDuplicate(
     checkDto: EmailDuplicateCheckDto,
   ): Promise<void> {
@@ -287,7 +272,7 @@ export class UserService {
     return UserEntity.createEntity(user);
   }
 
-  private async getUserByEmail(email: string) {
+  public async getUserByEmail(email: string) {
     const user = await this.prisma.user.findFirst({
       where: {
         email,

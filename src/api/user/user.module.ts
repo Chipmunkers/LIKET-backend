@@ -10,6 +10,7 @@ import { EmailCertModule } from '../email-cert/email-cert.module';
 import { SocialLoginUserService } from './social-login-user.service';
 import { LoginJwtModule } from '../../common/module/login-jwt/login-jwt.module';
 import { SocialLoginJwtModule } from '../../common/module/social-login-jwt/social-login-jwt.module';
+import { UserPwService } from './user-pw.service';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { SocialLoginJwtModule } from '../../common/module/social-login-jwt/socia
     SocialLoginJwtModule,
   ],
   controllers: [UserController],
-  providers: [UserService, JwtService, HashService, SocialLoginUserService],
+  providers: [UserService, SocialLoginUserService, UserPwService],
   exports: [SocialLoginUserService],
 })
 export class UserModule {}
