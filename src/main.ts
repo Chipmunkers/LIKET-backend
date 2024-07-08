@@ -24,6 +24,7 @@ async function bootstrap() {
 
   app.use(cookieParser(process.env.COOKIE_SECRET));
 
+  // TODO: 배포 상황에서 삭제 필요
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Liket Mobile Backend API')
     .setDescription(
