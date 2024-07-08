@@ -56,7 +56,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i key.pem $USER@$HOST << 'EOF'
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
             ls /home
-            docker pull ${{ secrets.DEV_ECR_REGISTRY }}/${{ secrets.DEV_ECR_REPOSITORY }}:${IMAGE_TAG}
+            docker pull ${{ secrets.DEV_ECR_REGISTRY }}/${{ secrets.DEV_ECR_REPOSITORY }}:latest
             ls /home
             docker stop ${{ secrets.DEV_SERVER_CONTAINER_NAME }} || true
             ls /home
