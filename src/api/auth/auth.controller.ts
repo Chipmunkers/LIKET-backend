@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -22,6 +23,7 @@ import cookieConfig from './config/cookie.config';
 import { Cookies } from '../../common/decorator/cookies.decorator';
 
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -32,7 +34,6 @@ export class AuthController {
    * 로그인하기
    */
   @Post('/local')
-  @ApiTags('Auth')
   @HttpCode(200)
   @Exception(400, 'Invalid body format')
   @Exception(401, 'Wrong email or password')
@@ -51,7 +52,6 @@ export class AuthController {
    * 소셜 로그인 시도
    */
   @Get('/:provider')
-  @ApiTags('Auth')
   @HttpCode(200)
   public async socialLogin(
     @Param('provider', SocialProviderPipe) provider: SocialProvider,
@@ -65,7 +65,6 @@ export class AuthController {
    * 소셜 로그인 콜백 API
    */
   @Get('/:provider/callback')
-  @ApiTags('Auth')
   @HttpCode(200)
   public async socialLoginCallback(
     @Param('provider', SocialProviderPipe) provider: SocialProvider,
@@ -79,11 +78,26 @@ export class AuthController {
    * Access Token 재발급하기
    */
   @Post('/access-token')
-  @ApiTags('Auth')
   @Exception(401, 'Invalid refresh token')
   public async reissueAccessToken(
+    @Res({ passthrough: true }) res: Response,
     @Cookies('refreshToken') refreshToken?: string,
-  ): Promise<String> {
-    return await this.authService.reissueAccessToken(refreshToken);
+  ): Promise<string> {
+    const token = await this.authService.reissueAccessToken(refreshToken);
+    res.cookie('refreshToken', token.refreshToken, cookieConfig());
+
+    return token.accessToken;
+  }
+
+  /**
+   * 로그아웃하기
+   */
+  @Delete('/')
+  public async logout(
+    @Res({ passthrough: true }) res: Response,
+    @Cookies('refreshToken') refreshToken?: string,
+  ) {
+    await this.authService.logout(refreshToken);
+    res.clearCookie('refreshToken');
   }
 }

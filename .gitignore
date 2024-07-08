@@ -3,6 +3,7 @@
 /node_modules
 .env
 *.vuerd.json
+*.erd.json
 /dev-deploy/.env.*
 
 # Logs

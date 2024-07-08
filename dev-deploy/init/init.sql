@@ -288,6 +288,15 @@ CREATE TABLE user_tb
   PRIMARY KEY (idx)
 );
 
+CREATE TABLE refresh_token_tb
+(
+    idx        bigint                   NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_idx   int                      NOT NULL,
+    token      varchar                  NOT NULL UNIQUE,
+    expired_at timestamp with time zone,
+    PRIMARY KEY (idx)
+);
+
 ALTER TABLE user_tb
     ADD CONSTRAINT email_uni UNIQUE NULLS NOT DISTINCT (email, deleted_at);
 
@@ -423,6 +432,11 @@ ALTER TABLE delete_user_reason_tb
   ADD CONSTRAINT FK_delete_user_type_tb_TO_delete_user_reason_tb
     FOREIGN KEY (type_idx)
     REFERENCES delete_user_type_tb (idx);
+
+ALTER TABLE refresh_token_tb
+    ADD CONSTRAINT FK_user_tb_TO_refresh_token_tb
+        FOREIGN KEY (user_idx)
+            REFERENCES user_tb (idx);
 
 -- Seeding
 

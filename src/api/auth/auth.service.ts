@@ -138,14 +138,32 @@ export class AuthService {
   /**
    * Access token 재발급하기
    */
-  public async reissueAccessToken(refreshToken?: string) {
+  public async reissueAccessToken(refreshToken?: string): Promise<LoginToken> {
     if (!refreshToken) {
       throw new InvalidRefreshTokenException('Invalid refresh token');
     }
 
-    const payload = await this.loginJwtService.verifyRefreshToken(refreshToken);
+    const payload = await this.loginJwtService.verifyRefreshToken(
+      refreshToken,
+      {
+        delete: true,
+      },
+    );
 
-    return this.loginJwtService.sign(payload.idx, payload.isAdmin);
+    const accessToken = this.loginJwtService.sign(payload.idx, payload.isAdmin);
+    const newRefreshToken = await this.loginJwtService.signRefreshToken(
+      payload.idx,
+      payload.isAdmin,
+    );
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
+  }
+
+  public async logout(refreshToken?: string) {
+    await this.loginJwtService.expireRefreshToken(refreshToken);
   }
 
   private async checkFirstSocialLogin(

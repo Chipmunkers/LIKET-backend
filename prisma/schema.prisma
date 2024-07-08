@@ -353,6 +353,7 @@ model User {
   Liket            Liket[]
   BlockReason      BlockReason[]
   DeleteUserReason DeleteUserReason[]
+  RefreshToken     RefreshToken[]
 
   @@unique([nickname, deletedAt], map: "uq_user_tb_nickname")
   @@index([email])
@@ -420,4 +421,14 @@ model EmailCertCode {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("email_cert_code_tb")
+}
+
+model RefreshToken {
+  idx        BigInt    @id @default(autoincrement())
+  userIdx    Int       @map("user_idx")
+  token      String    @db.VarChar @unique
+  expiredAt DateTime? @db.Timestamptz(6) @map("expired_at")
+  User    User        @relation(fields: [userIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_tb_to_refresh_token_tb")
+
+  @@map("refresh_token_tb")
 }
