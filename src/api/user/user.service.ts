@@ -19,6 +19,8 @@ import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { LoginToken } from '../auth/model/login-token';
 import { NicknameDuplicateCheckDto } from './dto/nickname-duplicate-check.dto';
 import { NicknameDuplicateException } from './exception/NicknameDuplicateException';
+import { Logger } from '../../common/module/logger/logger.decorator';
+import { LoggerService } from '../../common/module/logger/logger.service';
 
 @Injectable()
 export class UserService {
@@ -28,12 +30,16 @@ export class UserService {
     private readonly emailJwtService: EmailJwtService,
     private readonly loginJwtService: LoginJwtService,
     private readonly socialLoginJwtService: SocialLoginJwtService,
+    @Logger(UserService.name) private readonly logger: LoggerService,
   ) {}
 
-  public signUp: (
+  /**
+   * 회원가입하기
+   */
+  public async signUp(
     signUpDto: SignUpDto,
     profileImg?: UploadedFileEntity,
-  ) => Promise<LoginToken> = async (signUpDto, profileImg) => {
+  ): Promise<LoginToken> {
     const email = await this.emailJwtService.verify(
       signUpDto.emailToken,
       EmailCertType.SIGN_UP,
@@ -41,6 +47,7 @@ export class UserService {
 
     await this.checkEmailAndNicknameDuplicate(email, signUpDto.nickname);
 
+    this.logger.log(this.signUp, 'INSERT user');
     const signUpUser = await this.prisma.user.create({
       data: {
         email,
@@ -65,8 +72,11 @@ export class UserService {
       accessToken,
       refreshToken,
     };
-  };
+  }
 
+  /**
+   * 소셜 회원가입 하기
+   */
   public async socialUserSignUp(
     signUpDto: SocialSignUpDto,
     profileImg?: UploadedFileEntity,
@@ -78,6 +88,7 @@ export class UserService {
       signUpDto.nickname,
     );
 
+    this.logger.log(this.socialUserSignUp, 'INSERT social user');
     const signUpUser = await this.prisma.user.create({
       data: {
         email: socialUser.email,
@@ -110,6 +121,7 @@ export class UserService {
     email: string,
     nickname: string,
   ) {
+    this.logger.log(this.checkEmailAndNicknameDuplicate, 'SELECT user');
     const duplicatedUser = await this.prisma.user.findFirst({
       where: {
         OR: [
@@ -125,6 +137,10 @@ export class UserService {
     });
 
     if (duplicatedUser?.email === email) {
+      this.logger.warn(
+        this.checkEmailAndNicknameDuplicate,
+        'Attempt to sign up with duplicated email',
+      );
       throw new DuplicateUserException<'email'>(
         'This email is already in use',
         'email',
@@ -132,6 +148,10 @@ export class UserService {
     }
 
     if (duplicatedUser?.nickname === nickname) {
+      this.logger.warn(
+        this.checkEmailAndNicknameDuplicate,
+        'Attempt to sign up with duplicated nickname',
+      );
       throw new DuplicateUserException<'nickname'>(
         'This nickname is already in use',
         'nickname',
@@ -141,7 +161,11 @@ export class UserService {
     return;
   }
 
+  /**
+   * 내 정보 가져오기
+   */
   public async getMyInfo(userIdx: number): Promise<MyInfoEntity> {
+    this.logger.log(this.getMyInfo, `SELECT user ${userIdx}`);
     const user = await this.prisma.user.findFirst({
       include: {
         Review: {
@@ -184,13 +208,21 @@ export class UserService {
     });
 
     if (!user) {
+      this.logger.warn(
+        this.getMyInfo,
+        `Attempt to find non-existent user ${userIdx}`,
+      );
       throw new UserNotFoundException('Cannot find user');
     }
 
     return MyInfoEntity.createEntity(user);
   }
 
+  /**
+   * 특정 사용자 가져오기
+   */
   public async getUserByIdx(userIdx: number): Promise<UserEntity> {
+    this.logger.log(this.getUserByIdx, `SELECT user ${userIdx}`);
     const user = await this.prisma.user.findUnique({
       where: {
         idx: userIdx,
@@ -199,16 +231,24 @@ export class UserService {
     });
 
     if (!user) {
+      this.logger.warn(
+        this.getUserByIdx,
+        `Attempt to find non-existent user ${userIdx}`,
+      );
       throw new UserNotFoundException('Cannot find user');
     }
 
     return UserEntity.createEntity(user);
   }
 
+  /**
+   * 사용자 정보 변경하기
+   */
   public async updateProfile(
     idx: number,
     updateDto: UpdateProfileDto,
   ): Promise<void> {
+    this.logger.log(this.updateProfile, `SELECT user ${idx}`);
     const duplicatedUser = await this.prisma.user.findFirst({
       where: {
         nickname: updateDto.nickname,
@@ -217,12 +257,17 @@ export class UserService {
     });
 
     if (duplicatedUser) {
+      this.logger.warn(
+        this.updateProfile,
+        'Attempt to update with duplicated nickname',
+      );
       throw new DuplicateUserException<'nickname'>(
         'This nickname is Duplicated',
         'nickname',
       );
     }
 
+    this.logger.log(this.updateProfile, `UPDATE user ${idx}`);
     await this.prisma.user.update({
       where: {
         idx,
@@ -235,6 +280,9 @@ export class UserService {
     });
   }
 
+  /**
+   * 이메일 중복 검사 확인하기
+   */
   public async checkEmailDuplicate(
     checkDto: EmailDuplicateCheckDto,
   ): Promise<void> {
@@ -247,6 +295,9 @@ export class UserService {
     throw new EmailDuplicateException('duplicated email');
   }
 
+  /**
+   * 닉네임 중복 검사 확인하기
+   */
   public async checkNicknameDuplicate(checkDto: NicknameDuplicateCheckDto) {
     try {
       await this.getUserByNickname(checkDto.nickname);
@@ -258,6 +309,7 @@ export class UserService {
   }
 
   private async getUserByNickname(nickname: string) {
+    this.logger.log(this.getUserByIdx, `SELECT user nickname = ${nickname}`);
     const user = await this.prisma.user.findFirst({
       where: {
         nickname,
@@ -266,6 +318,10 @@ export class UserService {
     });
 
     if (!user) {
+      this.logger.log(
+        this.getUserByIdx,
+        `Attempt to find non-existent user ${nickname}`,
+      );
       throw new UserNotFoundException('Cannot find user');
     }
 
@@ -273,6 +329,7 @@ export class UserService {
   }
 
   public async getUserByEmail(email: string) {
+    this.logger.log(this.getUserByEmail, `SELECT user email = ${email}`);
     const user = await this.prisma.user.findFirst({
       where: {
         email,
@@ -281,6 +338,10 @@ export class UserService {
     });
 
     if (!user) {
+      this.logger.warn(
+        this.getUserByEmail,
+        `Attempt to find non-existent user ${email}`,
+      );
       throw new UserNotFoundException('Cannot find user');
     }
 

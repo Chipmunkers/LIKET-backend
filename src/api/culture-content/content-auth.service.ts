@@ -6,76 +6,77 @@ import { UpdateContentDto } from './dto/update-content.dto';
 import { ContentNotFoundException } from './exception/ContentNotFound';
 import { PermissionDeniedException } from '../../common/exception/PermissionDeniedException';
 import { LoginUser } from '../auth/model/login-user';
+import { Logger } from '../../common/module/logger/logger.decorator';
+import { LoggerService } from '../../common/module/logger/logger.service';
 
 @Injectable()
 export class ContentAuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Logger(ContentAuthService.name) private readonly logger: LoggerService,
+  ) {}
 
-  checkReadAllPermission: (
+  public async checkReadAllPermission(
     loginUser: LoginUser,
     pagerble: ContentPagerbleDto,
-  ) => Promise<void> = async (loginUser, pagerble) => {
+  ): Promise<void> {
+    this.logger.log(
+      this.checkReadAllPermission,
+      'Check content read permission',
+    );
     if (pagerble.user && pagerble.user !== loginUser.idx) {
+      this.logger.warn(
+        this.checkReadAllPermission,
+        `Unauthenticated attempt to read content with user pagerble | user = ${loginUser.idx}`,
+      );
       throw new PermissionDeniedException();
     }
 
     if (!pagerble.accept && pagerble.user !== loginUser.idx) {
+      this.logger.warn(
+        this.checkReadAllPermission,
+        `Unauthenticated attempt to read content with accept pagerble | user = ${loginUser.idx}`,
+      );
       throw new PermissionDeniedException();
     }
 
     return;
-  };
+  }
 
   checkReadPermission: (
     contentIdx: number,
     loginUser?: LoginUser,
   ) => Promise<void> = async (contentIdx, loginUser) => {
-    const content = await this.prisma.cultureContent.findUnique({
-      where: {
-        idx: contentIdx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find culture content');
-    }
+    this.logger.log(
+      this.checkReadPermission,
+      `SELECT culture content | content = ${contentIdx}`,
+    );
+    const content = await this.getContentByContentIdx(contentIdx);
 
     if (!content.acceptedAt && content.userIdx !== loginUser?.idx) {
+      this.logger.warn(
+        this.checkReadPermission,
+        'Unauthenticated attempt to read not accepted content',
+      );
       throw new PermissionDeniedException('Permission denied');
     }
 
     return;
   };
 
-  checkWirtePermission: (
+  public async checkWritePermission(
     loginUser: LoginUser,
     createDto: CreateContentRequestDto,
-  ) => Promise<void> = async (loginUser, createDto) => {
+  ): Promise<void> {
     return;
-  };
+  }
 
-  checkUpdatePermission: (
+  public async checkUpdatePermission(
     loginUser: LoginUser,
     contentIdx: number,
     updateDto: UpdateContentDto,
-  ) => Promise<void> = async (loginUser, contentIdx, updateDto) => {
-    const content = await this.prisma.cultureContent.findUnique({
-      where: {
-        idx: contentIdx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find culture content');
-    }
+  ): Promise<void> {
+    const content = await this.getContentByContentIdx(contentIdx);
 
     if (content.userIdx !== loginUser.idx) {
       throw new PermissionDeniedException('Permission denied');
@@ -88,12 +89,40 @@ export class ContentAuthService {
     }
 
     return;
-  };
+  }
 
-  checkDeletePermission: (
+  public async checkDeletePermission(
     loginUser: LoginUser,
     contentIdx: number,
-  ) => Promise<void> = async (loginUser, contentIdx) => {
+  ): Promise<void> {
+    const content = await this.getContentByContentIdx(contentIdx);
+
+    if (content.userIdx !== loginUser.idx) {
+      this.logger.warn(
+        this.checkDeletePermission,
+        `Attempt to delete unauthenticated user | user = ${loginUser.idx}`,
+      );
+      throw new PermissionDeniedException('Permission denied');
+    }
+
+    if (content.acceptedAt) {
+      this.logger.warn(
+        this.checkDeletePermission,
+        'Attempt to delete accepted content',
+      );
+      throw new PermissionDeniedException(
+        'Cannot update accepted culture content',
+      );
+    }
+
+    return;
+  }
+
+  private async getContentByContentIdx(contentIdx: number) {
+    this.logger.log(
+      this.getContentByContentIdx,
+      `SELECT content = ${contentIdx}`,
+    );
     const content = await this.prisma.cultureContent.findUnique({
       where: {
         idx: contentIdx,
@@ -105,19 +134,13 @@ export class ContentAuthService {
     });
 
     if (!content) {
+      this.logger.warn(
+        this.checkReadPermission,
+        `Attempt to non-existent content | content = ${contentIdx}`,
+      );
       throw new ContentNotFoundException('Cannot find culture content');
     }
 
-    if (content.userIdx !== loginUser.idx) {
-      throw new PermissionDeniedException('Permission denied');
-    }
-
-    if (content.acceptedAt) {
-      throw new PermissionDeniedException(
-        'Cannot update accepted culture content',
-      );
-    }
-
-    return;
-  };
+    return content;
+  }
 }

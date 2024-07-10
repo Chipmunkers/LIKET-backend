@@ -14,10 +14,17 @@ export class SocialLoginUserService {
     @Logger(SocialLoginUserService.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * 소셜사 제공 id로 사용자 찾기
+   */
   public async getUserBySocialId(
     socialUser: SocialLoginUser,
     provider: SocialProvider,
   ): Promise<UserEntity> {
+    this.logger.log(
+      this.getUserBySocialId,
+      `SELECT user sns_id = ${socialUser.id}`,
+    );
     const user = await this.prisma.user.findFirst({
       where: {
         deletedAt: null,
@@ -27,6 +34,10 @@ export class SocialLoginUserService {
     });
 
     if (!user) {
+      this.logger.warn(
+        this.getUserBySocialId,
+        `Attempt to find non-existent social user`,
+      );
       throw new UserNotFoundException('Cannot find user');
     }
 

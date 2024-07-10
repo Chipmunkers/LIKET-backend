@@ -41,7 +41,7 @@ export class AuthService {
    * 로컬 로그인
    */
   public async login(loginDto: LoginDto): Promise<LoginToken> {
-    this.logger.log('login', 'find user');
+    this.logger.log(this.login, 'SELECT user for login');
     const user = await this.prisma.user.findFirst({
       select: {
         idx: true,
@@ -57,18 +57,31 @@ export class AuthService {
     });
 
     if (!user) {
+      this.logger.warn(
+        this.login,
+        'Attempt to login with invalid email or password',
+      );
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
     if (user.provider !== 'local') {
-      throw new InvalidEmailOrPwException('invalid email or password');
+      this.logger.error(
+        this.login,
+        'Social login user attempted to login in local login',
+      );
+      throw new InvalidEmailOrPwException('invalid email');
     }
 
     if (user.blockedAt) {
+      this.logger.warn(
+        this.login,
+        `Blocked user attempted to login | user = ${user.idx}`,
+      );
       throw new BlockedUserException('your account has been suspended');
     }
 
     if (!this.hashService.comparePw(loginDto.pw, user.pw || '')) {
+      this.logger.log(this.login, 'Attempt to login with invalid pw');
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
@@ -93,12 +106,15 @@ export class AuthService {
     provider: SocialProvider,
   ) {
     const strategy = this.socialLoginStrategyMap[provider];
+    this.logger.log(this.socialLogin, `social login ${provider}`);
 
     try {
       const socialLoginUser = await strategy.getSocialLoginUser(req);
 
       const isFirstLogin = await this.checkFirstSocialLogin(socialLoginUser);
       if (isFirstLogin) {
+        this.logger.log(this.socialLogin, `first social login ${provider}`);
+
         const socialLoginToken = await this.socialLoginJwtService.sign(
           socialLoginUser,
         );
@@ -113,6 +129,10 @@ export class AuthService {
       );
       if (isDuplicateSocialUser) {
         // TODO: change redirect URL
+        this.logger.warn(
+          this.socialLogin,
+          `Attempt to login with duplicated email | email = ${socialLoginUser.email}`,
+        );
         res.redirect('/error');
         return;
       }
@@ -122,6 +142,7 @@ export class AuthService {
       // TODO: 변경이 필요합니다.
       res.redirect('/social-login-complete');
     } catch (err) {
+      this.logger.error(this.socialLogin, 'Social Login Error');
       res.redirect('/error');
     }
   }
@@ -156,6 +177,10 @@ export class AuthService {
       payload.isAdmin,
     );
 
+    this.logger.log(
+      this.reissueAccessToken,
+      'Success to reissue refresh token',
+    );
     return {
       accessToken,
       refreshToken: newRefreshToken,

@@ -9,12 +9,21 @@ import { SummaryLiketEntity } from './entity/summary-liket.entity';
 import { Prisma } from '@prisma/client';
 import { LiketPagerbleDto } from './dto/liket-pagerble.dto';
 import { LoginUser } from '../auth/model/login-user';
+import { Logger } from '../../common/module/logger/logger.decorator';
+import { LoggerService } from '../../common/module/logger/logger.service';
 
 @Injectable()
 export class LiketService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Logger(LiketService.name) private readonly logger: LoggerService,
+  ) {}
 
-  getLiketByIdx: (idx: number) => Promise<LiketEntity> = async (idx) => {
+  /**
+   * 라이켓 자세히보기
+   */
+  public async getLiketByIdx(idx: number): Promise<LiketEntity> {
+    this.logger.log(this.getLiketByIdx, `SELECT liket ${idx}`);
     const liket = await this.prisma.liket.findUnique({
       include: {
         Review: {
@@ -52,19 +61,26 @@ export class LiketService {
     });
 
     if (!liket) {
+      this.logger.warn(
+        this.getLiketByIdx,
+        'Attempt to find non-existent liket',
+      );
       throw new LiketNotFoundException('Cannot find LIKET');
     }
 
     return LiketEntity.createEntity(liket);
-  };
+  }
 
-  getLiketAll: (
+  /**
+   * 라이켓 목록 보기
+   */
+  public async getLiketAll(
     loginUser: LoginUser,
     pagerble: LiketPagerbleDto,
-  ) => Promise<{
+  ): Promise<{
     liketList: SummaryLiketEntity[];
     count: number;
-  }> = async (loginUser, pagerble) => {
+  }> {
     const where: Prisma.LiketWhereInput = {
       userIdx: pagerble.user,
       deletedAt: null,
@@ -73,6 +89,7 @@ export class LiketService {
       },
     };
 
+    this.logger.log(this.getLiketAll, 'SELECT likets and count');
     const [liketList, count] = await this.prisma.$transaction([
       this.prisma.liket.findMany({
         include: {
@@ -118,15 +135,19 @@ export class LiketService {
       liketList: liketList.map((liket) => LiketEntity.createEntity(liket)),
       count,
     };
-  };
+  }
 
-  createLiket: (
+  /**
+   * 라이켓 생성하기
+   */
+  public async createLiket(
     reviewIdx: number,
     loginUser: LoginUser,
     createDto: CreateLiketDto,
-  ) => Promise<LiketEntity> = async (reviewIdx, loginUser, createDto) => {
+  ): Promise<LiketEntity> {
     const createdLiket = await this.prisma.$transaction(
       async (tx) => {
+        this.logger.log(this.createLiket, 'SELECT liket');
         const liket = await tx.liket.findFirst({
           where: {
             userIdx: loginUser.idx,
@@ -136,10 +157,15 @@ export class LiketService {
         });
 
         if (liket) {
+          this.logger.warn(
+            this.createLiket,
+            'Attempt to create like when in already has liket',
+          );
           throw new AlreadyExistLiketException('Already exist LIKET');
         }
 
-        return await tx.liket.create({
+        this.logger.log(this.createLiket, 'INSERT liket');
+        return tx.liket.create({
           include: {
             Review: {
               include: {
@@ -183,23 +209,33 @@ export class LiketService {
     );
 
     return LiketEntity.createEntity(createdLiket);
-  };
+  }
 
-  updateLiketByIdx: (idx: number, updateDto: UpdateLiketDto) => Promise<void> =
-    async (idx, updateDto) => {
-      await this.prisma.liket.update({
-        where: {
-          idx,
-        },
-        data: {
-          description: updateDto.description,
-        },
-      });
+  /**
+   * 라이켓 수정하기
+   */
+  public async updateLiketByIdx(
+    idx: number,
+    updateDto: UpdateLiketDto,
+  ): Promise<void> {
+    this.logger.log(this.updateLiketByIdx, 'UPDATE liket');
+    await this.prisma.liket.update({
+      where: {
+        idx,
+      },
+      data: {
+        description: updateDto.description,
+      },
+    });
 
-      return;
-    };
+    return;
+  }
 
-  deleteLiketByIdx: (idx: number) => Promise<void> = async (idx) => {
+  /**
+   * 라이켓 삭제하기
+   */
+  public async deleteLiketByIdx(idx: number): Promise<void> {
+    this.logger.log(this.deleteLiketByIdx, 'DELETE liket');
     await this.prisma.liket.update({
       where: {
         idx,
@@ -210,5 +246,5 @@ export class LiketService {
     });
 
     return;
-  };
+  }
 }

@@ -14,7 +14,7 @@ export class UploadService {
   constructor(
     private readonly configService: ConfigService,
     private readonly utilService: UtilService,
-    @Logger('UploadService') private readonly logger: LoggerService,
+    @Logger(UploadService.name) private readonly logger: LoggerService,
   ) {
     this.s3Client = new S3Client(
       this.configService.get('s3') as S3ClientConfig,
@@ -48,16 +48,14 @@ export class UploadService {
     },
     userIdx?: number,
   ): Promise<UploadedFileEntity[]> {
-    this.logger.log('uploadFilesToS3', 'try to upload files');
-    const uploadFiles = await Promise.all(
+    this.logger.log(this.uploadFilesToS3, 'Attempt to upload files');
+    return await Promise.all(
       files.map((file) =>
         this.uploadToS3(file, {
           destination: option.destinaion,
         }),
       ),
     );
-
-    return uploadFiles;
   }
 
   /**
@@ -91,7 +89,7 @@ export class UploadService {
     });
 
     this.logger.log(
-      'imageUploadToS3',
+      this.uploadToS3,
       `upload file to s3\npath: /${option.destination}/${fileName}.${fileExt}`,
     );
     await this.s3Client.send(command);

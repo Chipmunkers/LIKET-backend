@@ -31,7 +31,6 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
   }
 
   async login(socialLoginUser: SocialLoginUser) {
-    this.logger.log(this.login.name, 'Find user');
     const user = await this.socialLoginUserService.getUserBySocialId(
       socialLoginUser,
       SocialProvider.KAKAO,
@@ -52,12 +51,10 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
   async getSocialLoginUser(req: Request) {
     const callbackResponseDto = KakaoCallbackResponseDto.createDto(req);
 
-    this.logger.log(this.login.name, 'Get token');
     const accessToken = await this.getAccessTokenFromCode(
       callbackResponseDto.code,
     );
 
-    this.logger.log(this.login.name, 'Get user info');
     return await this.getUserInfoFromAccessToken(accessToken);
   }
 
@@ -79,6 +76,10 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
     accessToken: string,
   ): Promise<SocialLoginUser> {
     try {
+      this.logger.log(
+        this.getUserInfoFromAccessToken,
+        'Fetch to https://kapi.kakao.com/v2/user/me',
+      );
       const response =
         await this.httpService.axiosRef.get<GetKakaoUserResponseDto>(
           'https://kapi.kakao.com/v2/user/me?client_id=' + this.API_KEY,
@@ -98,6 +99,7 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
         gender: this.getGenderFromString(response.data.kakao_account.gender),
       });
     } catch (err) {
+      this.logger.error(this.getUserInfoFromAccessToken, 'Error occurred', err);
       throw err;
     }
   }
@@ -110,6 +112,10 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
 
   private async getAccessTokenFromCode(code: string): Promise<string> {
     try {
+      this.logger.log(
+        this.getAccessTokenFromCode,
+        'Fetch to https://kauth.kakao.com/oauth/token',
+      );
       const response =
         await this.httpService.axiosRef.post<GetKakaoTokenResponseDto>(
           'https://kauth.kakao.com/oauth/token',
@@ -128,6 +134,7 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
 
       return response.data.access_token;
     } catch (err) {
+      this.logger.error(this.getAccessTokenFromCode, 'Error occurred', err);
       throw err;
     }
   }

@@ -9,18 +9,26 @@ import { AlreadyNotLikeReviewExcpetion } from './exception/AlreadyNotLikeReviewE
 import { ReviewEntity } from './entity/review.entity';
 import { Prisma } from '@prisma/client';
 import { LoginUser } from '../auth/model/login-user';
+import { Logger } from '../../common/module/logger/logger.decorator';
+import { LoggerService } from '../../common/module/logger/logger.service';
 
 @Injectable()
 export class ReviewService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Logger(ReviewService.name) private readonly logger: LoggerService,
+  ) {}
 
-  public getReviewAll: (
+  /**
+   * 리뷰 목록 보기
+   */
+  public async getReviewAll(
     pagerble: ReviewPagerbleDto,
     userIdx?: number,
-  ) => Promise<{
+  ): Promise<{
     reviewList: ReviewEntity[];
     count: number;
-  }> = async (pagerble, userIdx) => {
+  }> {
     const where: Prisma.ReviewWhereInput = {
       cultureContentIdx: pagerble.content,
       userIdx: pagerble.user,
@@ -30,6 +38,7 @@ export class ReviewService {
       },
     };
 
+    this.logger.log(this.getReviewAll, 'SELECT review and count');
     const [count, reviewList] = await this.prisma.$transaction([
       this.prisma.review.count({ where }),
       this.prisma.review.findMany({
@@ -76,80 +85,87 @@ export class ReviewService {
       count,
       reviewList: reviewList.map((review) => ReviewEntity.createEntity(review)),
     };
-  };
+  }
 
-  public getHotReviewAll: (loginUser?: LoginUser) => Promise<ReviewEntity[]> =
-    async (loginUser) => {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  /**
+   * 인기 리뷰 가져오기
+   */
+  public async getHotReviewAll(loginUser?: LoginUser): Promise<ReviewEntity[]> {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-      const reviewList = await this.prisma.review.findMany({
-        include: {
-          ReviewImg: {
-            where: {
-              deletedAt: null,
-            },
-            orderBy: {
-              idx: 'asc',
-            },
+    this.logger.log(this.getHotReviewAll, 'SELECT reviews');
+    const reviewList = await this.prisma.review.findMany({
+      include: {
+        ReviewImg: {
+          where: {
+            deletedAt: null,
           },
-          ReviewLike: {
-            where: {
-              userIdx: loginUser?.idx || -1,
-            },
+          orderBy: {
+            idx: 'asc',
           },
-          User: true,
-          CultureContent: {
-            include: {
-              User: true,
-              ContentImg: true,
-              Genre: true,
-              Style: {
-                include: {
-                  Style: true,
-                },
+        },
+        ReviewLike: {
+          where: {
+            userIdx: loginUser?.idx || -1,
+          },
+        },
+        User: true,
+        CultureContent: {
+          include: {
+            User: true,
+            ContentImg: true,
+            Genre: true,
+            Style: {
+              include: {
+                Style: true,
               },
-              Age: true,
-              Location: true,
             },
+            Age: true,
+            Location: true,
           },
         },
-        where: {
+      },
+      where: {
+        deletedAt: null,
+        CultureContent: {
           deletedAt: null,
-          CultureContent: {
-            deletedAt: null,
-            User: {
-              blockedAt: null,
-              deletedAt: null,
-            },
-            acceptedAt: {
-              not: null,
-            },
-          },
           User: {
+            blockedAt: null,
             deletedAt: null,
           },
-          createdAt: {
-            gte: sevenDaysAgo,
-          },
-          likeCount: {
-            gte: 3,
+          acceptedAt: {
+            not: null,
           },
         },
-        orderBy: {
-          likeCount: 'desc',
+        User: {
+          deletedAt: null,
         },
-        take: 5,
-      });
+        createdAt: {
+          gte: sevenDaysAgo,
+        },
+        likeCount: {
+          gte: 3,
+        },
+      },
+      orderBy: {
+        likeCount: 'desc',
+      },
+      take: 5,
+    });
 
-      return reviewList.map((review) => ReviewEntity.createEntity(review));
-    };
+    return reviewList.map((review) => ReviewEntity.createEntity(review));
+  }
 
-  public createReview: (
+  /**
+   * 리뷰 생성하기
+   */
+  public async createReview(
     contentIdx: number,
     userIdx: number,
     createDto: CreateReviewDto,
-  ) => Promise<void> = async (contentIdx, userIdx, createDto) => {
+  ): Promise<void> {
+    this.logger.log(this.createReview, `SELECT culture content ${contentIdx}`);
     const content = await this.prisma.cultureContent.findUnique({
       where: {
         idx: contentIdx,
@@ -165,13 +181,22 @@ export class ReviewService {
     });
 
     if (!content) {
+      this.logger.warn(
+        this.createReview,
+        `Attempt to create review with non-existent content ${contentIdx}`,
+      );
       throw new ContentNotFoundException('Cannot find content');
     }
 
     if (!content.acceptedAt) {
+      this.logger.warn(
+        this.createReview,
+        `Attempt to create review with not accepted content ${contentIdx}`,
+      );
       throw new ContentNotFoundException('Cannot find content');
     }
 
+    this.logger.log(this.createReview, 'INSERT review');
     await this.prisma.review.create({
       data: {
         userIdx: userIdx,
@@ -190,12 +215,16 @@ export class ReviewService {
     });
 
     return;
-  };
+  }
 
-  public updateReview: (
+  /**
+   * 리뷰 수정하기
+   */
+  public async updateReview(
     idx: number,
     updateDto: UpdateReviewDto,
-  ) => Promise<void> = async (idx, updateDto) => {
+  ): Promise<void> {
+    this.logger.log(this.updateReview, `UPDATE review ${idx}`);
     await this.prisma.review.update({
       where: {
         idx,
@@ -219,9 +248,13 @@ export class ReviewService {
         visitTime: new Date(updateDto.visitTime),
       },
     });
-  };
+  }
 
-  public deleteReview: (idx: number) => Promise<void> = async (idx) => {
+  /**
+   * 리뷰 삭제하기
+   */
+  public async deleteReview(idx: number): Promise<void> {
+    this.logger.log(this.deleteReview, `DELETE review ${idx}`);
     await this.prisma.review.update({
       where: {
         idx,
@@ -232,49 +265,61 @@ export class ReviewService {
     });
 
     return;
-  };
+  }
 
-  public likeReview: (userIdx: number, reviewIdx: number) => Promise<void> =
-    async (userIdx, reviewIdx) => {
-      const reviewLike = await this.prisma.reviewLike.findUnique({
+  /**
+   * 리뷰 좋아요 누르기
+   */
+  public async likeReview(userIdx: number, reviewIdx: number): Promise<void> {
+    this.logger.log(this.likeReview, 'SELECT review like');
+    const reviewLike = await this.prisma.reviewLike.findUnique({
+      where: {
+        reviewIdx_userIdx: {
+          reviewIdx,
+          userIdx,
+        },
+      },
+    });
+
+    if (reviewLike) {
+      this.logger.warn(this.likeReview, 'Attempt to like already liked review');
+      throw new AlreadyLikeReviewException('Already like review');
+    }
+
+    this.logger.log(
+      this.likeReview,
+      'INSERT review like and UPDATE review like count',
+    );
+    await this.prisma.$transaction([
+      this.prisma.reviewLike.create({
+        data: {
+          reviewIdx,
+          userIdx,
+        },
+      }),
+      this.prisma.review.update({
         where: {
-          reviewIdx_userIdx: {
-            reviewIdx,
-            userIdx,
+          idx: reviewIdx,
+        },
+        data: {
+          likeCount: {
+            increment: 1,
           },
         },
-      });
+      }),
+    ]);
 
-      if (reviewLike) {
-        throw new AlreadyLikeReviewException('Already like review');
-      }
+    return;
+  }
 
-      await this.prisma.$transaction([
-        this.prisma.reviewLike.create({
-          data: {
-            reviewIdx,
-            userIdx,
-          },
-        }),
-        this.prisma.review.update({
-          where: {
-            idx: reviewIdx,
-          },
-          data: {
-            likeCount: {
-              increment: 1,
-            },
-          },
-        }),
-      ]);
-
-      return;
-    };
-
-  public cancelToLikeReview: (
+  /**
+   * 좋아요 취소하기
+   */
+  public async cancelToLikeReview(
     userIdx: number,
     reviewIdx: number,
-  ) => Promise<void> = async (userIdx, reviewIdx) => {
+  ): Promise<void> {
+    this.logger.log(this.cancelToLikeReview, 'SELECT review like');
     const reviewLike = await this.prisma.reviewLike.findUnique({
       where: {
         reviewIdx_userIdx: {
@@ -285,9 +330,17 @@ export class ReviewService {
     });
 
     if (!reviewLike) {
+      this.logger.log(
+        this.cancelToLikeReview,
+        `Attempt to cancel to like non liked review ${reviewIdx}`,
+      );
       throw new AlreadyNotLikeReviewExcpetion('Already do not like review');
     }
 
+    this.logger.log(
+      this.cancelToLikeReview,
+      'DELETE review like AND UPDATE review like count',
+    );
     await this.prisma.$transaction([
       this.prisma.reviewLike.delete({
         where: {
@@ -310,5 +363,5 @@ export class ReviewService {
     ]);
 
     return;
-  };
+  }
 }

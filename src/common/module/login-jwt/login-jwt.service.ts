@@ -18,31 +18,33 @@ export class LoginJwtService {
     @Logger('LoginJwtService') private readonly logger: LoggerService,
   ) {}
 
-  verify: (jwt: string) => Promise<LoginJwtPayload> = async (jwt) => {
+  async verify(jwt: string): Promise<LoginJwtPayload> {
     try {
+      this.logger.log(this.verify, 'Try to verify login jwt');
       return await this.jwtService.verifyAsync<LoginJwtPayload>(jwt);
     } catch (err) {
+      this.logger.warn(this.verify, 'Attempt to verify invalid jwt');
       throw new InvalidLoginJwtException('Invalid login jwt');
     }
-  };
+  }
 
-  sign: (idx: number, isAdmin: boolean) => string = (idx, isAdmin) => {
-    this.logger.log('sign', 'create login access token');
+  sign(idx: number, isAdmin: boolean): string {
     const payload: LoginJwtPayload = {
       idx: idx,
       isAdmin: isAdmin,
     };
 
+    this.logger.log(this.sign, `Create login jwt | user = ${idx}`);
     return this.jwtService.sign(payload, {
       expiresIn: '30m',
     });
-  };
+  }
 
   /**
    * Refresh Token 생성하기
    */
   async signRefreshToken(idx: number, isAdmin: boolean): Promise<string> {
-    this.logger.log(this.signRefreshToken.name, 'Create login refresh token');
+    this.logger.log(this.signRefreshToken, 'Create login refresh token');
 
     const payload: RefreshTokenPayload = {
       idx: idx,

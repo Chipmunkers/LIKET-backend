@@ -2,19 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { CreateInquiryDto } from './dto/create-inquiry.dto';
 import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
-import { FILE_GROUPING } from '../upload/file-grouping';
 import { InquiryEntity } from './entity/inquiry.entity';
+import { Logger } from '../../common/module/logger/logger.decorator';
+import { LoggerService } from '../../common/module/logger/logger.service';
 
 @Injectable()
 export class InquiryService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Logger(InquiryService.name) private readonly logger: LoggerService,
+  ) {}
 
   /**
-   * Get inquiry by idx
+   * 문의 자세히보기
    */
-  public getInquiryByIdx: (idx: number) => Promise<InquiryEntity> = async (
-    idx,
-  ) => {
+  public async getInquiryByIdx(idx: number): Promise<InquiryEntity> {
+    this.logger.log(this.getInquiryByIdx, `SELECT inquiry ${idx}`);
     const inquiry = await this.prisma.inquiry.findUnique({
       include: {
         Answer: {
@@ -43,19 +46,24 @@ export class InquiryService {
     });
 
     if (!inquiry) {
+      this.logger.warn(
+        this.getInquiryByIdx,
+        'Attempt to find non-existent inquiry',
+      );
       throw new InquiryNotFoundException('Cannot find inquiry');
     }
 
     return InquiryEntity.createEntity(inquiry);
-  };
+  }
 
   /**
-   * Create inquiry with user idx
+   * 문의 생서하기
    */
-  public createInquiry: (
+  public async createInquiry(
     userIdx: number,
     createDto: CreateInquiryDto,
-  ) => Promise<number> = async (userIdx, createDto) => {
+  ): Promise<number> {
+    this.logger.log(this.createInquiry, 'INSERT inquiry');
     const createdInquiry = await this.prisma.inquiry.create({
       data: {
         title: createDto.title,
@@ -73,12 +81,13 @@ export class InquiryService {
     });
 
     return createdInquiry.idx;
-  };
+  }
 
   /**
-   * Delete inquiry by idx
+   * 문의 삭제하기
    */
-  public deleteInquiry: (idx: number) => Promise<void> = async (idx) => {
+  public async deleteInquiry(idx: number): Promise<void> {
+    this.logger.log(this.deleteInquiry, 'DELETE inquiry');
     await this.prisma.inquiry.update({
       where: {
         idx,
@@ -89,5 +98,5 @@ export class InquiryService {
     });
 
     return;
-  };
+  }
 }

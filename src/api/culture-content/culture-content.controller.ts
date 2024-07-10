@@ -159,7 +159,7 @@ export class CultureContentController {
   @Exception(404, 'Cannot find culture-content')
   @Exception(409, 'Already like culture-content')
   @LoginAuth()
-  public async cancelToLikeCutlureContent(
+  public async cancelToLikeCultureContent(
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) contentIdx: number,
   ): Promise<void> {

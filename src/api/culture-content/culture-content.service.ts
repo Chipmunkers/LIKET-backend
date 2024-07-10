@@ -11,15 +11,24 @@ import { SummaryContentEntity } from './entity/summary-content.entity';
 import { Prisma } from '@prisma/client';
 import { LoginUser } from '../auth/model/login-user';
 import { HotCultureContentEntity } from './entity/hot-content.entity';
+import { Logger } from '../../common/module/logger/logger.decorator';
+import { LoggerService } from '../../common/module/logger/logger.service';
 
 @Injectable()
 export class CultureContentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Logger(CultureContentService.name) private readonly logger: LoggerService,
+  ) {}
 
-  public getContentByIdx: (
+  /**
+   * 컨텐츠 자세히보기
+   */
+  public async getContentByIdx(
     idx: number,
     userIdx?: number,
-  ) => Promise<ContentEntity> = async (idx, userIdx) => {
+  ): Promise<ContentEntity> {
+    this.logger.log(this.getContentByIdx, `SELECT content ${idx}`);
     const content = await this.prisma.cultureContent.findUnique({
       include: {
         User: true,
@@ -68,9 +77,17 @@ export class CultureContentService {
     });
 
     if (!content) {
+      this.logger.warn(
+        this.getContentByIdx,
+        `Attempt to not found content | content = ${idx}`,
+      );
       throw new ContentNotFoundException('Cannot find content');
     }
 
+    this.logger.log(
+      this.getContentByIdx,
+      `SELECT review count | content = ${idx}`,
+    );
     const reviewStar = await this.prisma.review.aggregate({
       _sum: {
         starRating: true,
@@ -84,15 +101,18 @@ export class CultureContentService {
     });
 
     return ContentEntity.createEntity(content, reviewStar._sum.starRating || 0);
-  };
+  }
 
-  public getContentAll: (
-    pagenation: ContentPagerbleDto,
+  /**
+   * 컨텐츠 목록 보기
+   */
+  public async getContentAll(
+    pagerble: ContentPagerbleDto,
     userIdx?: number,
-  ) => Promise<{
+  ): Promise<{
     contentList: SummaryContentEntity[];
     count: number;
-  }> = async (pagerble, userIdx) => {
+  }> {
     const where: Prisma.CultureContentWhereInput = {
       genreIdx: pagerble.genre || undefined,
       ageIdx: pagerble.age || undefined,
@@ -136,6 +156,7 @@ export class CultureContentService {
       },
     };
 
+    this.logger.log(this.getContentAll, 'SELECT content and count');
     const [count, contentList] = await this.prisma.$transaction([
       this.prisma.cultureContent.count({ where }),
       this.prisma.cultureContent.findMany({
@@ -183,11 +204,15 @@ export class CultureContentService {
       ),
       count: count,
     };
-  };
+  }
 
+  /**
+   * 곧 오픈하는 컨텐츠 목록 보기
+   */
   public async getSoonOpenContentAll(
     userIdx?: number,
   ): Promise<SummaryContentEntity[]> {
+    this.logger.log(this.getSoonOpenContentAll, 'SELECT culture contents');
     const contentList = await this.prisma.cultureContent.findMany({
       include: {
         User: true,
@@ -245,9 +270,13 @@ export class CultureContentService {
     );
   }
 
+  /**
+   * 곧 종료하는 컨텐츠 목록 보기
+   */
   public async getSoonEndContentAll(
     userIdx?: number,
   ): Promise<SummaryContentEntity[]> {
+    this.logger.log(this.getSoonEndContentAll, 'SELECT culture contents');
     const contentList = await this.prisma.cultureContent.findMany({
       include: {
         User: true,
@@ -305,7 +334,11 @@ export class CultureContentService {
     );
   }
 
+  /**
+   * 인기 컨텐츠 전부 보기
+   */
   public async getHotContentAll() {
+    this.logger.log(this.getHotContentAll, 'SELECT culture contents');
     const genre = await this.prisma.genre.findMany({
       include: {
         CultureContent: {
@@ -354,10 +387,14 @@ export class CultureContentService {
     );
   }
 
+  /**
+   * 인기 연령대 컨텐츠 목록 보기
+   */
   public async getHotContentByAge(
     ageIdx?: number,
     loginUser?: LoginUser,
   ): Promise<SummaryContentEntity[]> {
+    this.logger.log(this.getHotContentAll, 'SELECT culture contents');
     const contentList = await this.prisma.cultureContent.findMany({
       include: {
         User: true,
@@ -419,11 +456,15 @@ export class CultureContentService {
     );
   }
 
-  public createContentRequest: (
+  /**
+   * 문화생활컨텐츠 생성하기
+   */
+  public async createContentRequest(
     userIdx: number,
     createDto: CreateContentRequestDto,
-  ) => Promise<number> = async (userIdx, createDto) => {
-    return await this.prisma.$transaction(async (tx) => {
+  ): Promise<number> {
+    this.logger.log(this.createContentRequest, 'INSERT culture contents');
+    return this.prisma.$transaction(async (tx) => {
       const createdLocation = await tx.location.create({
         data: {
           address: createDto.location.address,
@@ -474,13 +515,17 @@ export class CultureContentService {
 
       return requestedCultureContent.idx;
     });
-  };
+  }
 
-  public updateContentRequest: (
+  public async updateContentRequest(
     idx: number,
     updateDto: UpdateContentDto,
     userIdx: number,
-  ) => Promise<void> = async (idx, updateDto, userIdx) => {
+  ): Promise<void> {
+    this.logger.log(
+      this.updateContentRequest,
+      `UPDATE culture content | content = ${idx}`,
+    );
     await this.prisma.$transaction([
       this.prisma.location.update({
         where: {
@@ -535,9 +580,13 @@ export class CultureContentService {
     ]);
 
     return;
-  };
+  }
 
-  public deleteContentRequest: (idx: number) => Promise<void> = async (idx) => {
+  public async deleteContentRequest(idx: number): Promise<void> {
+    this.logger.log(
+      this.deleteContentRequest,
+      `DELETE culture content | content = ${idx}`,
+    );
     await this.prisma.cultureContent.update({
       where: {
         idx,
@@ -548,49 +597,58 @@ export class CultureContentService {
     });
 
     return;
-  };
+  }
 
-  public likeContent: (userIdx: number, contentIdx: number) => Promise<void> =
-    async (userIdx, contentIdx) => {
-      const likeState = await this.prisma.contentLike.findUnique({
+  public async likeContent(userIdx: number, contentIdx: number) {
+    this.logger.log(this.likeContent, 'SELECT content like');
+    const likeState = await this.prisma.contentLike.findUnique({
+      where: {
+        contentIdx_userIdx: {
+          userIdx,
+          contentIdx,
+        },
+      },
+    });
+
+    if (likeState) {
+      this.logger.warn(
+        this.likeContent,
+        'Attempt to like to already liked content',
+      );
+      throw new AlreadyLikeContentException('Already liked culture content');
+    }
+
+    this.logger.log(
+      this.likeContent,
+      'INSERT content like and UPDATE content like count',
+    );
+    await this.prisma.$transaction([
+      this.prisma.cultureContent.update({
         where: {
-          contentIdx_userIdx: {
-            userIdx,
-            contentIdx,
+          idx: contentIdx,
+        },
+        data: {
+          likeCount: {
+            increment: 1,
           },
         },
-      });
+      }),
+      this.prisma.contentLike.create({
+        data: {
+          contentIdx,
+          userIdx,
+        },
+      }),
+    ]);
 
-      if (likeState) {
-        throw new AlreadyLikeContentException('Already liked culture content');
-      }
+    return;
+  }
 
-      await this.prisma.$transaction([
-        this.prisma.cultureContent.update({
-          where: {
-            idx: contentIdx,
-          },
-          data: {
-            likeCount: {
-              increment: 1,
-            },
-          },
-        }),
-        this.prisma.contentLike.create({
-          data: {
-            contentIdx,
-            userIdx,
-          },
-        }),
-      ]);
-
-      return;
-    };
-
-  public cancelToLikeContent: (
+  public async cancelToLikeContent(
     userIdx: number,
     contentIdx: number,
-  ) => Promise<void> = async (userIdx, contentIdx) => {
+  ): Promise<void> {
+    this.logger.log(this.likeContent, 'SELECT content like');
     const likeState = await this.prisma.contentLike.findUnique({
       where: {
         contentIdx_userIdx: {
@@ -601,11 +659,19 @@ export class CultureContentService {
     });
 
     if (!likeState) {
+      this.logger.warn(
+        this.likeContent,
+        'Attempt to cancel to like non-liked content',
+      );
       throw new AlreadyNotLikeContentException(
         'Already do not like culture content',
       );
     }
 
+    this.logger.log(
+      this.likeContent,
+      'DELETE content like and UPDATE content like count',
+    );
     await this.prisma.$transaction([
       this.prisma.cultureContent.update({
         where: {
@@ -628,5 +694,5 @@ export class CultureContentService {
     ]);
 
     return;
-  };
+  }
 }

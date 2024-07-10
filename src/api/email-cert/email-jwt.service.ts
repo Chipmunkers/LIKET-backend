@@ -14,24 +14,24 @@ export class EmailJwtService {
   /**
    * @returns 이메일
    */
-  verify: (jwt: string, type: EmailCertType) => Promise<string> = async (
-    jwt,
-    type,
-  ) => {
+  public async verify(jwt: string, type: EmailCertType): Promise<string> {
     try {
+      this.logger.log(this.verify, 'Verify jwt');
       const payload = await this.jwtService.verifyAsync<EmailJwtPayload>(jwt);
 
       if (payload.type !== type) {
+        this.logger.warn(this.verify, 'Attempt to verify invalid jwt');
         throw new InvalidEmailJwtException('Invalid email certification type');
       }
 
       return payload.email;
     } catch (err) {
-      this.logger.log(
-        'verify',
+      this.logger.error(
+        this.verify,
         `Fail to verify email jwt cause: ${err.message}`,
+        err,
       );
       throw new InvalidEmailJwtException('Invalid email jwt');
     }
-  };
+  }
 }
