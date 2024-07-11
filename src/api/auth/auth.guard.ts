@@ -39,13 +39,6 @@ export class LoginAuthGuard implements CanActivate {
       throw new ForbiddenException('Suspended user');
     }
 
-    const loginUser: LoginUser = {
-      idx: payload.idx,
-      isAdmin: payload.isAdmin,
-    };
-
-    request.user = loginUser;
-
     return true;
   }
 }

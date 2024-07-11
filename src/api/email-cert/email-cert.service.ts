@@ -55,6 +55,9 @@ export class EmailCertService implements IEmailCertService {
 
     this.logger.log(this.checkCertCode, 'SELECT email cert code');
     const cert = await this.prisma.emailCertCode.findFirst({
+      select: {
+        code: true,
+      },
       where: {
         email,
         createdAt: {

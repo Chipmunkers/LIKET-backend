@@ -17,10 +17,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "dotenv -e ./test/e2e/.env.test -- jest --config ./test/jest-e2e.json --verbose",
     "seed": "ts-node prisma/seed.ts",
     "dev-deploy:up": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml up -d --build --force-recreate",
-    "dev-deploy:down": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml down"
+    "dev-deploy:down": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml down",
+    "test-infra:up": "docker compose -p liket-mobile-test -f test/e2e/infra/docker-compose.yml up -d",
+    "test-infra:down": "docker compose -p liket-mobile-test -f test/e2e/infra/docker-compose.yml down -v"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.529.1",
@@ -62,12 +64,14 @@
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.59.11",
+    "dotenv": "^16.4.5",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "jest": "^29.5.0",
     "prettier": "^2.8.8",
-    "prisma": "^5.9.1",
+    "prisma": "^5.16.2",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.0",
@@ -83,7 +87,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "test",
+    "rootDir": "test/unit",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"

@@ -11,6 +11,8 @@ import {
 } from 'class-validator';
 import { PickType } from '@nestjs/swagger';
 import { ContentEntity } from '../entity/content.entity';
+import { LocationEntity } from '../entity/location.entity';
+import { Type } from 'class-transformer';
 
 export class CreateContentRequestDto extends PickType(ContentEntity, [
   'title',
@@ -64,5 +66,6 @@ export class CreateContentRequestDto extends PickType(ContentEntity, [
    */
   @ValidateNested()
   @IsObject()
-  location: CreateLocationDto;
+  @Type(() => LocationEntity)
+  location: LocationEntity;
 }

@@ -1,5 +1,5 @@
 import { Location } from '@prisma/client';
-import { IsDecimal, IsString, Length } from 'class-validator';
+import { IsDecimal, IsNumber, IsString, Length } from 'class-validator';
 
 export class LocationEntity {
   /**
@@ -43,7 +43,7 @@ export class LocationEntity {
    *
    * @example "126.99597295767953"
    */
-  @IsDecimal()
+  @IsNumber()
   public positionX: number;
 
   /**
@@ -51,7 +51,7 @@ export class LocationEntity {
    *
    * @example "35.97664845766847"
    */
-  @IsDecimal()
+  @IsNumber()
   public positionY: number;
 
   /**

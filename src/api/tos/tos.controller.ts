@@ -6,15 +6,14 @@ import { Exception } from '../../common/decorator/exception.decorator';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('tos')
+@ApiTags('Terms of Service')
 export class TosController {
   constructor(private readonly tosService: TosService) {}
 
   /**
-   * Get all Terms Of Service API
+   * 약관 목록보기
    */
   @Get('/all')
-  @HttpCode(200)
-  @ApiTags('Terms of Service')
   async getUserTosAll(): Promise<GetTosAllResponseDto> {
     const tosList = await this.tosService.getTosAll();
 
@@ -24,11 +23,9 @@ export class TosController {
   }
 
   /**
-   * Get Terms Of Service by idx API
+   * 약관 자세히보기
    */
   @Get('/:idx')
-  @HttpCode(200)
-  @ApiTags('Terms of Service')
   @Exception(400, 'Invalid path parameter')
   @Exception(404, 'Cannot find Terms Of Service')
   async getTosByIdx(

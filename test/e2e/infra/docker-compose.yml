@@ -1,0 +1,12 @@
+services:
+  postgresql:
+    image: postgres:15.4
+    restart: always
+    container_name: liket-mobile-test-DB
+    ports:
+      - '5500:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d/

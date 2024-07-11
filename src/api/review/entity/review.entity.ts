@@ -4,6 +4,7 @@ import { ReviewWithInclude } from './prisma-type/review-with-include';
 import { PickType } from '@nestjs/swagger';
 import { ContentEntity } from '../../culture-content/entity/content.entity';
 import {
+  IsDate,
   IsDateString,
   IsIn,
   IsNumber,
@@ -32,6 +33,7 @@ export class ReviewEntity {
    *
    * @example 2024-05-07T12:12:12.000Z
    */
+  @IsDateString()
   public visitTime: Date;
 
   /**

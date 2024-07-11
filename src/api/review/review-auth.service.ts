@@ -16,6 +16,10 @@ export class ReviewAuthService {
     pagerlbe: ReviewPagerbleDto,
     loginUser?: LoginUser,
   ) => Promise<void> = async (pagerble, loginUser) => {
+    if (!pagerble.user && !pagerble.content) {
+      throw new PermissionDeniedException();
+    }
+
     if (pagerble.user && pagerble.user !== loginUser?.idx) {
       throw new PermissionDeniedException();
     }

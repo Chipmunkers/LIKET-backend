@@ -41,6 +41,7 @@ export class CultureContentController {
   @Get('/all')
   @HttpCode(200)
   @Exception(400, 'Invalid querystring')
+  @Exception(403, 'Permission denied')
   @LoginAuth()
   public async getCultureContentAll(
     @User() loginUser: LoginUser,
@@ -101,6 +102,7 @@ export class CultureContentController {
    * 연령대의 인기 컨텐츠 보기
    */
   @Get('/hot-age/:ageIdx/all')
+  @Exception(400, 'Invalid path parameter')
   public async getHotAgeCultureContentAll(
     @Param('ageIdx', ParseIntPipe) ageIdx: number,
     @User() loginUser?: LoginUser,

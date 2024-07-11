@@ -48,6 +48,19 @@ export class ReviewController {
   }
 
   /**
+   * 리뷰 자세히보기
+   */
+  @Get('/review/:idx')
+  @Exception(400, 'Invalid path parameter')
+  @Exception(404, 'Cannot find review')
+  public async getReviewByIdx(
+    @Param('idx', ParseIntPipe) idx: number,
+    @User() loginUser?: LoginUser,
+  ) {
+    return await this.reviewService.getReviewByIdx(idx, loginUser);
+  }
+
+  /**
    * 최근 인기 리뷰 목록 보기
    */
   @Get('/review/hot/all')

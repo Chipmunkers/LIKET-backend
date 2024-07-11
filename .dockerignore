@@ -12,4 +12,6 @@ LICENSE
 *.swp
 /scripts
 .env
-.env.*
+test
+test-legacy
+dev-deploy

@@ -648,6 +648,8 @@ export class CultureContentService {
     userIdx: number,
     contentIdx: number,
   ): Promise<void> {
+    await this.getContentByIdx(contentIdx);
+
     this.logger.log(this.likeContent, 'SELECT content like');
     const likeState = await this.prisma.contentLike.findUnique({
       where: {

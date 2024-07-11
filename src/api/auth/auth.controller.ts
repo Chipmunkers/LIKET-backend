@@ -78,6 +78,7 @@ export class AuthController {
    * Access Token 재발급하기
    */
   @Post('/access-token')
+  @HttpCode(200)
   @Exception(401, 'Invalid refresh token')
   public async reissueAccessToken(
     @Res({ passthrough: true }) res: Response,
@@ -93,6 +94,7 @@ export class AuthController {
    * 로그아웃하기
    */
   @Delete('/')
+  @HttpCode(201)
   public async logout(
     @Res({ passthrough: true }) res: Response,
     @Cookies('refreshToken') refreshToken?: string,

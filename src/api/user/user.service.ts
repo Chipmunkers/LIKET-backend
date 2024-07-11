@@ -83,6 +83,10 @@ export class UserService {
   ): Promise<LoginToken> {
     const socialUser = await this.socialLoginJwtService.verify(signUpDto.token);
 
+    this.logger.log(
+      this.socialUserSignUp,
+      `duplicate check nickname = ${socialUser.nickname} | email = ${socialUser.email}`,
+    );
     await this.checkEmailAndNicknameDuplicate(
       socialUser.email,
       signUpDto.nickname,
@@ -93,7 +97,7 @@ export class UserService {
       data: {
         email: socialUser.email,
         pw: 'social',
-        nickname: socialUser.nickname,
+        nickname: signUpDto.nickname,
         snsId: socialUser.id,
         birth: signUpDto.birth || null,
         gender: signUpDto.gender || null,

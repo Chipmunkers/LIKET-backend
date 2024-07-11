@@ -3,6 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { SocialLoginUser } from '../../../api/auth/model/social-login-user';
 import { Logger } from '../logger/logger.decorator';
 import { LoggerService } from '../logger/logger.service';
+import { InvalidSocialLoginJwtException } from './exception/InvalidSocialLoginJwtException';
+import { SocialProvider } from '../../../api/auth/strategy/social-provider.enum';
 
 @Injectable()
 export class SocialLoginJwtService {
@@ -25,6 +27,10 @@ export class SocialLoginJwtService {
 
   public async verify(token: string): Promise<SocialLoginUser> {
     this.logger.log(this.verify, 'Verify social login token');
-    return await this.jwtService.verifyAsync<SocialLoginUser>(token);
+    try {
+      return await this.jwtService.verifyAsync<SocialLoginUser>(token);
+    } catch (err) {
+      throw new InvalidSocialLoginJwtException('Invalid social login jwt');
+    }
   }
 }

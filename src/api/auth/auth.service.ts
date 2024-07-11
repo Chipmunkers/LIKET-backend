@@ -115,25 +115,25 @@ export class AuthService {
       if (isFirstLogin) {
         this.logger.log(this.socialLogin, `first social login ${provider}`);
 
+        const isDuplicateSocialUser = await this.checkDuplicateSocialEmail(
+          socialLoginUser,
+        );
+        if (isDuplicateSocialUser) {
+          // TODO: change redirect URL
+          this.logger.warn(
+            this.socialLogin,
+            `Attempt to login with duplicated email | email = ${socialLoginUser.email}`,
+          );
+          res.redirect('/error');
+          return;
+        }
+
         const socialLoginToken = await this.socialLoginJwtService.sign(
           socialLoginUser,
         );
 
         const successUrl = strategy.getSignUpRedirectUrl();
         res.redirect(`${successUrl}?token=${socialLoginToken}`);
-        return;
-      }
-
-      const isDuplicateSocialUser = await this.checkDuplicateSocialEmail(
-        socialLoginUser,
-      );
-      if (isDuplicateSocialUser) {
-        // TODO: change redirect URL
-        this.logger.warn(
-          this.socialLogin,
-          `Attempt to login with duplicated email | email = ${socialLoginUser.email}`,
-        );
-        res.redirect('/error');
         return;
       }
 

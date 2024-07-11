@@ -1,0 +1,283 @@
+import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaClient } from '@prisma/client';
+import * as request from 'supertest';
+import { AppModule } from '../../../src/app.module';
+import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
+import { LoginDto } from '../../../src/api/auth/dto/local-login.dto';
+import { KakaoLoginStrategy } from '../../../src/api/auth/strategy/kakao/kakao-login.strategy';
+import { SocialLoginUser } from '../../../src/api/auth/model/social-login-user';
+import { SocialProvider } from '../../../src/api/auth/strategy/social-provider.enum';
+import { LoginJwtService } from '../../../src/common/module/login-jwt/login-jwt.service';
+import * as cookieParser from 'cookie-parser';
+
+describe('Auth (e2e)', () => {
+  let app: INestApplication;
+  let appModule: TestingModule;
+
+  let kakaoLoginStrategy: KakaoLoginStrategy;
+  let loginJwtService: LoginJwtService;
+
+  let prisma: PrismaClient;
+
+  beforeEach(async () => {
+    prisma = new PrismaClient();
+    await prisma.$queryRaw`BEGIN`;
+
+    appModule = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      .overrideProvider(PrismaService)
+      .useValue(prisma)
+      .compile();
+    app = appModule.createNestApplication();
+
+    app.use(cookieParser(process.env.COOKIE_SECRET));
+
+    await app.init();
+
+    kakaoLoginStrategy = appModule.get(KakaoLoginStrategy);
+    loginJwtService = appModule.get(LoginJwtService);
+  });
+
+  afterEach(async () => {
+    await prisma.$queryRaw`ROLLBACK`;
+    await prisma.$disconnect();
+    await appModule.close();
+    await app.close();
+  });
+
+  describe('POST /auth/local', () => {
+    it('Success', async () => {
+      const loginDto: LoginDto = {
+        email: 'user1@gmail.com',
+        pw: 'aa12341234**',
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/local')
+        .send(loginDto)
+        .expect(200);
+    });
+
+    it('Non-existent email', async () => {
+      const loginDto: LoginDto = {
+        email: 'nonExist@xxxx.xxx', // Non-existent email
+        pw: 'aa12341234**',
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/local')
+        .send(loginDto)
+        .expect(401);
+    });
+
+    it('Wrong password', async () => {
+      const loginDto: LoginDto = {
+        email: 'user1@gmail.com',
+        pw: 'wrongPassword', // Wrong password
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/local')
+        .send(loginDto)
+        .expect(401);
+    });
+
+    it('Suspended user', async () => {
+      const loginDto: LoginDto = {
+        email: 'user3@gmail.com',
+        pw: 'aa12341234**', // Wrong password
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/local')
+        .send(loginDto)
+        .expect(403);
+    });
+
+    it('Social user login', async () => {
+      const loginDto: LoginDto = {
+        email: 'kakao1@daum.net',
+        pw: 'aa12341234**', // Wrong password
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/local')
+        .send(loginDto)
+        .expect(401);
+    });
+  });
+
+  describe('GET /auth/:provider', () => {
+    it('Success', async () => {
+      await request(app.getHttpServer()).get('/auth/kakao').expect(302);
+    });
+
+    it('Invalid provider', async () => {
+      const invalidProvider = 'invalidProvider';
+
+      await request(app.getHttpServer())
+        .get(`/auth/${invalidProvider}`)
+        .expect(400);
+    });
+  });
+
+  describe('GET /auth/:provider/callback', () => {
+    it('Success - first login', async () => {
+      const socialLoginUser: SocialLoginUser = {
+        id: '111111111', // First login
+        provider: SocialProvider.KAKAO,
+        nickname: 'jochong',
+        email: 'test123@naver.com',
+      };
+      jest
+        .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
+        .mockResolvedValue(socialLoginUser);
+
+      await request(app.getHttpServer())
+        .get('/auth/kakao/callback')
+        .expect(302);
+    });
+
+    it('Success - second login', async () => {
+      const socialLoginUser: SocialLoginUser = {
+        id: '12312412', // Second login
+        provider: SocialProvider.KAKAO,
+        nickname: 'jochong',
+        email: 'kakao1@daum.net',
+      };
+      jest
+        .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
+        .mockResolvedValue(socialLoginUser);
+
+      await request(app.getHttpServer())
+        .get('/auth/kakao/callback')
+        .expect(302)
+        .expect('Location', '/social-login-complete');
+    });
+
+    it('Success - changed email', async () => {
+      const socialLoginUser: SocialLoginUser = {
+        id: '12312412', // Second login
+        provider: SocialProvider.KAKAO,
+        nickname: 'jochong',
+        email: 'test123@gmail.com',
+      };
+      jest
+        .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
+        .mockResolvedValue(socialLoginUser);
+
+      await request(app.getHttpServer())
+        .get('/auth/kakao/callback')
+        .expect(302)
+        .expect('Location', '/social-login-complete');
+    });
+
+    it('Duplicated email', async () => {
+      const socialLoginUser: SocialLoginUser = {
+        id: '123123123', // First login
+        provider: SocialProvider.KAKAO,
+        nickname: 'jochong',
+        email: 'user1@gmail.com',
+      };
+      jest
+        .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
+        .mockResolvedValue(socialLoginUser);
+
+      await request(app.getHttpServer())
+        .get('/auth/kakao/callback')
+        .expect(302)
+        .expect('Location', '/error');
+    });
+
+    it('Error occurred from external API', async () => {
+      jest
+        .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
+        .mockImplementation(async () => {
+          throw new Error('External Error');
+        });
+
+      await request(app.getHttpServer())
+        .get('/auth/kakao/callback')
+        .expect(302)
+        .expect('Location', '/error');
+    });
+
+    it('Invalid provider', async () => {
+      const invalidProvider = 'invalidProvider';
+
+      request(app.getHttpServer()).get(`/auth/${invalidProvider}`).expect(400);
+    });
+  });
+
+  describe('POST /auth/access-token', () => {
+    it('Success', async () => {
+      // 로그인
+      const response = await request(app.getHttpServer())
+        .post('/auth/local')
+        .send({
+          email: 'user1@gmail.com',
+          pw: 'aa12341234**',
+        });
+      const refreshTokenCookie = response.headers['set-cookie'][0];
+
+      await request(app.getHttpServer())
+        .post('/auth/access-token')
+        .set('Cookie', refreshTokenCookie)
+        .expect(200);
+    });
+
+    it('No refresh token', async () => {
+      await request(app.getHttpServer()).post('/auth/access-token').expect(401);
+    });
+
+    it('No refresh token', async () => {
+      await request(app.getHttpServer()).post('/auth/access-token').expect(401);
+    });
+
+    it('Using an already used refresh token', async () => {
+      // 로그인
+      const response = await request(app.getHttpServer())
+        .post('/auth/local')
+        .send({
+          email: 'user1@gmail.com',
+          pw: 'aa12341234**',
+        });
+      const refreshTokenCookie = response.headers['set-cookie'][0];
+
+      await request(app.getHttpServer())
+        .post('/auth/access-token')
+        .set('Cookie', refreshTokenCookie)
+        .expect(200);
+
+      // 다시 사용
+      await request(app.getHttpServer())
+        .post('/auth/access-token')
+        .set('Cookie', refreshTokenCookie)
+        .expect(401);
+    });
+  });
+
+  describe('DELETE /auth', () => {
+    it('Success with cookie', async () => {
+      // 로그인
+      const response = await request(app.getHttpServer())
+        .post('/auth/local')
+        .send({
+          email: 'user1@gmail.com',
+          pw: 'aa12341234**',
+        });
+      const refreshTokenCookie = response.headers['set-cookie'][0];
+
+      await request(app.getHttpServer())
+        .delete('/auth')
+        .set('Cookie', refreshTokenCookie)
+        .expect(201);
+    });
+
+    it('Success with no cookie', async () => {
+      await request(app.getHttpServer()).delete('/auth').expect(201);
+    });
+  });
+});

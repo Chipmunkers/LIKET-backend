@@ -1,0 +1,465 @@
+import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import * as request from 'supertest';
+import { AppModule } from '../../../src/app.module';
+import { SignUpDto } from '../../../src/api/user/dto/sign-up.dto';
+import { Gender } from '../../../src/api/user/model/Gender';
+import { EmailJwtService } from '../../../src/api/email-cert/email-jwt.service';
+import { PrismaClient } from '@prisma/client';
+import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
+import { SocialSignUpDto } from '../../../src/api/user/dto/social-sign-up.dto';
+import { SocialLoginJwtService } from '../../../src/common/module/social-login-jwt/social-login-jwt.service';
+import { SocialLoginUser } from '../../../src/api/auth/model/social-login-user';
+import { SocialProvider } from '../../../src/api/auth/strategy/social-provider.enum';
+import { AuthService } from '../../../src/api/auth/auth.service';
+import { UpdateProfileDto } from '../../../src/api/user/dto/update-profile.dto';
+import { EmailDuplicateCheckDto } from '../../../src/api/user/dto/email-duplicate-check.dto';
+import { NicknameDuplicateCheckDto } from '../../../src/api/user/dto/nickname-duplicate-check.dto';
+import { FindPwDto } from '../../../src/api/user/dto/find-pw.dto';
+import * as cookieParser from 'cookie-parser';
+import spyOn = jest.spyOn;
+
+describe('User (e2e)', () => {
+  let app: INestApplication;
+  let appModule: TestingModule;
+
+  let emailJwtService: EmailJwtService;
+  let socialLoginJwtService: SocialLoginJwtService;
+  let authService: AuthService;
+
+  let prisma: PrismaClient;
+
+  let user1Token: string;
+
+  beforeEach(async () => {
+    prisma = new PrismaClient();
+    await prisma.$queryRaw`BEGIN`;
+
+    appModule = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      .overrideProvider(PrismaService)
+      .useValue(prisma)
+      .compile();
+    app = appModule.createNestApplication();
+
+    app.use(cookieParser(process.env.COOKIE_SECRET));
+
+    await app.init();
+
+    emailJwtService = appModule.get(EmailJwtService);
+    socialLoginJwtService = appModule.get(SocialLoginJwtService);
+    authService = appModule.get(AuthService);
+
+    user1Token = (
+      await authService.login({
+        email: 'user1@gmail.com',
+        pw: 'aa12341234**',
+      })
+    ).accessToken;
+  });
+
+  afterEach(async () => {
+    await prisma.$queryRaw`ROLLBACK`;
+    await prisma.$disconnect();
+    await appModule.close();
+    await app.close();
+  });
+
+  describe('POST /user/local', () => {
+    it('Signup success', async () => {
+      const signUpDto: SignUpDto = {
+        emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
+        pw: 'pw123123**',
+        nickname: 'jochong',
+        gender: Gender.MALE,
+        birth: 2002,
+      };
+
+      // 이메일 토큰이 정상이라고 가정
+      const email = 'abc123@xxx.xxx';
+      spyOn(emailJwtService, 'verify').mockResolvedValue(email);
+
+      await request(app.getHttpServer())
+        .post('/user/local')
+        .send(signUpDto)
+        .expect(200);
+    });
+
+    it('Invalid email token', async () => {
+      const signUpDto: SignUpDto = {
+        emailToken: 'invalid email token',
+        pw: 'pw123123**',
+        nickname: 'jochong',
+        gender: Gender.MALE,
+        birth: 2002,
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/local')
+        .send(signUpDto)
+        .expect(401);
+    });
+
+    it('Duplicate email', async () => {
+      const sameEmail = 'abc123@xxx.xxx';
+      spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
+      const signUpDto: SignUpDto = {
+        emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
+        pw: 'pw123123**',
+        nickname: 'jochong',
+        gender: Gender.MALE,
+        birth: 2002,
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/local')
+        .send(signUpDto)
+        .expect(200);
+
+      spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
+      const signUpDto2: SignUpDto = {
+        emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
+        pw: 'pw123123**',
+        nickname: 'test',
+        gender: Gender.MALE,
+        birth: 2002,
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/local')
+        .send(signUpDto2)
+        .expect(409);
+    });
+
+    it('Duplicate nickname', async () => {
+      const email = 'abc123@xxx.xxx';
+      spyOn(emailJwtService, 'verify').mockResolvedValue(email);
+      const signUpDto: SignUpDto = {
+        emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
+        pw: 'pw123123**',
+        nickname: 'jochong',
+        gender: Gender.MALE,
+        birth: 2002,
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/local')
+        .send(signUpDto)
+        .expect(200);
+
+      spyOn(emailJwtService, 'verify').mockResolvedValue('different@naver.com');
+      const signUpDto2: SignUpDto = {
+        emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
+        pw: 'pw123123**',
+        nickname: 'jochong',
+        gender: Gender.MALE,
+        birth: 2002,
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/local')
+        .send(signUpDto2)
+        .expect(409);
+    });
+  });
+
+  describe('POST /user/social', () => {
+    it('Social Signup success', async () => {
+      const socialLoginUser: SocialLoginUser = {
+        id: '123123123',
+        provider: SocialProvider.KAKAO,
+        nickname: 'jochong',
+        email: 'test123@naver.com',
+      };
+
+      const socialSignUpDto: SocialSignUpDto = {
+        birth: 2002,
+        gender: Gender.MALE,
+        nickname: 'jochong',
+        token: await socialLoginJwtService.sign(socialLoginUser),
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/social')
+        .send(socialSignUpDto)
+        .expect(200);
+    });
+
+    it('Invalid social token', async () => {
+      const socialSignUpDto: SocialSignUpDto = {
+        birth: 2002,
+        gender: Gender.MALE,
+        nickname: 'jochong',
+        token: 'this.is.invalidToken',
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/social')
+        .send(socialSignUpDto)
+        .expect(403);
+    });
+
+    it('Duplicate email', async () => {
+      const sameEmail = 'test123@naver.com';
+
+      const socialLoginUser: SocialLoginUser = {
+        id: '123123123',
+        provider: SocialProvider.KAKAO,
+        nickname: 'jochong',
+        email: sameEmail,
+      };
+
+      const socialSignUpDto: SocialSignUpDto = {
+        birth: 2002,
+        gender: Gender.MALE,
+        nickname: 'jochong',
+        token: await socialLoginJwtService.sign(socialLoginUser),
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/social')
+        .send(socialSignUpDto)
+        .expect(200);
+
+      const socialLoginUser2: SocialLoginUser = {
+        id: '123123123',
+        provider: SocialProvider.KAKAO,
+        nickname: 'jochong',
+        email: sameEmail,
+      };
+
+      const socialSignUpDto2: SocialSignUpDto = {
+        birth: 2002,
+        gender: Gender.MALE,
+        nickname: 'test',
+        token: await socialLoginJwtService.sign(socialLoginUser2),
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/social')
+        .send(socialSignUpDto2)
+        .expect(409);
+    });
+
+    it('Duplicate email', async () => {
+      const sameNickname = 'jochong';
+
+      // First social login user
+      const socialLoginUser: SocialLoginUser = {
+        id: '123123123',
+        provider: SocialProvider.KAKAO,
+        nickname: 'kakaoUser1',
+        email: 'another@xxxx.xxx',
+      };
+
+      const socialSignUpDto: SocialSignUpDto = {
+        birth: 2002,
+        gender: Gender.MALE,
+        nickname: sameNickname,
+        token: await socialLoginJwtService.sign(socialLoginUser),
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/social')
+        .send(socialSignUpDto)
+        .expect(200);
+
+      // Second social login user with duplicated email
+      const socialLoginUser2: SocialLoginUser = {
+        id: '123123123',
+        provider: SocialProvider.KAKAO,
+        nickname: 'kakaoUser2',
+        email: 'theother@gmail.com',
+      };
+
+      const socialSignUpDto2: SocialSignUpDto = {
+        birth: 2002,
+        gender: Gender.MALE,
+        nickname: sameNickname, // Same nickname
+        token: await socialLoginJwtService.sign(socialLoginUser2),
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/social')
+        .send(socialSignUpDto2)
+        .expect(409);
+    });
+
+    it('Duplicate sign up with local user email', async () => {
+      const sameEmail = 'sameEmail@xxxx.xxx';
+
+      // Local user
+      const signUpDto: SignUpDto = {
+        emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
+        pw: 'pw123123**',
+        nickname: 'jochong',
+        gender: Gender.MALE,
+        birth: 2002,
+      };
+      spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
+      await request(app.getHttpServer())
+        .post('/user/local')
+        .send(signUpDto)
+        .expect(200);
+
+      // Social sign up with duplicated email
+      const socialLoginUser: SocialLoginUser = {
+        id: '123123123',
+        provider: SocialProvider.KAKAO,
+        nickname: 'jochong',
+        email: sameEmail,
+      };
+      const socialSignUpDto: SocialSignUpDto = {
+        birth: 2002,
+        gender: Gender.MALE,
+        nickname: 'jochong',
+        token: await socialLoginJwtService.sign(socialLoginUser),
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/social')
+        .send(socialSignUpDto)
+        .expect(409);
+    });
+  });
+
+  describe('GET /user/my', () => {
+    it('Success', async () => {
+      await request(app.getHttpServer())
+        .get('/user/my')
+        .set('Authorization', `Bearer ${user1Token}`)
+        .expect(200);
+    });
+
+    it('No login access token', async () => {
+      await request(app.getHttpServer()).get('/user/my').expect(401);
+    });
+
+    it('Invalid login access token', async () => {
+      const invalidToken = 'invalid.token';
+      await request(app.getHttpServer())
+        .get('/user/my')
+        .set('Authorization', `Bearer ${invalidToken}`)
+        .expect(401);
+    });
+  });
+
+  describe('PUT /my/profile', () => {
+    it('Success', async () => {
+      const updateDto: UpdateProfileDto = {
+        nickname: 'jochong',
+        gender: Gender.FEMALE,
+        birth: 2001,
+      };
+
+      await request(app.getHttpServer())
+        .put('/user/my/profile')
+        .set('Authorization', `Bearer ${user1Token}`)
+        .send(updateDto)
+        .expect(201);
+    });
+
+    it('No token', async () => {
+      const updateDto: UpdateProfileDto = {
+        nickname: 'jochong',
+        gender: Gender.FEMALE,
+        birth: 2001,
+      };
+
+      await request(app.getHttpServer())
+        .put('/user/my/profile')
+        .send(updateDto)
+        .expect(401);
+    });
+
+    it('Duplicated nickname', async () => {
+      const updateDto: UpdateProfileDto = {
+        nickname: 'user1', // Duplicated nickname
+        gender: Gender.FEMALE,
+        birth: 2001,
+      };
+
+      await request(app.getHttpServer())
+        .put('/user/my/profile')
+        .set('Authorization', `Bearer ${user1Token}`)
+        .send(updateDto)
+        .expect(409);
+    });
+  });
+
+  describe('POST /user/email/duplicate-check', () => {
+    it('Success', async () => {
+      const checkDto: EmailDuplicateCheckDto = {
+        email: 'abc123@naver.com', // Non-duplicated email
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/email/duplicate-check')
+        .send(checkDto)
+        .expect(201);
+    });
+
+    it('Duplicated email', async () => {
+      const checkDto: EmailDuplicateCheckDto = {
+        email: 'user1@gmail.com', // non duplicated email
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/email/duplicate-check')
+        .send(checkDto)
+        .expect(409);
+    });
+  });
+
+  describe('POST /user/nickname/duplicate-check', () => {
+    it('Success', async () => {
+      const checkDto: NicknameDuplicateCheckDto = {
+        nickname: 'jochong', // Non-duplicated nickname
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/nickname/duplicate-check')
+        .send(checkDto)
+        .expect(201);
+    });
+
+    it('Duplicated nickname', async () => {
+      const checkDto: NicknameDuplicateCheckDto = {
+        nickname: 'user1', // duplicated nickname
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/nickname/duplicate-check')
+        .send(checkDto)
+        .expect(409);
+    });
+  });
+
+  describe('POST /user/pw/find', () => {
+    it('Success', async () => {
+      const findPwDto: FindPwDto = {
+        pw: 'myPw1234~!@',
+        emailToken: 'valid.token',
+      };
+
+      // 유효한 토큰이라 가정
+      spyOn(emailJwtService, 'verify').mockResolvedValue('user1@gmail.com');
+
+      await request(app.getHttpServer())
+        .post('/user/pw/find')
+        .send(findPwDto)
+        .expect(201);
+    });
+
+    it('Invalid token', async () => {
+      const findPwDto: FindPwDto = {
+        pw: 'mypw1234~!@',
+        emailToken: 'invalid.token', // Invalid token
+      };
+
+      await request(app.getHttpServer()).post('/user/pw/find').send(findPwDto);
+      expect(403);
+    });
+  });
+});

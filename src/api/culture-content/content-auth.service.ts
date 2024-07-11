@@ -8,6 +8,7 @@ import { PermissionDeniedException } from '../../common/exception/PermissionDeni
 import { LoginUser } from '../auth/model/login-user';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { AcceptedContentException } from './exception/AcceptedContentException';
 
 @Injectable()
 export class ContentAuthService {
@@ -83,7 +84,7 @@ export class ContentAuthService {
     }
 
     if (content.acceptedAt) {
-      throw new PermissionDeniedException(
+      throw new AcceptedContentException(
         'Cannot update accepted culture content',
       );
     }
@@ -110,7 +111,7 @@ export class ContentAuthService {
         this.checkDeletePermission,
         'Attempt to delete accepted content',
       );
-      throw new PermissionDeniedException(
+      throw new AcceptedContentException(
         'Cannot update accepted culture content',
       );
     }

@@ -11,6 +11,7 @@ import { Prisma } from '@prisma/client';
 import { LoginUser } from '../auth/model/login-user';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 
 @Injectable()
 export class ReviewService {
@@ -85,6 +86,63 @@ export class ReviewService {
       count,
       reviewList: reviewList.map((review) => ReviewEntity.createEntity(review)),
     };
+  }
+
+  /**
+   * 리뷰 자세히보기
+   */
+  public async getReviewByIdx(idx: number, loginUser?: LoginUser) {
+    const review = await this.prisma.review.findUnique({
+      include: {
+        ReviewImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
+        ReviewLike: {
+          where: {
+            userIdx: loginUser?.idx || -1,
+          },
+        },
+        User: true,
+        CultureContent: {
+          include: {
+            User: true,
+            ContentImg: true,
+            Genre: true,
+            Style: {
+              include: {
+                Style: true,
+              },
+            },
+            Age: true,
+            Location: true,
+          },
+        },
+      },
+      where: {
+        idx,
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+        CultureContent: {
+          acceptedAt: {
+            not: null,
+          },
+          deletedAt: null,
+        },
+      },
+    });
+
+    if (!review) {
+      throw new ReviewNotFoundException('Cannot find review');
+    }
+
+    return ReviewEntity.createEntity(review);
   }
 
   /**
@@ -271,6 +329,8 @@ export class ReviewService {
    * 리뷰 좋아요 누르기
    */
   public async likeReview(userIdx: number, reviewIdx: number): Promise<void> {
+    await this.getReviewByIdx(reviewIdx);
+
     this.logger.log(this.likeReview, 'SELECT review like');
     const reviewLike = await this.prisma.reviewLike.findUnique({
       where: {
@@ -319,6 +379,8 @@ export class ReviewService {
     userIdx: number,
     reviewIdx: number,
   ): Promise<void> {
+    await this.getReviewByIdx(reviewIdx);
+
     this.logger.log(this.cancelToLikeReview, 'SELECT review like');
     const reviewLike = await this.prisma.reviewLike.findUnique({
       where: {
