@@ -1,51 +1,37 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaClient } from '@prisma/client';
-import { AppModule } from '../../../src/app.module';
-import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
-import * as cookieParser from 'cookie-parser';
-import { AuthService } from '../../../src/api/auth/auth.service';
+import { AppModule } from '../../../../src/app.module';
+import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import * as request from 'supertest';
+import { PrismaSetting } from '../../setup/prisma.setup';
+import { AppGlobalSetting } from '../../setup/app-global.setup';
+import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
 
 describe('Banner (e2e)', () => {
   let app: INestApplication;
   let appModule: TestingModule;
+  const prismaSetting = PrismaSetting.setup();
 
-  let authService: AuthService;
-
-  let prisma: PrismaClient;
-
-  let user1Token: string;
+  let loginUsers: TestLoginUsers;
 
   beforeEach(async () => {
-    prisma = new PrismaClient();
-    await prisma.$queryRaw`BEGIN`;
+    await prismaSetting.BEGIN();
 
     appModule = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(PrismaService)
-      .useValue(prisma)
+      .useValue(prismaSetting.getPrisma())
       .compile();
     app = appModule.createNestApplication();
-
-    app.use(cookieParser(process.env.COOKIE_SECRET));
-
+    AppGlobalSetting.setup(app);
     await app.init();
 
-    authService = appModule.get(AuthService);
-
-    user1Token = (
-      await authService.login({
-        email: 'user1@gmail.com',
-        pw: 'aa12341234**',
-      })
-    ).accessToken;
+    loginUsers = await LoginSetting.setup(loginUsers, app);
   });
 
   afterEach(async () => {
-    await prisma.$queryRaw`ROLLBACK`;
-    await prisma.$disconnect();
+    prismaSetting.ROLLBACK();
     await appModule.close();
     await app.close();
   });
@@ -61,9 +47,11 @@ describe('Banner (e2e)', () => {
     });
 
     it('Success with token', async () => {
+      const loginUser = loginUsers.user1;
+
       const response = await request(app.getHttpServer())
         .get('/banner/all')
-        .set('Authorization', `Bearer ${user1Token}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body?.bannerList).toBeDefined();

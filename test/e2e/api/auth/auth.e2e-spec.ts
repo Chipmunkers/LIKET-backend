@@ -1,48 +1,40 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaClient } from '@prisma/client';
 import * as request from 'supertest';
-import { AppModule } from '../../../src/app.module';
-import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
-import { LoginDto } from '../../../src/api/auth/dto/local-login.dto';
-import { KakaoLoginStrategy } from '../../../src/api/auth/strategy/kakao/kakao-login.strategy';
-import { SocialLoginUser } from '../../../src/api/auth/model/social-login-user';
-import { SocialProvider } from '../../../src/api/auth/strategy/social-provider.enum';
-import { LoginJwtService } from '../../../src/common/module/login-jwt/login-jwt.service';
-import * as cookieParser from 'cookie-parser';
+import { AppModule } from '../../../../src/app.module';
+import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
+import { LoginDto } from '../../../../src/api/auth/dto/local-login.dto';
+import { KakaoLoginStrategy } from '../../../../src/api/auth/strategy/kakao/kakao-login.strategy';
+import { SocialLoginUser } from '../../../../src/api/auth/model/social-login-user';
+import { SocialProvider } from '../../../../src/api/auth/strategy/social-provider.enum';
+import { AppGlobalSetting } from '../../setup/app-global.setup';
+import { PrismaSetting } from '../../setup/prisma.setup';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
   let appModule: TestingModule;
+  const prismaSetting = PrismaSetting.setup();
 
   let kakaoLoginStrategy: KakaoLoginStrategy;
-  let loginJwtService: LoginJwtService;
-
-  let prisma: PrismaClient;
 
   beforeEach(async () => {
-    prisma = new PrismaClient();
-    await prisma.$queryRaw`BEGIN`;
+    await prismaSetting.BEGIN();
 
     appModule = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(PrismaService)
-      .useValue(prisma)
+      .useValue(prismaSetting.getPrisma())
       .compile();
     app = appModule.createNestApplication();
-
-    app.use(cookieParser(process.env.COOKIE_SECRET));
-
+    AppGlobalSetting.setup(app);
     await app.init();
 
     kakaoLoginStrategy = appModule.get(KakaoLoginStrategy);
-    loginJwtService = appModule.get(LoginJwtService);
   });
 
   afterEach(async () => {
-    await prisma.$queryRaw`ROLLBACK`;
-    await prisma.$disconnect();
+    prismaSetting.ROLLBACK();
     await appModule.close();
     await app.close();
   });

@@ -1,4 +1,5 @@
 import { Injectable, Logger, Scope } from '@nestjs/common';
+import * as process from 'process';
 
 type Method = (...arg: any[]) => any;
 
@@ -33,6 +34,10 @@ export class LoggerService {
   public warn(methodName: string, message: string): void;
   public warn(method: Method, message: string): void;
   public warn(methodName: string | Method, message: string): void {
+    if (process.env.MODE !== 'product') {
+      return;
+    }
+
     if (this.isMethod(methodName)) {
       methodName = methodName.name;
     }
@@ -47,6 +52,10 @@ export class LoggerService {
   public error(method: Method, message: string): void;
   public error(methodName: string | Method, message: string, err: any): void;
   public error(methodName: string | Method, message: string, err?: any) {
+    if (process.env.MODE !== 'product') {
+      return;
+    }
+
     if (this.isMethod(methodName)) {
       methodName = methodName.name;
     }

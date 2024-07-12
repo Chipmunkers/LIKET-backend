@@ -1,57 +1,38 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../../src/api/auth/auth.service';
-import { PrismaClient } from '@prisma/client';
-import { AppModule } from '../../../src/app.module';
-import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
-import * as cookieParser from 'cookie-parser';
-import { EmailerService } from '../../../src/common/module/emailer/emailer.service';
+import { AppModule } from '../../../../src/app.module';
+import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import * as request from 'supertest';
-import { EmailCertType } from '../../../src/api/email-cert/model/email-cert-type';
+import { EmailCertType } from '../../../../src/api/email-cert/model/email-cert-type';
 import { MailerService } from '@nestjs-modules/mailer';
+import { PrismaSetting } from '../../setup/prisma.setup';
+import { AppGlobalSetting } from '../../setup/app-global.setup';
 
 describe('Email Cert (e2e)', () => {
   let app: INestApplication;
   let appModule: TestingModule;
+  const prismaSetting = PrismaSetting.setup();
 
   let mailerService: MailerService;
 
-  let prisma: PrismaClient;
-
   beforeEach(async () => {
-    prisma = new PrismaClient();
-    prisma.$transaction = async (callback) => {
-      if (Array.isArray(callback)) {
-        return await Promise.all(callback);
-      }
-
-      return callback(prisma);
-    };
-    await prisma.$queryRaw`BEGIN`;
+    await prismaSetting.BEGIN();
 
     appModule = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(PrismaService)
-      .useValue(prisma)
+      .useValue(prismaSetting.getPrisma())
       .compile();
     app = appModule.createNestApplication();
-
-    app.useGlobalPipes(
-      new ValidationPipe({
-        transform: true,
-      }),
-    );
-    app.use(cookieParser(process.env.COOKIE_SECRET));
-
+    AppGlobalSetting.setup(app);
     await app.init();
 
     mailerService = appModule.get(MailerService);
   });
 
   afterEach(async () => {
-    await prisma.$queryRaw`ROLLBACK`;
-    await prisma.$disconnect();
+    prismaSetting.ROLLBACK();
     await appModule.close();
     await app.close();
   });
@@ -126,9 +107,9 @@ describe('Email Cert (e2e)', () => {
         code: correctCode,
       };
 
-      jest
-        .spyOn(prisma.emailCertCode, 'findFirst')
-        .mockResolvedValue({ code: correctCode } as any);
+      prismaSetting.getPrisma().emailCertCode.findFirst = jest
+        .fn()
+        .mockResolvedValue({ code: correctCode });
 
       await request(app.getHttpServer())
         .post('/email-cert/check')
@@ -146,9 +127,9 @@ describe('Email Cert (e2e)', () => {
       };
 
       const correctCode = '123123';
-      jest
-        .spyOn(prisma.emailCertCode, 'findFirst')
-        .mockResolvedValue({ code: correctCode } as any);
+      prismaSetting.getPrisma().emailCertCode.findFirst = jest
+        .fn()
+        .mockResolvedValue({ code: correctCode });
 
       await request(app.getHttpServer())
         .post('/email-cert/check')
@@ -210,32 +191,34 @@ describe('Email Cert (e2e)', () => {
         type: EmailCertType.SIGN_UP,
       };
 
-      prisma.emailCertCode.create = jest.fn().mockImplementation(async () => {
-        await prisma.emailCertCode.create({
-          data: {
-            type: sendDto.type,
-            email: email,
+      prismaSetting.getPrisma().emailCertCode.create = jest
+        .fn()
+        .mockImplementation(async () => {
+          await prismaSetting.getPrisma().emailCertCode.create({
+            data: {
+              type: sendDto.type,
+              email: email,
+              code: correctCode,
+            },
+          });
+
+          // 이메일 번호 발송
+          await request(app.getHttpServer())
+            .post('/email-cert/send')
+            .send(sendDto)
+            .expect(201);
+
+          const checkDto = {
+            email,
+            type: EmailCertType.FIND_PW,
             code: correctCode,
-          },
+          };
+
+          await request(app.getHttpServer())
+            .post('/email-cert/check')
+            .send(checkDto)
+            .expect(404);
         });
-
-        // 이메일 번호 발송
-        await request(app.getHttpServer())
-          .post('/email-cert/send')
-          .send(sendDto)
-          .expect(201);
-
-        const checkDto = {
-          email,
-          type: EmailCertType.FIND_PW,
-          code: correctCode,
-        };
-
-        await request(app.getHttpServer())
-          .post('/email-cert/check')
-          .send(checkDto)
-          .expect(404);
-      });
     });
   });
 });

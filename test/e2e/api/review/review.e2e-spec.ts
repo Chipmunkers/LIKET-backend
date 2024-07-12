@@ -1,71 +1,37 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../../src/api/auth/auth.service';
-import { PrismaClient } from '@prisma/client';
-import { AppModule } from '../../../src/app.module';
-import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
-import * as cookieParser from 'cookie-parser';
+import { AppModule } from '../../../../src/app.module';
+import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import * as request from 'supertest';
+import { PrismaSetting } from '../../setup/prisma.setup';
+import { AppGlobalSetting } from '../../setup/app-global.setup';
+import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
 
 describe('Terms of service (e2e)', () => {
   let app: INestApplication;
   let appModule: TestingModule;
+  const prismaSetting = PrismaSetting.setup();
 
-  let authService: AuthService;
-
-  let prisma: PrismaClient;
-
-  let user1Token: string;
-  let user2Token: string;
+  let loginUsers: TestLoginUsers;
 
   beforeEach(async () => {
-    prisma = new PrismaClient();
-    prisma.$transaction = async (callback) => {
-      if (Array.isArray(callback)) {
-        return await Promise.all(callback);
-      }
-
-      return callback(prisma);
-    };
-    await prisma.$queryRaw`BEGIN`;
+    await prismaSetting.BEGIN();
 
     appModule = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(PrismaService)
-      .useValue(prisma)
+      .useValue(prismaSetting.getPrisma())
       .compile();
     app = appModule.createNestApplication();
-
-    app.useGlobalPipes(
-      new ValidationPipe({
-        transform: true,
-      }),
-    );
-    app.use(cookieParser(process.env.COOKIE_SECRET));
-
+    AppGlobalSetting.setup(app);
     await app.init();
 
-    authService = appModule.get(AuthService);
-
-    user1Token = (
-      await authService.login({
-        email: 'user1@gmail.com',
-        pw: 'aa12341234**',
-      })
-    ).accessToken;
-
-    user2Token = (
-      await authService.login({
-        email: 'user2@gmail.com',
-        pw: 'aa12341234**',
-      })
-    ).accessToken;
+    loginUsers = await LoginSetting.setup(loginUsers, app);
   });
 
   afterEach(async () => {
-    await prisma.$queryRaw`ROLLBACK`;
-    await prisma.$disconnect();
+    prismaSetting.ROLLBACK();
     await appModule.close();
     await app.close();
   });
@@ -87,11 +53,11 @@ describe('Terms of service (e2e)', () => {
     });
 
     it('Attempt to get reviews of other user', async () => {
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .get('/review/all')
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
           user: 2,
         })
@@ -99,12 +65,12 @@ describe('Terms of service (e2e)', () => {
     });
 
     it('Non-existent content', async () => {
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
       const contentIdx = 99999; // Non-existent content
 
       await request(app.getHttpServer())
         .get('/review/all')
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
           content: contentIdx,
         })
@@ -112,12 +78,12 @@ describe('Terms of service (e2e)', () => {
     });
 
     it('Non-accepted content | author', async () => {
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
       const contentIdx = 2;
 
       const response = await request(app.getHttpServer())
         .get('/review/all')
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
           content: contentIdx,
         })
@@ -128,12 +94,12 @@ describe('Terms of service (e2e)', () => {
     });
 
     it('Non-accepted content | author', async () => {
-      const loginUserToken = user2Token;
+      const loginUser = loginUsers.user2;
       const contentIdx = 2;
 
       await request(app.getHttpServer())
         .get('/review/all')
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
           content: contentIdx,
         })
@@ -191,11 +157,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Success - login', async () => {
       const reviewIdx = 1;
-      const loginUser = user1Token;
+      const loginUser = loginUsers.user1;
 
       const response = await request(app.getHttpServer())
         .get(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUser}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body?.idx).toBe(1);
@@ -203,11 +169,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Non-existent review', async () => {
       const reviewIdx = 999999; // Non-existent review
-      const loginUser = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .get(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUser}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
     });
   });
@@ -223,11 +189,11 @@ describe('Terms of service (e2e)', () => {
     });
 
     it('Success - login', async () => {
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       const response = await request(app.getHttpServer())
         .get('/review/hot/all')
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
@@ -238,11 +204,11 @@ describe('Terms of service (e2e)', () => {
   describe('POST /culture-content/:idx/review', () => {
     it('Success', async () => {
       const contentIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/culture-content/${contentIdx}/review`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -254,11 +220,10 @@ describe('Terms of service (e2e)', () => {
 
     it('No token', async () => {
       const contentIdx = 1;
-      const loginUserToken = null; // no token
 
       await request(app.getHttpServer())
         .post(`/culture-content/${contentIdx}/review`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${null}`)
         .send({
           title: 'review title',
           description: 'review description',
@@ -270,11 +235,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Non-existent content', async () => {
       const contentIdx = 99999; // Non-existent content
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/culture-content/${contentIdx}/review`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -286,11 +251,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Non-accepted content', async () => {
       const contentIdx = 2; // Non-existent content
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/culture-content/${contentIdx}/review`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -302,11 +267,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Invalid path parameter', async () => {
       const contentIdx = 'invalid'; // Invalid path parameter
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/culture-content/${contentIdx}/review`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -318,11 +283,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Invalid DTO - starRating', async () => {
       const contentIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/culture-content/${contentIdx}/review`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 'invalid', // Invalid star rating
           description: 'review description',
@@ -334,11 +299,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Invalid DTO - description', async () => {
       const contentIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/culture-content/${contentIdx}/review`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: '', // Invalid description
@@ -350,11 +315,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Invalid DTO - visit time', async () => {
       const contentIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/culture-content/${contentIdx}/review`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -366,11 +331,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Invalid DTO - img list', async () => {
       const contentIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/culture-content/${contentIdx}/review`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -384,11 +349,11 @@ describe('Terms of service (e2e)', () => {
   describe('PUT /review/:idx', () => {
     it('Success', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .put(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -400,11 +365,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Non-existent review', async () => {
       const reviewIdx = 9999; // Non-existent review
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .put(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -416,11 +381,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Attempt to update review of other user', async () => {
       const reviewIdx = 1; // Non-existent review
-      const loginUserToken = user2Token;
+      const loginUser = loginUsers.user2;
 
       await request(app.getHttpServer())
         .put(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -432,11 +397,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Invalid path parameter', async () => {
       const contentIdx = 'invalid'; // Invalid path parameter
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .put(`/review/${contentIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -448,11 +413,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Invalid DTO - starRating', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .put(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 'invalid', // Invalid star rating
           description: 'review description',
@@ -464,11 +429,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Invalid DTO - description', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .put(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: '', // Invalid description
@@ -480,11 +445,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Invalid DTO - visit time', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .put(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -496,11 +461,11 @@ describe('Terms of service (e2e)', () => {
 
     it('Invalid DTO - img list', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .put(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
           description: 'review description',
@@ -514,51 +479,50 @@ describe('Terms of service (e2e)', () => {
   describe('DELETE /review/:idx', () => {
     it('Success', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .delete(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('No token', async () => {
       const reviewIdx = 'invalid'; // Invalid path parameter
-      const loginUserToken = null;
 
       await request(app.getHttpServer())
         .delete(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${null}`)
         .expect(401);
     });
 
     it('Non-existent review', async () => {
       const reviewIdx = 9999; // Non-existent review
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .delete(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
     });
 
     it('Attempt to delete review of other user', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user2Token;
+      const loginUser = loginUsers.user2;
 
       await request(app.getHttpServer())
         .delete(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
     });
 
     it('Invalid path parameter', async () => {
       const reviewIdx = 'invalid'; // Invalid path parameter
-      const loginUserToken = user2Token;
+      const loginUser = loginUsers.user2;
 
       await request(app.getHttpServer())
         .delete(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(400);
     });
   });
@@ -566,46 +530,45 @@ describe('Terms of service (e2e)', () => {
   describe('POST /review/:idx/like', () => {
     it('Success', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/review/${reviewIdx}/like`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Duplicate like', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/review/${reviewIdx}/like`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       await request(app.getHttpServer())
         .post(`/review/${reviewIdx}/like`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });
 
     it('No token', async () => {
       const reviewIdx = 1;
-      const loginUserToken = null; // No token
 
       await request(app.getHttpServer())
         .post(`/review/${reviewIdx}/like`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${null}`)
         .expect(401);
     });
 
     it('Like non-existent review', async () => {
       const reviewIdx = 9999; // Non-existent review
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/review/${reviewIdx}/like`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
     });
   });
@@ -613,46 +576,45 @@ describe('Terms of service (e2e)', () => {
   describe('DELETE /review/:idx/like', () => {
     it('Success', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .post(`/review/${reviewIdx}/like`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       await request(app.getHttpServer())
         .delete(`/review/${reviewIdx}/like`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Cancel like (already unliked)', async () => {
       const reviewIdx = 1;
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .delete(`/review/${reviewIdx}/like`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });
 
     it('Non-existent review', async () => {
       const reviewIdx = 999999; // Non-existent
-      const loginUserToken = user1Token;
+      const loginUser = loginUsers.user1;
 
       await request(app.getHttpServer())
         .delete(`/review/${reviewIdx}/like`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
     });
 
     it('No token', async () => {
       const reviewIdx = 1;
-      const loginUserToken = null; // No token
 
       await request(app.getHttpServer())
         .delete(`/review/${reviewIdx}/like`)
-        .set('Authorization', `Bearer ${loginUserToken}`)
+        .set('Authorization', `Bearer ${null}`)
         .expect(401);
     });
   });

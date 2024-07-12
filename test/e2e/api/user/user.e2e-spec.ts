@@ -1,67 +1,55 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { AppModule } from '../../../src/app.module';
-import { SignUpDto } from '../../../src/api/user/dto/sign-up.dto';
-import { Gender } from '../../../src/api/user/model/Gender';
-import { EmailJwtService } from '../../../src/api/email-cert/email-jwt.service';
-import { PrismaClient } from '@prisma/client';
-import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
-import { SocialSignUpDto } from '../../../src/api/user/dto/social-sign-up.dto';
-import { SocialLoginJwtService } from '../../../src/common/module/social-login-jwt/social-login-jwt.service';
-import { SocialLoginUser } from '../../../src/api/auth/model/social-login-user';
-import { SocialProvider } from '../../../src/api/auth/strategy/social-provider.enum';
-import { AuthService } from '../../../src/api/auth/auth.service';
-import { UpdateProfileDto } from '../../../src/api/user/dto/update-profile.dto';
-import { EmailDuplicateCheckDto } from '../../../src/api/user/dto/email-duplicate-check.dto';
-import { NicknameDuplicateCheckDto } from '../../../src/api/user/dto/nickname-duplicate-check.dto';
-import { FindPwDto } from '../../../src/api/user/dto/find-pw.dto';
-import * as cookieParser from 'cookie-parser';
+import { AppModule } from '../../../../src/app.module';
+import { SignUpDto } from '../../../../src/api/user/dto/sign-up.dto';
+import { Gender } from '../../../../src/api/user/model/Gender';
+import { EmailJwtService } from '../../../../src/api/email-cert/email-jwt.service';
+import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
+import { SocialSignUpDto } from '../../../../src/api/user/dto/social-sign-up.dto';
+import { SocialLoginJwtService } from '../../../../src/common/module/social-login-jwt/social-login-jwt.service';
+import { SocialLoginUser } from '../../../../src/api/auth/model/social-login-user';
+import { SocialProvider } from '../../../../src/api/auth/strategy/social-provider.enum';
+import { UpdateProfileDto } from '../../../../src/api/user/dto/update-profile.dto';
+import { EmailDuplicateCheckDto } from '../../../../src/api/user/dto/email-duplicate-check.dto';
+import { NicknameDuplicateCheckDto } from '../../../../src/api/user/dto/nickname-duplicate-check.dto';
+import { FindPwDto } from '../../../../src/api/user/dto/find-pw.dto';
 import spyOn = jest.spyOn;
+import { PrismaSetting } from '../../setup/prisma.setup';
+import { AppGlobalSetting } from '../../setup/app-global.setup';
+import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
 
 describe('User (e2e)', () => {
   let app: INestApplication;
   let appModule: TestingModule;
+  const prismaSetting = PrismaSetting.setup();
 
   let emailJwtService: EmailJwtService;
   let socialLoginJwtService: SocialLoginJwtService;
-  let authService: AuthService;
 
-  let prisma: PrismaClient;
-
-  let user1Token: string;
+  let loginUsers: TestLoginUsers;
 
   beforeEach(async () => {
-    prisma = new PrismaClient();
-    await prisma.$queryRaw`BEGIN`;
+    await prismaSetting.BEGIN();
 
     appModule = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(PrismaService)
-      .useValue(prisma)
+      .useValue(prismaSetting.getPrisma())
       .compile();
     app = appModule.createNestApplication();
-
-    app.use(cookieParser(process.env.COOKIE_SECRET));
-
+    AppGlobalSetting.setup(app);
     await app.init();
 
     emailJwtService = appModule.get(EmailJwtService);
     socialLoginJwtService = appModule.get(SocialLoginJwtService);
-    authService = appModule.get(AuthService);
 
-    user1Token = (
-      await authService.login({
-        email: 'user1@gmail.com',
-        pw: 'aa12341234**',
-      })
-    ).accessToken;
+    loginUsers = await LoginSetting.setup(loginUsers, app);
   });
 
   afterEach(async () => {
-    await prisma.$queryRaw`ROLLBACK`;
-    await prisma.$disconnect();
+    prismaSetting.ROLLBACK();
     await appModule.close();
     await app.close();
   });
@@ -88,7 +76,8 @@ describe('User (e2e)', () => {
 
     it('Invalid email token', async () => {
       const signUpDto: SignUpDto = {
-        emailToken: 'invalid email token',
+        emailToken:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
         pw: 'pw123123**',
         nickname: 'jochong',
         gender: Gender.MALE,
@@ -326,9 +315,11 @@ describe('User (e2e)', () => {
 
   describe('GET /user/my', () => {
     it('Success', async () => {
+      const loginUser = loginUsers.user1;
+
       await request(app.getHttpServer())
         .get('/user/my')
-        .set('Authorization', `Bearer ${user1Token}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
     });
 
@@ -347,6 +338,7 @@ describe('User (e2e)', () => {
 
   describe('PUT /my/profile', () => {
     it('Success', async () => {
+      const loginUser = loginUsers.user1;
       const updateDto: UpdateProfileDto = {
         nickname: 'jochong',
         gender: Gender.FEMALE,
@@ -355,7 +347,7 @@ describe('User (e2e)', () => {
 
       await request(app.getHttpServer())
         .put('/user/my/profile')
-        .set('Authorization', `Bearer ${user1Token}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(updateDto)
         .expect(201);
     });
@@ -374,6 +366,7 @@ describe('User (e2e)', () => {
     });
 
     it('Duplicated nickname', async () => {
+      const loginUser = loginUsers.user1;
       const updateDto: UpdateProfileDto = {
         nickname: 'user1', // Duplicated nickname
         gender: Gender.FEMALE,
@@ -382,7 +375,7 @@ describe('User (e2e)', () => {
 
       await request(app.getHttpServer())
         .put('/user/my/profile')
-        .set('Authorization', `Bearer ${user1Token}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(updateDto)
         .expect(409);
     });
@@ -440,7 +433,8 @@ describe('User (e2e)', () => {
     it('Success', async () => {
       const findPwDto: FindPwDto = {
         pw: 'myPw1234~!@',
-        emailToken: 'valid.token',
+        emailToken:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
       };
 
       // 유효한 토큰이라 가정

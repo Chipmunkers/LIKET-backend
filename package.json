@@ -51,6 +51,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@chax-at/transactional-prisma-testing": "^1.2.0",
     "@nestia/sdk": "^2.5.11",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",

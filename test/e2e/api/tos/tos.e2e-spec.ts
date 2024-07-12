@@ -1,37 +1,24 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../../src/api/auth/auth.service';
-import { PrismaClient } from '@prisma/client';
-import { AppModule } from '../../../src/app.module';
-import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
+import { AppModule } from '../../../../src/app.module';
+import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import * as cookieParser from 'cookie-parser';
-import { EmailerService } from '../../../src/common/module/emailer/emailer.service';
 import * as request from 'supertest';
-import { EmailCertType } from '../../../src/api/email-cert/model/email-cert-type';
-import { MailerService } from '@nestjs-modules/mailer';
+import { PrismaSetting } from '../../setup/prisma.setup';
 
 describe('Terms of service (e2e)', () => {
   let app: INestApplication;
   let appModule: TestingModule;
-
-  let prisma: PrismaClient;
+  const prismaSetting = PrismaSetting.setup();
 
   beforeEach(async () => {
-    prisma = new PrismaClient();
-    prisma.$transaction = async (callback) => {
-      if (Array.isArray(callback)) {
-        return await Promise.all(callback);
-      }
-
-      return callback(prisma);
-    };
-    await prisma.$queryRaw`BEGIN`;
+    await prismaSetting.BEGIN();
 
     appModule = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(PrismaService)
-      .useValue(prisma)
+      .useValue(prismaSetting.getPrisma())
       .compile();
     app = appModule.createNestApplication();
 
@@ -46,8 +33,7 @@ describe('Terms of service (e2e)', () => {
   });
 
   afterEach(async () => {
-    await prisma.$queryRaw`ROLLBACK`;
-    await prisma.$disconnect();
+    prismaSetting.ROLLBACK();
     await appModule.close();
     await app.close();
   });
