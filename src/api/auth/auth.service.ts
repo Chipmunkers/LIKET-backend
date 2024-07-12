@@ -133,7 +133,10 @@ export class AuthService {
         );
 
         const successUrl = strategy.getSignUpRedirectUrl();
-        res.redirect(`${successUrl}?token=${socialLoginToken}`);
+
+        res.redirect(
+          process.env.FRONT_DOMAIN + `${successUrl}?token=${socialLoginToken}`,
+        );
         return;
       }
 
