@@ -21,6 +21,8 @@ import { NicknameDuplicateCheckDto } from './dto/nickname-duplicate-check.dto';
 import { NicknameDuplicateException } from './exception/NicknameDuplicateException';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { LoginUser } from '../auth/model/login-user';
+import { WithdrawalDto } from './dto/withdrawal.dto';
 
 @Injectable()
 export class UserService {
@@ -350,5 +352,31 @@ export class UserService {
     }
 
     return UserEntity.createEntity(user);
+  }
+
+  /**
+   * 회원탈퇴 하기
+   */
+  public async withdrawal(
+    loginUser: LoginUser,
+    withdrawalDto: WithdrawalDto,
+  ): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.deleteUserReason.create({
+        data: {
+          idx: loginUser.idx,
+          contents: withdrawalDto.contents,
+          typeIdx: withdrawalDto.type,
+        },
+      }),
+      this.prisma.user.update({
+        where: {
+          idx: loginUser.idx,
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      }),
+    ]);
   }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Post,
@@ -31,6 +32,7 @@ import cookieConfig from '../auth/config/cookie.config';
 import { NicknameDuplicateCheckDto } from './dto/nickname-duplicate-check.dto';
 import { FindPwDto } from './dto/find-pw.dto';
 import { UserPwService } from './user-pw.service';
+import { WithdrawalDto } from './dto/withdrawal.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -184,5 +186,19 @@ export class UserController {
   async findPw(@Body() findPwDto: FindPwDto) {
     await this.userPwService.findPw(findPwDto);
     return;
+  }
+
+  /**
+   * 회원탈퇴하기
+   */
+  @Delete('/')
+  @HttpCode(201)
+  @Exception(400, 'Invalid body')
+  @LoginAuth()
+  async withdrawal(
+    @Body() withdrawalDto: WithdrawalDto,
+    @User() loginUser: LoginUser,
+  ): Promise<void> {
+    return await this.userService.withdrawal(loginUser, withdrawalDto);
   }
 }

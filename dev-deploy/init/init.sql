@@ -264,7 +264,7 @@ CREATE TABLE delete_user_reason_tb
 (
   idx        int                      NOT NULL,
   type_idx   int                      NOT NULL,
-  contents     varchar                NOT NULL,
+  contents   varchar                  NULL,
   created_at timestamp with time zone NOT NULL DEFAULT NOW(),
   PRIMARY KEY (idx)
 );

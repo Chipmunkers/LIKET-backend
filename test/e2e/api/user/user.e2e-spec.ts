@@ -456,4 +456,48 @@ describe('User (e2e)', () => {
       expect(403);
     });
   });
+
+  describe('DELETE /user', () => {
+    it('Success', async () => {
+      const loginUser = loginUsers.user2;
+
+      await request(app.getHttpServer())
+        .delete('/user')
+        .send({
+          type: 1,
+          contents: '삭제합니다.',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      await request(app.getHttpServer())
+        .post('/auth/local')
+        .send({
+          email: 'user2@gmail.com',
+          pw: 'aa12341234**',
+        })
+        .expect(401);
+    });
+
+    it('Success with no contents', async () => {
+      const loginUser = loginUsers.user2;
+
+      await request(app.getHttpServer())
+        .delete('/user')
+        .send({
+          type: 1,
+          contents: '삭제합니다.',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      await request(app.getHttpServer())
+        .post('/auth/local')
+        .send({
+          email: 'user2@gmail.com',
+          pw: 'aa12341234**',
+        })
+        .expect(401);
+    });
+  });
 });
