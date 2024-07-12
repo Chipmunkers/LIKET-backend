@@ -5,6 +5,10 @@ import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
 import { InquiryEntity } from './entity/inquiry.entity';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { LoginUser } from '../auth/model/login-user';
+import { PagerbleDto } from '../../common/dto/pagerble.dto';
+import { SummaryInquiryEntity } from './entity/summary-inquiry.entity';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class InquiryService {
@@ -12,6 +16,62 @@ export class InquiryService {
     private readonly prisma: PrismaService,
     @Logger(InquiryService.name) private readonly logger: LoggerService,
   ) {}
+
+  /**
+   * 문의 목록 보기
+   */
+  public async getInquiryAllByLoginUser(
+    loginUser: LoginUser,
+    pagerble: PagerbleDto,
+  ): Promise<{
+    inquiryList: SummaryInquiryEntity[];
+    count: number;
+  }> {
+    const where: Prisma.InquiryWhereInput = {
+      userIdx: loginUser.idx,
+      deletedAt: null,
+    };
+
+    this.logger.log(
+      this.getInquiryAllByLoginUser,
+      'SELECT inquiries and count',
+    );
+    const [inquiryList, count] = await this.prisma.$transaction([
+      this.prisma.inquiry.findMany({
+        include: {
+          User: true,
+          Answer: {
+            where: {
+              deletedAt: null,
+            },
+          },
+          InquiryType: true,
+          InquiryImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
+        },
+        where,
+        skip: (pagerble.page - 1) * 10,
+        take: 10,
+        orderBy: {
+          idx: pagerble.order,
+        },
+      }),
+      this.prisma.inquiry.count({ where }),
+    ]);
+
+    return {
+      inquiryList: inquiryList.map((inquiry) =>
+        SummaryInquiryEntity.createEntity(inquiry),
+      ),
+      count,
+    };
+  }
 
   /**
    * 문의 자세히보기

@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { InquiryService } from './inquiry.service';
 import { User } from '../user/user.decorator';
@@ -18,17 +19,35 @@ import { ApiTags } from '@nestjs/swagger';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { LoginUser } from '../auth/model/login-user';
+import { InquiryPagerbleDto } from './dto/inquiry-pagerble.dto';
+import { InquiryAllResponseDto } from './dto/response/inquiry-all-response.dto';
 
 @Controller('inquiry')
+@ApiTags('Inquiry')
 export class InquiryController {
   constructor(private readonly inquiryService: InquiryService) {}
+
+  /**
+   * 문의 목록 보기
+   */
+  @Get('/all')
+  @Exception(400, 'Invalid querystring')
+  @Exception(401, 'No token or expired token')
+  @LoginAuth()
+  public async getMyInquiryAll(
+    @User() loginUser: LoginUser,
+    @Query() pagerbleDto: InquiryPagerbleDto,
+  ): Promise<InquiryAllResponseDto> {
+    return await this.inquiryService.getInquiryAllByLoginUser(
+      loginUser,
+      pagerbleDto,
+    );
+  }
 
   /**
    * 문의 자세히보기
    */
   @Get('/:idx')
-  @HttpCode(200)
-  @ApiTags('Inquiry')
   @Exception(400, 'Invalid path parameter')
   @Exception(404, 'Cannot find inquiry')
   @LoginAuth()
@@ -50,7 +69,6 @@ export class InquiryController {
    */
   @Post('/')
   @HttpCode(200)
-  @ApiTags('Inquiry')
   @Exception(400, 'Invalid body')
   @LoginAuth()
   public async createInquiry(
@@ -72,7 +90,6 @@ export class InquiryController {
    */
   @Delete('/:idx')
   @HttpCode(201)
-  @ApiTags('Inquiry')
   @Exception(400, 'Invalid body')
   @Exception(404, 'Cannot find inquiry')
   @LoginAuth()

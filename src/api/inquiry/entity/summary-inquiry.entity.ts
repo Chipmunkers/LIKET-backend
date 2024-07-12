@@ -1,6 +1,8 @@
 import { Prisma } from '@prisma/client';
 import { InquiryTypeEntity } from './inquiry-type.entity';
 import { UserProfileEntity } from '../../user/entity/user-profile.entity';
+import { InquiryEntity } from './inquiry.entity';
+import { PickType } from '@nestjs/swagger';
 
 const InquiryWithInclude = Prisma.validator<Prisma.InquiryDefaultArgs>()({
   include: {
@@ -13,39 +15,22 @@ const InquiryWithInclude = Prisma.validator<Prisma.InquiryDefaultArgs>()({
 
 type InquiryWithInclude = Prisma.InquiryGetPayload<typeof InquiryWithInclude>;
 
-export class SummaryInquiryEntity {
+export class SummaryInquiryEntity extends PickType(InquiryEntity, [
+  'idx',
+  'title',
+  'type',
+  'thumbnail',
+  'author',
+]) {
   /**
-   * 문의 인덱스
+   * 답변 상태
    *
-   * @example 1
+   * @example true
    */
-  public idx: number;
-
-  /**
-   * 문의 제목
-   *
-   * @example "회원가입 서비스 문의"
-   */
-  public title: string;
-
-  /**
-   * 문의 유형
-   */
-  public type: InquiryTypeEntity;
-
-  /**
-   * 문의 썸네일
-   *
-   * @example "/inquiry/img_000001.png"
-   */
-  public thumbnail: string | null;
-
-  /**
-   * 문의 작성자
-   */
-  public author: UserProfileEntity;
+  public isAnswered: boolean;
 
   constructor(data: SummaryInquiryEntity) {
+    super();
     Object.assign(this, data);
   }
 
@@ -55,6 +40,7 @@ export class SummaryInquiryEntity {
       title: inquiry.title,
       type: InquiryTypeEntity.createEntity(inquiry.InquiryType),
       thumbnail: inquiry.InquiryImg[0]?.imgPath || null,
+      isAnswered: !!inquiry.Answer[0],
       author: {
         idx: inquiry.User.idx,
         profileImgPath: inquiry.User.profileImgPath,

@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { AnswerEntity } from './answer.entity';
 import { InquiryTypeEntity } from './inquiry-type.entity';
 import { SummaryInquiryEntity } from './summary-inquiry.entity';
+import { UserProfileEntity } from '../../user/entity/user-profile.entity';
 
 const inquiryWithInclude = Prisma.validator<Prisma.InquiryDefaultArgs>()({
   include: {
@@ -14,7 +15,38 @@ const inquiryWithInclude = Prisma.validator<Prisma.InquiryDefaultArgs>()({
 
 type InquiryWithInclude = Prisma.InquiryGetPayload<typeof inquiryWithInclude>;
 
-export class InquiryEntity extends SummaryInquiryEntity {
+export class InquiryEntity {
+  /**
+   * 문의 인덱스
+   *
+   * @example 1
+   */
+  public idx: number;
+
+  /**
+   * 문의 제목
+   *
+   * @example "회원가입 서비스 문의"
+   */
+  public title: string;
+
+  /**
+   * 문의 유형
+   */
+  public type: InquiryTypeEntity;
+
+  /**
+   * 문의 썸네일
+   *
+   * @example "/inquiry/img_000001.png"
+   */
+  public thumbnail: string | null;
+
+  /**
+   * 문의 작성자
+   */
+  public author: UserProfileEntity;
+
   /**
    * 내용
    *
@@ -33,7 +65,6 @@ export class InquiryEntity extends SummaryInquiryEntity {
   public imgList: string[];
 
   constructor(data: InquiryEntity) {
-    super(data);
     Object.assign(this, data);
   }
 
