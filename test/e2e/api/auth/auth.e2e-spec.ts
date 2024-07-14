@@ -143,10 +143,11 @@ describe('Auth (e2e)', () => {
         .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
         .mockResolvedValue(socialLoginUser);
 
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .get('/auth/kakao/callback')
-        .expect(302)
-        .expect('Location', '/social-login-complete');
+        .expect(302);
+
+      expect(response.headers.location).toContain('/social-login-complete');
     });
 
     it('Success - changed email', async () => {
@@ -160,10 +161,11 @@ describe('Auth (e2e)', () => {
         .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
         .mockResolvedValue(socialLoginUser);
 
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .get('/auth/kakao/callback')
-        .expect(302)
-        .expect('Location', '/social-login-complete');
+        .expect(302);
+
+      expect(response.headers.location).toContain('/social-login-complete');
     });
 
     it('Duplicated email', async () => {
@@ -177,10 +179,11 @@ describe('Auth (e2e)', () => {
         .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
         .mockResolvedValue(socialLoginUser);
 
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .get('/auth/kakao/callback')
-        .expect(302)
-        .expect('Location', '/error');
+        .expect(302);
+
+      expect(response.headers.location).toContain('/error');
     });
 
     it('Error occurred from external API', async () => {
@@ -190,10 +193,11 @@ describe('Auth (e2e)', () => {
           throw new Error('External Error');
         });
 
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .get('/auth/kakao/callback')
-        .expect(302)
-        .expect('Location', '/error');
+        .expect(302);
+
+      expect(response.headers.location).toContain('/error');
     });
 
     it('Invalid provider', async () => {

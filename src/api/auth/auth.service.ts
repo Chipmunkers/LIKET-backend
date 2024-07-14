@@ -16,6 +16,7 @@ import { SocialLoginJwtService } from '../../common/module/social-login-jwt/soci
 import { LoginToken } from './model/login-token';
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 import cookieConfig from './config/cookie.config';
+import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
 
 @Injectable()
 export class AuthService {
@@ -31,9 +32,11 @@ export class AuthService {
     private readonly socialLoginJwtService: SocialLoginJwtService,
     @Logger('AuthService') private readonly logger: LoggerService,
     private readonly kakaoLoginStrategy: KakaoLoginStrategy,
+    private readonly naverLoginStrategy: NaverLoginStrategy,
   ) {
     this.socialLoginStrategyMap = {
-      [SocialProvider.KAKAO]: kakaoLoginStrategy,
+      [SocialProvider.KAKAO]: this.kakaoLoginStrategy,
+      [SocialProvider.NAVER]: this.naverLoginStrategy,
     };
   }
 
@@ -119,12 +122,14 @@ export class AuthService {
           socialLoginUser,
         );
         if (isDuplicateSocialUser) {
-          // TODO: change redirect URL
           this.logger.warn(
             this.socialLogin,
             `Attempt to login with duplicated email | email = ${socialLoginUser.email}`,
           );
-          res.redirect('/error');
+
+          // TODO: 무엇으로 가입했는지 정보 가져오는 로직 추가 필요 및 리다이렉트 경로 재설정 필요
+          const message = 'duplicated-email';
+          this.redirect(res, `/error?message=${message}`);
           return;
         }
 
@@ -134,19 +139,20 @@ export class AuthService {
 
         const successUrl = strategy.getSignUpRedirectUrl();
 
-        res.redirect(
-          process.env.FRONT_DOMAIN + `${successUrl}?token=${socialLoginToken}`,
-        );
+        this.redirect(res, `${successUrl}?token=${socialLoginToken}`);
         return;
       }
 
       const loginToken = await strategy.login(socialLoginUser);
       res.cookie('refreshToken', loginToken.refreshToken, cookieConfig());
-      // TODO: 변경이 필요합니다.
-      res.redirect('/social-login-complete');
+
+      // TODO: 성공시 어디로 갈 것인지 의논 필요
+      this.redirect(res, '/social-login-complete');
     } catch (err) {
-      this.logger.error(this.socialLogin, 'Social Login Error');
-      res.redirect('/error');
+      this.logger.error(this.socialLogin, 'Social Login Error', err);
+
+      // TODO: 경로 변경 필요 및 message, status 등의 상태 값 포함 여부 의논 필요
+      this.redirect(res, '/error?message=unexpected-error');
     }
   }
 
@@ -190,6 +196,9 @@ export class AuthService {
     };
   }
 
+  /**
+   * 로그아웃 하기
+   */
   public async logout(refreshToken?: string) {
     await this.loginJwtService.expireRefreshToken(refreshToken);
   }
@@ -227,5 +236,9 @@ export class AuthService {
     }
 
     return false;
+  }
+
+  private redirect(res: Response, path: string) {
+    res.redirect(process.env.FRONT_DOMAIN + path);
   }
 }

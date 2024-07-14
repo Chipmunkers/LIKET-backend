@@ -52,7 +52,7 @@ export class LoggerService {
   public error(method: Method, message: string): void;
   public error(methodName: string | Method, message: string, err: any): void;
   public error(methodName: string | Method, message: string, err?: any) {
-    if (process.env.MODE !== 'product') {
+    if (process.env.MODE !== 'product' && process.env.MODE !== 'develop') {
       return;
     }
 

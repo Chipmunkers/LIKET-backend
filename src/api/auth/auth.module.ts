@@ -11,6 +11,9 @@ import { HttpModule } from '@nestjs/axios';
 import httpConfig from './config/http.config';
 import { SocialLoginJwtModule } from '../../common/module/social-login-jwt/social-login-jwt.module';
 import { LoginJwtModule } from '../../common/module/login-jwt/login-jwt.module';
+import { UtilModule } from '../../common/module/util/util.module';
+import naverLoginConfig from './strategy/naver/config/naver-login.config';
+import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
 
 @Module({
   imports: [
@@ -19,7 +22,9 @@ import { LoginJwtModule } from '../../common/module/login-jwt/login-jwt.module';
     UserModule,
     LoginJwtModule,
     SocialLoginJwtModule,
+    UtilModule,
     ConfigModule.forFeature(kakaoLoginConfig),
+    ConfigModule.forFeature(naverLoginConfig),
     HttpModule.registerAsync({
       imports: [ConfigModule.forFeature(httpConfig)],
       useFactory: async (configService: ConfigService) => ({
@@ -30,6 +35,6 @@ import { LoginJwtModule } from '../../common/module/login-jwt/login-jwt.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, KakaoLoginStrategy],
+  providers: [AuthService, KakaoLoginStrategy, NaverLoginStrategy],
 })
 export class AuthModule {}

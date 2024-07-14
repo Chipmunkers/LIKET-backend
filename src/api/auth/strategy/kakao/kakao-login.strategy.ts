@@ -69,7 +69,7 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
   }
 
   public getSignUpRedirectUrl() {
-    return '/signup';
+    return '/signup/social';
   }
 
   private async getUserInfoFromAccessToken(
