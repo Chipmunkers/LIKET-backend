@@ -20,6 +20,15 @@ async function bootstrap() {
       credentials: true,
     });
     app.use(helmet());
+  } else {
+    app.enableCors({
+      origin: [
+        'https://dev.liket.site',
+        'http://dev.liket.site',
+        'http://localhost:3000',
+      ],
+      credentials: true,
+    });
   }
 
   app.use(cookieParser(process.env.COOKIE_SECRET));
