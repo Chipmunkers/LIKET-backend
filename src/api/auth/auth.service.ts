@@ -144,10 +144,12 @@ export class AuthService {
       }
 
       const loginToken = await strategy.login(socialLoginUser);
-      res.cookie('refreshToken', loginToken.refreshToken, cookieConfig());
 
       // TODO: 성공시 어디로 갈 것인지 의논 필요
-      this.redirect(res, '/social-login-complete');
+      this.redirect(
+        res,
+        `/social-login-complete?refresh-token=${loginToken.refreshToken}`,
+      );
     } catch (err) {
       this.logger.error(this.socialLogin, 'Social Login Error', err);
 
