@@ -18,7 +18,7 @@ export default (): CookieOptions => {
 
   return {
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: 'none',
     secure: true,
     maxAge: 60 * 60 * 1000,
     signed: true,
