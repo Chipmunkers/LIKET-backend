@@ -102,22 +102,28 @@ export class AuthService {
     try {
       const socialLoginUser = await strategy.getSocialLoginUser(req);
 
-      const isFirstLogin = await this.checkFirstSocialLogin(socialLoginUser);
-      if (isFirstLogin) {
+      // TODO: 정지 사용자 확인 로직 추가 필요
+      const loginUser = await this.userRepository.selectSocialLoginUser(
+        socialLoginUser.id,
+        socialLoginUser.provider,
+      );
+      if (!loginUser) {
         this.logger.log(this.socialLogin, `first social login ${provider}`);
 
-        const isDuplicateSocialUser = await this.checkDuplicateSocialEmail(
-          socialLoginUser,
+        const duplicateUser = await this.userRepository.selectUserByEmail(
+          socialLoginUser.email,
         );
-        if (isDuplicateSocialUser) {
+        if (duplicateUser) {
           this.logger.warn(
             this.socialLogin,
             `Attempt to login with duplicated email | email = ${socialLoginUser.email}`,
           );
 
           // TODO: 무엇으로 가입했는지 정보 가져오는 로직 추가 필요 및 리다이렉트 경로 재설정 필요
-          const message = 'duplicated-email';
-          this.redirect(res, `/error?message=${message}`);
+          this.redirect(
+            res,
+            `/social-login-complete/duplicated-email?provider=${duplicateUser.provider}&email=${duplicateUser.email}`,
+          );
           return;
         }
 
@@ -131,18 +137,24 @@ export class AuthService {
         return;
       }
 
+      if (loginUser.blockedAt) {
+        this.redirect(res, '/social-login-complete/block-user');
+        return;
+      }
+
       const loginToken = await strategy.login(socialLoginUser);
 
-      // TODO: 성공시 어디로 갈 것인지 의논 필요
       this.redirect(
         res,
-        `/social-login-complete?refresh-token=${loginToken.refreshToken}`,
+        `/social-login-complete/success?refresh-token=${loginToken.refreshToken}`,
       );
     } catch (err) {
       this.logger.error(this.socialLogin, 'Social Login Error', err);
 
-      // TODO: 경로 변경 필요 및 message, status 등의 상태 값 포함 여부 의논 필요
-      this.redirect(res, '/error?message=unexpected-error');
+      this.redirect(
+        res,
+        '/social-login-complete/error?message=unexpected-error',
+      );
     }
   }
 

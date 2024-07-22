@@ -183,7 +183,9 @@ describe('Auth (e2e)', () => {
         .get('/auth/kakao/callback')
         .expect(302);
 
-      expect(response.headers.location).toContain('/error');
+      expect(response.headers.location).toContain(
+        '/social-login-complete/duplicated-email',
+      );
     });
 
     it('Error occurred from external API', async () => {
@@ -197,7 +199,9 @@ describe('Auth (e2e)', () => {
         .get('/auth/kakao/callback')
         .expect(302);
 
-      expect(response.headers.location).toContain('/error');
+      expect(response.headers.location).toContain(
+        '/social-login-complete/error',
+      );
     });
 
     it('Invalid provider', async () => {
