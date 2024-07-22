@@ -3,11 +3,12 @@ import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { BannerEntity } from './entity/banner.entity';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { BannerRepository } from './banner.repository';
 
 @Injectable()
 export class BannerService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly bannerRepository: BannerRepository,
     @Logger(BannerService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -15,15 +16,7 @@ export class BannerService {
    * 배너 가져오기
    */
   public async getBannerAll(): Promise<BannerEntity[]> {
-    this.logger.log(this.getBannerAll, 'SELECT active banners');
-    const bannerList = await this.prisma.activeBanner.findMany({
-      include: {
-        Banner: true,
-      },
-      orderBy: {
-        order: 'asc',
-      },
-    });
+    const bannerList = await this.bannerRepository.selectBannerAll();
 
     return bannerList.map((banner) =>
       BannerEntity.createActiveBannerEntity(banner),

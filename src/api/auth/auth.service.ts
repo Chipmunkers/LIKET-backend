@@ -17,6 +17,7 @@ import { LoginToken } from './model/login-token';
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 import cookieConfig from './config/cookie.config';
 import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class AuthService {
@@ -26,10 +27,10 @@ export class AuthService {
   >;
 
   constructor(
-    private readonly prisma: PrismaService,
     private readonly hashService: HashService,
     private readonly loginJwtService: LoginJwtService,
     private readonly socialLoginJwtService: SocialLoginJwtService,
+    private readonly userRepository: UserRepository,
     @Logger('AuthService') private readonly logger: LoggerService,
     private readonly kakaoLoginStrategy: KakaoLoginStrategy,
     private readonly naverLoginStrategy: NaverLoginStrategy,
@@ -44,20 +45,7 @@ export class AuthService {
    * 로컬 로그인
    */
   public async login(loginDto: LoginDto): Promise<LoginToken> {
-    this.logger.log(this.login, 'SELECT user for login');
-    const user = await this.prisma.user.findFirst({
-      select: {
-        idx: true,
-        pw: true,
-        isAdmin: true,
-        blockedAt: true,
-        provider: true,
-      },
-      where: {
-        email: loginDto.email,
-        deletedAt: null,
-      },
-    });
+    const user = await this.userRepository.selectUserByEmail(loginDto.email);
 
     if (!user) {
       this.logger.warn(
@@ -84,7 +72,7 @@ export class AuthService {
     }
 
     if (!this.hashService.comparePw(loginDto.pw, user.pw || '')) {
-      this.logger.log(this.login, 'Attempt to login with invalid pw');
+      this.logger.warn(this.login, 'Attempt to login with invalid pw');
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
@@ -208,13 +196,10 @@ export class AuthService {
   private async checkFirstSocialLogin(
     socialLoginUser: SocialLoginUser,
   ): Promise<boolean> {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        snsId: socialLoginUser.id,
-        provider: socialLoginUser.provider,
-        deletedAt: null,
-      },
-    });
+    const user = await this.userRepository.selectSocialLoginUser(
+      socialLoginUser.id,
+      socialLoginUser.provider,
+    );
 
     if (user) {
       return false;
@@ -226,12 +211,9 @@ export class AuthService {
   private async checkDuplicateSocialEmail(
     socialLoginUser: SocialLoginUser,
   ): Promise<boolean> {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        email: socialLoginUser.email,
-        deletedAt: null,
-      },
-    });
+    const user = await this.userRepository.selectUserByEmail(
+      socialLoginUser.email,
+    );
 
     if (user) {
       return true;

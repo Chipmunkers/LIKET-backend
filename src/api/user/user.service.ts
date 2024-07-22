@@ -23,6 +23,7 @@ import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { LoginUser } from '../auth/model/login-user';
 import { WithdrawalDto } from './dto/withdrawal.dto';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
@@ -32,6 +33,7 @@ export class UserService {
     private readonly emailJwtService: EmailJwtService,
     private readonly loginJwtService: LoginJwtService,
     private readonly socialLoginJwtService: SocialLoginJwtService,
+    private readonly userRepository: UserRepository,
     @Logger(UserService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -49,16 +51,15 @@ export class UserService {
 
     await this.checkEmailAndNicknameDuplicate(email, signUpDto.nickname);
 
-    this.logger.log(this.signUp, 'INSERT user');
-    const signUpUser = await this.prisma.user.create({
-      data: {
-        email,
-        pw: this.hashService.hashPw(signUpDto.pw),
-        nickname: signUpDto.nickname,
-        birth: signUpDto.birth,
-        profileImgPath: profileImg?.filePath || null,
-        gender: signUpDto.gender,
-      },
+    const signUpUser = await this.userRepository.insertUser({
+      email,
+      pw: this.hashService.hashPw(signUpDto.pw),
+      nickname: signUpDto.nickname,
+      birth: signUpDto.birth || null,
+      profileImgPath: profileImg?.filePath || null,
+      gender: signUpDto.gender || null,
+      snsId: null,
+      provider: 'local',
     });
 
     const accessToken = this.loginJwtService.sign(
@@ -94,18 +95,15 @@ export class UserService {
       signUpDto.nickname,
     );
 
-    this.logger.log(this.socialUserSignUp, 'INSERT social user');
-    const signUpUser = await this.prisma.user.create({
-      data: {
-        email: socialUser.email,
-        pw: 'social',
-        nickname: signUpDto.nickname,
-        snsId: socialUser.id,
-        birth: signUpDto.birth || null,
-        gender: signUpDto.gender || null,
-        profileImgPath: profileImg?.filePath || null,
-        provider: socialUser.provider,
-      },
+    const signUpUser = await this.userRepository.insertUser({
+      email: socialUser.email,
+      pw: 'social',
+      nickname: signUpDto.nickname,
+      snsId: socialUser.id,
+      birth: signUpDto.birth || null,
+      gender: signUpDto.gender || null,
+      profileImgPath: profileImg?.filePath || null,
+      provider: socialUser.provider,
     });
 
     const accessToken = this.loginJwtService.sign(
@@ -127,20 +125,8 @@ export class UserService {
     email: string,
     nickname: string,
   ) {
-    this.logger.log(this.checkEmailAndNicknameDuplicate, 'SELECT user');
-    const duplicatedUser = await this.prisma.user.findFirst({
-      where: {
-        OR: [
-          {
-            email: email,
-          },
-          {
-            nickname: nickname,
-          },
-        ],
-        deletedAt: null,
-      },
-    });
+    const duplicatedUser =
+      await this.userRepository.selectUserByEmailOrNickname(email, nickname);
 
     if (duplicatedUser?.email === email) {
       this.logger.warn(
@@ -171,47 +157,7 @@ export class UserService {
    * 내 정보 가져오기
    */
   public async getMyInfo(userIdx: number): Promise<MyInfoEntity> {
-    this.logger.log(this.getMyInfo, `SELECT user ${userIdx}`);
-    const user = await this.prisma.user.findFirst({
-      include: {
-        Review: {
-          include: {
-            ReviewImg: true,
-          },
-          where: {
-            ReviewImg: {
-              some: {
-                deletedAt: null,
-              },
-            },
-          },
-        },
-        Liket: {
-          select: {
-            idx: true,
-            imgPath: true,
-          },
-        },
-        _count: {
-          select: {
-            Review: {
-              where: {
-                deletedAt: null,
-              },
-            },
-            Liket: {
-              where: {
-                deletedAt: null,
-              },
-            },
-          },
-        },
-      },
-      where: {
-        idx: userIdx,
-        deletedAt: null,
-      },
-    });
+    const user = await this.userRepository.selectMyUser(userIdx);
 
     if (!user) {
       this.logger.warn(
@@ -228,13 +174,7 @@ export class UserService {
    * 특정 사용자 가져오기
    */
   public async getUserByIdx(userIdx: number): Promise<UserEntity> {
-    this.logger.log(this.getUserByIdx, `SELECT user ${userIdx}`);
-    const user = await this.prisma.user.findUnique({
-      where: {
-        idx: userIdx,
-        deletedAt: null,
-      },
-    });
+    const user = await this.userRepository.selectUserByIdx(userIdx);
 
     if (!user) {
       this.logger.warn(
@@ -254,13 +194,9 @@ export class UserService {
     idx: number,
     updateDto: UpdateProfileDto,
   ): Promise<void> {
-    this.logger.log(this.updateProfile, `SELECT user ${idx}`);
-    const duplicatedUser = await this.prisma.user.findFirst({
-      where: {
-        nickname: updateDto.nickname,
-        deletedAt: null,
-      },
-    });
+    const duplicatedUser = await this.userRepository.selectUserByNickname(
+      updateDto.nickname,
+    );
 
     if (duplicatedUser) {
       this.logger.warn(
@@ -273,16 +209,11 @@ export class UserService {
       );
     }
 
-    this.logger.log(this.updateProfile, `UPDATE user ${idx}`);
-    await this.prisma.user.update({
-      where: {
-        idx,
-      },
-      data: {
-        gender: updateDto.gender,
-        birth: updateDto.birth,
-        profileImgPath: updateDto.profileImg || null,
-      },
+    await this.userRepository.updateUserByIdx(idx, {
+      nickname: updateDto.nickname,
+      gender: updateDto.gender || null,
+      birth: updateDto.birth || null,
+      profileImgPath: updateDto.profileImg || null,
     });
   }
 
@@ -315,13 +246,7 @@ export class UserService {
   }
 
   private async getUserByNickname(nickname: string) {
-    this.logger.log(this.getUserByIdx, `SELECT user nickname = ${nickname}`);
-    const user = await this.prisma.user.findFirst({
-      where: {
-        nickname,
-        deletedAt: null,
-      },
-    });
+    const user = await this.userRepository.selectUserByNickname(nickname);
 
     if (!user) {
       this.logger.log(
@@ -335,13 +260,7 @@ export class UserService {
   }
 
   public async getUserByEmail(email: string) {
-    this.logger.log(this.getUserByEmail, `SELECT user email = ${email}`);
-    const user = await this.prisma.user.findFirst({
-      where: {
-        email,
-        deletedAt: null,
-      },
-    });
+    const user = await this.userRepository.selectUserByEmail(email);
 
     if (!user) {
       this.logger.warn(
@@ -361,22 +280,17 @@ export class UserService {
     loginUser: LoginUser,
     withdrawalDto: WithdrawalDto,
   ): Promise<void> {
-    await this.prisma.$transaction([
-      this.prisma.deleteUserReason.create({
+    await this.prisma.$transaction(async (tx) => {
+      await this.userRepository.deleteUserByIdx(loginUser.idx, tx);
+
+      // TODO: repository 패턴으로 변경 필요
+      await this.prisma.deleteUserReason.create({
         data: {
           idx: loginUser.idx,
           contents: withdrawalDto.contents,
           typeIdx: withdrawalDto.type,
         },
-      }),
-      this.prisma.user.update({
-        where: {
-          idx: loginUser.idx,
-        },
-        data: {
-          deletedAt: new Date(),
-        },
-      }),
-    ]);
+      });
+    });
   }
 }

@@ -4,11 +4,12 @@ import { InquiryTypeEntity } from './entity/inquiry-type.entity';
 import { InquiryTypeNotFoundException } from './exception/InquiryTypeNotFoundException';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { InquiryTypeRepository } from './inquiry-type.repository';
 
 @Injectable()
 export class InquiryTypeService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly inquiryTypeRepository: InquiryTypeRepository,
     @Logger(InquiryTypeService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -16,14 +17,7 @@ export class InquiryTypeService {
    * 문의 유형 모두 가져오기
    */
   public async getTypeAll(): Promise<InquiryTypeEntity[]> {
-    this.logger.log(this.getTypeAll, 'SELECT inquiries');
-    const typeList = await this.prisma.inquiryType.findMany({
-      select: {
-        idx: true,
-        name: true,
-        createdAt: true,
-      },
-    });
+    const typeList = await this.inquiryTypeRepository.selectInquiryTypeAll();
 
     return typeList.map((type) => InquiryTypeEntity.createEntity(type));
   }
@@ -32,17 +26,7 @@ export class InquiryTypeService {
    * 문의 유형 자세히보기
    */
   public async getTypeByIdx(idx: number): Promise<InquiryTypeEntity> {
-    this.logger.log(this.getTypeByIdx, `SELECT inquiry type ${idx}`);
-    const type = await this.prisma.inquiryType.findUnique({
-      select: {
-        idx: true,
-        name: true,
-        createdAt: true,
-      },
-      where: {
-        idx,
-      },
-    });
+    const type = await this.inquiryTypeRepository.selectInquiryByIdx(idx);
 
     if (!type) {
       this.logger.warn(

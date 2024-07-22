@@ -4,11 +4,13 @@ import { SummaryTosEntity } from './entity/summary-tos.entity';
 import { TosEntity } from './entity/tos.entity';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { TosRepository } from './tos.repository';
 
 @Injectable()
 export class TosService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly tosRepository: TosRepository,
     @Logger(TosService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -16,15 +18,7 @@ export class TosService {
    * 약관 목록 가져오기
    */
   public async getTosAll(): Promise<SummaryTosEntity[]> {
-    this.logger.log(this.getTosAll, 'SELECT terms of services');
-    const tosList = await this.prisma.tos.findMany({
-      where: {
-        deletedAt: null,
-      },
-      orderBy: {
-        idx: 'asc',
-      },
-    });
+    const tosList = await this.tosRepository.selectTosAll();
 
     return tosList.map((tos) => SummaryTosEntity.createEntity(tos));
   }
@@ -33,13 +27,7 @@ export class TosService {
    * 약관 자세히보기
    */
   public async getTosByIdx(idx: number): Promise<TosEntity> {
-    this.logger.log(this.getTosByIdx, `SELECT terms of services ${idx}`);
-    const tos = await this.prisma.tos.findUnique({
-      where: {
-        idx,
-        deletedAt: null,
-      },
-    });
+    const tos = await this.tosRepository.selectTosByIdx(idx);
 
     if (!tos) {
       this.logger.warn(

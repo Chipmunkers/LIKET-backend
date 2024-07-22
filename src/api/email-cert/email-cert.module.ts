@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import emailJwtConfig from './config/email-jwt.config';
 import { EmailJwtService } from './email-jwt.service';
+import { EmailCertRepository } from './email-cert.repository';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { EmailJwtService } from './email-jwt.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [EmailCertService, EmailJwtService],
+  providers: [EmailCertService, EmailJwtService, EmailCertRepository],
   controllers: [EmailCertController],
   exports: [EmailJwtService],
 })

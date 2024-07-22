@@ -3,11 +3,13 @@ import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { TagEntity } from './entity/tag.entity';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { ContentTagRepository } from './content-tag.repository';
 
 @Injectable()
 export class ContentTagService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly contentTagRepository: ContentTagRepository,
     @Logger(ContentTagService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -17,15 +19,7 @@ export class ContentTagService {
   public async getGenreAll(): Promise<{
     tagList: TagEntity[];
   }> {
-    this.logger.log(this.getGenreAll, 'SELECT genres');
-    const genreList = await this.prisma.genre.findMany({
-      where: {
-        deletedAt: null,
-      },
-      orderBy: {
-        idx: 'desc',
-      },
-    });
+    const genreList = await this.contentTagRepository.selectGenreAll();
 
     return {
       tagList: genreList.map((tag) => TagEntity.createEntity(tag)),
@@ -38,15 +32,7 @@ export class ContentTagService {
   public async getAgeAll(): Promise<{
     tagList: TagEntity[];
   }> {
-    this.logger.log(this.getAgeAll, 'SELECT ages');
-    const ageList = await this.prisma.age.findMany({
-      where: {
-        deletedAt: null,
-      },
-      orderBy: {
-        idx: 'desc',
-      },
-    });
+    const ageList = await this.contentTagRepository.selectAgeAll();
 
     return {
       tagList: ageList.map((age) => TagEntity.createEntity(age)),
@@ -59,15 +45,7 @@ export class ContentTagService {
   public async getStyleAll(): Promise<{
     tagList: TagEntity[];
   }> {
-    this.logger.log(this.getStyleAll, 'SELECT styles');
-    const styleList = await this.prisma.style.findMany({
-      where: {
-        deletedAt: null,
-      },
-      orderBy: {
-        idx: 'desc',
-      },
-    });
+    const styleList = await this.contentTagRepository.selectStyleAll();
 
     return {
       tagList: styleList.map((style) => TagEntity.createEntity(style)),

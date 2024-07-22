@@ -1,0 +1,48 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../common/module/prisma/prisma.service';
+import { Logger } from '../../common/module/logger/logger.decorator';
+import { LoggerService } from '../../common/module/logger/logger.service';
+
+@Injectable()
+export class ContentTagRepository {
+  constructor(
+    private readonly prisma: PrismaService,
+    @Logger(ContentTagRepository.name) private readonly logger: LoggerService,
+  ) {}
+
+  public selectGenreAll() {
+    this.logger.log(this.selectGenreAll, 'SELECT genre');
+    return this.prisma.genre.findMany({
+      where: {
+        deletedAt: null,
+      },
+      orderBy: {
+        idx: 'desc',
+      },
+    });
+  }
+
+  public selectAgeAll() {
+    this.logger.log(this.selectStyleAll, 'SELECT age');
+    return this.prisma.age.findMany({
+      where: {
+        deletedAt: null,
+      },
+      orderBy: {
+        idx: 'desc',
+      },
+    });
+  }
+
+  public selectStyleAll() {
+    this.logger.log(this.selectStyleAll, 'SELECT styles');
+    return this.prisma.style.findMany({
+      where: {
+        deletedAt: null,
+      },
+      orderBy: {
+        idx: 'desc',
+      },
+    });
+  }
+}
