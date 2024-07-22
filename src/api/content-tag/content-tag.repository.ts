@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { Style } from '@prisma/client';
+import { from, map, of } from 'rxjs';
 
 @Injectable()
 export class ContentTagRepository {
@@ -44,5 +46,32 @@ export class ContentTagRepository {
         idx: 'desc',
       },
     });
+  }
+
+  public selectHotStyle() {
+    return this.prisma.style
+      .findMany({
+        select: {
+          idx: true,
+          _count: {
+            select: {
+              Style: {
+                where: {
+                  CultureContent: {
+                    deletedAt: null,
+                    acceptedAt: {
+                      not: null,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      .then((styles) =>
+        styles.sort((prev, next) => next._count.Style - prev._count.Style),
+      )
+      .then((styles) => styles[0]);
   }
 }

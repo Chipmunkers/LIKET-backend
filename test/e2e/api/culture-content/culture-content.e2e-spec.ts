@@ -590,10 +590,10 @@ describe('Culture Content (e2e)', () => {
     });
   });
 
-  describe('GET /culture-content/hot-age/:ageIdx/all', () => {
+  describe('GET /culture-content/hot-age/all', () => {
     it('Success with no token', async () => {
       const response = await request(app.getHttpServer())
-        .get('/culture-content/hot-age/1/all')
+        .get('/culture-content/hot-age/all')
         .expect(200);
 
       expect(response.body).toBeDefined();
@@ -604,18 +604,35 @@ describe('Culture Content (e2e)', () => {
       const loginUser = loginUsers.user1;
 
       const response = await request(app.getHttpServer())
-        .get('/culture-content/hot-age/1/all')
+        .get('/culture-content/hot-age/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
       expect(Array.isArray(response.body)).toBe(true);
     });
+  });
 
-    it('Invalid age idx', async () => {
-      await request(app.getHttpServer())
-        .get('/culture-content/hot-age/invalid/all')
-        .expect(400);
+  describe('GET /culture-content/hot-style/all', () => {
+    it('Success with no token', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/culture-content/hot-style/all')
+        .expect(200);
+
+      expect(response.body).toBeDefined();
+      expect(Array.isArray(response.body)).toBe(true);
+    });
+
+    it('Success with token', async () => {
+      const loginUser = loginUsers.user1;
+
+      const response = await request(app.getHttpServer())
+        .get('/culture-content/hot-style/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      expect(response.body).toBeDefined();
+      expect(Array.isArray(response.body)).toBe(true);
     });
   });
 

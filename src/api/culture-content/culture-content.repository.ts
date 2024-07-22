@@ -371,15 +371,77 @@ export class CultureContentRepository {
           deletedAt: null,
           blockedAt: null,
         },
-        likeCount: {
-          not: 0,
-        },
         ageIdx,
         startDate: {
           lte: new Date(),
         },
         endDate: {
           gte: new Date(),
+        },
+      },
+      orderBy: {
+        likeCount: 'desc',
+      },
+      take: 5,
+    });
+  }
+
+  public selectHotCultureContentByStyleIdx(styleIdx: number, userIdx?: number) {
+    this.logger.log(
+      this.selectHotCultureContentByStyleIdx,
+      `SELECT hot culture content WHERE style_idx = ${styleIdx}`,
+    );
+    return this.prisma.cultureContent.findMany({
+      include: {
+        User: true,
+        ContentImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
+        Genre: true,
+        Style: {
+          include: {
+            Style: true,
+          },
+          where: {
+            Style: {
+              deletedAt: null,
+            },
+          },
+        },
+        Age: true,
+        Location: true,
+        ContentLike: {
+          where: {
+            userIdx: userIdx || -1,
+          },
+        },
+      },
+      where: {
+        deletedAt: null,
+        acceptedAt: {
+          not: null,
+        },
+        User: {
+          deletedAt: null,
+          blockedAt: null,
+        },
+        startDate: {
+          lte: new Date(),
+        },
+        endDate: {
+          gte: new Date(),
+        },
+        Style: {
+          some: {
+            Style: {
+              idx: styleIdx,
+            },
+          },
         },
       },
       orderBy: {

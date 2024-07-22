@@ -14,6 +14,8 @@ import { LoggerService } from '../../common/module/logger/logger.service';
 import { CultureContentRepository } from './culture-content.repository';
 import { CultureContentLikeRepository } from './culture-content-like.repository';
 import { ReviewRepository } from '../review/review.repository';
+import { ContentTagRepository } from '../content-tag/content-tag.repository';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class CultureContentService {
@@ -21,6 +23,8 @@ export class CultureContentService {
     private readonly cultureContentRepository: CultureContentRepository,
     private readonly cultureContentLikeRepository: CultureContentLikeRepository,
     private readonly reviewRepository: ReviewRepository,
+    private readonly contentTagRepository: ContentTagRepository,
+    private readonly userRepository: UserRepository,
     @Logger(CultureContentService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -125,12 +129,66 @@ export class CultureContentService {
    * 인기 연령대 컨텐츠 목록 보기
    */
   public async getHotContentByAge(
-    ageIdx: number,
     loginUser?: LoginUser,
   ): Promise<SummaryContentEntity[]> {
+    const ageIdx = await this.getLoginUserAgeIdx(loginUser);
+
     const contentList =
       await this.cultureContentRepository.selectHotCultureContentByAgeIdx(
         ageIdx,
+        loginUser?.idx,
+      );
+
+    return contentList.map((content) =>
+      SummaryContentEntity.createEntity(content),
+    );
+  }
+
+  private async getLoginUserAgeIdx(loginUser?: LoginUser) {
+    if (!loginUser) {
+      return 1; // 20대
+    }
+
+    const user = await this.userRepository.selectUserByIdx(loginUser.idx);
+
+    if (!user?.birth) {
+      return 4; // 20대
+    }
+
+    const date = new Date();
+
+    const userAge = date.getFullYear() - user.birth;
+
+    if (userAge < 10) {
+      return 2; // 아이들
+    }
+
+    if (userAge < 20) {
+      return 3;
+    }
+
+    if (userAge < 30) {
+      return 4;
+    }
+
+    if (userAge < 40) {
+      return 5;
+    }
+
+    return 6;
+  }
+
+  /**
+   * 인기 스타일 컨텐츠 목록보기
+   */
+  public async getHotContentByStyle(
+    loginUser?: LoginUser,
+  ): Promise<SummaryContentEntity[]> {
+    const hotStyle = await this.contentTagRepository.selectHotStyle();
+
+    const contentList =
+      await this.cultureContentRepository.selectHotCultureContentByStyleIdx(
+        hotStyle.idx,
         loginUser?.idx,
       );
 

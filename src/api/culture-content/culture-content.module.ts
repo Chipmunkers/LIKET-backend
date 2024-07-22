@@ -6,6 +6,8 @@ import { ContentAuthService } from './content-auth.service';
 import { CultureContentRepository } from './culture-content.repository';
 import { CultureContentLikeRepository } from './culture-content-like.repository';
 import { ReviewRepository } from '../review/review.repository';
+import { ContentTagRepository } from '../content-tag/content-tag.repository';
+import { UserRepository } from '../user/user.repository';
 
 @Module({
   imports: [PrismaModule],
@@ -16,6 +18,8 @@ import { ReviewRepository } from '../review/review.repository';
     CultureContentRepository,
     CultureContentLikeRepository,
     ReviewRepository,
+    ContentTagRepository,
+    UserRepository,
   ],
   exports: [CultureContentRepository],
 })

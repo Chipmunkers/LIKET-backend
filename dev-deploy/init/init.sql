@@ -384,12 +384,12 @@ ALTER TABLE active_banner_tb
     REFERENCES banner_tb (idx);
 
 ALTER TABLE style_mapping_tb
-  ADD CONSTRAINT FK_style_tb_TO_style_mappring_tb
+  ADD CONSTRAINT FK_style_tb_TO_style_mapping_tb
     FOREIGN KEY (style_idx)
     REFERENCES style_tb (idx);
 
 ALTER TABLE style_mapping_tb
-  ADD CONSTRAINT FK_culture_content_tb_TO_style_mappring_tb
+  ADD CONSTRAINT FK_culture_content_tb_TO_style_mapping_tb
     FOREIGN KEY (content_idx)
     REFERENCES culture_content_tb (idx);
 

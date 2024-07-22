@@ -101,16 +101,21 @@ export class CultureContentController {
   /**
    * 연령대의 인기 컨텐츠 보기
    */
-  @Get('/hot-age/:ageIdx/all')
-  @Exception(400, 'Invalid path parameter')
+  @Get('/hot-age/all')
   public async getHotAgeCultureContentAll(
-    @Param('ageIdx', ParseIntPipe) ageIdx: number,
     @User() loginUser?: LoginUser,
   ): Promise<SummaryContentEntity[]> {
-    return await this.cultureContentService.getHotContentByAge(
-      ageIdx,
-      loginUser,
-    );
+    return await this.cultureContentService.getHotContentByAge(loginUser);
+  }
+
+  /**
+   * 인기 스타일 컨텐츠 목록보기
+   */
+  @Get('/hot-style/all')
+  public async getHotStyleCultureContentAll(
+    @User() loginUser?: LoginUser,
+  ): Promise<SummaryContentEntity[]> {
+    return await this.cultureContentService.getHotContentByStyle(loginUser);
   }
 
   /**
