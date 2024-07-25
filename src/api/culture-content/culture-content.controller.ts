@@ -25,8 +25,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { ContentAuthService } from './content-auth.service';
 import { LoginUser } from '../auth/model/login-user';
 import { HotCultureContentEntity } from './entity/hot-content.entity';
-import { SummaryContentEntity } from './entity/summary-content.entity';
-import { GetHotContentResponseDto } from '../content-tag/dto/response/get-hot-style-content.dto';
+import { GetHotContentResponseDto } from './dto/response/get-hot-style-content.dto';
+import { GetHotAgeContentResponseDto } from './dto/response/get-hot-age-content.dto';
 
 @Controller('culture-content')
 @ApiTags('Culture-Content')
@@ -105,7 +105,7 @@ export class CultureContentController {
   @Get('/hot-age/all')
   public async getHotAgeCultureContentAll(
     @User() loginUser?: LoginUser,
-  ): Promise<SummaryContentEntity[]> {
+  ): Promise<GetHotAgeContentResponseDto> {
     return await this.cultureContentService.getHotContentByAge(loginUser);
   }
 

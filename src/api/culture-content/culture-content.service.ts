@@ -131,8 +131,10 @@ export class CultureContentService {
    */
   public async getHotContentByAge(
     loginUser?: LoginUser,
-  ): Promise<SummaryContentEntity[]> {
+  ): Promise<{ contentList: SummaryContentEntity[]; age: TagEntity }> {
     const ageIdx = await this.getLoginUserAgeIdx(loginUser);
+
+    const age = await this.contentTagRepository.selectAgeByIdx(ageIdx);
 
     const contentList =
       await this.cultureContentRepository.selectHotCultureContentByAgeIdx(
@@ -140,9 +142,12 @@ export class CultureContentService {
         loginUser?.idx,
       );
 
-    return contentList.map((content) =>
-      SummaryContentEntity.createEntity(content),
-    );
+    return {
+      contentList: contentList.map((content) =>
+        SummaryContentEntity.createEntity(content),
+      ),
+      age: TagEntity.createEntity(age),
+    };
   }
 
   private async getLoginUserAgeIdx(loginUser?: LoginUser) {

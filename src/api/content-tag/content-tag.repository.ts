@@ -34,6 +34,14 @@ export class ContentTagRepository {
     });
   }
 
+  public selectAgeByIdx(idx: number) {
+    return this.prisma.age.findUniqueOrThrow({
+      where: {
+        idx,
+      },
+    });
+  }
+
   public selectStyleAll() {
     this.logger.log(this.selectStyleAll, 'SELECT styles');
     return this.prisma.style.findMany({
