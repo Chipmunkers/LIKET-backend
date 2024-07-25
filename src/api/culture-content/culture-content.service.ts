@@ -16,6 +16,7 @@ import { CultureContentLikeRepository } from './culture-content-like.repository'
 import { ReviewRepository } from '../review/review.repository';
 import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { UserRepository } from '../user/user.repository';
+import { TagEntity } from '../content-tag/entity/tag.entity';
 
 @Injectable()
 export class CultureContentService {
@@ -183,7 +184,7 @@ export class CultureContentService {
    */
   public async getHotContentByStyle(
     loginUser?: LoginUser,
-  ): Promise<SummaryContentEntity[]> {
+  ): Promise<{ contentList: SummaryContentEntity[]; style: TagEntity }> {
     const hotStyle = await this.contentTagRepository.selectHotStyle();
 
     const contentList =
@@ -192,9 +193,15 @@ export class CultureContentService {
         loginUser?.idx,
       );
 
-    return contentList.map((content) =>
-      SummaryContentEntity.createEntity(content),
-    );
+    return {
+      contentList: contentList.map((content) =>
+        SummaryContentEntity.createEntity(content),
+      ),
+      style: {
+        idx: hotStyle.idx,
+        name: hotStyle.name,
+      },
+    };
   }
 
   /**

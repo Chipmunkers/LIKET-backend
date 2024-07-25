@@ -26,6 +26,7 @@ import { ContentAuthService } from './content-auth.service';
 import { LoginUser } from '../auth/model/login-user';
 import { HotCultureContentEntity } from './entity/hot-content.entity';
 import { SummaryContentEntity } from './entity/summary-content.entity';
+import { GetHotContentResponseDto } from '../content-tag/dto/response/get-hot-style-content.dto';
 
 @Controller('culture-content')
 @ApiTags('Culture-Content')
@@ -114,7 +115,7 @@ export class CultureContentController {
   @Get('/hot-style/all')
   public async getHotStyleCultureContentAll(
     @User() loginUser?: LoginUser,
-  ): Promise<SummaryContentEntity[]> {
+  ): Promise<GetHotContentResponseDto> {
     return await this.cultureContentService.getHotContentByStyle(loginUser);
   }
 

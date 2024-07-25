@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
-import { Style } from '@prisma/client';
-import { from, map, of } from 'rxjs';
 
 @Injectable()
 export class ContentTagRepository {
@@ -53,6 +51,7 @@ export class ContentTagRepository {
       .findMany({
         select: {
           idx: true,
+          name: true,
           _count: {
             select: {
               Style: {
