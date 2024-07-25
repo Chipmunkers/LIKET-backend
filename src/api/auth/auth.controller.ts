@@ -75,7 +75,7 @@ export class AuthController {
   }
 
   /**
-   * Access Token 재발급하기
+   * Access Token 재발급하기, 소셜 로그인 시 발급되는 refresh token은 body로 전송
    */
   @Post('/access-token')
   @HttpCode(200)
@@ -83,8 +83,11 @@ export class AuthController {
   public async reissueAccessToken(
     @Res({ passthrough: true }) res: Response,
     @Cookies('refreshToken') refreshToken?: string,
+    @Body('refreshToken') bodyRefreshToken?: string,
   ): Promise<string> {
-    const token = await this.authService.reissueAccessToken(refreshToken);
+    const token = await this.authService.reissueAccessToken(
+      refreshToken || bodyRefreshToken || '',
+    );
     res.cookie('refreshToken', token.refreshToken, cookieConfig());
 
     return token.accessToken;
