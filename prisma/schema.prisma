@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["metrics"]
 }
 
 datasource db {
@@ -424,11 +425,11 @@ model EmailCertCode {
 }
 
 model RefreshToken {
-  idx        BigInt    @id @default(autoincrement())
-  userIdx    Int       @map("user_idx")
-  token      String    @db.VarChar @unique
-  expiredAt DateTime? @db.Timestamptz(6) @map("expired_at")
-  User    User        @relation(fields: [userIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_tb_to_refresh_token_tb")
+  idx       BigInt    @id @default(autoincrement())
+  userIdx   Int       @map("user_idx")
+  token     String    @unique @db.VarChar
+  expiredAt DateTime? @map("expired_at") @db.Timestamptz(6)
+  User      User      @relation(fields: [userIdx], references: [idx], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_tb_to_refresh_token_tb")
 
   @@map("refresh_token_tb")
 }

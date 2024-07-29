@@ -17,6 +17,8 @@ import { VerifyLoginJwtMiddleware } from './common/middleware/verify-login-jwt.m
 import { LoginJwtModule } from './common/module/login-jwt/login-jwt.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { PrismaModule } from './common/module/prisma/prisma.module';
+import { MetricModule } from './api/metric/metric.module';
 
 @Module({
   imports: [
@@ -31,6 +33,7 @@ import { APP_GUARD } from '@nestjs/core';
       isGlobal: true,
       load: [modeConfig],
     }),
+    PrismaModule,
     EmailCertModule,
     UserModule,
     AuthModule,
@@ -43,6 +46,7 @@ import { APP_GUARD } from '@nestjs/core';
     UploadModule,
     ContentTagModule,
     LoginJwtModule,
+    MetricModule,
   ],
   providers: [
     {
