@@ -1,4 +1,4 @@
-import { IsJWT, IsStrongPassword, Length } from 'class-validator';
+import { IsJWT, IsStrongPassword, Length, Matches } from 'class-validator';
 import { PickType } from '@nestjs/swagger';
 import { UserEntity } from '../entity/user.entity';
 
@@ -20,12 +20,6 @@ export class SignUpDto extends PickType(UserEntity, [
    *
    * @example aA12341234**
    */
-  @IsStrongPassword({
-    minNumbers: 1,
-    minSymbols: 1,
-    minLowercase: 1,
-    minUppercase: 0,
-  })
-  @Length(6, 20)
+  @Matches(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,20}$/)
   public pw: string;
 }

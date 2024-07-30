@@ -7,6 +7,10 @@ import { EmailCertType } from '../email-cert/model/email-cert-type';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { UserRepository } from './user.repository';
+import { LoginUser } from '../auth/model/login-user';
+import { ResetPwDto } from './dto/reset-pw.dto';
+import { UserNotFoundException } from './exception/UserNotFoundException';
+import { InvalidCurrentPasswordException } from './exception/InvalidCurrentPasswordException';
 
 @Injectable()
 export class UserPwService {
@@ -32,6 +36,26 @@ export class UserPwService {
     await this.updatePw(user.idx, findPwDto.pw);
 
     return;
+  }
+
+  /**
+   * 사용자 비밀번호 변경하기
+   */
+  public async resetLoginUserPw(
+    loginUser: LoginUser,
+    resetDto: ResetPwDto,
+  ): Promise<void> {
+    const user = await this.userRepository.selectUserByIdx(loginUser.idx);
+
+    if (!user) {
+      throw new UserNotFoundException('Cannot find user');
+    }
+
+    if (!this.hashService.comparePw(resetDto.currPw, user.pw || '')) {
+      throw new InvalidCurrentPasswordException('Wrong password');
+    }
+
+    await this.updatePw(loginUser.idx, resetDto.resetPw);
   }
 
   /**

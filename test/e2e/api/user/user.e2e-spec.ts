@@ -18,6 +18,8 @@ import spyOn = jest.spyOn;
 import { PrismaSetting } from '../../setup/prisma.setup';
 import { AppGlobalSetting } from '../../setup/app-global.setup';
 import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
+import { ResetPwDto } from '../../../../src/api/user/dto/reset-pw.dto';
+import { LoginDto } from '../../../../src/api/auth/dto/local-login.dto';
 
 describe('User (e2e)', () => {
   let app: INestApplication;
@@ -454,6 +456,47 @@ describe('User (e2e)', () => {
 
       await request(app.getHttpServer()).post('/user/pw/find').send(findPwDto);
       expect(403);
+    });
+  });
+
+  describe('POST /user/pw/reset', () => {
+    it('Success', async () => {
+      const loginUser = loginUsers.user1;
+
+      const resetPwDto: ResetPwDto = {
+        currPw: 'aa12341234**',
+        resetPw: 'abc123!@',
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/pw/reset')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send(resetPwDto)
+        .expect(201);
+
+      const loginDto: LoginDto = {
+        email: 'user1@gmail.com',
+        pw: resetPwDto.resetPw,
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/local')
+        .send(loginDto)
+        .expect(200);
+    });
+
+    it('Fail', async () => {
+      const loginUser = loginUsers.user1;
+      const resetPwDto: ResetPwDto = {
+        currPw: 'wrong password',
+        resetPw: 'abc123!@',
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/pw/reset')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send(resetPwDto)
+        .expect(400);
     });
   });
 

@@ -33,6 +33,7 @@ import { NicknameDuplicateCheckDto } from './dto/nickname-duplicate-check.dto';
 import { FindPwDto } from './dto/find-pw.dto';
 import { UserPwService } from './user-pw.service';
 import { WithdrawalDto } from './dto/withdrawal.dto';
+import { ResetPwDto } from './dto/reset-pw.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -186,6 +187,21 @@ export class UserController {
   async findPw(@Body() findPwDto: FindPwDto) {
     await this.userPwService.findPw(findPwDto);
     return;
+  }
+
+  /**
+   * 비밀번호 변경하기
+   */
+  @Post('/pw/reset')
+  @HttpCode(201)
+  @Exception(400, 'invalid password')
+  @Exception(401, 'No token or wrong token')
+  @Exception(404, 'Cannot find user')
+  async resetPw(
+    @Body() resetPwDto: ResetPwDto,
+    @User() loginUser: LoginUser,
+  ): Promise<void> {
+    await this.userPwService.resetLoginUserPw(loginUser, resetPwDto);
   }
 
   /**

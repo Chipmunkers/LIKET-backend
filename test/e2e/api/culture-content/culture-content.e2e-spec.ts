@@ -597,7 +597,7 @@ describe('Culture Content (e2e)', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(Array.isArray(response.body.contentList)).toBe(true);
     });
 
     it('Success with token', async () => {
@@ -609,7 +609,7 @@ describe('Culture Content (e2e)', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(Array.isArray(response.body.contentList)).toBe(true);
     });
   });
 
@@ -620,7 +620,7 @@ describe('Culture Content (e2e)', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(Array.isArray(response.body.contentList)).toBe(true);
     });
 
     it('Success with token', async () => {
@@ -632,7 +632,7 @@ describe('Culture Content (e2e)', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(Array.isArray(response.body.contentList)).toBe(true);
     });
   });
 
