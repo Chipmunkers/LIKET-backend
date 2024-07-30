@@ -198,7 +198,10 @@ export class UserController {
   async withdrawal(
     @Body() withdrawalDto: WithdrawalDto,
     @User() loginUser: LoginUser,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
-    return await this.userService.withdrawal(loginUser, withdrawalDto);
+    await this.userService.withdrawal(loginUser, withdrawalDto);
+
+    res.clearCookie('refreshToken');
   }
 }
