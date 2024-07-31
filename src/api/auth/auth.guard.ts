@@ -7,13 +7,14 @@ import {
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { InvalidLoginJwtException } from './exception/InvalidLoginJwtException';
 import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-payload';
-import { LoginUser } from './model/login-user';
+import { Response } from 'express';
 
 @Injectable()
 export class LoginAuthGuard implements CanActivate {
   constructor(private readonly prisma: PrismaService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
+    const response = context.switchToHttp().getResponse<Response>();
 
     const payload: LoginJwtPayload | undefined = request.jwtPayload;
 
@@ -32,10 +33,12 @@ export class LoginAuthGuard implements CanActivate {
     });
 
     if (!user) {
+      response.clearCookie('refreshToken');
       throw new InvalidLoginJwtException('Cannot find user');
     }
 
     if (user.blockedAt) {
+      response.clearCookie('refreshToken');
       throw new ForbiddenException('Suspended user');
     }
 
