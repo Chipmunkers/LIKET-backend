@@ -21,6 +21,7 @@ import { SocialProvider } from './strategy/social-provider.enum';
 import { SocialProviderPipe } from './pipe/social-provider.pipe';
 import cookieConfig from './config/cookie.config';
 import { Cookies } from '../../common/decorator/cookies.decorator';
+import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -79,13 +80,14 @@ export class AuthController {
    */
   @Post('/access-token')
   @HttpCode(200)
-  @Exception(401, 'Invalid refresh token')
+  @Exception(401, 'Invalid refresh token', InvalidRefreshTokenException)
   public async reissueAccessToken(
     @Res({ passthrough: true }) res: Response,
     @Cookies('refreshToken') refreshToken?: string,
     @Body('refreshToken') bodyRefreshToken?: string,
   ): Promise<string> {
     const token = await this.authService.reissueAccessToken(
+      res,
       refreshToken || bodyRefreshToken || '',
     );
     res.cookie('refreshToken', token.refreshToken, cookieConfig());

@@ -1,7 +1,12 @@
 import { UnauthorizedException } from '@nestjs/common';
+import { InvalidRefreshTokenType } from './InvalidRefreshTokenType';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class InvalidRefreshTokenException extends UnauthorizedException {
-  constructor(message: string) {
-    super(message);
+  @ApiProperty({ enum: InvalidRefreshTokenType })
+  type: InvalidRefreshTokenType;
+
+  constructor(message: string, type: InvalidRefreshTokenType) {
+    super(message, { cause: { type } });
   }
 }

@@ -14,10 +14,10 @@ import { Request, Response } from 'express';
 import { SocialLoginUser } from './model/social-login-user';
 import { SocialLoginJwtService } from '../../common/module/social-login-jwt/social-login-jwt.service';
 import { LoginToken } from './model/login-token';
-import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
-import cookieConfig from './config/cookie.config';
 import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
 import { UserRepository } from '../user/user.repository';
+import { InvalidRefreshTokenType } from '../../common/module/login-jwt/exception/InvalidRefreshTokenType';
+import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 
 @Injectable()
 export class AuthService {
@@ -170,32 +170,46 @@ export class AuthService {
   /**
    * Access token 재발급하기
    */
-  public async reissueAccessToken(refreshToken?: string): Promise<LoginToken> {
-    if (!refreshToken) {
-      throw new InvalidRefreshTokenException('Invalid refresh token');
+  public async reissueAccessToken(
+    res: Response,
+    refreshToken?: string,
+  ): Promise<LoginToken> {
+    try {
+      if (!refreshToken) {
+        throw new InvalidRefreshTokenException(
+          'no refresh token',
+          InvalidRefreshTokenType.NO_TOKEN,
+        );
+      }
+
+      const payload = await this.loginJwtService.verifyRefreshToken(
+        refreshToken,
+        {
+          delete: true,
+        },
+      );
+
+      const accessToken = this.loginJwtService.sign(
+        payload.idx,
+        payload.isAdmin,
+      );
+      const newRefreshToken = await this.loginJwtService.signRefreshToken(
+        payload.idx,
+        payload.isAdmin,
+      );
+
+      this.logger.log(
+        this.reissueAccessToken,
+        'Success to reissue refresh token',
+      );
+      return {
+        accessToken,
+        refreshToken: newRefreshToken,
+      };
+    } catch (err) {
+      res.clearCookie('refreshToken');
+      throw err;
     }
-
-    const payload = await this.loginJwtService.verifyRefreshToken(
-      refreshToken,
-      {
-        delete: true,
-      },
-    );
-
-    const accessToken = this.loginJwtService.sign(payload.idx, payload.isAdmin);
-    const newRefreshToken = await this.loginJwtService.signRefreshToken(
-      payload.idx,
-      payload.isAdmin,
-    );
-
-    this.logger.log(
-      this.reissueAccessToken,
-      'Success to reissue refresh token',
-    );
-    return {
-      accessToken,
-      refreshToken: newRefreshToken,
-    };
   }
 
   /**
