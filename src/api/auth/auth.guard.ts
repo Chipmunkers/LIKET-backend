@@ -39,7 +39,7 @@ export class LoginAuthGuard implements CanActivate {
 
     if (user.blockedAt) {
       response.clearCookie('refreshToken');
-      throw new HttpException('Suspended user', 423);
+      throw new HttpException('Suspended user', 418);
     }
 
     return true;

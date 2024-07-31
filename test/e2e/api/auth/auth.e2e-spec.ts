@@ -85,7 +85,7 @@ describe('Auth (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/local')
         .send(loginDto)
-        .expect(423);
+        .expect(418);
     });
 
     it('Social user login', async () => {
