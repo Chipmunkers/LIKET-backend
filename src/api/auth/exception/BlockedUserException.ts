@@ -1,7 +1,7 @@
-import { ForbiddenException } from '@nestjs/common';
+import { HttpException } from '@nestjs/common';
 
-export class BlockedUserException extends ForbiddenException {
+export class BlockedUserException extends HttpException {
   constructor(message: string) {
-    super(message);
+    super(message, 423);
   }
 }

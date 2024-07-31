@@ -38,7 +38,7 @@ export class AuthController {
   @HttpCode(200)
   @Exception(400, 'Invalid body format')
   @Exception(401, 'Wrong email or password')
-  @Exception(403, 'Suspended user')
+  @Exception(423, 'Suspended user')
   public async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,

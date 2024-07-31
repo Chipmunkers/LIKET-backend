@@ -8,6 +8,6 @@ export const LoginAuth = () => {
     UseGuards(LoginAuthGuard),
     ApiBearerAuth('token'),
     Exception(401, 'No token or invalid token'),
-    Exception(403, 'Permission denied'),
+    Exception(423, 'Suspend user'),
   );
 };

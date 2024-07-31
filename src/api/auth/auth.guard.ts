@@ -2,7 +2,7 @@ import {
   CanActivate,
   Injectable,
   ExecutionContext,
-  ForbiddenException,
+  HttpException,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { InvalidLoginJwtException } from './exception/InvalidLoginJwtException';
@@ -39,7 +39,7 @@ export class LoginAuthGuard implements CanActivate {
 
     if (user.blockedAt) {
       response.clearCookie('refreshToken');
-      throw new ForbiddenException('Suspended user');
+      throw new HttpException('Suspended user', 423);
     }
 
     return true;
