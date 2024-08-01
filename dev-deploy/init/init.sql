@@ -99,6 +99,9 @@ CREATE TABLE culture_content_tb
   PRIMARY KEY (idx)
 );
 
+CREATE INDEX index_content_like_count ON culture_content_tb(like_count);
+CREATE INDEX index_content_accepted_at ON culture_content_tb(accepted_at);
+
 CREATE TABLE genre_tb
 (
   idx        int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -165,8 +168,16 @@ CREATE TABLE location_tb
   b_code         varchar NOT NULL,
   position_x     float8  NOT NULL,
   position_y     float8  NOT NULL,
+  sido_code      char(2)  NOT NULL,
+  sgg_code       char(3)  NOT NULL,
+  leg_code       char(3)  NOT NULL,
+  ri_code        char(2)  NOT NULL,
   PRIMARY KEY (idx)
 );
+
+CREATE INDEX index_sido_code ON location_tb(sido_code);
+CREATE INDEX index_sgg_code ON location_tb(sgg_code);
+CREATE INDEX index_leg_code ON location_tb(leg_code);
 
 CREATE TABLE review_img_tb
 (
@@ -201,6 +212,8 @@ CREATE TABLE review_tb
   deleted_at          timestamp with time zone,
   PRIMARY KEY (idx)
 );
+
+CREATE INDEX review_like_count ON review_tb(like_count);
 
 CREATE TABLE style_mapping_tb
 (
@@ -288,6 +301,14 @@ CREATE TABLE user_tb
   PRIMARY KEY (idx)
 );
 
+CREATE INDEX index_user_email ON user_tb(email);
+
+ALTER TABLE user_tb
+    ADD CONSTRAINT email_uni UNIQUE NULLS NOT DISTINCT (email, deleted_at);
+
+ALTER TABLE user_tb
+    ADD CONSTRAINT nickname_uni UNIQUE NULLS NOT DISTINCT (nickname, deleted_at);
+
 CREATE TABLE refresh_token_tb
 (
     idx        bigint                   NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -296,12 +317,6 @@ CREATE TABLE refresh_token_tb
     expired_at timestamp with time zone,
     PRIMARY KEY (idx)
 );
-
-ALTER TABLE user_tb
-    ADD CONSTRAINT email_uni UNIQUE NULLS NOT DISTINCT (email, deleted_at);
-
-ALTER TABLE user_tb
-    ADD CONSTRAINT nickname_uni UNIQUE NULLS NOT DISTINCT (nickname, deleted_at);
 
 ALTER TABLE culture_content_tb
   ADD CONSTRAINT FK_genre_tb_TO_culture_content_tb
@@ -1470,7 +1485,7 @@ VALUES
 
 -- 위치 데이터
 INSERT INTO location_tb
-    (address, detail_address, region_1_depth, region_2_depth, h_code, b_code, position_x, position_y)
+    (address, detail_address, region_1_depth, region_2_depth, h_code, b_code, position_x, position_y, sido_code, sgg_code, leg_code, ri_code)
 VALUES
     ( -- 다비드 자맹
         '서울 영등포구 여의도동 22', -- address
@@ -1480,7 +1495,11 @@ VALUES
         '1156054000', -- h_code
         '1156011000', -- b_code
         126.928299685623, -- position_x
-        37.5260425418848 -- position_y
+        37.5260425418848, -- position_y
+        '11',
+        '560',
+        '540',
+        '00'
     ),
     ( -- 빵빵이
         '서울 성동구 성수동2가 302-11', -- address
@@ -1490,7 +1509,11 @@ VALUES
         '1120011500', -- h_code
         '1120069000', -- b_code
         127.052478070362, -- position_x
-        37.5440420266277 -- position_y
+        37.5440420266277, -- position_y
+        '11',
+        '200',
+        '115',
+        '00'
     ),
     ( -- 모네 인사이드
         '서울 성동구 성수동2가 302-11', -- address
@@ -1500,7 +1523,11 @@ VALUES
         '1120011500', -- h_code
         '1120069000', -- b_code
         127.052478070362, -- position_x
-        37.5440420266277 -- position_y
+        37.5440420266277, -- position_y
+        '11',
+        '200',
+        '115',
+        '00'
     ),
     ( -- 디올
         '서울 중구 남대문로2가 130', -- address
@@ -1510,7 +1537,11 @@ VALUES
         '1114052000', -- h_code
         '1114011500', -- b_code
         126.981925482483, -- position_x
-        37.5641009478468 -- position_y
+        37.5641009478468, -- position_y
+        '11',
+        '140',
+        '520',
+        '00'
     );
 
 -- 문화생활컨텐츠

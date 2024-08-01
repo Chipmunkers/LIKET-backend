@@ -8,26 +8,40 @@ import { LiketModule } from './api/liket/liket.module';
 import { ReviewModule } from './api/review/review.module';
 import { TosModule } from './api/tos/tos.module';
 import { UploadModule } from './api/upload/upload.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from './common/module/logger/logger.module';
 import modeConfig from './common/config/mode.config';
 import { ContentTagModule } from './api/content-tag/content-tag.module';
 import { EmailCertModule } from './api/email-cert/email-cert.module';
 import { VerifyLoginJwtMiddleware } from './common/middleware/verify-login-jwt.middleware';
 import { LoginJwtModule } from './common/module/login-jwt/login-jwt.module';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import {
+  ThrottlerGuard,
+  ThrottlerModule,
+  ThrottlerModuleOptions,
+} from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from './common/module/prisma/prisma.module';
 import { MetricModule } from './api/metric/metric.module';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot([
-      {
-        ttl: 5 * 1000,
-        limit: 50,
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule.forFeature(modeConfig)],
+      useFactory: (configService: ConfigService): ThrottlerModuleOptions => {
+        if (configService.get('mode') === 'test') {
+          return [];
+        }
+
+        return [
+          {
+            ttl: 5 * 1000,
+            limit: 50,
+          },
+        ];
       },
-    ]),
+      inject: [ConfigService],
+    }),
     LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,

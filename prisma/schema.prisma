@@ -64,6 +64,8 @@ model CultureContent {
   Stopover      Stopover[]
   Style         StyleMapping[]
 
+  @@index([acceptedAt], type: BTree)
+  @@index([likeCount], type: BTree)
   @@map("culture_content_tb")
 }
 
@@ -180,13 +182,20 @@ model Location {
   address        String           @db.VarChar
   region1Depth   String           @map("region_1_depth") @db.VarChar
   region2Depth   String           @map("region_2_depth") @db.VarChar
-  hCode          String           @map("h_code") @db.VarChar
-  bCode          String           @map("b_code") @db.VarChar
+  hCode          String           @map("h_code") @db.Char(10)
+  bCode          String           @map("b_code") @db.Char(10)
   positionX      Float            @map("position_x")
   positionY      Float            @map("position_y")
   detailAddress  String           @map("detail_address") @db.VarChar
+  sidoCode       String           @map("sido_code") @db.Char(2)
+  sggCode        String           @map("sgg_code") @db.Char(2)
+  legCode        String           @map("leg_code") @db.Char(2)
+  riCode         String           @map("ri_code") @db.Char(2)
   CultureContent CultureContent[]
 
+  @@index([sidoCode], type: BTree)
+  @@index([sggCode], type: BTree)
+  @@index([legCode], type: BTree)
   @@map("location_tb")
 }
 
@@ -218,6 +227,7 @@ model Review {
   CultureContent    CultureContent @relation(fields: [cultureContentIdx], references: [idx], onDelete: Cascade, map: "fk_culture_content_tb_to_review_tb")
   User              User           @relation(fields: [userIdx], references: [idx], onDelete: Cascade, map: "fk_user_tb_to_review_tb")
 
+  @@index([likeCount], type: BTree)
   @@map("review_tb")
 }
 
@@ -357,8 +367,7 @@ model User {
   RefreshToken     RefreshToken[]
 
   @@unique([nickname, deletedAt], map: "uq_user_tb_nickname")
-  @@index([email])
-  @@index([nickname])
+  @@index([email], type: BTree)
   @@map("user_tb")
 }
 

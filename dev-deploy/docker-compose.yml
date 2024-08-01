@@ -1,9 +1,12 @@
 services:
-  liket-backend-server:
-    build:
-      context: ../
-      dockerfile: ./dev-deploy/Dockerfile
+  postgresql:
+    image: postgres:15.4
+    restart: always
+    container_name: liket-backend-DB
     ports:
-      - "${NESTJS_PORT:-3000}:3000"
-    env_file:
-      - .env.docker
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d/

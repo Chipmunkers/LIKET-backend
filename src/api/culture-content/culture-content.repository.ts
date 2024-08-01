@@ -89,9 +89,7 @@ export class CultureContentRepository {
         : undefined,
       Location: pagerble.region
         ? {
-            bCode: {
-              startsWith: pagerble.region,
-            },
+            sidoCode: pagerble.region,
           }
         : undefined,
       startDate: pagerble.open
@@ -467,6 +465,10 @@ export class CultureContentRepository {
           region2Depth: createDto.location.region2Depth,
           hCode: createDto.location.hCode,
           bCode: createDto.location.bCode,
+          sidoCode: createDto.location.bCode.substring(0, 2),
+          sggCode: createDto.location.bCode.substring(2, 5),
+          legCode: createDto.location.bCode.substring(5, 8),
+          riCode: createDto.location.bCode.substring(8, 10),
           positionX: createDto.location.positionX,
           positionY: createDto.location.positionY,
         },
