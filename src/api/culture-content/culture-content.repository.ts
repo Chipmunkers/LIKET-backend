@@ -68,13 +68,16 @@ export class CultureContentRepository {
     });
   }
 
-  public selectCultureContentAllWithCount(
+  public selectCultureContentAll(
     pagerble: ContentPagerbleDto,
     userIdx?: number,
   ) {
     const where: Prisma.CultureContentWhereInput = {
       genreIdx: pagerble.genre || undefined,
       ageIdx: pagerble.age || undefined,
+      title: pagerble.search && {
+        contains: pagerble.search,
+      },
       Style: pagerble.style
         ? {
             some: {
@@ -86,7 +89,9 @@ export class CultureContentRepository {
         : undefined,
       Location: pagerble.region
         ? {
-            hCode: pagerble.region,
+            bCode: {
+              startsWith: pagerble.region,
+            },
           }
         : undefined,
       startDate: pagerble.open
@@ -116,49 +121,46 @@ export class CultureContentRepository {
     };
 
     this.logger.log(
-      this.selectCultureContentAllWithCount,
+      this.selectCultureContentAll,
       'SELECT culture content, count',
     );
-    return this.prisma.$transaction([
-      this.prisma.cultureContent.count({ where }),
-      this.prisma.cultureContent.findMany({
-        include: {
-          User: true,
-          ContentImg: {
-            where: {
+    return this.prisma.cultureContent.findMany({
+      include: {
+        User: true,
+        ContentImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+        },
+        Genre: true,
+        Style: {
+          include: {
+            Style: true,
+          },
+          where: {
+            Style: {
               deletedAt: null,
             },
-            orderBy: {
-              idx: 'asc',
-            },
-          },
-          Genre: true,
-          Style: {
-            include: {
-              Style: true,
-            },
-            where: {
-              Style: {
-                deletedAt: null,
-              },
-            },
-          },
-          Age: true,
-          Location: true,
-          ContentLike: {
-            where: {
-              userIdx: userIdx || -1,
-            },
           },
         },
-        where,
-        orderBy: {
-          [pagerble.orderby === 'time' ? 'idx' : 'likeCount']: pagerble.order,
+        Age: true,
+        Location: true,
+        ContentLike: {
+          where: {
+            userIdx: userIdx || -1,
+          },
         },
-        take: 10,
-        skip: (pagerble.page - 1) * 10,
-      }),
-    ]);
+      },
+      where,
+      orderBy: {
+        [pagerble.orderby === 'time' ? 'idx' : 'likeCount']: pagerble.order,
+      },
+      take: 10,
+      skip: (pagerble.page - 1) * 10,
+    });
   }
 
   public selectSoonOpenCultureContentAll(userIdx?: number) {

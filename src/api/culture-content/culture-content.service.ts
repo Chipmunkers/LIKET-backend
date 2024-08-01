@@ -61,15 +61,9 @@ export class CultureContentService {
   /**
    * 컨텐츠 목록 보기
    */
-  public async getContentAll(
-    pagerble: ContentPagerbleDto,
-    userIdx?: number,
-  ): Promise<{
-    contentList: SummaryContentEntity[];
-    count: number;
-  }> {
-    const [count, contentList] =
-      await this.cultureContentRepository.selectCultureContentAllWithCount(
+  public async getContentAll(pagerble: ContentPagerbleDto, userIdx?: number) {
+    const contentList =
+      await this.cultureContentRepository.selectCultureContentAll(
         pagerble,
         userIdx,
       );
@@ -78,7 +72,6 @@ export class CultureContentService {
       contentList: contentList.map((content) =>
         SummaryContentEntity.createEntity(content),
       ),
-      count: count,
     };
   }
 

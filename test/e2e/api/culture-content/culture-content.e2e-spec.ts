@@ -52,7 +52,6 @@ describe('Culture Content (e2e)', () => {
         .expect(200);
 
       expect(response.body?.contentList).toBeDefined();
-      expect(response.body?.count).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
@@ -68,7 +67,6 @@ describe('Culture Content (e2e)', () => {
         .expect(200);
 
       expect(response.body?.contentList).toBeDefined();
-      expect(response.body?.count).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
@@ -85,7 +83,6 @@ describe('Culture Content (e2e)', () => {
         .expect(200);
 
       expect(response.body?.contentList).toBeDefined();
-      expect(response.body?.count).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
@@ -102,7 +99,6 @@ describe('Culture Content (e2e)', () => {
         .expect(200);
 
       expect(response.body?.contentList).toBeDefined();
-      expect(response.body?.count).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
@@ -120,7 +116,6 @@ describe('Culture Content (e2e)', () => {
         .expect(200);
 
       expect(response.body?.contentList).toBeDefined();
-      expect(response.body?.count).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
@@ -139,7 +134,6 @@ describe('Culture Content (e2e)', () => {
         .expect(200);
 
       expect(response.body?.contentList).toBeDefined();
-      expect(response.body?.count).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
@@ -153,13 +147,12 @@ describe('Culture Content (e2e)', () => {
           genre: 1,
           age: 2,
           style: 3,
-          region: '4514069000',
+          region: '11',
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body?.contentList).toBeDefined();
-      expect(response.body?.count).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
@@ -173,14 +166,13 @@ describe('Culture Content (e2e)', () => {
           genre: 1,
           age: 2,
           style: 3,
-          region: '4514069000',
+          region: '11',
           open: true,
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body?.contentList).toBeDefined();
-      expect(response.body?.count).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
@@ -238,7 +230,7 @@ describe('Culture Content (e2e)', () => {
           user: 1,
           genre: 1,
           age: 1,
-          region: '4514069000',
+          region: '10',
           style: 3,
           open: true,
           orderby: 'time',
@@ -260,7 +252,7 @@ describe('Culture Content (e2e)', () => {
           user: 1,
           genre: 2,
           age: 2,
-          region: '4514069000',
+          region: '11',
           style: 3,
           open: false,
           orderby: 'like',
