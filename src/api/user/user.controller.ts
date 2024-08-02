@@ -195,8 +195,7 @@ export class UserController {
   @Post('/pw/reset')
   @HttpCode(201)
   @Exception(400, 'invalid password')
-  @Exception(401, 'No token or wrong token')
-  @Exception(404, 'Cannot find user')
+  @LoginAuth()
   async resetPw(
     @Body() resetPwDto: ResetPwDto,
     @User() loginUser: LoginUser,

@@ -485,7 +485,7 @@ describe('User (e2e)', () => {
         .expect(200);
     });
 
-    it('Fail', async () => {
+    it('Wrong curr password', async () => {
       const loginUser = loginUsers.user1;
       const resetPwDto: ResetPwDto = {
         currPw: 'wrong password',
@@ -497,6 +497,18 @@ describe('User (e2e)', () => {
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(resetPwDto)
         .expect(400);
+    });
+
+    it('No token', async () => {
+      const resetPwDto: ResetPwDto = {
+        currPw: 'aa12341234**',
+        resetPw: 'aa12341234**',
+      };
+
+      await request(app.getHttpServer())
+        .post('/user/pw/reset')
+        .send(resetPwDto)
+        .expect(401);
     });
   });
 
