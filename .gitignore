@@ -3,6 +3,7 @@
 /node_modules
 .env
 /dev-deploy/.env.*
+.env.seed
 
 # Logs
 logs

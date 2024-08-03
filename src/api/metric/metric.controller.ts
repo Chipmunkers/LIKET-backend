@@ -12,8 +12,6 @@ export class MetricController {
 
   @Get()
   async getMetricAll() {
-    this.logger.log(this.getMetricAll, 'GET /metric');
-
     const metric = await this.prisma.$metrics.prometheus();
 
     return metric;

@@ -442,3 +442,30 @@ model RefreshToken {
 
   @@map("refresh_token_tb")
 }
+
+model MapLevel1 {
+  code String @id @db.VarChar()
+  name String @db.VarChar()
+  lng  Float
+  lat  Float
+
+  @@map("map_level_1_tb")
+}
+
+model MapLevel2 {
+  code String @id @db.VarChar()
+  name String @db.VarChar()
+  lng  Float
+  lat  Float
+
+  @@map("map_level_2_tb")
+}
+
+model MapLevel3 {
+  code String @id @db.VarChar()
+  name String @db.VarChar()
+  lng  Float
+  lat  Float
+
+  @@map("map_level_3_tb")
+}

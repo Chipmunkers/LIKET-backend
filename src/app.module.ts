@@ -23,6 +23,7 @@ import {
 import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from './common/module/prisma/prisma.module';
 import { MetricModule } from './api/metric/metric.module';
+import { MapModule } from './api/map/map.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { MetricModule } from './api/metric/metric.module';
       isGlobal: true,
       load: [modeConfig],
     }),
+    MapModule,
     PrismaModule,
     EmailCertModule,
     UserModule,

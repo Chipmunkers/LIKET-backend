@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "dotenv -e ./test/e2e/.env.test -- jest --config ./test/jest-e2e.json --verbose",
-    "seed": "ts-node prisma/seed.ts",
+    "seed": "dotenv -e ./prisma/.env.seed --ts-node prisma/seed.ts",
     "dev-deploy:up": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml up -d",
     "dev-deploy:down": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml down",
     "test-infra:up": "docker compose -p liket-mobile-test -f test/e2e/infra/docker-compose.yml up -d",

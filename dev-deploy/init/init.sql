@@ -101,6 +101,8 @@ CREATE TABLE culture_content_tb
 
 CREATE INDEX index_content_like_count ON culture_content_tb(like_count);
 CREATE INDEX index_content_accepted_at ON culture_content_tb(accepted_at);
+CREATE INDEX index_content_start_date ON culture_content_tb(start_date);
+CREATE INDEX index_content_end_date ON culture_content_tb(end_date);
 
 CREATE TABLE genre_tb
 (
@@ -316,6 +318,33 @@ CREATE TABLE refresh_token_tb
     token      varchar                  NOT NULL UNIQUE,
     expired_at timestamp with time zone,
     PRIMARY KEY (idx)
+);
+
+CREATE TABLE map_level_1_tb
+(
+  code varchar    NOT NULL,
+  name varchar NOT NULL,
+  lng  float8  NOT NULL,
+  lat  float8  NOT NULL,
+  PRIMARY KEY (code)
+);
+
+CREATE TABLE map_level_2_tb
+(
+  code varchar    NOT NULL,
+  name varchar NOT NULL,
+  lng  float8  NOT NULL,
+  lat  float8  NOT NULL,
+  PRIMARY KEY (code)
+);
+
+CREATE TABLE map_level_3_tb
+(
+  code varchar    NOT NULL,
+  name varchar NOT NULL,
+  lng  float8  NOT NULL,
+  lat  float8  NOT NULL,
+  PRIMARY KEY (code)
 );
 
 ALTER TABLE culture_content_tb
