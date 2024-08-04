@@ -24,7 +24,7 @@ CREATE TABLE active_banner_tb
 
 CREATE TABLE age_tb
 (
-  idx        int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  idx        int                      NOT NULL,
   name       varchar                  NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT NOW(),
   updated_at timestamp with time zone NOT NULL DEFAULT NOW(),
@@ -106,7 +106,7 @@ CREATE INDEX index_content_end_date ON culture_content_tb(end_date);
 
 CREATE TABLE genre_tb
 (
-  idx        int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  idx        int                      NOT NULL,
   name       varchar                  NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT NOW(),
   updated_at timestamp with time zone NOT NULL DEFAULT NOW(),
@@ -226,7 +226,7 @@ CREATE TABLE style_mapping_tb
 
 CREATE TABLE style_tb
 (
-  idx        int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  idx        int                      NOT NULL,
   name       varchar                  NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT NOW(),
   updated_at timestamp with time zone NOT NULL DEFAULT NOW(),
