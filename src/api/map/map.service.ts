@@ -21,15 +21,15 @@ export class MapService {
   }
 
   private getClusteringLevelFromScaleLevel(scaleLevel: number): 1 | 2 | 3 {
-    if ([6, 7, 8].includes(scaleLevel)) {
-      return 1;
+    if ([1, 2, 3, 4, 5, 6, 7, 8].includes(scaleLevel)) {
+      return 3;
     }
 
     if ([9, 10].includes(scaleLevel)) {
       return 2;
     }
 
-    return 3;
+    return 1;
   }
 
   public async getContentAll(
