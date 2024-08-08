@@ -81,7 +81,7 @@ export class ReviewEntity {
    * @example "성수 디올 팝업스토어 디올 뷰티, 들어가자 마자 예쁜 야외 정원이 있는"
    */
   @IsString()
-  @Length(1, 2000)
+  @Length(1, 1000)
   public description: string;
 
   /**
