@@ -21,7 +21,7 @@ export class CreateReviewDto extends PickType(ReviewEntity, [
   @IsArray()
   @IsString({ each: true })
   @Length(1, 200, { each: true })
-  @ArrayMinSize(1)
+  @ArrayMinSize(0)
   @ArrayMaxSize(10)
   imgList: string[];
 }
