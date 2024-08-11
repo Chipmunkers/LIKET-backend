@@ -16,6 +16,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const message = exception.message;
     const cause = exception.cause;
 
+    if (process.env.MODE === 'develop') {
+      return res.status(status).send(exception);
+    }
+
     res.status(status).send({
       message,
       status,
