@@ -34,6 +34,7 @@ import { FindPwDto } from './dto/find-pw.dto';
 import { UserPwService } from './user-pw.service';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { ResetPwDto } from './dto/reset-pw.dto';
+import { UserEntity } from './entity/user.entity';
 
 @Controller('user')
 @ApiTags('User')
@@ -79,6 +80,17 @@ export class UserController {
     res.cookie('refreshToken', loginToken.refreshToken, cookieConfig());
 
     return { token: loginToken.accessToken };
+  }
+
+  /**
+   * 내 정보보기 (로그인 확인용)
+   */
+  @Get('/login')
+  @LoginAuth()
+  public async getLoginUserInfo(
+    @User() loginUser: LoginUser,
+  ): Promise<UserEntity> {
+    return await this.userService.getUserByIdx(loginUser.idx);
   }
 
   /**
