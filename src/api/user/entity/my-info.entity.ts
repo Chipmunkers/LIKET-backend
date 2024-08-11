@@ -28,9 +28,14 @@ export class MyInfoEntity extends UserEntity {
   public liketCount: number;
 
   /**
-   * 라이켁 목록
+   * 라이켓 목록
    */
   public liketList: MyLiket[];
+
+  /**
+   * 좋아요 개수
+   */
+  public likeCount: number;
 
   constructor(data: MyInfoEntity) {
     super(data);
@@ -58,6 +63,7 @@ export class MyInfoEntity extends UserEntity {
         idx: liket.idx,
         imgPath: liket.imgPath,
       })),
+      likeCount: user._count.CultureContent,
     });
   }
 }

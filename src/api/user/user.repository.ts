@@ -96,6 +96,17 @@ export class UserRepository {
                 deletedAt: null,
               },
             },
+            CultureContent: {
+              where: {
+                deletedAt: null,
+                acceptedAt: null,
+                ContentLike: {
+                  some: {
+                    userIdx: myIdx,
+                  },
+                },
+              },
+            },
           },
         },
       },
