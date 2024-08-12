@@ -324,6 +324,9 @@ export class CultureContentRepository {
       where: {
         deletedAt: null,
       },
+      orderBy: {
+        idx: 'asc',
+      },
     });
   }
 
