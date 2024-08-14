@@ -10,7 +10,7 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { ToBoolean } from '../../../common/decorator/to-boolean.decorator';
 
 export class ContentPagerbleDto extends PickType(PagerbleDto, [
@@ -77,6 +77,9 @@ export class ContentPagerbleDto extends PickType(PagerbleDto, [
   @IsArray()
   @IsOptional()
   @ArrayMaxSize(3)
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]), {
+    toClassOnly: true,
+  })
   style?: number[];
 
   /**
