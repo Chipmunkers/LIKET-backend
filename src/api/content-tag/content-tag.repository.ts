@@ -119,6 +119,10 @@ export class ContentTagRepository {
             culture_content_tb.accepted_at IS NOT NULL
           AND
             culture_content_tb.deleted_at IS NULL
+          AND
+            culture_content_tb.start_date <= NOW()
+          AND
+            culture_content_tb.end_date >= NOW()
         ) AS count
       FROM
         style_tb
