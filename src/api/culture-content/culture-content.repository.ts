@@ -152,10 +152,11 @@ export class CultureContentRepository {
       },
       where,
       orderBy: {
-        [pagerble.orderby === 'time' ? 'idx' : 'likeCount']: pagerble.order,
+        [pagerble.orderby === 'time' ? 'acceptedAt' : 'likeCount']:
+          pagerble.order,
       },
-      take: 10,
-      skip: (pagerble.page - 1) * 10,
+      take: 12,
+      skip: (pagerble.page - 1) * 12,
     });
   }
 
