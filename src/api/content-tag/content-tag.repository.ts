@@ -119,9 +119,11 @@ export class ContentTagRepository {
             culture_content_tb.accepted_at IS NOT NULL
           AND
             culture_content_tb.deleted_at IS NULL
-        )
+        ) AS count
       FROM
         style_tb
+      ORDER BY
+        count desc
     `;
     const cachingData = JSON.stringify(result);
     await this.redis.set(this.HOT_STYLE_CACHE_KEY, cachingData, 60 * 1000);
