@@ -2,6 +2,7 @@ import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { Injectable } from '@nestjs/common';
+import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 
 @Injectable()
 export class CultureContentLikeRepository {
@@ -76,5 +77,55 @@ export class CultureContentLikeRepository {
         },
       }),
     ]);
+  }
+
+  public selectLikeContentAll(
+    userIdx: number,
+    pagerble: LikeContentPagerbleDto,
+  ) {
+    return this.prisma.contentLike.findMany({
+      include: {
+        CultureContent: {
+          include: {
+            User: true,
+            ContentImg: {
+              where: {
+                deletedAt: null,
+              },
+              orderBy: {
+                idx: 'asc',
+              },
+            },
+            Genre: true,
+            Style: {
+              include: {
+                Style: true,
+              },
+              where: {
+                Style: {
+                  deletedAt: null,
+                },
+              },
+            },
+            Age: true,
+            Location: true,
+          },
+        },
+      },
+      where: {
+        userIdx,
+        CultureContent: {
+          deletedAt: null,
+          acceptedAt: {
+            not: null,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 12,
+      skip: (pagerble.page - 1) * 12,
+    });
   }
 }

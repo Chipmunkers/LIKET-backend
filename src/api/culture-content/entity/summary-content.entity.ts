@@ -2,8 +2,8 @@ import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { LocationEntity } from './location.entity';
 import { PickType } from '@nestjs/swagger';
 import { ContentEntity } from './content.entity';
-import { CotnentWithInclude } from './prisma-type/content-with-include';
 import { SummaryCotnentWithInclude } from './prisma-type/summary-content-with-include';
+import { LikeContentWithInclude } from './prisma-type/like-content-with-include';
 
 export class SummaryContentEntity extends PickType(ContentEntity, [
   'idx',
@@ -19,9 +19,9 @@ export class SummaryContentEntity extends PickType(ContentEntity, [
   'createdAt',
   'acceptedAt',
 ]) {
-  constructor(data: SummaryContentEntity) {
+  constructor(content: SummaryContentEntity) {
     super();
-    Object.assign(this, data);
+    Object.assign(this, content);
   }
 
   static createEntity(data: SummaryCotnentWithInclude) {
@@ -38,6 +38,25 @@ export class SummaryContentEntity extends PickType(ContentEntity, [
       likeState: data.ContentLike[0] ? true : false,
       createdAt: data.createdAt,
       acceptedAt: data.acceptedAt,
+    });
+  }
+
+  static fromLikeContent(data: LikeContentWithInclude) {
+    const content = data.CultureContent;
+
+    return new SummaryContentEntity({
+      idx: content.idx,
+      title: content.title,
+      thumbnail: content.ContentImg[0]?.imgPath || '',
+      genre: TagEntity.createEntity(content.Genre),
+      style: content.Style.map((style) => TagEntity.createEntity(style.Style)),
+      age: TagEntity.createEntity(content.Age),
+      location: LocationEntity.createEntity(content.Location),
+      startDate: content.startDate,
+      endDate: content.endDate,
+      likeState: true,
+      createdAt: content.createdAt,
+      acceptedAt: content.acceptedAt,
     });
   }
 }

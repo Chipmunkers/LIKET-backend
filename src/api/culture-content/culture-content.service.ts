@@ -17,6 +17,7 @@ import { ReviewRepository } from '../review/review.repository';
 import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { UserRepository } from '../user/user.repository';
 import { TagEntity } from '../content-tag/entity/tag.entity';
+import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 
 @Injectable()
 export class CultureContentService {
@@ -283,5 +284,22 @@ export class CultureContentService {
     );
 
     return;
+  }
+
+  /**
+   * 좋아요 누른 컨텐츠 목록 보기
+   */
+  public async getLikeContentAll(
+    loginUser: LoginUser,
+    pagerble: LikeContentPagerbleDto,
+  ): Promise<SummaryContentEntity[]> {
+    const likeContentList =
+      await this.cultureContentLikeRepository.selectLikeContentAll(
+        loginUser.idx,
+        pagerble,
+      );
+    return likeContentList.map((likeContent) =>
+      SummaryContentEntity.fromLikeContent(likeContent),
+    );
   }
 }

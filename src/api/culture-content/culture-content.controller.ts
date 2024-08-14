@@ -27,6 +27,9 @@ import { LoginUser } from '../auth/model/login-user';
 import { HotCultureContentEntity } from './entity/hot-content.entity';
 import { GetHotContentResponseDto } from './dto/response/get-hot-style-content.dto';
 import { GetHotAgeContentResponseDto } from './dto/response/get-hot-age-content.dto';
+import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
+import { SummaryContentEntity } from './entity/summary-content.entity';
+import { GetLikeContentAllResponseDto } from './dto/response/get-like-content-all.dto';
 
 @Controller('culture-content')
 @ApiTags('Culture-Content')
@@ -247,5 +250,23 @@ export class CultureContentController {
     await this.cultureContentService.deleteContentRequest(contentIdx);
 
     return;
+  }
+
+  /**
+   * 좋아요 컨텐츠 목록 보기
+   */
+  @Get('/like/all')
+  @Exception(400, 'Invalid querystring')
+  @LoginAuth()
+  public async getLikeContentAll(
+    @Query() pagerble: LikeContentPagerbleDto,
+    @User() loginUser: LoginUser,
+  ): Promise<GetLikeContentAllResponseDto> {
+    return {
+      contentList: await this.cultureContentService.getLikeContentAll(
+        loginUser,
+        pagerble,
+      ),
+    };
   }
 }
