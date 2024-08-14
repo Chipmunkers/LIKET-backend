@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { RedisService } from '../../common/module/redis/redis.service';
 
 @Injectable()
 export class ContentTagRepository {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
     @Logger(ContentTagRepository.name) private readonly logger: LoggerService,
   ) {}
 
@@ -80,5 +82,50 @@ export class ContentTagRepository {
         styles.sort((prev, next) => next._count.Style - prev._count.Style),
       )
       .then((styles) => styles[0]);
+  }
+
+  private readonly HOT_STYLE_CACHE_KEY = 'HOT_STYLE_CACHE_KEY';
+
+  public async selectStylesWithContentCount(): Promise<
+    { idx: number; name: string; count: number }[]
+  > {
+    const cacheData = await this.redis.get(this.HOT_STYLE_CACHE_KEY);
+
+    if (cacheData) {
+      return JSON.parse(cacheData);
+    }
+
+    const result = await this.prisma.$queryRaw<
+      {
+        idx: number;
+        name: string;
+        count: number;
+      }[]
+    >`
+      SELECT
+        idx, name,
+        (
+          SELECT
+            COUNT(*)::int
+          FROM
+            style_mapping_tb
+          JOIN
+            culture_content_tb
+          ON
+            culture_content_tb.idx = style_mapping_tb.content_idx
+          WHERE
+            style_idx = style_tb.idx
+          AND
+            culture_content_tb.accepted_at IS NOT NULL
+          AND
+            culture_content_tb.deleted_at IS NULL
+        )
+      FROM
+        style_tb
+    `;
+    const cachingData = JSON.stringify(result);
+    await this.redis.set(this.HOT_STYLE_CACHE_KEY, cachingData, 60 * 1000);
+
+    return result;
   }
 }

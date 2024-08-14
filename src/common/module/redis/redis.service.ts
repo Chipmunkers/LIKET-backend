@@ -5,10 +5,10 @@ import { IRedisService } from './interface/IRedisSevice';
 
 @Injectable()
 export class RedisService implements IRedisService {
-  constructor(@Inject(CACHE_MANAGER) private readonly redis: Cache) {}
+  private readonly store: Record<string, string> = {};
 
   get: (key: string) => Promise<string | null> = async (key) => {
-    return (await this.redis.get(key)) || null;
+    return this.store[key] || null;
   };
 
   set: (key: string, value: string, ttl: number) => Promise<void> = async (
@@ -16,10 +16,16 @@ export class RedisService implements IRedisService {
     value,
     ttl,
   ) => {
-    await this.redis.set(key, value, ttl);
+    this.store[key] = value;
+
+    if (ttl) {
+      setTimeout(() => {
+        this.del(key);
+      }, ttl);
+    }
   };
 
   del: (key: string) => Promise<void> = async (key) => {
-    await this.redis.del(key);
+    delete this.store[key];
   };
 }

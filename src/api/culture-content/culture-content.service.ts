@@ -204,6 +204,56 @@ export class CultureContentService {
   }
 
   /**
+   * 인기 스타일 컨텐츠 목록보기 (랜덤)
+   */
+  public async getHotContentByRandomStyle(
+    loginUser?: LoginUser,
+  ): Promise<{ contentList: SummaryContentEntity[]; style: TagEntity }> {
+    const hotStyles =
+      await this.contentTagRepository.selectStylesWithContentCount();
+
+    if (hotStyles[0].count <= 5) {
+      const hotStyle = hotStyles[0];
+
+      const contentList =
+        await this.cultureContentRepository.selectHotCultureContentByStyleIdx(
+          hotStyle.idx,
+          loginUser?.idx,
+        );
+
+      return {
+        contentList: contentList.map((content) =>
+          SummaryContentEntity.createEntity(content),
+        ),
+        style: {
+          idx: hotStyle.idx,
+          name: hotStyle.name,
+        },
+      };
+    }
+
+    const styles = hotStyles.filter((style) => style.count >= 5);
+
+    const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+
+    const contentList =
+      await this.cultureContentRepository.selectHotCultureContentByStyleIdx(
+        randomStyle.idx,
+        loginUser?.idx,
+      );
+
+    return {
+      contentList: contentList.map((content) =>
+        SummaryContentEntity.createEntity(content),
+      ),
+      style: {
+        idx: randomStyle.idx,
+        name: randomStyle.name,
+      },
+    };
+  }
+
+  /**
    * 문화생활컨텐츠 생성하기
    */
   public async createContentRequest(

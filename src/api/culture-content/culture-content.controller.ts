@@ -123,6 +123,18 @@ export class CultureContentController {
   }
 
   /**
+   * 인기 스타일 컨텐츠 목록보기 (랜덤)
+   */
+  @Get('/hot-random-style/all')
+  public async getHotRandomStyleCultureContentAll(
+    @User() loginUser?: LoginUser,
+  ): Promise<GetHotContentResponseDto> {
+    return await this.cultureContentService.getHotContentByRandomStyle(
+      loginUser,
+    );
+  }
+
+  /**
    * 컨텐츠 자세히보기
    */
   @Get('/:idx')
