@@ -96,13 +96,12 @@ export class UserRepository {
                 deletedAt: null,
               },
             },
-            CultureContent: {
+            ContentLike: {
               where: {
-                deletedAt: null,
-                acceptedAt: null,
-                ContentLike: {
-                  some: {
-                    userIdx: myIdx,
+                CultureContent: {
+                  deletedAt: null,
+                  acceptedAt: {
+                    not: null,
                   },
                 },
               },

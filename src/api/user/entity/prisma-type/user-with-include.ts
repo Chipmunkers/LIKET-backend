@@ -17,7 +17,7 @@ const userWithInclude = Prisma.validator<Prisma.UserDefaultArgs>()({
       select: {
         Review: true,
         Liket: true,
-        CultureContent: true,
+        ContentLike: true,
       },
     },
   },

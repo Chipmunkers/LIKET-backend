@@ -63,7 +63,7 @@ export class MyInfoEntity extends UserEntity {
         idx: liket.idx,
         imgPath: liket.imgPath,
       })),
-      likeCount: user._count.CultureContent,
+      likeCount: user._count.ContentLike,
     });
   }
 }
