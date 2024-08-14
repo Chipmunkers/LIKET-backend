@@ -1,6 +1,8 @@
 import { PickType } from '@nestjs/swagger';
 import { PagerbleDto } from '../../../common/dto/pagerble.dto';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsBoolean,
   IsIn,
   IsInt,
@@ -71,9 +73,11 @@ export class ContentPagerbleDto extends PickType(PagerbleDto, [
    * @example 3
    */
   @Type(() => Number)
-  @IsInt()
+  @IsInt({ each: true })
+  @IsArray()
   @IsOptional()
-  style?: number;
+  @ArrayMaxSize(3)
+  style?: number[];
 
   /**
    * 오픈 여부

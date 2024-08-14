@@ -81,8 +81,8 @@ export class CultureContentRepository {
       Style: pagerble.style
         ? {
             some: {
-              Style: {
-                deletedAt: null,
+              styleIdx: {
+                in: pagerble.style,
               },
             },
           }
@@ -113,8 +113,6 @@ export class CultureContentRepository {
       deletedAt: null,
       User: {
         idx: pagerble.user,
-        deletedAt: null,
-        blockedAt: null,
       },
     };
 
