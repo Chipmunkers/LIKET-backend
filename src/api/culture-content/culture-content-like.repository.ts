@@ -119,6 +119,7 @@ export class CultureContentLikeRepository {
           acceptedAt: {
             not: null,
           },
+          genreIdx: pagerble.genre,
           startDate: pagerble.onlyopen
             ? {
                 lte: new Date(),
