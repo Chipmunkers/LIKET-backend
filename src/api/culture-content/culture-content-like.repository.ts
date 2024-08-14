@@ -119,6 +119,16 @@ export class CultureContentLikeRepository {
           acceptedAt: {
             not: null,
           },
+          startDate: pagerble.open
+            ? {
+                lte: new Date(),
+              }
+            : undefined,
+          endDate: pagerble.open
+            ? {
+                gte: new Date(),
+              }
+            : undefined,
         },
       },
       orderBy: {
