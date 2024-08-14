@@ -119,12 +119,12 @@ export class CultureContentLikeRepository {
           acceptedAt: {
             not: null,
           },
-          startDate: pagerble.open
+          startDate: pagerble.onlyopen
             ? {
                 lte: new Date(),
               }
             : undefined,
-          endDate: pagerble.open
+          endDate: pagerble.onlyopen
             ? {
                 gte: new Date(),
               }

@@ -6,5 +6,5 @@ import { IsBoolean } from 'class-validator';
 export class LikeContentPagerbleDto extends PickType(PagerbleDto, ['page']) {
   @ToBoolean()
   @IsBoolean()
-  open: boolean;
+  onlyopen: boolean;
 }
