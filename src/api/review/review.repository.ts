@@ -17,72 +17,19 @@ export class ReviewRepository {
 
   public selectReviewAll(
     pagerble: ReviewPagerbleDto,
-    withCount: true,
     userIdx?: number,
-  ): Promise<[ReviewWithInclude[], number]>;
-  public selectReviewAll(
-    pagerble: ReviewPagerbleDto,
-    withCount: false,
-    userIdx?: number,
-  ): Promise<ReviewWithInclude[]>;
-  public selectReviewAll(
-    pagerble: ReviewPagerbleDto,
-    withCount: boolean,
-    userIdx?: number,
-  ): Promise<[ReviewWithInclude[], number] | ReviewWithInclude[]> {
+  ): Promise<ReviewWithInclude[]> {
     const where: Prisma.ReviewWhereInput = {
       cultureContentIdx: pagerble.content,
       userIdx: pagerble.user,
+      idx: {
+        not: pagerble.review,
+      },
       deletedAt: null,
       User: {
         deletedAt: null,
       },
     };
-
-    if (withCount) {
-      this.logger.log(this.selectReviewAll, 'SELECT review, count');
-      return this.prisma.$transaction([
-        this.prisma.review.findMany({
-          include: {
-            ReviewImg: {
-              where: {
-                deletedAt: null,
-              },
-              orderBy: {
-                idx: 'asc',
-              },
-            },
-            ReviewLike: {
-              where: {
-                userIdx: userIdx || -1,
-              },
-            },
-            User: true,
-            CultureContent: {
-              include: {
-                User: true,
-                ContentImg: true,
-                Genre: true,
-                Style: {
-                  include: {
-                    Style: true,
-                  },
-                },
-                Age: true,
-                Location: true,
-              },
-            },
-          },
-          where,
-          orderBy: {
-            [pagerble.orderby === 'time' ? 'idx' : 'likeCount']: pagerble.order,
-          },
-          take: 10,
-          skip: (pagerble.page - 1) * 10,
-        }),
-        this.prisma.review.count({ where }),
-      ]);
-    }
 
     this.logger.log(this.selectReviewAll, 'SELECT review');
     return this.prisma.review.findMany({
@@ -120,8 +67,9 @@ export class ReviewRepository {
       orderBy: {
         [pagerble.orderby === 'time' ? 'idx' : 'likeCount']: pagerble.order,
       },
-      take: 10,
-      skip: (pagerble.page - 1) * 10,
+      take: pagerble.review && pagerble.page === 1 ? 9 : 10,
+      skip:
+        (pagerble.page - 1) * (pagerble.review && pagerble.page === 1 ? 9 : 10),
     });
   }
 

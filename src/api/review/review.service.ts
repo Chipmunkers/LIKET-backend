@@ -13,6 +13,7 @@ import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { ReviewRepository } from './review.repository';
 import { ReviewLikeRepository } from './review-like.repository';
 import { CultureContentRepository } from '../culture-content/culture-content.repository';
+import { ReviewWithInclude } from './entity/prisma-type/review-with-include';
 
 @Injectable()
 export class ReviewService {
@@ -31,16 +32,24 @@ export class ReviewService {
     userIdx?: number,
   ): Promise<{
     reviewList: ReviewEntity[];
-    count: number;
   }> {
-    const [reviewList, count] = await this.reviewRepository.selectReviewAll(
-      pagerble,
-      true,
-      userIdx,
+    const reviewList: ReviewWithInclude[] = [];
+    if (pagerble.review) {
+      const firstReview = await this.reviewRepository.selectReviewByIdx(
+        pagerble.review,
+        userIdx,
+      );
+
+      if (firstReview) {
+        reviewList.push(firstReview);
+      }
+    }
+
+    reviewList.push(
+      ...(await this.reviewRepository.selectReviewAll(pagerble, userIdx)),
     );
 
     return {
-      count,
       reviewList: reviewList.map((review) => ReviewEntity.createEntity(review)),
     };
   }

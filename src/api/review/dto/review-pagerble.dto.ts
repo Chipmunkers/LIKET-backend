@@ -1,6 +1,6 @@
 import { PickType } from '@nestjs/swagger';
 import { PagerbleDto } from '../../../common/dto/pagerble.dto';
-import { IsIn, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ReviewPagerbleDto extends PickType(PagerbleDto, [
@@ -31,4 +31,14 @@ export class ReviewPagerbleDto extends PickType(PagerbleDto, [
   @IsString()
   @IsIn(['time', 'like'])
   orderby: 'time' | 'like' = 'time';
+
+  /**
+   * 미리볼 review idx
+   *
+   * @example 12
+   */
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  review?: number;
 }
