@@ -21,11 +21,11 @@ export class MapService {
   }
 
   private getClusteringLevelFromScaleLevel(scaleLevel: number): 1 | 2 | 3 {
-    if ([1, 2, 3, 4, 5, 6, 7, 8].includes(scaleLevel)) {
+    if ([1, 2, 3, 4, 5, 6, 7].includes(scaleLevel)) {
       return 3;
     }
 
-    if ([9, 10].includes(scaleLevel)) {
+    if ([8, 9, 10].includes(scaleLevel)) {
       return 2;
     }
 
