@@ -34,7 +34,7 @@ export class ReviewService {
     reviewList: ReviewEntity[];
   }> {
     const reviewList: ReviewWithInclude[] = [];
-    if (pagerble.review) {
+    if (pagerble.review && pagerble.page === 1) {
       const firstReview = await this.reviewRepository.selectReviewByIdx(
         pagerble.review,
         userIdx,
