@@ -18,7 +18,7 @@ export class MapRepository {
       throw new Error('Critical security error');
     }
 
-    const bottomX = pagerbleDto['bottom-x'];
+    const bottomX = pagerbleDto['bottom-x'].toFixed(6);
     const bottomY = pagerbleDto['bottom-y'];
     const topX = pagerbleDto['top-x'];
     const topY = pagerbleDto['top-y'];
@@ -81,13 +81,13 @@ export class MapRepository {
         AND
           content.end_date >= NOW()
         AND
-          lng <= $1 -- bottom x
+          lng <= $1::numeric -- bottom x
         AND
-          lng >= $2 -- top x
+          lng >= $2::numeric -- top x
         AND
-          lat <= $3
+          lat <= $3::numeric
         AND
-          lat >= $4
+          lat >= $4::numeric
         GROUP BY
           map.code
         HAVING
