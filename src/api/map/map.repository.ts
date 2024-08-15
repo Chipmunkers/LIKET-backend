@@ -18,10 +18,10 @@ export class MapRepository {
       throw new Error('Critical security error');
     }
 
-    const bottomX = pagerbleDto['bottom-x'].toFixed(6);
-    const bottomY = pagerbleDto['bottom-y'];
-    const topX = pagerbleDto['top-x'];
-    const topY = pagerbleDto['top-y'];
+    const bottomX = pagerbleDto['bottom-x'].toFixed(12);
+    const bottomY = pagerbleDto['bottom-y'].toFixed(12);
+    const topX = pagerbleDto['top-x'].toFixed(12);
+    const topY = pagerbleDto['top-y'].toFixed(12);
 
     const params: any[] = [bottomX, topX, topY, bottomY];
 
