@@ -63,8 +63,6 @@ export class LoginJwtService {
       },
     );
 
-    console.log(refreshToken);
-
     await this.loginJwtRepository.save(idx, refreshToken);
     return refreshToken;
   }
