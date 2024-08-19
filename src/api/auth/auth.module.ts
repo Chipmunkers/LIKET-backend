@@ -33,6 +33,7 @@ import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
       }),
       inject: [ConfigService],
     }),
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, KakaoLoginStrategy, NaverLoginStrategy],

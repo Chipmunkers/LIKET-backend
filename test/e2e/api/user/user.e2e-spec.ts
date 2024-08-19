@@ -12,7 +12,6 @@ import { SocialLoginUser } from '../../../../src/api/auth/model/social-login-use
 import { SocialProvider } from '../../../../src/api/auth/strategy/social-provider.enum';
 import { UpdateProfileDto } from '../../../../src/api/user/dto/update-profile.dto';
 import { EmailDuplicateCheckDto } from '../../../../src/api/user/dto/email-duplicate-check.dto';
-import { NicknameDuplicateCheckDto } from '../../../../src/api/user/dto/nickname-duplicate-check.dto';
 import { FindPwDto } from '../../../../src/api/user/dto/find-pw.dto';
 import spyOn = jest.spyOn;
 import { PrismaSetting } from '../../setup/prisma.setup';
@@ -93,12 +92,12 @@ describe('User (e2e)', () => {
     });
 
     it('Duplicate email', async () => {
-      const sameEmail = 'abc123@xxx.xxx';
+      const sameEmail = 'user1@gmail.com';
       spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
       const signUpDto: SignUpDto = {
         emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
         pw: 'pw123123**',
-        nickname: 'jochong',
+        nickname: 'asdf',
         gender: Gender.MALE,
         birth: 2002,
       };
@@ -106,24 +105,10 @@ describe('User (e2e)', () => {
       await request(app.getHttpServer())
         .post('/user/local')
         .send(signUpDto)
-        .expect(200);
-
-      spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
-      const signUpDto2: SignUpDto = {
-        emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
-        pw: 'pw123123**',
-        nickname: 'test',
-        gender: Gender.MALE,
-        birth: 2002,
-      };
-
-      await request(app.getHttpServer())
-        .post('/user/local')
-        .send(signUpDto2)
         .expect(409);
     });
 
-    it('Duplicate nickname', async () => {
+    it('Duplicate nickname - but ok', async () => {
       const email = 'abc123@xxx.xxx';
       spyOn(emailJwtService, 'verify').mockResolvedValue(email);
       const signUpDto: SignUpDto = {
@@ -151,7 +136,7 @@ describe('User (e2e)', () => {
       await request(app.getHttpServer())
         .post('/user/local')
         .send(signUpDto2)
-        .expect(409);
+        .expect(200);
     });
   });
 
@@ -233,7 +218,7 @@ describe('User (e2e)', () => {
         .expect(409);
     });
 
-    it('Duplicate email', async () => {
+    it('Duplicate nickname - but ok', async () => {
       const sameNickname = 'jochong';
 
       // First social login user
@@ -274,7 +259,7 @@ describe('User (e2e)', () => {
       await request(app.getHttpServer())
         .post('/user/social')
         .send(socialSignUpDto2)
-        .expect(409);
+        .expect(200);
     });
 
     it('Duplicate sign up with local user email', async () => {
@@ -367,7 +352,7 @@ describe('User (e2e)', () => {
         .expect(401);
     });
 
-    it('Duplicated nickname', async () => {
+    it('Duplicated nickname - but ok', async () => {
       const loginUser = loginUsers.user1;
       const updateDto: UpdateProfileDto = {
         nickname: 'user1', // Duplicated nickname
@@ -379,7 +364,7 @@ describe('User (e2e)', () => {
         .put('/user/my/profile')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(updateDto)
-        .expect(409);
+        .expect(201);
     });
   });
 
@@ -402,30 +387,6 @@ describe('User (e2e)', () => {
 
       await request(app.getHttpServer())
         .post('/user/email/duplicate-check')
-        .send(checkDto)
-        .expect(409);
-    });
-  });
-
-  describe('POST /user/nickname/duplicate-check', () => {
-    it('Success', async () => {
-      const checkDto: NicknameDuplicateCheckDto = {
-        nickname: 'jochong', // Non-duplicated nickname
-      };
-
-      await request(app.getHttpServer())
-        .post('/user/nickname/duplicate-check')
-        .send(checkDto)
-        .expect(201);
-    });
-
-    it('Duplicated nickname', async () => {
-      const checkDto: NicknameDuplicateCheckDto = {
-        nickname: 'user1', // duplicated nickname
-      };
-
-      await request(app.getHttpServer())
-        .post('/user/nickname/duplicate-check')
         .send(checkDto)
         .expect(409);
     });

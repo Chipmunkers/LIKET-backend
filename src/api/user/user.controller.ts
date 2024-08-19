@@ -29,12 +29,12 @@ import { SocialSignUpDto } from './dto/social-sign-up.dto';
 import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { Response } from 'express';
 import cookieConfig from '../auth/config/cookie.config';
-import { NicknameDuplicateCheckDto } from './dto/nickname-duplicate-check.dto';
 import { FindPwDto } from './dto/find-pw.dto';
 import { UserPwService } from './user-pw.service';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { ResetPwDto } from './dto/reset-pw.dto';
 import { UserEntity } from './entity/user.entity';
+import { UpdateProfileImgDto } from './dto/update-profile-img.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -95,6 +95,9 @@ export class UserController {
 
   /**
    * 소셜 회원가입 하기 (프로필 이미지 file로 전달)
+   * Deprecated됨
+   *
+   * @deprecated
    */
   @Post('/social')
   @ApiTags('Auth')
@@ -164,6 +167,20 @@ export class UserController {
   }
 
   /**
+   * 프로필 이미지 수정하기
+   */
+  @Put('/my/profile-img')
+  @HttpCode(201)
+  @Exception(400, 'Invalid body')
+  @LoginAuth()
+  public async updateProfileImg(
+    @User() loginUser: LoginUser,
+    @Body() updateDto: UpdateProfileImgDto,
+  ): Promise<void> {
+    await this.userService.updateProfileImg(loginUser, updateDto.profileImg);
+  }
+
+  /**
    * 이메일 중복 확안하기
    */
   @Post('/email/duplicate-check')
@@ -174,18 +191,6 @@ export class UserController {
     @Body() checkDto: EmailDuplicateCheckDto,
   ): Promise<void> {
     return await this.userService.checkEmailDuplicate(checkDto);
-  }
-
-  /**
-   * 닉네임 중복 확인하기
-   */
-  @Post('/nickname/duplicate-check')
-  @HttpCode(201)
-  @Exception(400, 'invalid body')
-  @Exception(409, '이미 가입된 닉네임')
-  async checkNicknameDuplicate(@Body() checkDto: NicknameDuplicateCheckDto) {
-    await this.userService.checkNicknameDuplicate(checkDto);
-    return;
   }
 
   /**

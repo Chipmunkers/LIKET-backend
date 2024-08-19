@@ -6,6 +6,8 @@ import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { UserRepository } from './user.repository';
+import { adjectives } from './data/adjectives';
+import { animals } from './data/animals';
 
 @Injectable()
 export class SocialLoginUserService {
@@ -35,5 +37,36 @@ export class SocialLoginUserService {
     }
 
     return UserEntity.createEntity(user);
+  }
+
+  /**
+   * 소셜 사용자 회원가입하기
+   */
+  public async signUpSocialUser(socialUser: SocialLoginUser) {
+    return await this.userRepository.insertUser({
+      email: socialUser.email,
+      provider: socialUser.provider,
+      nickname: this.generateRandomNickname('-'),
+      pw: 'social',
+      birth: Number(socialUser.birth),
+      gender: socialUser.gender || null,
+      profileImgPath: null,
+      snsId: socialUser.id,
+    });
+  }
+
+  /**
+   * 랜덤 닉네임 생성하기
+   *
+   * @param join 랜덤한 두 단어를 연결할 문자
+   * @example generateRandomNickname("-") // 날렵한-다람쥐
+   * @example generateRandomNickname(":") // 날렵한:다람쥐
+   */
+  private generateRandomNickname(join: string) {
+    const randomAdjective =
+      adjectives[Math.floor(Math.random() * adjectives.length)];
+    const randomAnimal = animals[Math.floor(Math.random() * adjectives.length)];
+
+    return randomAdjective + join + randomAnimal;
   }
 }

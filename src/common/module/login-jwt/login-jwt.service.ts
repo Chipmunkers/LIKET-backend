@@ -5,17 +5,17 @@ import { Logger } from '../logger/logger.decorator';
 import { LoggerService } from '../logger/logger.service';
 import { InvalidLoginJwtException } from '../../../api/auth/exception/InvalidLoginJwtException';
 import { RefreshTokenPayload } from './model/refresh-token-payload';
-import { PrismaService } from '../prisma/prisma.service';
 import { LoginJwtRepository } from './login-jwt.repository';
 import { InvalidRefreshTokenException } from './exception/InvalidRefreshTokenException';
 import { InvalidRefreshTokenType } from './exception/InvalidRefreshTokenType';
+import { UtilService } from '../util/util.service';
 
 @Injectable()
 export class LoginJwtService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly prisma: PrismaService,
     private readonly loginJwtRepository: LoginJwtRepository,
+    private readonly utilService: UtilService,
     @Logger('LoginJwtService') private readonly logger: LoggerService,
   ) {}
 
@@ -56,12 +56,14 @@ export class LoginJwtService {
     const refreshToken = await this.jwtService.signAsync(
       {
         ...payload,
-        iat: new Date().getTime(),
+        jit: this.utilService.getUUID(),
       },
       {
-        expiresIn: 15 * 24 * 60 * 60 * 1000, // 15d
+        expiresIn: 10,
       },
     );
+
+    console.log(refreshToken);
 
     await this.loginJwtRepository.save(idx, refreshToken);
     return refreshToken;
@@ -80,21 +82,22 @@ export class LoginJwtService {
     },
   ) {
     this.logger.log(this.verifyRefreshToken.name, 'Verify refresh token');
-    const payload: RefreshTokenPayload | LoginJwtPayload =
-      await this.jwtService.verifyAsync(refreshToken, {
-        ignoreExpiration: true,
-      });
+    let payload: RefreshTokenPayload | LoginJwtPayload;
 
-    if (!this.isRefreshToken(payload)) {
+    try {
+      payload = await this.jwtService.verifyAsync<
+        RefreshTokenPayload | LoginJwtPayload
+      >(refreshToken);
+    } catch (err) {
       throw new InvalidRefreshTokenException(
         'Invalid refresh token',
         InvalidRefreshTokenType.INVALID_TOKEN,
       );
     }
 
-    if (this.isExpiredRefreshToken(payload.exp)) {
+    if (!this.isRefreshToken(payload)) {
       throw new InvalidRefreshTokenException(
-        'Expired refresh token',
+        'Invalid refresh token',
         InvalidRefreshTokenType.INVALID_TOKEN,
       );
     }
@@ -114,12 +117,6 @@ export class LoginJwtService {
     }
 
     return payload;
-  }
-
-  private isExpiredRefreshToken(exp?: number) {
-    if (!exp) return true;
-
-    return new Date(exp) < new Date();
   }
 
   public async expireRefreshToken(token?: string) {

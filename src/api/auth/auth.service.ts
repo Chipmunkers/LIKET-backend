@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { HashService } from '../../common/module/hash/hash.service';
 import { LoginDto } from './dto/local-login.dto';
 import { BlockedUserException } from './exception/BlockedUserException';
@@ -12,12 +11,13 @@ import { ISocialLoginStrategy } from './strategy/social-login-strategy.interface
 import { KakaoLoginStrategy } from './strategy/kakao/kakao-login.strategy';
 import { Request, Response } from 'express';
 import { SocialLoginUser } from './model/social-login-user';
-import { SocialLoginJwtService } from '../../common/module/social-login-jwt/social-login-jwt.service';
 import { LoginToken } from './model/login-token';
 import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
 import { UserRepository } from '../user/user.repository';
 import { InvalidRefreshTokenType } from '../../common/module/login-jwt/exception/InvalidRefreshTokenType';
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
+import { SocialLoginUserService } from '../user/social-login-user.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +29,7 @@ export class AuthService {
   constructor(
     private readonly hashService: HashService,
     private readonly loginJwtService: LoginJwtService,
-    private readonly socialLoginJwtService: SocialLoginJwtService,
+    private readonly socialLoginUserService: SocialLoginUserService,
     private readonly userRepository: UserRepository,
     @Logger('AuthService') private readonly logger: LoggerService,
     private readonly kakaoLoginStrategy: KakaoLoginStrategy,
@@ -103,11 +103,12 @@ export class AuthService {
       const socialLoginUser = await strategy.getSocialLoginUser(req);
 
       // TODO: 정지 사용자 확인 로직 추가 필요
-      const loginUser = await this.userRepository.selectSocialLoginUser(
+      let loginUser = await this.userRepository.selectSocialLoginUser(
         socialLoginUser.id,
         socialLoginUser.provider,
       );
       if (!loginUser) {
+        // * 첫 번째 회원가입
         this.logger.log(this.socialLogin, `first social login ${provider}`);
 
         const duplicateUser = await this.userRepository.selectUserByEmail(
@@ -119,7 +120,6 @@ export class AuthService {
             `Attempt to login with duplicated email | email = ${socialLoginUser.email}`,
           );
 
-          // TODO: 무엇으로 가입했는지 정보 가져오는 로직 추가 필요 및 리다이렉트 경로 재설정 필요
           this.redirect(
             res,
             `/social-login-complete/duplicated-email?provider=${duplicateUser.provider}&email=${duplicateUser.email}`,
@@ -127,14 +127,9 @@ export class AuthService {
           return;
         }
 
-        const socialLoginToken = await this.socialLoginJwtService.sign(
+        loginUser = await this.socialLoginUserService.signUpSocialUser(
           socialLoginUser,
         );
-
-        const successUrl = strategy.getSignUpRedirectUrl();
-
-        this.redirect(res, `${successUrl}?token=${socialLoginToken}`);
-        return;
       }
 
       if (loginUser.blockedAt) {

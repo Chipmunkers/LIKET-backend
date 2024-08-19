@@ -22,7 +22,7 @@ export class UserEntity {
    *
    * @example jochong
    */
-  @Matches('^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,8}$')
+  @Matches(/^[a-zA-Z0-9가-힣_-]{2,8}$/g)
   public nickname: string;
 
   /**

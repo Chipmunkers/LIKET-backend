@@ -132,30 +132,6 @@ export class UserRepository {
     });
   }
 
-  public selectUserByEmailOrNickname(
-    email: string,
-    nickname: string,
-    tx?: Prisma.TransactionClient,
-  ): Promise<User | null> {
-    this.logger.log(
-      this.selectUserByEmailOrNickname,
-      `SELECT user WHERE email = ${email} AND nickname = ${nickname}`,
-    );
-    return (tx || this.prisma).user.findFirst({
-      where: {
-        OR: [
-          {
-            email: email,
-          },
-          {
-            nickname: nickname,
-          },
-        ],
-        deletedAt: null,
-      },
-    });
-  }
-
   public selectSocialLoginUser(
     snsId: string,
     provider: SocialProvider,
@@ -231,6 +207,17 @@ export class UserRepository {
       },
       data: {
         pw,
+      },
+    });
+  }
+
+  public updateProfileImgByUserIdx(idx: number, profileImg?: string) {
+    return this.prisma.user.update({
+      where: {
+        idx,
+      },
+      data: {
+        profileImgPath: profileImg || null,
       },
     });
   }

@@ -366,7 +366,6 @@ model User {
   DeleteUserReason DeleteUserReason[]
   RefreshToken     RefreshToken[]
 
-  @@unique([nickname, deletedAt], map: "uq_user_tb_nickname")
   @@index([email], type: BTree)
   @@map("user_tb")
 }

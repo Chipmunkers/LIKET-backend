@@ -308,9 +308,6 @@ CREATE INDEX index_user_email ON user_tb(email);
 ALTER TABLE user_tb
     ADD CONSTRAINT email_uni UNIQUE NULLS NOT DISTINCT (email, deleted_at);
 
-ALTER TABLE user_tb
-    ADD CONSTRAINT nickname_uni UNIQUE NULLS NOT DISTINCT (nickname, deleted_at);
-
 CREATE TABLE refresh_token_tb
 (
     idx        bigint                   NOT NULL GENERATED ALWAYS AS IDENTITY,

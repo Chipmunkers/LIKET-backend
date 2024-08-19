@@ -7,7 +7,7 @@ import { PrismaSetting } from '../../setup/prisma.setup';
 import { AppGlobalSetting } from '../../setup/app-global.setup';
 import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
 
-describe('Terms of service (e2e)', () => {
+describe('Review (e2e)', () => {
   let app: INestApplication;
   let appModule: TestingModule;
   const prismaSetting = PrismaSetting.setup();
@@ -340,7 +340,7 @@ describe('Terms of service (e2e)', () => {
           starRating: 4,
           description: 'review description',
           visitTime: new Date(),
-          imgList: [], // Invalid img list
+          imgList: [1, 2, 3], // Invalid img list
         })
         .expect(400);
     });
@@ -470,7 +470,7 @@ describe('Terms of service (e2e)', () => {
           starRating: 4,
           description: 'review description',
           visitTime: new Date(),
-          imgList: [], // Invalid img list
+          imgList: [1, 2, 3], // Invalid img list
         })
         .expect(400);
     });

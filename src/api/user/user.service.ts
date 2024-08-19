@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { SignUpDto } from './dto/sign-up.dto';
-import { UpdatePwDto } from './dto/update-pw.dto';
 import { MyInfoEntity } from './entity/my-info.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { DuplicateUserException } from './exception/DuplicateUserException';
@@ -17,8 +16,6 @@ import { SocialLoginJwtService } from '../../common/module/social-login-jwt/soci
 import { EmailDuplicateException } from './exception/EmailDuplicateException';
 import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { LoginToken } from '../auth/model/login-token';
-import { NicknameDuplicateCheckDto } from './dto/nickname-duplicate-check.dto';
-import { NicknameDuplicateException } from './exception/NicknameDuplicateException';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { LoginUser } from '../auth/model/login-user';
@@ -49,7 +46,7 @@ export class UserService {
       EmailCertType.SIGN_UP,
     );
 
-    await this.checkEmailAndNicknameDuplicate(email, signUpDto.nickname);
+    await this.checkEmailDuplicate({ email });
 
     const signUpUser = await this.userRepository.insertUser({
       email,
@@ -88,12 +85,9 @@ export class UserService {
 
     this.logger.log(
       this.socialUserSignUp,
-      `duplicate check nickname = ${socialUser.nickname} | email = ${socialUser.email}`,
+      `duplicate check | email = ${socialUser.email}`,
     );
-    await this.checkEmailAndNicknameDuplicate(
-      socialUser.email,
-      signUpDto.nickname,
-    );
+    await this.checkEmailDuplicate({ email: socialUser.email });
 
     const signUpUser = await this.userRepository.insertUser({
       email: socialUser.email,
@@ -121,38 +115,6 @@ export class UserService {
     };
   }
 
-  private async checkEmailAndNicknameDuplicate(
-    email: string,
-    nickname: string,
-  ) {
-    const duplicatedUser =
-      await this.userRepository.selectUserByEmailOrNickname(email, nickname);
-
-    if (duplicatedUser?.email === email) {
-      this.logger.warn(
-        this.checkEmailAndNicknameDuplicate,
-        'Attempt to sign up with duplicated email',
-      );
-      throw new DuplicateUserException<'email'>(
-        'This email is already in use',
-        'email',
-      );
-    }
-
-    if (duplicatedUser?.nickname === nickname) {
-      this.logger.warn(
-        this.checkEmailAndNicknameDuplicate,
-        'Attempt to sign up with duplicated nickname',
-      );
-      throw new DuplicateUserException<'nickname'>(
-        'This nickname is already in use',
-        'nickname',
-      );
-    }
-
-    return;
-  }
-
   /**
    * 내 정보 가져오기
    */
@@ -168,6 +130,16 @@ export class UserService {
     }
 
     return MyInfoEntity.createEntity(user);
+  }
+
+  /**
+   * 프로필 이미지 수정하기
+   */
+  public async updateProfileImg(loginUser: LoginUser, profileImgPath?: string) {
+    await this.userRepository.updateProfileImgByUserIdx(
+      loginUser.idx,
+      profileImgPath,
+    );
   }
 
   /**
@@ -194,21 +166,6 @@ export class UserService {
     idx: number,
     updateDto: UpdateProfileDto,
   ): Promise<void> {
-    const duplicatedUser = await this.userRepository.selectUserByNickname(
-      updateDto.nickname,
-    );
-
-    if (duplicatedUser) {
-      this.logger.warn(
-        this.updateProfile,
-        'Attempt to update with duplicated nickname',
-      );
-      throw new DuplicateUserException<'nickname'>(
-        'This nickname is Duplicated',
-        'nickname',
-      );
-    }
-
     await this.userRepository.updateUserByIdx(idx, {
       nickname: updateDto.nickname,
       gender: updateDto.gender || null,
@@ -230,33 +187,6 @@ export class UserService {
     }
 
     throw new EmailDuplicateException('duplicated email');
-  }
-
-  /**
-   * 닉네임 중복 검사 확인하기
-   */
-  public async checkNicknameDuplicate(checkDto: NicknameDuplicateCheckDto) {
-    try {
-      await this.getUserByNickname(checkDto.nickname);
-    } catch (err) {
-      return;
-    }
-
-    throw new NicknameDuplicateException('duplicated nickname');
-  }
-
-  private async getUserByNickname(nickname: string) {
-    const user = await this.userRepository.selectUserByNickname(nickname);
-
-    if (!user) {
-      this.logger.log(
-        this.getUserByIdx,
-        `Attempt to find non-existent user ${nickname}`,
-      );
-      throw new UserNotFoundException('Cannot find user');
-    }
-
-    return UserEntity.createEntity(user);
   }
 
   public async getUserByEmail(email: string) {
