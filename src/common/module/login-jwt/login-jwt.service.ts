@@ -89,13 +89,15 @@ export class LoginJwtService {
         RefreshTokenPayload | LoginJwtPayload
       >(refreshToken);
     } catch (err) {
+      this.logger.warn(this.verifyRefreshToken, 'refresh token expired');
       throw new InvalidRefreshTokenException(
-        'Invalid refresh token',
+        'expired refresh token',
         InvalidRefreshTokenType.INVALID_TOKEN,
       );
     }
 
     if (!this.isRefreshToken(payload)) {
+      this.logger.warn(this.verifyRefreshToken, 'invalid refresh token');
       throw new InvalidRefreshTokenException(
         'Invalid refresh token',
         InvalidRefreshTokenType.INVALID_TOKEN,
@@ -106,8 +108,9 @@ export class LoginJwtService {
       refreshToken,
     );
     if (!isExpiredRefreshToken) {
+      this.logger.warn(this.verifyRefreshToken, 'duplicated refresh token');
       throw new InvalidRefreshTokenException(
-        'Invalid refresh token',
+        'duplicated refresh token',
         InvalidRefreshTokenType.INVALID_TOKEN,
       );
     }
