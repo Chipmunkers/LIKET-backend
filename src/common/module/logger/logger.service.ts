@@ -34,7 +34,7 @@ export class LoggerService {
   public warn(methodName: string, message: string): void;
   public warn(method: Method, message: string): void;
   public warn(methodName: string | Method, message: string): void {
-    if (process.env.MODE !== 'product') {
+    if (!['product', 'develop'].includes(process.env.MODE || '')) {
       return;
     }
 
