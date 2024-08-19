@@ -59,7 +59,7 @@ export class LoginJwtService {
         jit: this.utilService.getUUID(),
       },
       {
-        expiresIn: 10,
+        expiresIn: '15d',
       },
     );
 
