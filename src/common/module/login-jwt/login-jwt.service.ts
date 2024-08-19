@@ -63,7 +63,6 @@ export class LoginJwtService {
       },
     );
 
-    await this.loginJwtRepository.save(idx, refreshToken);
     return refreshToken;
   }
 
@@ -73,12 +72,7 @@ export class LoginJwtService {
    * @param refreshToken 검증할 토큰
    * @param option
    */
-  async verifyRefreshToken(
-    refreshToken: string,
-    option?: {
-      delete: boolean;
-    },
-  ) {
+  async verifyRefreshToken(refreshToken: string) {
     this.logger.log(this.verifyRefreshToken.name, 'Verify refresh token');
     let payload: RefreshTokenPayload | LoginJwtPayload;
 
@@ -100,21 +94,6 @@ export class LoginJwtService {
         'Invalid refresh token',
         InvalidRefreshTokenType.INVALID_TOKEN,
       );
-    }
-
-    const isExpiredRefreshToken = await this.loginJwtRepository.find(
-      refreshToken,
-    );
-    if (!isExpiredRefreshToken) {
-      this.logger.warn(this.verifyRefreshToken, 'duplicated refresh token');
-      throw new InvalidRefreshTokenException(
-        'duplicated refresh token',
-        InvalidRefreshTokenType.INVALID_TOKEN,
-      );
-    }
-
-    if (option?.delete) {
-      await this.expireRefreshToken(refreshToken);
     }
 
     return payload;

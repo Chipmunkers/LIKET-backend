@@ -168,7 +168,7 @@ export class AuthService {
   public async reissueAccessToken(
     res: Response,
     refreshToken?: string,
-  ): Promise<LoginToken> {
+  ): Promise<string> {
     try {
       if (!refreshToken) {
         throw new InvalidRefreshTokenException(
@@ -179,16 +179,9 @@ export class AuthService {
 
       const payload = await this.loginJwtService.verifyRefreshToken(
         refreshToken,
-        {
-          delete: true,
-        },
       );
 
       const accessToken = this.loginJwtService.sign(
-        payload.idx,
-        payload.isAdmin,
-      );
-      const newRefreshToken = await this.loginJwtService.signRefreshToken(
         payload.idx,
         payload.isAdmin,
       );
@@ -197,10 +190,7 @@ export class AuthService {
         this.reissueAccessToken,
         'Success to reissue refresh token',
       );
-      return {
-        accessToken,
-        refreshToken: newRefreshToken,
-      };
+      return accessToken;
     } catch (err) {
       res.clearCookie('refreshToken');
       throw err;

@@ -236,7 +236,7 @@ describe('Auth (e2e)', () => {
       await request(app.getHttpServer()).post('/auth/access-token').expect(401);
     });
 
-    it('Using an already used refresh token', async () => {
+    it('Using an already used refresh token - but ok', async () => {
       // 로그인
       const response = await request(app.getHttpServer())
         .post('/auth/local')
@@ -255,7 +255,7 @@ describe('Auth (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/access-token')
         .set('Cookie', refreshTokenCookie)
-        .expect(401);
+        .expect(200);
     });
   });
 
