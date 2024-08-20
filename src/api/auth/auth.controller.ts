@@ -86,6 +86,10 @@ export class AuthController {
     @Cookies('refreshToken') refreshToken?: string,
     @Body('refreshToken') bodyRefreshToken?: string,
   ): Promise<string> {
+    if (bodyRefreshToken) {
+      res.cookie('refreshToken', bodyRefreshToken, cookieConfig());
+    }
+
     return await this.authService.reissueAccessToken(
       res,
       refreshToken || bodyRefreshToken || '',
