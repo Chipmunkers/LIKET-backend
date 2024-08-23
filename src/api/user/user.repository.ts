@@ -69,6 +69,19 @@ export class UserRepository {
         Review: {
           include: {
             ReviewImg: true,
+            CultureContent: {
+              include: {
+                Genre: true,
+                ContentImg: {
+                  where: {
+                    deletedAt: null,
+                  },
+                  orderBy: {
+                    idx: 'desc',
+                  },
+                },
+              },
+            },
           },
           where: {
             ReviewImg: {
@@ -77,11 +90,17 @@ export class UserRepository {
               },
             },
           },
+          orderBy: {
+            idx: 'desc',
+          },
         },
         Liket: {
           select: {
             idx: true,
             imgPath: true,
+          },
+          orderBy: {
+            idx: 'desc',
           },
         },
         _count: {

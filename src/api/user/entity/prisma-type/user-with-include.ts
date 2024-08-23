@@ -5,6 +5,12 @@ const userWithInclude = Prisma.validator<Prisma.UserDefaultArgs>()({
     Review: {
       include: {
         ReviewImg: true,
+        CultureContent: {
+          include: {
+            Genre: true,
+            ContentImg: true,
+          },
+        },
       },
     },
     Liket: {
