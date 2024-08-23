@@ -1,6 +1,6 @@
 import { CookieOptions } from 'express';
 
-export default (): CookieOptions => {
+export default (maxAge: number = 15 * 24 * 60 * 60 * 1000): CookieOptions => {
   /**
    * 브라우저 정책에 의해서 주석 처리
    *
@@ -20,7 +20,7 @@ export default (): CookieOptions => {
     httpOnly: true,
     sameSite: 'none',
     secure: true,
-    maxAge: 60 * 60 * 1000,
+    maxAge,
     signed: true,
   };
 };

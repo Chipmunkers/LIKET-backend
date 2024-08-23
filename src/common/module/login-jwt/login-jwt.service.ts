@@ -53,6 +53,7 @@ export class LoginJwtService {
       type: 'Refresh',
     };
 
+    // ! expiresIn 옵션을 건드리기 전 cookie config도 확인해봐야함
     const refreshToken = await this.jwtService.signAsync(
       {
         ...payload,
@@ -70,7 +71,6 @@ export class LoginJwtService {
    * Refresh Token 검증하기
    *
    * @param refreshToken 검증할 토큰
-   * @param option
    */
   async verifyRefreshToken(refreshToken: string) {
     this.logger.log(this.verifyRefreshToken.name, 'Verify refresh token');
