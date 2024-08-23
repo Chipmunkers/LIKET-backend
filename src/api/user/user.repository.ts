@@ -93,6 +93,7 @@ export class UserRepository {
           orderBy: {
             idx: 'desc',
           },
+          take: 10,
         },
         Liket: {
           select: {
@@ -102,6 +103,7 @@ export class UserRepository {
           orderBy: {
             idx: 'desc',
           },
+          take: 10,
         },
         _count: {
           select: {
