@@ -68,7 +68,15 @@ export class UserRepository {
       include: {
         Review: {
           include: {
-            ReviewImg: true,
+            ReviewImg: {
+              where: {
+                deletedAt: null,
+              },
+              orderBy: {
+                idx: 'desc',
+              },
+              take: 10,
+            },
             CultureContent: {
               include: {
                 Genre: true,
@@ -84,11 +92,7 @@ export class UserRepository {
             },
           },
           where: {
-            ReviewImg: {
-              some: {
-                deletedAt: null,
-              },
-            },
+            deletedAt: null,
           },
           orderBy: {
             idx: 'desc',
