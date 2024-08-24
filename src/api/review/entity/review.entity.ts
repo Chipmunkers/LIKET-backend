@@ -41,7 +41,7 @@ export class ReviewEntity {
    *
    * @example "/review/img_00002.png"
    */
-  public thumbnail: string;
+  public thumbnail: string | null;
 
   /**
    * 문화생활컨텐츠 정보

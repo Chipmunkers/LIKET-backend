@@ -152,12 +152,25 @@ export class CultureContentRepository {
       },
       where,
       orderBy: {
-        [pagerble.orderby === 'time' ? 'acceptedAt' : 'likeCount']:
-          pagerble.order,
+        [this.getOrderBy(pagerble.orderby)]: pagerble.order,
       },
       take: 12,
       skip: (pagerble.page - 1) * 12,
     });
+  }
+
+  private getOrderBy(
+    orderby: 'time' | 'like' | 'create',
+  ): 'acceptedAt' | 'likeCount' | 'idx' {
+    if (orderby === 'time') {
+      return 'acceptedAt';
+    }
+
+    if (orderby === 'like') {
+      return 'likeCount';
+    }
+
+    return 'idx';
   }
 
   public selectSoonOpenCultureContentAll(userIdx?: number) {

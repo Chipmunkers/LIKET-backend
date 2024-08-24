@@ -94,13 +94,16 @@ export class ContentPagerbleDto extends PickType(PagerbleDto, [
 
   /**
    * 정렬 방식
+   * time: accepted_at 기준 (기본 정렬)
+   * like: 좋아요 순
+   * create: 생성일 기준
    *
    * @example time
    */
   @IsString()
-  @IsIn(['time', 'like'])
+  @IsIn(['time', 'like', 'create'])
   @IsOptional()
-  orderby: 'time' | 'like' = 'time';
+  orderby: 'time' | 'like' | 'create' = 'time';
 
   /**
    * 검색 키워드

@@ -176,6 +176,27 @@ describe('Culture Content (e2e)', () => {
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
+    it('Success: orderby', async () => {
+      const loginUser = loginUsers.user1;
+
+      const response = await request(app.getHttpServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          genre: 1,
+          age: 2,
+          style: 3,
+          region: '11',
+          open: true,
+          orderby: 'create',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      expect(response.body?.contentList).toBeDefined();
+      expect(Array.isArray(response.body?.contentList)).toBe(true);
+    });
+
     it('No token', async () => {
       await request(app.getHttpServer())
         .get('/culture-content/all')

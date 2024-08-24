@@ -3,7 +3,7 @@ import { LiketEntity } from '../../liket/entity/liket.entity';
 import { ReviewEntity } from '../../review/entity/review.entity';
 import { UserEntity } from './user.entity';
 import { UserWithInclude } from './prisma-type/user-with-include';
-import { TagEntity } from 'src/api/content-tag/entity/tag.entity';
+import { TagEntity } from '../../content-tag/entity/tag.entity';
 
 class MyReview extends PickType(ReviewEntity, [
   'idx',
@@ -61,12 +61,12 @@ export class MyInfoEntity extends UserEntity {
       reviewCount: user._count.Review,
       reviewList: user.Review.map((review) => ({
         idx: review.idx,
-        thumbnail: review.ReviewImg[0].imgPath,
+        thumbnail: review.ReviewImg[0]?.imgPath || null,
         cultureContent: {
           idx: review.CultureContent.idx,
           genre: TagEntity.createEntity(review.CultureContent.Genre),
           likeCount: review.CultureContent.likeCount,
-          thumbnail: review.CultureContent.ContentImg[0].imgPath,
+          thumbnail: review.CultureContent.ContentImg[0]?.imgPath || '',
           title: review.CultureContent.title,
         },
       })),
