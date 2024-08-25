@@ -1,6 +1,5 @@
 import { Prisma } from '@prisma/client';
 import { InquiryTypeEntity } from './inquiry-type.entity';
-import { UserProfileEntity } from '../../user/entity/user-profile.entity';
 import { InquiryEntity } from './inquiry.entity';
 import { PickType } from '@nestjs/swagger';
 
@@ -21,6 +20,7 @@ export class SummaryInquiryEntity extends PickType(InquiryEntity, [
   'type',
   'thumbnail',
   'author',
+  'createdAt',
 ]) {
   /**
    * 답변 상태
@@ -47,6 +47,7 @@ export class SummaryInquiryEntity extends PickType(InquiryEntity, [
         nickname: inquiry.User.nickname,
         provider: inquiry.User.provider,
       },
+      createdAt: inquiry.createdAt,
     });
   }
 }

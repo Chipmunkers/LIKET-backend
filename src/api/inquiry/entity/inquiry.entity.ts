@@ -64,6 +64,13 @@ export class InquiryEntity {
    */
   public imgList: string[];
 
+  /**
+   * 문의 작성일
+   *
+   * @example 2025-05-07T12:00:00.000Z
+   */
+  public createdAt: Date;
+
   constructor(data: InquiryEntity) {
     Object.assign(this, data);
   }
@@ -85,6 +92,7 @@ export class InquiryEntity {
         nickname: inquiry.User.nickname,
         provider: inquiry.User.provider,
       },
+      createdAt: inquiry.createdAt,
     });
   }
 }

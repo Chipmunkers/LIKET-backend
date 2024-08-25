@@ -27,7 +27,6 @@ export class InquiryService {
     pagerble: PagerbleDto,
   ): Promise<{
     inquiryList: SummaryInquiryEntity[];
-    count: number;
   }> {
     const [inquiryList, count] = await this.prisma.$transaction([
       this.inquiryRepository.selectInquiryByUserIdx(loginUser.idx, pagerble),
@@ -38,7 +37,6 @@ export class InquiryService {
       inquiryList: inquiryList.map((inquiry) =>
         SummaryInquiryEntity.createEntity(inquiry),
       ),
-      count,
     };
   }
 
