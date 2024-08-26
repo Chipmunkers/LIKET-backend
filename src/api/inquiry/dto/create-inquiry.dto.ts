@@ -9,7 +9,7 @@ import {
 
 export class CreateInquiryDto {
   @IsString()
-  @Length(1, 60)
+  @Length(1, 30)
   title: string;
 
   @IsString()
