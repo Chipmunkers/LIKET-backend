@@ -201,6 +201,7 @@ export class UserRepository {
         idx,
       },
       data: {
+        nickname: updateDao.nickname,
         gender: updateDao.gender,
         birth: updateDao.birth,
         profileImgPath: updateDao.profileImgPath,
