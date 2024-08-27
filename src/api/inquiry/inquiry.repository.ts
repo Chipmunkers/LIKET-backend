@@ -37,6 +37,7 @@ export class InquiryRepository {
       },
       where: {
         userIdx,
+        deletedAt: null,
       },
       skip: (dao.page - 1) * 10,
       take: 10,
@@ -46,6 +47,9 @@ export class InquiryRepository {
     });
   }
 
+  /**
+   * @deprecated
+   */
   public selectInquiryCountByUserIdx(userIdx: number) {
     this.logger.log(this.selectInquiryCountByUserIdx, 'SELECT inquiry count');
     return this.prisma.inquiry.count({

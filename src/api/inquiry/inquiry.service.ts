@@ -28,10 +28,10 @@ export class InquiryService {
   ): Promise<{
     inquiryList: SummaryInquiryEntity[];
   }> {
-    const [inquiryList, count] = await this.prisma.$transaction([
-      this.inquiryRepository.selectInquiryByUserIdx(loginUser.idx, pagerble),
-      this.inquiryRepository.selectInquiryCountByUserIdx(loginUser.idx),
-    ]);
+    const inquiryList = await this.inquiryRepository.selectInquiryByUserIdx(
+      loginUser.idx,
+      pagerble,
+    );
 
     return {
       inquiryList: inquiryList.map((inquiry) =>
