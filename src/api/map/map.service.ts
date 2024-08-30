@@ -10,26 +10,10 @@ export class MapService {
   constructor(private readonly mapRepository: MapRepository) {}
 
   public async getClusteredContentsAllForMap(pagerble: MapPagerbleDto) {
-    const clusteringLevel = this.getClusteringLevelFromScaleLevel(
-      pagerble.level,
-    );
-
     return await this.mapRepository.getContentCountFromMapLevel(
       pagerble,
-      clusteringLevel,
+      pagerble.level,
     );
-  }
-
-  private getClusteringLevelFromScaleLevel(scaleLevel: number): 1 | 2 | 3 {
-    if ([1, 2, 3, 4, 5, 6, 7].includes(scaleLevel)) {
-      return 3;
-    }
-
-    if ([8, 9, 10].includes(scaleLevel)) {
-      return 2;
-    }
-
-    return 1;
   }
 
   public async getContentAll(

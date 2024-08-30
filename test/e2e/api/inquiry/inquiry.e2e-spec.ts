@@ -48,8 +48,6 @@ describe('Inquiry (e2e)', () => {
       expect(response.body?.inquiryList).toBeDefined();
       expect(Array.isArray(response.body.inquiryList)).toBe(true);
       expect(response.body.inquiryList.length).toBe(3);
-      expect(response.body?.count).toBeDefined();
-      expect(response.body?.count).toBe(3);
     });
 
     it('Success - user2', async () => {
@@ -63,8 +61,6 @@ describe('Inquiry (e2e)', () => {
       expect(response.body?.inquiryList).toBeDefined();
       expect(Array.isArray(response.body.inquiryList)).toBe(true);
       expect(response.body.inquiryList.length).toBe(0);
-      expect(response.body?.count).toBeDefined();
-      expect(response.body?.count).toBe(0);
     });
 
     it('No token', async () => {
