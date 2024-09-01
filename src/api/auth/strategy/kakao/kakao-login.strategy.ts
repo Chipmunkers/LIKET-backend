@@ -30,7 +30,7 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
     this.REDIRECT_URL = this.configService.get('kakaoLogin').redirectUrl;
   }
 
-  async login(socialLoginUser: SocialLoginUser) {
+  public async login(socialLoginUser: SocialLoginUser) {
     const user = await this.socialLoginUserService.getUserBySocialId(
       socialLoginUser,
       SocialProvider.KAKAO,
@@ -48,7 +48,7 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
     };
   }
 
-  async getSocialLoginUser(req: Request) {
+  public async getSocialLoginUser(req: Request) {
     const callbackResponseDto = KakaoCallbackResponseDto.createDto(req);
 
     const accessToken = await this.getAccessTokenFromCode(
@@ -58,7 +58,7 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
     return await this.getUserInfoFromAccessToken(accessToken);
   }
 
-  getRedirectURL() {
+  public getRedirectURL() {
     // prettier-ignore
     return (
       'https://kauth.kakao.com/oauth/authorize?' +
@@ -70,6 +70,14 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
 
   public getSignUpRedirectUrl() {
     return '/signup/social';
+  }
+
+  public async getSocialLoginUserForApp(
+    req: Request,
+  ): Promise<SocialLoginUser> {
+    const accessToken: string = req.body.accessToken || '';
+
+    return await this.getUserInfoFromAccessToken(accessToken);
   }
 
   private async getUserInfoFromAccessToken(

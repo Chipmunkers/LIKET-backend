@@ -89,35 +89,93 @@ export class AuthService {
   }
 
   /**
-   * 소셜 로그인
+   * 소셜 로그인 (웹 전용)
+   *
+   * 인가 코드부터 받아 처리하도록 설계되어 있음.
    */
-  public async socialLogin(
+  public async socialLoginForWeb(
     req: Request,
     res: Response,
     provider: SocialProvider,
   ) {
     const strategy = this.socialLoginStrategyMap[provider];
-    this.logger.log(this.socialLogin, `social login ${provider}`);
+    this.logger.log(this.socialLoginForWeb, `social login ${provider}`);
+
+    let socialLoginUser: SocialLoginUser;
+    try {
+      // * 인가코드를 통해 소셜 로그인 사용자 정보를 받아옴
+      socialLoginUser = await strategy.getSocialLoginUser(req);
+    } catch (err) {
+      this.logger.error(this.socialLoginForWeb, 'Social Login Error', err);
+
+      this.redirect(
+        res,
+        '/social-login-complete/error?message=unexpected-error',
+      );
+      return;
+    }
+
+    await this.socialLogin(socialLoginUser, res);
+  }
+
+  /**
+   * 소셜 로그인 (앱 전용)
+   *
+   * 액세스 토큰을 받아 처리하게 되어있음
+   */
+  public async socialLoginForApp(
+    req: Request,
+    res: Response,
+    provider: SocialProvider,
+  ) {
+    const strategy = this.socialLoginStrategyMap[provider];
+    this.logger.log(this.socialLoginForApp, `social login ${provider} for app`);
+
+    let socialLoginUser: SocialLoginUser;
 
     try {
-      const socialLoginUser = await strategy.getSocialLoginUser(req);
+      socialLoginUser = await strategy.getSocialLoginUserForApp(req);
+    } catch (err) {
+      this.logger.error(this.socialLoginForApp, 'Social Login Error', err);
 
+      this.redirect(
+        res,
+        '/social-login-complete/error?message=unexpected-error',
+      );
+      return;
+    }
+
+    await this.socialLogin(socialLoginUser, res);
+  }
+
+  /**
+   * 소셜 사용자 정보를 통해 로그인 또는 회원가입
+   *
+   * socialLoginForWeb 또는 socialLoginForApp 메서드에서 호출하도록 해야함
+   */
+  public async socialLogin(socialUser: SocialLoginUser, res: Response) {
+    const strategy = this.socialLoginStrategyMap[socialUser.provider];
+
+    try {
       // TODO: 정지 사용자 확인 로직 추가 필요
       let loginUser = await this.userRepository.selectSocialLoginUser(
-        socialLoginUser.id,
-        socialLoginUser.provider,
+        socialUser.id,
+        socialUser.provider,
       );
       if (!loginUser) {
         // * 첫 번째 회원가입
-        this.logger.log(this.socialLogin, `first social login ${provider}`);
+        this.logger.log(
+          this.socialLoginForWeb,
+          `first social login ${socialUser.provider}`,
+        );
 
         const duplicateUser = await this.userRepository.selectUserByEmail(
-          socialLoginUser.email,
+          socialUser.email,
         );
         if (duplicateUser) {
           this.logger.warn(
             this.socialLogin,
-            `Attempt to login with duplicated email | email = ${socialLoginUser.email}`,
+            `Attempt to login with duplicated email | email = ${socialUser.email}`,
           );
 
           this.redirect(
@@ -128,7 +186,7 @@ export class AuthService {
         }
 
         loginUser = await this.socialLoginUserService.signUpSocialUser(
-          socialLoginUser,
+          socialUser,
         );
       }
 
@@ -137,7 +195,7 @@ export class AuthService {
         return;
       }
 
-      const loginToken = await strategy.login(socialLoginUser);
+      const loginToken = await strategy.login(socialUser);
 
       this.redirect(
         res,

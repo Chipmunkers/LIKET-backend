@@ -72,7 +72,22 @@ export class AuthController {
     @Req() req: Request,
     @Res() res: Response,
   ) {
-    await this.authService.socialLogin(req, res, provider);
+    await this.authService.socialLoginForWeb(req, res, provider);
+  }
+
+  /**
+   * 소셜 앱 로그인
+   *
+   * 카카오: req.body.accessToken string으로 전달
+   */
+  @Post('/:provider/app')
+  @HttpCode(200)
+  public async socialLoginForApp(
+    @Param('provider', SocialProviderPipe) provider: SocialProvider,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    await this.authService.socialLoginForApp(req, res, provider);
   }
 
   /**

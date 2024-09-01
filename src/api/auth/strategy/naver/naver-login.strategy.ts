@@ -35,7 +35,7 @@ export class NaverLoginStrategy implements ISocialLoginStrategy {
     this.CLIENT_SECRET = configService.get('naverLogin').clientSecret;
   }
 
-  async login(socialLoginUser: SocialLoginUser): Promise<LoginToken> {
+  public async login(socialLoginUser: SocialLoginUser): Promise<LoginToken> {
     const user = await this.socialLoginUserService.getUserBySocialId(
       socialLoginUser,
       SocialProvider.NAVER,
@@ -78,6 +78,12 @@ export class NaverLoginStrategy implements ISocialLoginStrategy {
 
   public getSignUpRedirectUrl(): string {
     return '/signup/social';
+  }
+
+  public async getSocialLoginUserForApp(
+    req: Request,
+  ): Promise<SocialLoginUser> {
+    throw new Error('아직 구현되지 않았습니다.');
   }
 
   private async getAccessTokenFromCode(code: string): Promise<string> {
