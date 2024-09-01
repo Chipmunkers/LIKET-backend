@@ -18,6 +18,8 @@ import { InvalidRefreshTokenType } from '../../common/module/login-jwt/exception
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 import { SocialLoginUserService } from '../user/social-login-user.service';
 import { User } from '@prisma/client';
+import { EmailDuplicateException } from 'src/api/user/exception/EmailDuplicateException';
+import { SocialLoginEmailDuplicateException } from 'src/api/auth/exception/SocialLoginEmailDuplicateException';
 
 @Injectable()
 export class AuthService {
@@ -101,21 +103,38 @@ export class AuthService {
     const strategy = this.socialLoginStrategyMap[provider];
     this.logger.log(this.socialLoginForWeb, `social login ${provider}`);
 
-    let socialLoginUser: SocialLoginUser;
     try {
       // * 인가코드를 통해 소셜 로그인 사용자 정보를 받아옴
-      socialLoginUser = await strategy.getSocialLoginUser(req);
+      const socialLoginUser = await strategy.getSocialLoginUser(req);
+
+      const loginToken = await this.socialLogin(socialLoginUser);
+
+      this.redirect(
+        res,
+        `/social-login-complete/success?refresh-token=${loginToken.refreshToken}`,
+      );
     } catch (err) {
       this.logger.error(this.socialLoginForWeb, 'Social Login Error', err);
 
+      // * 이메일 중복
+      if (err instanceof SocialLoginEmailDuplicateException) {
+        return this.redirect(
+          res,
+          `/social-login-complete/duplicated-email?provider=${err.provider}&email=${err.email}`,
+        );
+      }
+
+      // * 정지된 사용자
+      if (err instanceof BlockedUserException) {
+        return this.redirect(res, '/social-login-complete/block-user');
+      }
+
+      // * 예상하지 못한 에러
       this.redirect(
         res,
         '/social-login-complete/error?message=unexpected-error',
       );
-      return;
     }
-
-    await this.socialLogin(socialLoginUser, res);
   }
 
   /**
@@ -123,37 +142,30 @@ export class AuthService {
    *
    * 액세스 토큰을 받아 처리하게 되어있음
    */
-  public async socialLoginForApp(
-    req: Request,
-    res: Response,
-    provider: SocialProvider,
-  ) {
+  public async socialLoginForApp(req: Request, provider: SocialProvider) {
     const strategy = this.socialLoginStrategyMap[provider];
     this.logger.log(this.socialLoginForApp, `social login ${provider} for app`);
 
-    let socialLoginUser: SocialLoginUser;
-
     try {
-      socialLoginUser = await strategy.getSocialLoginUserForApp(req);
+      const socialLoginUser = await strategy.getSocialLoginUserForApp(req);
+
+      return await this.socialLogin(socialLoginUser);
     } catch (err) {
       this.logger.error(this.socialLoginForApp, 'Social Login Error', err);
 
-      this.redirect(
-        res,
-        '/social-login-complete/error?message=unexpected-error',
-      );
-      return;
+      throw err;
     }
-
-    await this.socialLogin(socialLoginUser, res);
   }
 
   /**
    * 소셜 사용자 정보를 통해 로그인 또는 회원가입
    *
    * socialLoginForWeb 또는 socialLoginForApp 메서드에서 호출하도록 해야함
+   *
+   * @throws {SocialLoginEmailDuplicateException} 중복으로 가입된 이메일인 경우
+   * @throws {BlockedUserException} 정지된 사용자인 경우
    */
-  public async socialLogin(socialUser: SocialLoginUser, res: Response) {
+  public async socialLogin(socialUser: SocialLoginUser) {
     const strategy = this.socialLoginStrategyMap[socialUser.provider];
 
     try {
@@ -178,11 +190,11 @@ export class AuthService {
             `Attempt to login with duplicated email | email = ${socialUser.email}`,
           );
 
-          this.redirect(
-            res,
-            `/social-login-complete/duplicated-email?provider=${duplicateUser.provider}&email=${duplicateUser.email}`,
+          throw new SocialLoginEmailDuplicateException(
+            'email duplicate',
+            duplicateUser.email,
+            duplicateUser.provider,
           );
-          return;
         }
 
         loginUser = await this.socialLoginUserService.signUpSocialUser(
@@ -191,23 +203,16 @@ export class AuthService {
       }
 
       if (loginUser.blockedAt) {
-        this.redirect(res, '/social-login-complete/block-user');
-        return;
+        throw new BlockedUserException('blocked user');
       }
 
       const loginToken = await strategy.login(socialUser);
 
-      this.redirect(
-        res,
-        `/social-login-complete/success?refresh-token=${loginToken.refreshToken}`,
-      );
+      return loginToken;
     } catch (err) {
       this.logger.error(this.socialLogin, 'Social Login Error', err);
 
-      this.redirect(
-        res,
-        '/social-login-complete/error?message=unexpected-error',
-      );
+      throw err;
     }
   }
 

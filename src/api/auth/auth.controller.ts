@@ -22,6 +22,7 @@ import { SocialProviderPipe } from './pipe/social-provider.pipe';
 import cookieConfig from './config/cookie.config';
 import { Cookies } from '../../common/decorator/cookies.decorator';
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
+import { SocialLoginResponseDto } from 'src/api/auth/dto/response/social-login-response.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -85,9 +86,8 @@ export class AuthController {
   public async socialLoginForApp(
     @Param('provider', SocialProviderPipe) provider: SocialProvider,
     @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    await this.authService.socialLoginForApp(req, res, provider);
+  ): Promise<SocialLoginResponseDto> {
+    return await this.authService.socialLoginForApp(req, provider);
   }
 
   /**
