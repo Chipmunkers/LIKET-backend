@@ -3,5 +3,4 @@
  */
 export class SocialLoginResponseDto {
   public accessToken: string;
-  public refreshToken: string;
 }

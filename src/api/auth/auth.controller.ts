@@ -83,11 +83,19 @@ export class AuthController {
    */
   @Post('/:provider/app')
   @HttpCode(200)
+  @Exception(409, '이메일 중복 가입')
+  @Exception(418, '정지된 사용자')
   public async socialLoginForApp(
     @Param('provider', SocialProviderPipe) provider: SocialProvider,
     @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<SocialLoginResponseDto> {
-    return await this.authService.socialLoginForApp(req, provider);
+    const loginToken = await this.authService.socialLoginForApp(req, provider);
+    res.cookie('refreshToken', loginToken.refreshToken, cookieConfig());
+
+    return {
+      accessToken: loginToken.accessToken,
+    };
   }
 
   /**
