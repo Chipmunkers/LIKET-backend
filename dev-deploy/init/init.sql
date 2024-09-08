@@ -1,4 +1,4 @@
-CREATE USER liket_admin_deploy WITH PASSWORD '1234';
+CREATE USER liket_admin_deploy WITH PASSWORD 'liket-admin-1234';
 
 CREATE DATABASE liket OWNER liket_admin_deploy;
 
