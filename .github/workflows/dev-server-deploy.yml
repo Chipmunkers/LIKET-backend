@@ -38,13 +38,13 @@ jobs:
       - name: Install sshpass 
         run: sudo apt-get update && sudo apt-get install -y sshpass
 
-      - name: Deploy to EC2
+      - name: Deploy to dev server
         env:
           HOST: ${{ secrets.DEV_SERVER_HOST }}
           PW: ${{ secrets.DEV_SERVER_PW }}
           USER: ${{ secrets.DEV_SERVER_USER }}
         run: |
-          sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          sshpass -p "$PW" ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/liket-mobile-dev-api-server:latest
             docker stop ${{ secrets.DEV_SERVER_CONTAINER_NAME }} || true
             docker rm ${{ secrets.DEV_SERVER_CONTAINER_NAME }} || true
