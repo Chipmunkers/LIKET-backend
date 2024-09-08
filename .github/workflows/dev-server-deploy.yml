@@ -15,27 +15,17 @@ jobs:
 
       - name: Set up Docker Build
         uses: docker/setup-buildx-action@v1
+        
+      - name: Log in to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build and push image to docker hub
         env:
-          ECR_REGISTRY: ${{ secrets.DEV_ECR_REGISTRY }}
-          ECR_REPOSITORY: ${{ secrets.DEV_ECR_REPOSITORY }}
           IMAGE_TAG: latest
         run: |
-          docker build -f ./dev-deploy/Dockerfile -t liket-mobile-dev-api-server-repository .
-          docker tag liket-mobile-dev-api-server-repository:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -f ./dev-deploy/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/liket-mobile-dev-api-server .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/liket-mobile-dev-api-server:$IMAGE_TAG
 
   deploy:
     runs-on: ubuntu-latest
@@ -45,23 +35,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install sshpass 
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
       - name: Deploy to EC2
         env:
-          HOST: ${{ secrets.EC2_HOST }}
-          KEY: ${{ secrets.EC2_KEY }}
-          USER: ubuntu
+          HOST: ${{ secrets.DEV_SERVER_HOST }}
+          PW: ${{ secrets.DEV_SERVER_PW }}
+          USER: ${{ secrets.DEV_SERVER_USER }}
         run: |
-          echo "$KEY" > key.pem
-          chmod 400 key.pem
-          ssh -o StrictHostKeyChecking=no -i key.pem $USER@$HOST << 'EOF'
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-            ls /home
-            docker pull ${{ secrets.DEV_ECR_REGISTRY }}/${{ secrets.DEV_ECR_REPOSITORY }}:latest
-            ls /home
+          sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/liket-mobile-dev-api-server:latest
             docker stop ${{ secrets.DEV_SERVER_CONTAINER_NAME }} || true
-            ls /home
             docker rm ${{ secrets.DEV_SERVER_CONTAINER_NAME }} || true
-            ls $ENV_FILE_PATH
             
-            docker run -d -p 3000:3000 --name ${{ secrets.DEV_SERVER_CONTAINER_NAME }} --env-file ${{ secrets.DEV_ENV_FILE_PATH }} ${{ secrets.DEV_ECR_REGISTRY }}/${{ secrets.DEV_ECR_REPOSITORY }}:latest
+            docker run -d -p 3000:3000 --name ${{ secrets.DEV_SERVER_CONTAINER_NAME }} --env-file ${{ secrets.DEV_ENV_FILE_PATH }} ${{ secrets.DOCKER_HUB_USERNAME }}/liket-mobile-dev-api-server:latest
           EOF
