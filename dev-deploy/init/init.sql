@@ -550,7 +550,7 @@ VALUES
   (3, '10대'), -- 3
   (4, '20대'), -- 4
   (5, '30대'), -- 5 
-  (7, '40-50대'); -- 6
+  (6, '40-50대'); -- 6
 
 -- Inquiry Type
 INSERT INTO inquiry_type_tb
@@ -580,8 +580,8 @@ VALUES
     (
         true, 
         -- is_admin
-        'admin123@gmail.com', -- email
-        '$2b$08$9GtDWdylreyFVvLkorwgfOVQd9.fSWCkwp.VOO.aukK378LHgQ/8a', --pw
+        'admin@gmail.com', -- email
+        '$2b$08$4Z8JbFBoiyrk1/YfhhMTgu/5j8OTscNHSU.f7kqCKtydv9T.1TN4O', --pw
         '관리자', -- nickname
         1, -- gedner
         null, -- birth
