@@ -17,9 +17,7 @@ import { UserRepository } from '../user/user.repository';
 import { InvalidRefreshTokenType } from '../../common/module/login-jwt/exception/InvalidRefreshTokenType';
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 import { SocialLoginUserService } from '../user/social-login-user.service';
-import { User } from '@prisma/client';
-import { EmailDuplicateException } from 'src/api/user/exception/EmailDuplicateException';
-import { SocialLoginEmailDuplicateException } from 'src/api/auth/exception/SocialLoginEmailDuplicateException';
+import { SocialLoginEmailDuplicateException } from './exception/SocialLoginEmailDuplicateException';
 
 @Injectable()
 export class AuthService {
