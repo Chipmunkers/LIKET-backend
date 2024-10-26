@@ -24,6 +24,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from './common/module/prisma/prisma.module';
 import { MetricModule } from './api/metric/metric.module';
 import { MapModule } from './api/map/map.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { MapModule } from './api/map/map.module';
       useClass: ThrottlerGuard,
     },
   ],
+  controllers: [AppController],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
