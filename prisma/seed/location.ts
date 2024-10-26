@@ -18,6 +18,7 @@ export const upsertMapLevel1 = async () => {
   );
 
   for (const sido of sidoList) {
+    console.log(`INSERT map 1: ${sido.bjd_cd}`);
     await prisma.mapLevel1.upsert({
       where: {
         code: sido.cd,
@@ -44,6 +45,7 @@ export const upsertMapLevel2 = async () => {
   );
 
   for (const sgg of sggList) {
+    console.log(`INSERT map 2: ${sgg.bjd_cd}`);
     await prisma.mapLevel2.upsert({
       where: {
         code: sgg.cd,
@@ -70,6 +72,7 @@ export const upsertMapLevel3 = async () => {
   );
 
   for (const leg of legList) {
+    console.log(`INSERT map 3: ${leg.bjd_cd}`);
     await prisma.mapLevel3.upsert({
       where: {
         code: leg.cd,
