@@ -296,6 +296,7 @@ CREATE TABLE user_tb
   sns_id           varchar                 ,
   provider         varchar                  NOT NULL DEFAULT 'local',
   profile_img_path varchar                 ,
+  login_at         timestamp with time zone,
   blocked_at       timestamp with time zone,
   created_at       timestamp with time zone NOT NULL DEFAULT NOW(),
   updated_at       timestamp with time zone NOT NULL DEFAULT NOW(),

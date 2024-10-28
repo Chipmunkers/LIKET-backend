@@ -68,6 +68,8 @@ export class UserService {
       signUpUser.isAdmin,
     );
 
+    await this.userRepository.updateUserLastLoginByIdx(signUpUser.idx);
+
     return {
       accessToken,
       refreshToken,
@@ -76,6 +78,10 @@ export class UserService {
 
   /**
    * 소셜 회원가입 하기
+   *
+   * 원터치 회원가입으로 변경됨에따라 deprecated 되었습니다.
+   *
+   * @deprecated
    */
   public async socialUserSignUp(
     signUpDto: SocialSignUpDto,

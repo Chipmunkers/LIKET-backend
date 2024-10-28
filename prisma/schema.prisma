@@ -350,6 +350,7 @@ model User {
   snsId            String?            @map("sns_id") @db.VarChar
   provider         String             @default("local") @db.VarChar
   profileImgPath   String?            @map("profile_img_path") @db.VarChar
+  loginAt          DateTime?          @map("login_at") @db.Timestamptz(6)
   blockedAt        DateTime?          @map("blocked_at") @db.Timestamptz(6)
   createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
