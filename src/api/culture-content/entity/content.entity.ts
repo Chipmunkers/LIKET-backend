@@ -17,7 +17,7 @@ export class ContentEntity {
    * @example 디올 팝업스토어
    */
   @IsString()
-  @Length(1, 40)
+  @Length(1, 60)
   public title: string;
 
   /**
@@ -26,7 +26,7 @@ export class ContentEntity {
    * @example "서울에서 만나는 디올의 특별한 컨셉 스토어\nDIOR SEONGSU에서 펼쳐지는\n매혹적인 홀리데이 시즌을 경험해보세요.\n주중 | DIOR SEONGSU 앱을 통한 방문 예약 \n또는 현장 접수 가능\n주말 | 현장 접수만 가능\n12월 예약 서비스는 12월 4일 오후12시에 오픈 되오니,\n많은 관심 부탁드립니다."
    */
   @IsString()
-  @Length(1, 1000)
+  @Length(1, 2000)
   public description: string;
 
   /**
@@ -90,7 +90,7 @@ export class ContentEntity {
    * @example "월-금 12:00-20:00   토-일 11:00-20:00"
    */
   @IsString()
-  @Length(1, 40)
+  @Length(1, 100)
   public openTime: string;
 
   /**
