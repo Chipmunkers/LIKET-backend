@@ -6,4 +6,9 @@ export class AppController {
   healthCheck() {
     return;
   }
+
+  @Get('/test')
+  test() {
+    return 'success';
+  }
 }
