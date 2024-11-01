@@ -80,6 +80,19 @@ export class AuthController {
   }
 
   /**
+   * 소셜 로그인 콜백 API
+   */
+  @Post('/:provider/callback')
+  @HttpCode(200)
+  public async socialLoginCallbackForAppleLogin(
+    @Param('provider', SocialProviderPipe) provider: SocialProvider,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    await this.authService.socialLoginForWeb(req, res, provider);
+  }
+
+  /**
    * 소셜 앱 로그인
    *
    * 카카오: req.body.accessToken string으로 전달

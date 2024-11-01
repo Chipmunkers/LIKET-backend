@@ -20,6 +20,7 @@ import { SocialLoginUserService } from '../user/social-login-user.service';
 import { SocialLoginEmailDuplicateException } from './exception/SocialLoginEmailDuplicateException';
 import { LoginUser } from './model/login-user';
 import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-payload';
+import { AppleLoginStrategy } from './strategy/apple/apple-login.strategy';
 
 @Injectable()
 export class AuthService {
@@ -36,10 +37,12 @@ export class AuthService {
     @Logger('AuthService') private readonly logger: LoggerService,
     private readonly kakaoLoginStrategy: KakaoLoginStrategy,
     private readonly naverLoginStrategy: NaverLoginStrategy,
+    private readonly appleLoginStrategy: AppleLoginStrategy,
   ) {
     this.socialLoginStrategyMap = {
       [SocialProvider.KAKAO]: this.kakaoLoginStrategy,
       [SocialProvider.NAVER]: this.naverLoginStrategy,
+      [SocialProvider.APPLE]: this.appleLoginStrategy,
     };
   }
 
