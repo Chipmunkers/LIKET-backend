@@ -209,6 +209,28 @@ export class UserRepository {
     });
   }
 
+  public updateUserLastLoginByIdx(idx: number) {
+    return this.prisma.user.update({
+      where: {
+        idx,
+      },
+      data: {
+        loginAt: new Date(),
+      },
+    });
+  }
+
+  public deleteUserLastLoginByIdx(idx: number) {
+    return this.prisma.user.update({
+      where: {
+        idx,
+      },
+      data: {
+        loginAt: null,
+      },
+    });
+  }
+
   public deleteUserByIdx(idx: number, tx?: Prisma.TransactionClient) {
     this.logger.log(this.deleteUserByIdx, `DELETE user WHERE idx = ${idx}`);
     return this.prisma.user.update({

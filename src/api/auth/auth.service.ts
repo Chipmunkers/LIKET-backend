@@ -18,6 +18,9 @@ import { InvalidRefreshTokenType } from '../../common/module/login-jwt/exception
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 import { SocialLoginUserService } from '../user/social-login-user.service';
 import { SocialLoginEmailDuplicateException } from './exception/SocialLoginEmailDuplicateException';
+import { LoginUser } from './model/login-user';
+import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-payload';
+import { AppleLoginStrategy } from './strategy/apple/apple-login.strategy';
 
 @Injectable()
 export class AuthService {
@@ -34,10 +37,12 @@ export class AuthService {
     @Logger('AuthService') private readonly logger: LoggerService,
     private readonly kakaoLoginStrategy: KakaoLoginStrategy,
     private readonly naverLoginStrategy: NaverLoginStrategy,
+    private readonly appleLoginStrategy: AppleLoginStrategy,
   ) {
     this.socialLoginStrategyMap = {
       [SocialProvider.KAKAO]: this.kakaoLoginStrategy,
       [SocialProvider.NAVER]: this.naverLoginStrategy,
+      [SocialProvider.APPLE]: this.appleLoginStrategy,
     };
   }
 
@@ -81,6 +86,8 @@ export class AuthService {
       user.idx,
       user.isAdmin,
     );
+
+    await this.updateLoginTimeByUserIdx(user.idx);
 
     return {
       accessToken,
@@ -206,6 +213,8 @@ export class AuthService {
 
       const loginToken = await strategy.login(socialUser);
 
+      await this.updateLoginTimeByUserIdx(loginUser.idx);
+
       return loginToken;
     } catch (err) {
       this.logger.error(this.socialLogin, 'Social Login Error', err);
@@ -262,7 +271,16 @@ export class AuthService {
    * 로그아웃 하기
    */
   public async logout(refreshToken?: string) {
-    await this.loginJwtService.expireRefreshToken(refreshToken);
+    //await this.userRepository.deleteUserLastLoginByIdx(loginUser.idx);
+
+    if (refreshToken) {
+      const base64Url = refreshToken.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const decodedPayload = Buffer.from(base64, 'base64').toString('utf8');
+      const payload: LoginJwtPayload = JSON.parse(decodedPayload);
+
+      await this.userRepository.deleteUserLastLoginByIdx(payload.idx);
+    }
   }
 
   private async checkFirstSocialLogin(
@@ -296,5 +314,14 @@ export class AuthService {
 
   private redirect(res: Response, path: string) {
     res.redirect(process.env.FRONT_DOMAIN + path);
+  }
+
+  /**
+   * 로그인 시간 설정하기
+   *
+   * @param idx 사용자 인덱스
+   */
+  private async updateLoginTimeByUserIdx(idx: number) {
+    await this.userRepository.updateUserLastLoginByIdx(idx);
   }
 }

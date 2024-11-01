@@ -20,6 +20,11 @@ export class LoginJwtRepository {
     });
   }
 
+  /**
+   * refresh token이 만료된 시간을 업데이트하는 함수
+   *
+   * @deprecated
+   */
   public async delete(refreshToken: string): Promise<void> {
     this.logger.log(this.delete, 'UPDATE refresh token to be expired');
     try {

@@ -14,6 +14,9 @@ import { LoginJwtModule } from '../../common/module/login-jwt/login-jwt.module';
 import { UtilModule } from '../../common/module/util/util.module';
 import naverLoginConfig from './strategy/naver/config/naver-login.config';
 import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
+import appleLoginConfig from './strategy/apple/config/apple-login.config';
+import { AppleLoginStrategy } from './strategy/apple/apple-login.strategy';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -25,6 +28,8 @@ import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
     UtilModule,
     ConfigModule.forFeature(kakaoLoginConfig),
     ConfigModule.forFeature(naverLoginConfig),
+    ConfigModule.forFeature(appleLoginConfig),
+    JwtModule.register({}),
     HttpModule.registerAsync({
       imports: [ConfigModule.forFeature(httpConfig)],
       useFactory: async (configService: ConfigService) => ({
@@ -36,6 +41,11 @@ import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
     UserModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, KakaoLoginStrategy, NaverLoginStrategy],
+  providers: [
+    AuthService,
+    KakaoLoginStrategy,
+    NaverLoginStrategy,
+    AppleLoginStrategy,
+  ],
 })
 export class AuthModule {}

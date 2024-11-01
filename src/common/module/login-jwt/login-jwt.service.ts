@@ -99,6 +99,9 @@ export class LoginJwtService {
     return payload;
   }
 
+  /**
+   * @deprecated
+   */
   public async expireRefreshToken(token?: string) {
     if (token) {
       await this.loginJwtRepository.delete(token);

@@ -23,6 +23,9 @@ import cookieConfig from './config/cookie.config';
 import { Cookies } from '../../common/decorator/cookies.decorator';
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 import { SocialLoginResponseDto } from 'src/api/auth/dto/response/social-login-response.dto';
+import { LoginAuth } from './login-auth.decorator';
+import { LoginUser } from './model/login-user';
+import { User } from '../user/user.decorator';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -69,6 +72,19 @@ export class AuthController {
   @Get('/:provider/callback')
   @HttpCode(200)
   public async socialLoginCallback(
+    @Param('provider', SocialProviderPipe) provider: SocialProvider,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    await this.authService.socialLoginForWeb(req, res, provider);
+  }
+
+  /**
+   * 소셜 로그인 콜백 API
+   */
+  @Post('/:provider/callback')
+  @HttpCode(200)
+  public async socialLoginCallbackForAppleLogin(
     @Param('provider', SocialProviderPipe) provider: SocialProvider,
     @Req() req: Request,
     @Res() res: Response,

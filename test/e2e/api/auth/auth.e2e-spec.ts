@@ -9,6 +9,7 @@ import { SocialLoginUser } from '../../../../src/api/auth/model/social-login-use
 import { SocialProvider } from '../../../../src/api/auth/strategy/social-provider.enum';
 import { AppGlobalSetting } from '../../setup/app-global.setup';
 import { PrismaSetting } from '../../setup/prisma.setup';
+import e from 'express';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
@@ -50,6 +51,29 @@ describe('Auth (e2e)', () => {
         .post('/auth/local')
         .send(loginDto)
         .expect(200);
+    });
+
+    it('Register last login time test', async () => {
+      const loginDto: LoginDto = {
+        email: 'user1@gmail.com',
+        pw: 'aa12341234**',
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/local')
+        .send(loginDto)
+        .expect(200);
+
+      const loginUser = await prismaSetting.getPrisma().user.findFirst({
+        where: {
+          email: loginDto.email,
+        },
+        select: {
+          loginAt: true,
+        },
+      });
+
+      expect(loginUser?.loginAt).toBeDefined();
     });
 
     it('Non-existent email', async () => {
@@ -278,6 +302,46 @@ describe('Auth (e2e)', () => {
 
     it('Success with no cookie', async () => {
       await request(app.getHttpServer()).delete('/auth').expect(201);
+    });
+
+    it('Delete last login time', async () => {
+      const loginDto: LoginDto = {
+        email: 'user1@gmail.com',
+        pw: 'aa12341234**',
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/auth/local')
+        .send(loginDto);
+
+      const loginUser = await prismaSetting.getPrisma().user.findFirst({
+        where: {
+          email: loginDto.email,
+        },
+        select: {
+          loginAt: true,
+        },
+      });
+
+      expect(loginUser?.loginAt).toBeDefined();
+
+      const refreshTokenCookie = response.headers['set-cookie'][0];
+
+      await request(app.getHttpServer())
+        .delete('/auth')
+        .set('Cookie', refreshTokenCookie)
+        .expect(201);
+
+      const logoutUser = await prismaSetting.getPrisma().user.findFirst({
+        where: {
+          email: loginDto.email,
+        },
+        select: {
+          loginAt: true,
+        },
+      });
+
+      expect(logoutUser?.loginAt).toBeNull();
     });
   });
 });
