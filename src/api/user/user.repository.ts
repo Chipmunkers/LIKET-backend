@@ -269,4 +269,29 @@ export class UserRepository {
       },
     });
   }
+
+  /**
+   * 신고 횟수를 늘려주는 함수
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 인덱스
+   * @param tx 트랜잭션, 없는 경우 새로운 트랜잭션으로 실행
+   */
+  public increaseReportCountByIdx(
+    idx: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<User> {
+    return (tx ?? this.prisma).user.update({
+      where: {
+        idx,
+        deletedAt: null,
+      },
+      data: {
+        reportCount: {
+          increment: 1,
+        },
+      },
+    });
+  }
 }

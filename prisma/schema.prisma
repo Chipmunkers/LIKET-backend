@@ -214,6 +214,7 @@ model Review {
   idx               Int            @id @default(autoincrement())
   cultureContentIdx Int            @default(autoincrement()) @map("culture_content_idx")
   userIdx           Int            @default(autoincrement()) @map("user_idx")
+  reportCount       Int            @default(0) @map("report_count")
   likeCount         Int            @default(0) @map("like_count")
   description       String
   visitTime         DateTime       @map("visit_time") @db.Timestamptz(6)
@@ -226,8 +227,10 @@ model Review {
   ReviewLike        ReviewLike[]   @relation("review_like_tb_review_tbToreview_tb")
   CultureContent    CultureContent @relation(fields: [cultureContentIdx], references: [idx], onDelete: Cascade, map: "fk_culture_content_tb_to_review_tb")
   User              User           @relation(fields: [userIdx], references: [idx], onDelete: Cascade, map: "fk_user_tb_to_review_tb")
+  ReviewReport      ReviewReport[]
 
   @@index([likeCount], type: BTree)
+  @@index([reportCount], type: BTree)
   @@map("review_tb")
 }
 
@@ -346,6 +349,7 @@ model User {
   pw               String?            @db.VarChar
   nickname         String             @db.VarChar
   gender           Int?               @db.SmallInt
+  reportCount      Int                @default(0) @map("report_count")
   birth            Int?
   snsId            String?            @map("sns_id") @db.VarChar
   provider         String             @default("local") @db.VarChar
@@ -366,8 +370,10 @@ model User {
   BlockReason      BlockReason[]
   DeleteUserReason DeleteUserReason[]
   RefreshToken     RefreshToken[]
+  ReviewReport     ReviewReport[]
 
   @@index([email], type: BTree)
+  @@index([reportCount], type: BTree)
   @@map("user_tb")
 }
 
@@ -468,4 +474,27 @@ model MapLevel3 {
   lat  Float
 
   @@map("map_level_3_tb")
+}
+
+model ReviewReport {
+  reportUserIdx Int              @map("report_user_idx")
+  reviewIdx     Int              @map("review_idx")
+  typeIdx       Int              @map("type_idx")
+  createdAt     DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt     DateTime?        @map("deleted_at") @db.Timestamptz(6)
+  User          User             @relation(fields: [reportUserIdx], references: [idx])
+  Review        Review           @relation(fields: [reviewIdx], references: [idx])
+  Type          ReviewReportType @relation(fields: [typeIdx], references: [idx])
+
+  @@id([reportUserIdx, reviewIdx])
+  @@map("review_report_tb")
+}
+
+model ReviewReportType {
+  idx          Int            @id @default(autoincrement())
+  name         String         @db.VarChar
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  ReviewReport ReviewReport[]
+
+  @@map("review_report_type_tb")
 }

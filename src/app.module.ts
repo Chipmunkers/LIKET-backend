@@ -25,6 +25,7 @@ import { PrismaModule } from './common/module/prisma/prisma.module';
 import { MetricModule } from './api/metric/metric.module';
 import { MapModule } from './api/map/map.module';
 import { AppController } from './app.controller';
+import { ReviewReportModule } from './api/review-report/review-report.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { AppController } from './app.controller';
     ContentTagModule,
     LoginJwtModule,
     MetricModule,
+    ReviewReportModule,
   ],
   providers: [
     {

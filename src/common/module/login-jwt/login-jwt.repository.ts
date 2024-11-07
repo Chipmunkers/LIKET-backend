@@ -10,6 +10,11 @@ export class LoginJwtRepository {
     @Logger(LoginJwtRepository.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * refresh token을 탐색하는 함수
+   *
+   * @deprecated
+   */
   public async find(refreshToken: string) {
     this.logger.log(this.find, 'SELECT refresh token');
     return this.prisma.refreshToken.findUnique({
@@ -42,6 +47,11 @@ export class LoginJwtRepository {
     }
   }
 
+  /**
+   * refresh token을 저장하는 함수
+   *
+   * @deprecated
+   */
   public async save(userIdx: number, refreshToken: string): Promise<void> {
     this.logger.log(this.save, `INSERT refresh token | user = ${userIdx}`);
     await this.prisma.refreshToken.create({

@@ -3,7 +3,7 @@ import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, Review } from '@prisma/client';
 import { ReviewWithInclude } from './entity/prisma-type/review-with-include';
 import { InsertReviewDao } from './dao/insert-review.dao';
 import { UpdateReviewDao } from './dao/update-review.dao';
@@ -15,6 +15,14 @@ export class ReviewRepository {
     @Logger(ReviewRepository.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * 리뷰 목록 가져오기. 만약 로그인 사용자가 있다면 로그인 사용자가 신고한 리뷰는 선택되지 않음.
+   *
+   * @author jochongs
+   *
+   * @param pagerble 쿼리스트링이 담긴 객체
+   * @param userIdx 로그인 사용자 인덱스
+   */
   public selectReviewAll(
     pagerble: ReviewPagerbleDto,
     userIdx?: number,
@@ -29,6 +37,13 @@ export class ReviewRepository {
       User: {
         deletedAt: null,
       },
+      ReviewReport: userIdx
+        ? {
+            none: {
+              reportUserIdx: userIdx,
+            },
+          }
+        : undefined,
     };
 
     this.logger.log(this.selectReviewAll, 'SELECT review');
@@ -73,6 +88,12 @@ export class ReviewRepository {
     });
   }
 
+  /**
+   * 리뷰 자세히보기. 만약 로그인 사용자가 있다면 로그인 사용자가 신고한 리뷰는 선택되지 않고 null을 리턴함.
+   *
+   * @param idx 리뷰 인덱스
+   * @param userIdx
+   */
   public selectReviewByIdx(idx: number, userIdx?: number) {
     this.logger.log(this.selectReviewByIdx, `SELECT review WHERE idx = ${idx}`);
     return this.prisma.review.findUnique({
@@ -118,10 +139,25 @@ export class ReviewRepository {
           },
           deletedAt: null,
         },
+        ReviewReport: userIdx
+          ? {
+              none: {
+                reportUserIdx: userIdx,
+              },
+            }
+          : undefined,
       },
     });
   }
 
+  /**
+   * 인기 리뷰 목록보기. 7일내로 생성된 리뷰 중 좋아요가 3개 이상인 리뷰 중 좋아요 순으로 5개 가져옴.
+   * 로그인 사용자가 있는 경우 신고한 리뷰는 가져오지 않음.
+   *
+   * @author jochongs
+   *
+   * @param userIdx 로그인 사용자
+   */
   public selectHotReviewAll(userIdx?: number) {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -179,6 +215,13 @@ export class ReviewRepository {
         likeCount: {
           gte: 3,
         },
+        ReviewReport: userIdx
+          ? {
+              none: {
+                reportUserIdx: userIdx,
+              },
+            }
+          : undefined,
       },
       orderBy: {
         likeCount: 'desc',
@@ -249,6 +292,31 @@ export class ReviewRepository {
           },
         },
         visitTime: new Date(dao.visitTime),
+      },
+    });
+  }
+
+  /**
+   * 리뷰의 신고 횟수를 1 상승시킨다.
+   *
+   * @author jochongs
+   *
+   * @param idx 리뷰 인덱스
+   * @param tx 트랜잭션, 없는 경우 새로운 트랜잭션 생성
+   */
+  public increaseReviewCountByIdx(
+    idx: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<Review> {
+    return (tx ?? this.prisma).review.update({
+      where: {
+        idx,
+        deletedAt: null,
+      },
+      data: {
+        reportCount: {
+          increment: 1,
+        },
       },
     });
   }
