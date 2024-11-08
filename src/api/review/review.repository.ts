@@ -321,6 +321,27 @@ export class ReviewRepository {
     });
   }
 
+  /**
+   * 리뷰 첫 신고 시간을 현재 시간으로 update하는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 리뷰 인덱스
+   */
+  public updateReviewFirstReportedAtByIdx(
+    idx: number,
+    tx?: Prisma.TransactionClient,
+  ) {
+    return (tx ?? this.prisma).review.update({
+      where: {
+        idx,
+      },
+      data: {
+        firstReportedAt: new Date(),
+      },
+    });
+  }
+
   public deleteReviewByIdx(idx: number) {
     this.logger.log(
       this.deleteReviewByIdx,

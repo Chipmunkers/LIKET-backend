@@ -70,6 +70,14 @@ export class ReviewReportService {
 
       // 사용자 신고 횟수 1 증가
       await this.userRepository.increaseReportCountByIdx(review.userIdx);
+
+      // 첫 신고 시간이 없으면 신고 시간 추가
+      if (!review.firstReportedAt) {
+        await this.reviewRepository.updateReviewFirstReportedAtByIdx(
+          review.idx,
+          tx,
+        );
+      }
     });
   }
 }

@@ -283,7 +283,8 @@
           "c5d56396-5f2a-44d9-ba3e-45d029f87772",
           "3ba1ee43-2a97-4bff-8fac-acdf1ac16671",
           "3423b40e-6b32-4263-ad12-9d54f9ba8954",
-          "2537a2ca-5cd4-4872-9f73-ecd8cc8581c8"
+          "2537a2ca-5cd4-4872-9f73-ecd8cc8581c8",
+          "8PI8OyZv72Jz_voG_nWAI"
         ],
         "seqColumnIds": [
           "03a746e7-4ec9-4ffa-bfe5-82be8bac92ae",
@@ -295,7 +296,8 @@
           "c5d56396-5f2a-44d9-ba3e-45d029f87772",
           "3ba1ee43-2a97-4bff-8fac-acdf1ac16671",
           "3423b40e-6b32-4263-ad12-9d54f9ba8954",
-          "2537a2ca-5cd4-4872-9f73-ecd8cc8581c8"
+          "2537a2ca-5cd4-4872-9f73-ecd8cc8581c8",
+          "8PI8OyZv72Jz_voG_nWAI"
         ],
         "ui": {
           "x": 1754.3254,
@@ -306,7 +308,7 @@
           "color": "#9C27B0"
         },
         "meta": {
-          "updateAt": 1730888129906,
+          "updateAt": 1731052185428,
           "createAt": 1721292572697
         }
       },
@@ -4523,6 +4525,26 @@
           "updateAt": 1730888139120,
           "createAt": 1730888127279
         }
+      },
+      "8PI8OyZv72Jz_voG_nWAI": {
+        "id": "8PI8OyZv72Jz_voG_nWAI",
+        "tableId": "4bd5fedb-c529-4b11-be51-6562c4c12394",
+        "name": "first_reported_at",
+        "comment": "",
+        "dataType": "timestamp with time zone",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 98,
+          "widthComment": 60,
+          "widthDataType": 147,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1731052205436,
+          "createAt": 1731052185427
+        }
       }
     },
     "relationshipEntities": {
@@ -4817,7 +4839,7 @@
             "03a746e7-4ec9-4ffa-bfe5-82be8bac92ae"
           ],
           "x": 2019.3254,
-          "y": 2829.2292,
+          "y": 2853.2292,
           "direction": 8
         },
         "end": {
@@ -4845,7 +4867,7 @@
             "03a746e7-4ec9-4ffa-bfe5-82be8bac92ae"
           ],
           "x": 1754.3254,
-          "y": 2607.2292,
+          "y": 2613.2292,
           "direction": 1
         },
         "end": {
@@ -5069,7 +5091,7 @@
             "03a746e7-4ec9-4ffa-bfe5-82be8bac92ae"
           ],
           "x": 2284.3253999999997,
-          "y": 2681.2292,
+          "y": 2693.2292,
           "direction": 2
         },
         "end": {
@@ -5209,7 +5231,7 @@
             "03a746e7-4ec9-4ffa-bfe5-82be8bac92ae"
           ],
           "x": 1754.3254,
-          "y": 2755.2292,
+          "y": 2773.2292,
           "direction": 1
         },
         "end": {
@@ -5809,6 +5831,16 @@
         "dataType": 1730888137659,
         "options(notNull)": 1730888138556,
         "default": 1730888139120
+      }
+    ],
+    "8PI8OyZv72Jz_voG_nWAI": [
+      "tableColumnEntities",
+      1731052185427,
+      -1,
+      {
+        "name": 1731052191924,
+        "dataType": 1731052205436,
+        "options(notNull)": 1731052198344
       }
     ]
   }

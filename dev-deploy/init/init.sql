@@ -213,6 +213,7 @@ CREATE TABLE review_tb
   created_at          timestamp with time zone NOT NULL DEFAULT NOW(),
   updated_at          timestamp with time zone NOT NULL DEFAULT NOW(),
   deleted_at          timestamp with time zone,
+  first_reported_at   timestamp with time zone,
   PRIMARY KEY (idx)
 );
 

@@ -229,5 +229,79 @@ describe('Review Report(e2e)', () => {
       expect(secondReviewIdxList.includes(reportReviewIdx)).toBe(false);
       expect(secondReviewIdxList.includes(2)).toBe(true);
     });
+
+    it('Update first_reported_at Success', async () => {
+      const reviewIdx = 1;
+      const reportDto: ReportReviewDto = {
+        typeIdx: 1,
+      };
+      const loginUser = loginUsers.user2;
+
+      const reviewBeforeBeingReported = await prismaSetting
+        .getPrisma()
+        .review.findUniqueOrThrow({
+          select: {
+            firstReportedAt: true,
+          },
+          where: {
+            idx: reviewIdx,
+          },
+        });
+
+      expect(reviewBeforeBeingReported.firstReportedAt).toBeNull();
+
+      await request(app.getHttpServer())
+        .post(`/review/${reviewIdx}/report`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send(reportDto)
+        .expect(201);
+
+      const review = await prismaSetting.getPrisma().review.findUniqueOrThrow({
+        where: {
+          idx: reviewIdx,
+        },
+      });
+
+      expect(review.firstReportedAt).not.toBeNull();
+    });
+
+    it('No Update first_reported_at Success', async () => {
+      const reviewIdx = 1;
+      const reportDto: ReportReviewDto = {
+        typeIdx: 1,
+      };
+      const loginUser = loginUsers.user2;
+
+      const firstReportDate = new Date();
+
+      const reviewBeforeBeingReported = await prismaSetting
+        .getPrisma()
+        .review.update({
+          where: {
+            idx: reviewIdx,
+          },
+          data: {
+            firstReportedAt: firstReportDate,
+          },
+        });
+
+      expect(reviewBeforeBeingReported.firstReportedAt).toEqual(
+        firstReportDate,
+      );
+
+      await request(app.getHttpServer())
+        .post(`/review/${reviewIdx}/report`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send(reportDto)
+        .expect(201);
+
+      const review = await prismaSetting.getPrisma().review.findUniqueOrThrow({
+        where: {
+          idx: reviewIdx,
+        },
+      });
+
+      expect(review.firstReportedAt).toEqual(firstReportDate);
+    });
   });
 });
