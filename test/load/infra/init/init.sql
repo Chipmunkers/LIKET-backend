@@ -219,6 +219,7 @@ CREATE TABLE review_tb
 
 CREATE INDEX review_like_count ON review_tb(like_count);
 CREATE INDEX index_report_count ON review_tb(report_count);
+CREATE INDEX index_first_reported_at ON review_tb(first_reported_at);
 
 CREATE TABLE style_mapping_tb
 (

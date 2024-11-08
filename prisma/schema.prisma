@@ -232,6 +232,7 @@ model Review {
 
   @@index([likeCount], type: BTree)
   @@index([reportCount], type: BTree)
+  @@index([firstReportedAt], type: BTree)
   @@map("review_tb")
 }
 
