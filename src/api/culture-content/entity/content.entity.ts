@@ -80,6 +80,13 @@ export class ContentEntity {
   public endDate: Date;
 
   /**
+   * 조회수
+   *
+   * @example 13
+   */
+  public viewCount: number;
+
+  /**
    * 로그인 사용자의 좋아요 상태
    */
   public likeState: boolean;
@@ -184,6 +191,7 @@ export class ContentEntity {
       location: LocationEntity.createEntity(data.Location),
       startDate: data.startDate,
       endDate: data.endDate,
+      viewCount: data.viewCount,
       openTime: data.openTime,
       description: data.description,
       websiteLink: data.websiteLink,

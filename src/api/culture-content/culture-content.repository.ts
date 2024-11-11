@@ -587,6 +587,27 @@ export class CultureContentRepository {
     ]);
   }
 
+  /**
+   * 조회수를 증가시키는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 컨텐츠 인덱스
+   * @param viewCount 늘릴 조회수, 기본 값 1
+   */
+  public increaseContentViewCountByIdx(idx: number, viewCount: number = 1) {
+    return this.prisma.cultureContent.update({
+      where: {
+        idx,
+      },
+      data: {
+        viewCount: {
+          increment: viewCount,
+        },
+      },
+    });
+  }
+
   public deleteContentRequest(idx: number) {
     this.logger.log(
       this.deleteContentRequest,

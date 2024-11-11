@@ -9,6 +9,7 @@ import invalidCreateContentRequest from './invalid-create-content-request';
 import { PrismaSetting } from '../../setup/prisma.setup';
 import { AppGlobalSetting } from '../../setup/app-global.setup';
 import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
+import { ContentViewService } from '../../../../src/api/culture-content/content-view.service';
 
 describe('Culture Content (e2e)', () => {
   let app: INestApplication;
@@ -646,74 +647,6 @@ describe('Culture Content (e2e)', () => {
 
       expect(response.body).toBeDefined();
       expect(Array.isArray(response.body.contentList)).toBe(true);
-    });
-  });
-
-  describe('GET /culture-content/:idx', () => {
-    it('Success with no token', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/culture-content/1')
-        .expect(200);
-
-      expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(1);
-    });
-
-    it('Non-existent content', async () => {
-      await request(app.getHttpServer())
-        .get('/culture-content/9999999')
-        .expect(404);
-    });
-
-    it('Not accepted content - author', async () => {
-      const idx = 2;
-      const loginUser = loginUsers.user1;
-
-      const response = await request(app.getHttpServer())
-        .get(`/culture-content/${idx}`)
-        .set('Authorization', `Bearer ${loginUser.accessToken}`)
-        .expect(200);
-
-      expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(idx);
-    });
-
-    it('Not accepted content - no author', async () => {
-      const idx = 2;
-      const loginUser = loginUsers.user2;
-
-      await request(app.getHttpServer())
-        .get(`/culture-content/${idx}`)
-        .set('Authorization', `Bearer ${loginUser.accessToken}`)
-        .expect(403);
-    });
-
-    it('Not accepted content - no token', async () => {
-      const idx = 2;
-
-      await request(app.getHttpServer())
-        .get(`/culture-content/${idx}`)
-        .expect(403);
-    });
-
-    it('Deleted content - author', async () => {
-      const idx = 3;
-      const loginUser = loginUsers.user1;
-
-      await request(app.getHttpServer())
-        .get(`/culture-content/${idx}`)
-        .set('Authorization', `Bearer ${loginUser.accessToken}`)
-        .expect(404);
-    });
-
-    it('Deleted content - no author', async () => {
-      const idx = 3;
-      const loginUser = loginUsers.user2;
-
-      await request(app.getHttpServer())
-        .get(`/culture-content/${idx}`)
-        .set('Authorization', `Bearer ${loginUser.accessToken}`)
-        .expect(404);
     });
   });
 

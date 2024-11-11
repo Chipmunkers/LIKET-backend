@@ -30,6 +30,7 @@ import { GetHotAgeContentResponseDto } from './dto/response/get-hot-age-content.
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { SummaryContentEntity } from './entity/summary-content.entity';
 import { GetLikeContentAllResponseDto } from './dto/response/get-like-content-all.dto';
+import { ContentViewService } from './content-view.service';
 
 @Controller('culture-content')
 @ApiTags('Culture-Content')
@@ -37,6 +38,7 @@ export class CultureContentController {
   constructor(
     private readonly cultureContentService: CultureContentService,
     private readonly contentAuthService: ContentAuthService,
+    private readonly contentViewService: ContentViewService,
   ) {}
 
   /**
@@ -151,6 +153,10 @@ export class CultureContentController {
       contentIdx,
       loginUser?.idx,
     );
+
+    if (loginUser) {
+      this.contentViewService.increaseViewCount(loginUser.idx, contentIdx);
+    }
 
     return content;
   }
