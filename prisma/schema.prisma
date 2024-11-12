@@ -501,3 +501,17 @@ model ReviewReportType {
 
   @@map("review_report_type_tb")
 }
+
+model Notice {
+  idx         Int       @id @default(autoincrement())
+  title       String    @db.VarChar
+  contents    String    @db.VarChar
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  activatedAt DateTime? @map("activated_at") @db.Timestamptz(6)
+  pinnedAt    DateTime? @map("pinned_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  @@index([pinnedAt], type: BTree)
+  @@index([activatedAt], type: BTree)
+  @@map("notice_tb")
+}

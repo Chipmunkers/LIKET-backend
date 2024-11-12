@@ -370,6 +370,21 @@ CREATE TABLE review_report_type_tb
   PRIMARY KEY (idx)
 );
 
+CREATE TABLE notice_tb
+(
+  idx          int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  title        varchar                  NOT NULL,
+  contents     varchar                  NOT NULL,
+  activated_at timestamp with time zone,
+  pinned_at    timestamp with time zone,
+  created_at   timestamp with time zone NOT NULL DEFAULT NOW(),
+  deleted_at   timestamp with time zone,
+  PRIMARY KEY (idx)
+);
+
+CREATE INDEX index_pinned_at ON notice_tb(pinned_at);
+CREATE INDEX index_activated_at ON notice_tb(activated_at);
+
 ALTER TABLE culture_content_tb
   ADD CONSTRAINT FK_genre_tb_TO_culture_content_tb
     FOREIGN KEY (genre_idx)

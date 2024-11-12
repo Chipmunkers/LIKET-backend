@@ -26,6 +26,7 @@ import { MetricModule } from './api/metric/metric.module';
 import { MapModule } from './api/map/map.module';
 import { AppController } from './app.controller';
 import { ReviewReportModule } from './api/review-report/review-report.module';
+import { NoticeModule } from './api/notice/notice.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { ReviewReportModule } from './api/review-report/review-report.module';
     LoginJwtModule,
     MetricModule,
     ReviewReportModule,
+    NoticeModule,
   ],
   providers: [
     {
