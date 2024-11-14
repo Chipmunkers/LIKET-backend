@@ -60,7 +60,13 @@ describe('Map (e2e)', () => {
     it('No token', async () => {
       await request(app.getHttpServer())
         .get(`/map/culture-content/all`)
-        .expect(401);
+        .query({
+          'top-x': 127,
+          'top-y': 30,
+          'bottom-x': 128,
+          'bottom-y': 29,
+        })
+        .expect(200);
     });
   });
 
@@ -89,7 +95,14 @@ describe('Map (e2e)', () => {
     it('No token', async () => {
       await request(app.getHttpServer())
         .get(`/map/culture-content/clustered/all`)
-        .expect(401);
+        .query({
+          'top-x': 127,
+          'top-y': 30,
+          'bottom-x': 128,
+          'bottom-y': 29,
+          level: 1,
+        })
+        .expect(200);
     });
   });
 });

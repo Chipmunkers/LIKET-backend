@@ -1,6 +1,5 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../../../src/api/auth/auth.service';
 import { AppModule } from '../../../../src/app.module';
 import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import * as request from 'supertest';
@@ -9,7 +8,6 @@ import invalidCreateContentRequest from './invalid-create-content-request';
 import { PrismaSetting } from '../../setup/prisma.setup';
 import { AppGlobalSetting } from '../../setup/app-global.setup';
 import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
-import { ContentViewService } from '../../../../src/api/culture-content/content-view.service';
 
 describe('Culture Content (e2e)', () => {
   let app: INestApplication;
@@ -201,7 +199,7 @@ describe('Culture Content (e2e)', () => {
     it('No token', async () => {
       await request(app.getHttpServer())
         .get('/culture-content/all')
-        .expect(401);
+        .expect(200);
     });
 
     it('Filter other user', async () => {

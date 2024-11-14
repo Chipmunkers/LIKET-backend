@@ -18,25 +18,29 @@ export class ContentAuthService {
   ) {}
 
   public async checkReadAllPermission(
-    loginUser: LoginUser,
     pagerble: ContentPagerbleDto,
+    loginUser?: LoginUser,
   ): Promise<void> {
     this.logger.log(
       this.checkReadAllPermission,
       'Check content read permission',
     );
-    if (pagerble.user && pagerble.user !== loginUser.idx) {
+    if (pagerble.user && pagerble.user !== loginUser?.idx) {
       this.logger.warn(
         this.checkReadAllPermission,
-        `Unauthenticated attempt to read content with user pagerble | user = ${loginUser.idx}`,
+        `Unauthenticated attempt to read content with user pagerble | user = ${
+          loginUser?.idx || 'Guest'
+        }`,
       );
       throw new PermissionDeniedException();
     }
 
-    if (!pagerble.accept && pagerble.user !== loginUser.idx) {
+    if (!pagerble.accept && pagerble.user !== loginUser?.idx) {
       this.logger.warn(
         this.checkReadAllPermission,
-        `Unauthenticated attempt to read content with accept pagerble | user = ${loginUser.idx}`,
+        `Unauthenticated attempt to read content with accept pagerble | user = ${
+          loginUser?.idx || 'Guest'
+        }`,
       );
       throw new PermissionDeniedException();
     }

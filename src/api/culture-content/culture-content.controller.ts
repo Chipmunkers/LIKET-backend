@@ -28,7 +28,6 @@ import { HotCultureContentEntity } from './entity/hot-content.entity';
 import { GetHotContentResponseDto } from './dto/response/get-hot-style-content.dto';
 import { GetHotAgeContentResponseDto } from './dto/response/get-hot-age-content.dto';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
-import { SummaryContentEntity } from './entity/summary-content.entity';
 import { GetLikeContentAllResponseDto } from './dto/response/get-like-content-all.dto';
 import { ContentViewService } from './content-view.service';
 
@@ -48,16 +47,15 @@ export class CultureContentController {
   @HttpCode(200)
   @Exception(400, 'Invalid querystring')
   @Exception(403, 'Permission denied')
-  @LoginAuth()
   public async getCultureContentAll(
-    @User() loginUser: LoginUser,
     @Query() pagerble: ContentPagerbleDto,
+    @User() loginUser?: LoginUser,
   ): Promise<GetCultureContentAllResponseDto> {
-    await this.contentAuthService.checkReadAllPermission(loginUser, pagerble);
+    await this.contentAuthService.checkReadAllPermission(pagerble, loginUser);
 
     const result = await this.cultureContentService.getContentAll(
       pagerble,
-      loginUser.idx,
+      loginUser?.idx,
     );
 
     return result;

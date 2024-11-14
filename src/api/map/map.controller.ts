@@ -20,7 +20,6 @@ export class MapController {
    */
   @Get('/culture-content/clustered/all')
   @Exception(400, 'Invalid querystring')
-  @LoginAuth()
   async getClusteredContentAllForMap(
     @Query() pagerbleDto: MapPagerbleDto,
   ): Promise<ClusteredContentAllResponseDto> {
@@ -36,10 +35,9 @@ export class MapController {
    */
   @Get('/culture-content/all')
   @Exception(400, 'Invalid querystring')
-  @LoginAuth()
   async getCultureContentAllForMap(
     @Query() pagerbleDto: MapContentPagerbleDto,
-    @User() loginUser: LoginUser,
+    @User() loginUser?: LoginUser,
   ): Promise<ContentAllResponseDto> {
     return {
       contentList: await this.mapService.getContentAll(pagerbleDto, loginUser),
