@@ -6,6 +6,7 @@ export class SummaryNoticeEntity extends PickType(NoticeEntity, [
   'idx',
   'title',
   'createdAt',
+  'pinnedAt',
 ]) {
   constructor(data: SummaryNoticeEntity) {
     super();
@@ -16,6 +17,7 @@ export class SummaryNoticeEntity extends PickType(NoticeEntity, [
     return new SummaryNoticeEntity({
       idx: notice.idx,
       title: notice.title,
+      pinnedAt: notice.pinnedAt,
       createdAt: notice.createdAt,
     });
   }
