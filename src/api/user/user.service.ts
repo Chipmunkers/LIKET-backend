@@ -3,7 +3,6 @@ import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { MyInfoEntity } from './entity/my-info.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { DuplicateUserException } from './exception/DuplicateUserException';
 import { HashService } from '../../common/module/hash/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { UserEntity } from './entity/user.entity';
@@ -21,6 +20,10 @@ import { LoggerService } from '../../common/module/logger/logger.service';
 import { LoginUser } from '../auth/model/login-user';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { UserRepository } from './user.repository';
+import { LiketRepository } from '../liket/liket.repository';
+import { ReviewRepository } from '../review/review.repository';
+import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
+import { MyReviewEntity } from '../review/entity/my-review.entity';
 
 @Injectable()
 export class UserService {
@@ -31,6 +34,8 @@ export class UserService {
     private readonly loginJwtService: LoginJwtService,
     private readonly socialLoginJwtService: SocialLoginJwtService,
     private readonly userRepository: UserRepository,
+    private readonly liketRepostiory: LiketRepository,
+    private readonly reviewRepository: ReviewRepository,
     @Logger(UserService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -123,6 +128,10 @@ export class UserService {
 
   /**
    * 내 정보 가져오기
+   *
+   * @author wherehows
+   *
+   * @param userIdx 로그인 사용자 인덱스
    */
   public async getMyInfo(userIdx: number): Promise<MyInfoEntity> {
     const user = await this.userRepository.selectMyUser(userIdx);
@@ -135,7 +144,28 @@ export class UserService {
       throw new UserNotFoundException('Cannot find user');
     }
 
-    return MyInfoEntity.createEntity(user);
+    const liketList = (
+      await this.liketRepostiory.selectLiketAll({
+        user: userIdx,
+        orderby: 'time',
+        order: 'desc',
+        page: 1,
+      })
+    ).map((liket) => {
+      return SummaryLiketEntity.createEntity(liket);
+    });
+
+    const liketCount = await this.liketRepostiory.selectLiketCountByUserIdx(
+      userIdx,
+    );
+
+    const reviewList = (
+      await this.reviewRepository.selectReviewForMyInfo(userIdx)
+    ).map((review) => {
+      return MyReviewEntity.createEntity(review);
+    });
+
+    return MyInfoEntity.createEntity(user, liketList, liketCount, reviewList);
   }
 
   /**

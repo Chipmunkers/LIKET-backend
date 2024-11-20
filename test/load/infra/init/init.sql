@@ -147,16 +147,27 @@ CREATE TABLE inquiry_type_tb
   PRIMARY KEY (idx)
 );
 
-CREATE TABLE liket_tb
+CREATE TABLE liket_tb 
 (
-  idx         int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
-  review_idx  int                      NOT NULL,
-  user_idx    int                      NOT NULL,
-  img_path    varchar                  NOT NULL,
-  description varchar                 ,
-  created_at  timestamp with time zone NOT NULL DEFAULT NOW(),
-  updated_at  timestamp with time zone NOT NULL DEFAULT NOW(),
-  deleted_at  timestamp with time zone,
+  idx                int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  review_idx         int                      NOT NULL,
+  description        varchar(42)              NOT NULL,
+  size               smallint                 NOT NULL,
+  text_shape         JSON,
+  bg_img_info        JSON                     NOT NULL,
+  card_img_path      varchar                  NOT NULL,
+  bg_img_path        varchar                  NOT NULL,
+  created_at         timestamp with time zone NOT NULL DEFAULT NOW(),
+  updated_at         timestamp with time zone NOT NULL DEFAULT NOW(),
+  deleted_at         timestamp with time zone,
+  PRIMARY KEY (idx)
+);
+
+CREATE TABLE liket_img_shape_tb
+(
+  idx         int     NOT NULL GENERATED ALWAYS AS IDENTITY,
+  liket_idx   int     NOT NULL,
+  img_shape   JSON    NOT NULL,
   PRIMARY KEY (idx)
 );
 
@@ -440,6 +451,14 @@ ALTER TABLE liket_tb
     FOREIGN KEY (review_idx)
     REFERENCES review_tb (idx);
 
+ALTER TABLE liket_img_shape_tb
+  ADD CONSTRAINT FK_liket_tb_TO_liket_img_shape_tb
+    FOREIGN KEY (liket_idx)
+    REFERENCES liket_tb (idx);
+
+ALTER TABLE liket_tb
+    ADD CONSTRAINT review_uni UNIQUE NULLS NOT DISTINCT (review_idx, deleted_at);
+
 ALTER TABLE review_like_tb
   ADD CONSTRAINT FK_review_tb_TO_review_like_tb
     FOREIGN KEY (review_idx)
@@ -494,11 +513,6 @@ ALTER TABLE answer_tb
   ADD CONSTRAINT FK_inquiry_tb_TO_answer_tb
     FOREIGN KEY (inquiry_idx)
     REFERENCES inquiry_tb (idx);
-
-ALTER TABLE liket_tb
-  ADD CONSTRAINT FK_user_tb_TO_liket_tb
-    FOREIGN KEY (user_idx)
-    REFERENCES user_tb (idx);
 
 ALTER TABLE block_reason_tb
   ADD CONSTRAINT FK_user_tb_TO_block_reason_tb
@@ -642,3 +656,4 @@ VALUES
     '만 14세 이상...',
     true
   );
+  

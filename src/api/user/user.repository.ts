@@ -66,57 +66,9 @@ export class UserRepository {
     this.logger.log(this.selectMyUser, `SELECT my user WHERE idx = ${myIdx}`);
     return (tx || this.prisma).user.findFirst({
       include: {
-        Review: {
-          include: {
-            ReviewImg: {
-              where: {
-                deletedAt: null,
-              },
-              orderBy: {
-                idx: 'desc',
-              },
-              take: 10,
-            },
-            CultureContent: {
-              include: {
-                Genre: true,
-                ContentImg: {
-                  where: {
-                    deletedAt: null,
-                  },
-                  orderBy: {
-                    idx: 'desc',
-                  },
-                },
-              },
-            },
-          },
-          where: {
-            deletedAt: null,
-          },
-          orderBy: {
-            idx: 'desc',
-          },
-          take: 10,
-        },
-        Liket: {
-          select: {
-            idx: true,
-            imgPath: true,
-          },
-          orderBy: {
-            idx: 'desc',
-          },
-          take: 10,
-        },
         _count: {
           select: {
             Review: {
-              where: {
-                deletedAt: null,
-              },
-            },
-            Liket: {
               where: {
                 deletedAt: null,
               },

@@ -5,5 +5,6 @@ export enum FILE_GROUPING {
   INQUIRY = 4,
   ANSWER = 5,
   BANNER = 6,
-  LIKET = 7,
+  LIKET_BG = 7,
+  LIKET = 8,
 }

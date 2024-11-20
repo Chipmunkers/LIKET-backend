@@ -164,18 +164,30 @@ model InquiryType {
 }
 
 model Liket {
-  idx         Int       @id @default(autoincrement())
-  reviewIdx   Int       @default(autoincrement()) @map("review_idx")
-  imgPath     String    @map("img_path") @db.VarChar
-  description String    @db.VarChar
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
-  userIdx     Int       @map("user_idx")
-  Review      Review    @relation(fields: [reviewIdx], references: [idx], onDelete: Cascade, map: "fk_review_tb_to_liket_tb")
-  User        User      @relation(fields: [userIdx], references: [idx])
+  idx                     Int                   @id @default(autoincrement())
+  reviewIdx               Int                   @default(autoincrement()) @map("review_idx")
+  size                    Int                   @db.SmallInt @map("size")
+  textShape               Json?                 @map("text_shape")
+  description             String                @map("description") @db.VarChar(42)
+  cardImgPath             String                @map("card_img_path")
+  bgImgPath               String                @map("bg_img_path")
+  bgImgInfo               Json                  @map("bg_img_info")
+  createdAt               DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt               DateTime?             @map("deleted_at") @db.Timestamptz(6)
+  updatedAt               DateTime              @default(now()) @map("updated_at") @db.Timestamptz(6)
+  LiketImgShape           LiketImgShape[]
+  Review                  Review                @relation(fields: [reviewIdx], references: [idx], map: "fk_review_tb_to_liket_tb")
 
   @@map("liket_tb")
+}
+
+model LiketImgShape {
+  idx               Int         @id @default(autoincrement())
+  liketIdx          Int         @default(autoincrement()) @map("liket_idx")
+  imgShape          Json         @map("img_shape")
+  Liket             Liket       @relation(fields: [liketIdx], references: [idx], map: "fk_liket_tb_to_liket_img_shape_tb")
+
+  @@map("liket_img_shape_tb")
 }
 
 model Location {
@@ -369,7 +381,6 @@ model User {
   Review           Review[]
   Route            Route[]
   TosAgree         TosAgree[]
-  Liket            Liket[]
   BlockReason      BlockReason[]
   DeleteUserReason DeleteUserReason[]
   RefreshToken     RefreshToken[]

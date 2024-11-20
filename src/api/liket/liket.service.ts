@@ -1,250 +1,149 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
-import { CreateLiketDto } from './dto/create-liket.dto';
-import { AlreadyExistLiketException } from './exception/AlreadyExistLiketException';
-import { LiketNotFoundException } from './exception/LiketNotFoundException';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UpdateLiketDto } from './dto/update-liket.dto';
 import { LiketEntity } from './entity/liket.entity';
-import { SummaryLiketEntity } from './entity/summary-liket.entity';
 import { Prisma } from '@prisma/client';
-import { LiketPagerbleDto } from './dto/liket-pagerble.dto';
-import { LoginUser } from '../auth/model/login-user';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { LiketNotFoundException } from './exception/LiketNotFoundException';
+import { LiketPageableDto } from './dto/liket-pageable.dto';
+import { CreateLiketDto } from './dto/create-liket.dto';
+import { LiketRepository } from './liket.repository';
+import { SummaryLiketEntity } from './entity/summary-liket.entity';
+import { TextShapeEntity } from './entity/textShape.entity';
+import { ImgShapeEntity } from './entity/imgShape.entity';
+import { BgImgInfoEntity } from './entity/bgImgInfo.entity';
 
 @Injectable()
 export class LiketService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly liketRepository: LiketRepository,
     @Logger(LiketService.name) private readonly logger: LoggerService,
   ) {}
 
   /**
-   * 라이켓 자세히보기
+   * 라이켓 생성
    */
-  public async getLiketByIdx(idx: number): Promise<LiketEntity> {
-    this.logger.log(this.getLiketByIdx, `SELECT liket ${idx}`);
-    const liket = await this.prisma.liket.findUnique({
-      include: {
-        Review: {
-          include: {
-            CultureContent: {
-              include: {
-                Genre: true,
-                Location: true,
-                ContentImg: {
-                  where: {
-                    deletedAt: null,
-                  },
-                  orderBy: {
-                    idx: 'asc',
-                  },
-                },
-              },
-            },
-            ReviewImg: {
-              where: {
-                deletedAt: null,
-              },
-              orderBy: {
-                idx: 'asc',
-              },
-            },
-          },
-        },
-        User: true,
-      },
-      where: {
-        idx,
-        deletedAt: null,
-      },
-    });
+  public async createLiket(reviewIdx: number, createDto: CreateLiketDto) {
+    const liket = await this.liketRepository.insertLiket(reviewIdx, createDto);
 
-    if (!liket) {
-      this.logger.warn(
-        this.getLiketByIdx,
-        'Attempt to find non-existent liket',
-      );
-      throw new LiketNotFoundException('Cannot find LIKET');
+    const { textShape, bgImgInfo, LiketImgShape } = liket;
+
+    if (!this.isValidTextShapeEntity(textShape)) {
+      this.logger.warn(this.getLiketByIdx, 'invalid liket text shape');
     }
 
-    return LiketEntity.createEntity(liket);
+    if (!this.isValidBgImgInfoEntity(bgImgInfo)) {
+      this.logger.warn(
+        this.getLiketByIdx,
+        'invalid liket background img information',
+      );
+    }
+
+    const imgShapes = LiketImgShape.map(({ imgShape }) => {
+      return imgShape;
+    });
+
+    if (!this.isValidImgShapeEntity(imgShapes)) {
+      this.logger.warn(this.getLiketByIdx, 'invalid liket img shape');
+    }
+
+    return LiketEntity.createEntity(
+      liket,
+      bgImgInfo as any,
+      imgShapes as any,
+      textShape as any,
+    );
   }
 
   /**
-   * 라이켓 목록 보기
+   * 라이켓 리스트 조회
    */
-  public async getLiketAll(
-    loginUser: LoginUser,
-    pagerble: LiketPagerbleDto,
-  ): Promise<{
-    liketList: SummaryLiketEntity[];
-    count: number;
-  }> {
-    const where: Prisma.LiketWhereInput = {
-      userIdx: pagerble.user,
-      deletedAt: null,
-      Review: {
-        deletedAt: null,
-      },
-    };
-
-    this.logger.log(this.getLiketAll, 'SELECT likets and count');
-    const [liketList, count] = await this.prisma.$transaction([
-      this.prisma.liket.findMany({
-        include: {
-          Review: {
-            include: {
-              CultureContent: {
-                include: {
-                  Genre: true,
-                  Location: true,
-                  ContentImg: {
-                    where: {
-                      deletedAt: null,
-                    },
-                    orderBy: {
-                      idx: 'asc',
-                    },
-                  },
-                },
-              },
-              ReviewImg: {
-                where: {
-                  deletedAt: null,
-                },
-                orderBy: {
-                  idx: 'asc',
-                },
-              },
-            },
-          },
-          User: true,
-        },
-        where,
-        orderBy: {
-          idx: 'desc',
-        },
-        take: 10,
-        skip: (pagerble.page - 1) * 10,
-      }),
-      this.prisma.liket.count({ where }),
-    ]);
+  public async getLiketAll(pageable: LiketPageableDto) {
+    const liketList = await this.liketRepository.selectLiketAll(pageable);
 
     return {
-      liketList: liketList.map((liket) => LiketEntity.createEntity(liket)),
-      count,
+      liketList: liketList.map((liket) =>
+        SummaryLiketEntity.createEntity(liket),
+      ),
     };
   }
 
   /**
-   * 라이켓 생성하기
+   * 업데이트 라이켓
    */
-  public async createLiket(
-    reviewIdx: number,
-    loginUser: LoginUser,
-    createDto: CreateLiketDto,
-  ): Promise<LiketEntity> {
-    const createdLiket = await this.prisma.$transaction(
-      async (tx) => {
-        this.logger.log(this.createLiket, 'SELECT liket');
-        const liket = await tx.liket.findFirst({
-          where: {
-            userIdx: loginUser.idx,
-            reviewIdx,
-            deletedAt: null,
-          },
-        });
+  public async updateLiket(idx: number, updateDto: UpdateLiketDto) {
+    return await this.liketRepository.updateLiketByIdx(idx, updateDto);
+  }
 
-        if (liket) {
-          this.logger.warn(
-            this.createLiket,
-            'Attempt to create like when in already has liket',
-          );
-          throw new AlreadyExistLiketException('Already exist LIKET');
-        }
+  /**
+   *라이켓 자세히보기
+   */
+  public async getLiketByIdx(idx: number) {
+    const liket = await this.liketRepository.selectLiketByIdx(idx);
 
-        this.logger.log(this.createLiket, 'INSERT liket');
-        return tx.liket.create({
-          include: {
-            Review: {
-              include: {
-                CultureContent: {
-                  include: {
-                    Genre: true,
-                    Location: true,
-                    ContentImg: {
-                      where: {
-                        deletedAt: null,
-                      },
-                      orderBy: {
-                        idx: 'asc',
-                      },
-                    },
-                  },
-                },
-                ReviewImg: {
-                  where: {
-                    deletedAt: null,
-                  },
-                  orderBy: {
-                    idx: 'asc',
-                  },
-                },
-              },
-            },
-            User: true,
-          },
-          data: {
-            imgPath: createDto.img,
-            description: createDto.description,
-            reviewIdx,
-            userIdx: loginUser.idx,
-          },
-        });
-      },
-      {
-        isolationLevel: 'Serializable',
-      },
+    if (!liket) {
+      throw new LiketNotFoundException('Cannot find liket');
+    }
+
+    const { textShape, bgImgInfo, LiketImgShape } = liket;
+
+    if (!this.isValidTextShapeEntity(textShape)) {
+      this.logger.warn(this.getLiketByIdx, 'invalid liket text shape');
+    }
+
+    if (!this.isValidBgImgInfoEntity(bgImgInfo)) {
+      this.logger.warn(
+        this.getLiketByIdx,
+        'invalid liket background img information',
+      );
+    }
+
+    const imgShapes = LiketImgShape.map(({ imgShape }) => {
+      return imgShape;
+    });
+
+    if (!this.isValidImgShapeEntity(imgShapes)) {
+      this.logger.warn(this.getLiketByIdx, 'invalid liket img shape');
+    }
+
+    return LiketEntity.createEntity(
+      liket,
+      bgImgInfo as any,
+      imgShapes as any,
+      textShape as any,
     );
-
-    return LiketEntity.createEntity(createdLiket);
   }
 
   /**
-   * 라이켓 수정하기
+   * 라이켓 삭제
    */
-  public async updateLiketByIdx(
-    idx: number,
-    updateDto: UpdateLiketDto,
-  ): Promise<void> {
-    this.logger.log(this.updateLiketByIdx, 'UPDATE liket');
-    await this.prisma.liket.update({
-      where: {
-        idx,
-      },
-      data: {
-        description: updateDto.description,
-      },
-    });
-
-    return;
+  public async deleteLiket(liketIdx: number) {
+    return this.liketRepository.deleteLiketByIdx(liketIdx);
   }
 
-  /**
-   * 라이켓 삭제하기
-   */
-  public async deleteLiketByIdx(idx: number): Promise<void> {
-    this.logger.log(this.deleteLiketByIdx, 'DELETE liket');
-    await this.prisma.liket.update({
-      where: {
-        idx,
-      },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
+  private isValidTextShapeEntity(obj: unknown): obj is TextShapeEntity | null {
+    if (TextShapeEntity.isSameStructure(obj) || obj === null) {
+      return true;
+    }
 
-    return;
+    return false;
+  }
+
+  private isValidBgImgInfoEntity(obj: unknown): obj is BgImgInfoEntity {
+    return BgImgInfoEntity.isSameStructure(obj);
+  }
+
+  private isValidImgShapeEntity(obj: unknown): obj is ImgShapeEntity[] {
+    if (!Array.isArray(obj)) {
+      return false;
+    }
+
+    for (let i = 0; i < obj.length; i++) {
+      if (!ImgShapeEntity.isSameStructure(obj[i])) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

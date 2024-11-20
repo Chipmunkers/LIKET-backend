@@ -356,4 +356,47 @@ export class ReviewRepository {
       },
     });
   }
+
+  /**
+   * 내 프로필을 가져올 때 리뷰 정보를 포함시키기 위한 메서드
+   *
+   * @author wherehows
+   *
+   * @param userIdx 사용자 인덱스
+   */
+  public async selectReviewForMyInfo(userIdx: number) {
+    return this.prisma.review.findMany({
+      include: {
+        ReviewImg: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            idx: 'asc',
+          },
+          take: 1,
+        },
+        CultureContent: {
+          include: {
+            Genre: true,
+            ContentImg: true,
+          },
+        },
+      },
+      where: {
+        userIdx,
+        deletedAt: null,
+        CultureContent: {
+          acceptedAt: {
+            not: null,
+          },
+          deletedAt: null,
+        },
+      },
+      orderBy: {
+        idx: 'desc',
+      },
+      take: 10,
+    });
+  }
 }

@@ -1,18 +1,25 @@
 import { PickType } from '@nestjs/swagger';
-import { LiketEntity } from '../../liket/entity/liket.entity';
-import { ReviewEntity } from '../../review/entity/review.entity';
 import { UserEntity } from './user.entity';
 import { UserWithInclude } from './prisma-type/user-with-include';
-import { TagEntity } from '../../content-tag/entity/tag.entity';
+import { SummaryLiketEntity } from '../../liket/entity/summary-liket.entity';
+import { MyReviewEntity } from '../../review/entity/my-review.entity';
 
-class MyReview extends PickType(ReviewEntity, [
+class MyLiket extends PickType(SummaryLiketEntity, [
   'idx',
-  'thumbnail',
-  'cultureContent',
-]) {}
-class MyLiket extends PickType(LiketEntity, ['idx', 'imgPath'] as const) {}
+  'cardImgPath',
+  'author',
+] as const) {}
 
-export class MyInfoEntity extends UserEntity {
+export class MyInfoEntity extends PickType(UserEntity, [
+  'idx',
+  'profileImgPath',
+  'nickname',
+  'provider',
+  'gender',
+  'email',
+  'birth',
+  'createdAt',
+]) {
   /**
    * 리뷰 개수
    *
@@ -23,7 +30,7 @@ export class MyInfoEntity extends UserEntity {
   /**
    * 리뷰 목록
    */
-  public reviewList: MyReview[];
+  public reviewList: MyReviewEntity[];
 
   /**
    * 라이켓 개수
@@ -47,7 +54,12 @@ export class MyInfoEntity extends UserEntity {
     Object.assign(this, data);
   }
 
-  static createEntity(user: UserWithInclude): MyInfoEntity {
+  static createEntity(
+    user: UserWithInclude,
+    liketList: SummaryLiketEntity[],
+    liketCount: number,
+    reviewList: MyReviewEntity[],
+  ): MyInfoEntity {
     return new MyInfoEntity({
       idx: user.idx,
       profileImgPath: user.profileImgPath || null,
@@ -57,24 +69,10 @@ export class MyInfoEntity extends UserEntity {
       email: user.email,
       birth: user.birth,
       createdAt: user.createdAt,
-
       reviewCount: user._count.Review,
-      reviewList: user.Review.map((review) => ({
-        idx: review.idx,
-        thumbnail: review.ReviewImg[0]?.imgPath || null,
-        cultureContent: {
-          idx: review.CultureContent.idx,
-          genre: TagEntity.createEntity(review.CultureContent.Genre),
-          likeCount: review.CultureContent.likeCount,
-          thumbnail: review.CultureContent.ContentImg[0]?.imgPath || '',
-          title: review.CultureContent.title,
-        },
-      })),
-      liketCount: user._count.Liket,
-      liketList: user.Liket.map((liket) => ({
-        idx: liket.idx,
-        imgPath: liket.imgPath,
-      })),
+      reviewList,
+      liketCount,
+      liketList,
       likeCount: user._count.ContentLike,
     });
   }

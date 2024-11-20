@@ -6,108 +6,105 @@ import {
   HttpCode,
   Param,
   ParseIntPipe,
+  Post,
   Put,
   Query,
 } from '@nestjs/common';
-import { LiketService } from './liket.service';
 import { User } from '../user/user.decorator';
-import { UpdateLiketDto } from './dto/update-liket.dto';
-import { LiketEntity } from './entity/liket.entity';
-import { ApiTags } from '@nestjs/swagger';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { LoginAuth } from '../auth/login-auth.decorator';
-import { LiketAuthService } from './liket-auth.service';
-import { LiketPagerbleDto } from './dto/liket-pagerble.dto';
-import { GetLiketAllResponseDto } from './dto/response/get-liket-all.dto';
 import { LoginUser } from '../auth/model/login-user';
+import { ApiTags } from '@nestjs/swagger';
+import { CreateLiketDto } from './dto/create-liket.dto';
+import { LiketService } from './liket.service';
+import { LiketPageableDto } from './dto/liket-pageable.dto';
+import { LiketAuthService } from './liket-auth.service';
+import { UpdateLiketDto } from './dto/update-liket.dto';
 
-@Controller('liket')
+@Controller()
+@ApiTags('Liket')
 export class LiketController {
   constructor(
     private readonly liketService: LiketService,
-    private readonly liektAuthService: LiketAuthService,
+    private readonly liketAuthService: LiketAuthService,
   ) {}
 
   /**
    * 라이켓 목록 보기
    */
-  @Get('/all')
-  @HttpCode(200)
-  @ApiTags('Liket')
+  @Get('/liket/all')
   @Exception(400, 'Invalid querystring')
-  @Exception(403, 'Permission denied')
+  @Exception(403, 'Attempt to see liket list created by other user')
   @LoginAuth()
   public async getLiketAll(
+    @Query() pageable: LiketPageableDto,
     @User() loginUser: LoginUser,
-    @Query() pagerble: LiketPagerbleDto,
-  ): Promise<GetLiketAllResponseDto> {
-    await this.liektAuthService.checkReadAllPermission(loginUser, pagerble);
+  ) {
+    await this.liketAuthService.checkReadAllPermissions(pageable, loginUser);
+    return await this.liketService.getLiketAll(pageable);
+  }
 
-    return await this.liketService.getLiketAll(loginUser, pagerble);
+  /**
+   * 라이켓 생성하기
+   */
+  @Post('/review/:idx/liket')
+  @Exception(400, 'Invalid body or path')
+  @Exception(403, 'Attempt to create liket for review written by other user')
+  @Exception(404, 'Cannot find review')
+  @Exception(409, 'A Liket for review already exists')
+  @HttpCode(200)
+  @LoginAuth()
+  public async createLiket(
+    @Body() createDto: CreateLiketDto,
+    @Param('idx', ParseIntPipe) reviewIdx: number,
+    @User() LoginUser: LoginUser,
+  ) {
+    await this.liketAuthService.checkCreatePermission(reviewIdx, LoginUser.idx);
+    return await this.liketService.createLiket(reviewIdx, createDto);
   }
 
   /**
    * 라이켓 자세히보기
    */
-  @Get('/:idx')
-  @HttpCode(200)
-  @ApiTags('Liket')
-  @Exception(400, 'Invalid path parameter')
-  @Exception(404, 'Cannot find LIKET')
-  @LoginAuth()
-  public async getLiketByIdx(
-    @Param('idx', ParseIntPipe) idx: number,
-    @User() loginUser: LoginUser,
-  ): Promise<LiketEntity> {
-    await this.liektAuthService.checkReadPermission(loginUser, idx);
-
-    const liket = await this.liketService.getLiketByIdx(idx);
-
-    return liket;
+  @Get('/liket/:idx')
+  @Exception(400, 'Invalid path')
+  @Exception(404, 'Cannot find liket')
+  public async getLiketByIdx(@Param('idx', ParseIntPipe) idx: number) {
+    return await this.liketService.getLiketByIdx(idx);
   }
 
   /**
    * 라이켓 수정하기
    */
-  @Put('/:idx')
-  @HttpCode(201)
-  @ApiTags('Liket')
-  @Exception(400, 'Invalid path parameter or body')
-  @Exception(404, 'Cannot find LIKET')
-  @LoginAuth()
-  public async updateLiketByIdx(
-    @Param('idx', ParseIntPipe) idx: number,
+  @Put('/liket/:idx')
+  @Exception(400, 'Invalid path or body')
+  @Exception(403, 'Attempt to update liket created by other user')
+  @Exception(404, 'Cannot find liket')
+  @HttpCode(200)
+  public async updateLiket(
     @User() loginUser: LoginUser,
+    @Param('idx', ParseIntPipe) reviewIdx: number,
     @Body() updateDto: UpdateLiketDto,
-  ): Promise<void> {
-    await this.liektAuthService.checkUpdatePermission(
-      loginUser,
-      idx,
-      updateDto,
-    );
-
-    await this.liketService.updateLiketByIdx(idx, updateDto);
-
-    return;
+  ) {
+    await this.liketAuthService.checkUpdatePermission(loginUser, reviewIdx);
+    return await this.liketService.updateLiket(reviewIdx, updateDto);
   }
 
   /**
    * 라이켓 삭제하기
    */
-  @Delete('/:idx')
+  @Delete('/liket/:idx')
+  @Exception(400, 'Invalid path')
+  @Exception(403, 'Attempt to delete liket created by other user')
+  @Exception(404, 'Cannot find liket')
   @HttpCode(201)
-  @ApiTags('Liket')
-  @Exception(400, 'Invalid path parameter')
-  @Exception(404, 'Cannot find LIKET')
   @LoginAuth()
-  public async deleteLiketByIdx(
-    @Param('idx', ParseIntPipe) idx: number,
+  public async deleteLiket(
     @User() loginUser: LoginUser,
-  ): Promise<void> {
-    await this.liektAuthService.checkDeletePermission(loginUser, idx);
-
-    await this.liketService.deleteLiketByIdx(idx);
-
+    @Param('idx', ParseIntPipe) liketIdx: number,
+  ) {
+    await this.liketAuthService.checkDeletePermission(loginUser, liketIdx);
+    await this.liketService.deleteLiket(liketIdx);
     return;
   }
 }

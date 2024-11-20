@@ -116,13 +116,31 @@ export class UploadController {
   }
 
   /**
+   * 라이켓 배경 이미지 업로드하기
+   */
+  @Post('/liket/bg-img')
+  @HttpCode(200)
+  @LoginAuth()
+  @UploadFile('file', 'img')
+  public async uploadLiketBgImg(@UploadedFile() file?: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Cannot find uploaded file');
+    }
+
+    return await this.uploadService.uploadFileToS3(file, {
+      destination: 'liket-bg',
+      grouping: FILE_GROUPING.LIKET_BG,
+    });
+  }
+
+  /**
    * 라이켓 이미지 업로드하기
    */
   @Post('/liket')
   @HttpCode(200)
   @LoginAuth()
   @UploadFile('file', 'img')
-  public async uploadLiketImg(@UploadedFiles() file?: Express.Multer.File) {
+  public async uploadLiketImg(@UploadedFile() file?: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Cannot find uploaded file');
     }

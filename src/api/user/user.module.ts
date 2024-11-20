@@ -10,6 +10,8 @@ import { LoginJwtModule } from '../../common/module/login-jwt/login-jwt.module';
 import { SocialLoginJwtModule } from '../../common/module/social-login-jwt/social-login-jwt.module';
 import { UserPwService } from './user-pw.service';
 import { UserRepository } from './user.repository';
+import { LiketRepository } from '../liket/liket.repository';
+import { ReviewRepository } from '../review/review.repository';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { UserRepository } from './user.repository';
     SocialLoginUserService,
     UserPwService,
     UserRepository,
+    LiketRepository,
+    ReviewRepository,
   ],
   exports: [SocialLoginUserService, UserRepository],
 })

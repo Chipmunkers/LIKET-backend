@@ -1,71 +1,179 @@
-import { Prisma } from '@prisma/client';
-import { SummaryLiketEntity } from './summary-liket.entity';
-import { LocationEntity } from '../../culture-content/entity/location.entity';
-import { TagEntity } from '../../content-tag/entity/tag.entity';
+import { TagEntity } from '../../../api/content-tag/entity/tag.entity';
+import { LocationEntity } from '../../../api/culture-content/entity/location.entity';
+import { UserProfileEntity } from '../../../api/user/entity/user-profile.entity';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsDateString,
+  IsInt,
+  IsObject,
+  IsOptional,
+  IsString,
+  Length,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { TextShapeEntity } from './textShape.entity';
+import { ImgShapeEntity } from './imgShape.entity';
+import { ReviewEntity } from '../../review/entity/review.entity';
+import { ContentEntity } from '../../culture-content/entity/content.entity';
+import { PickType } from '@nestjs/swagger';
+import { BgImgInfoEntity } from './bgImgInfo.entity';
+import { LiketWithInclude } from 'src/api/liket/entity/prisma-type/liket-with-include';
+import { Type } from 'class-transformer';
 
-const liketWithInclude = Prisma.validator<Prisma.LiketDefaultArgs>()({
-  include: {
-    Review: {
-      include: {
-        CultureContent: {
-          include: {
-            Genre: true,
-            Location: true,
-            ContentImg: true,
-          },
-        },
-        ReviewImg: true,
-      },
-    },
-    User: true,
-  },
-});
+class LiketReviewEntity extends PickType(ReviewEntity, [
+  'visitTime',
+  'starRating',
+]) {}
 
-type LiketWithInclude = Prisma.LiketGetPayload<typeof liketWithInclude>;
+class LiketContentEntity extends PickType(ContentEntity, [
+  'idx',
+  'title',
+  'location',
+  'genre',
+]) {}
 
-export class LiketEntity extends SummaryLiketEntity {
+export class LiketEntity {
   /**
-   * 라이켓 내용
-   *
-   * @example "낮엔 되게 비싸보이는데\n밤엔 엄청 비싸보이는 디올"
+   * 라이켓 인덱스
    */
+  public idx: number;
+
+  /**
+   * 라이켓 카드 이미지 경로
+   *
+   * @example /liket/img_000001.png
+   */
+  @IsString()
+  @Length(1, 200)
+  public cardImgPath: string;
+
+  /**
+   * 카드 사이즈
+   *
+   * @example 3
+   */
+  @IsInt()
+  @Min(1)
+  @Max(3)
+  public size: number;
+
+  /**
+   * 카드를 꾸미는 텍스트 정보
+   */
+  @ValidateNested()
+  @Type(() => TextShapeEntity)
+  @IsOptional()
+  @IsObject()
+  public textShape?: TextShapeEntity;
+
+  /**
+   * 카드를 꾸미는 스티커 정보
+   */
+  @ValidateNested({
+    each: true,
+  })
+  @Type(() => ImgShapeEntity)
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(0)
+  @ArrayMaxSize(9)
+  public imgShapes: ImgShapeEntity[] = [];
+
+  /**
+   * 라이켓 카드 배경 이미지 경로
+   * @example /liket/bg/img_000001.png
+   */
+  @IsString()
+  public bgImgPath: string;
+
+  /**
+   * 라이켓 카드 배경 이미지 정보
+   */
+  @ValidateNested()
+  @Type(() => BgImgInfoEntity)
+  @IsObject()
+  public bgImgInfo: BgImgInfoEntity;
+
+  /**
+   * 컨텐
+   */
+  public cultureContent: LiketContentEntity;
+
+  /**
+   * 리뷰
+   */
+  public review: LiketReviewEntity;
+
+  /**
+   * 작성자
+   */
+  public author: UserProfileEntity;
+
+  /**
+   * 리뷰 텍스트
+   *
+   * @example "너무 좋았던 팝업 스토어"
+   */
+  @IsString()
+  @Length(1, 42)
   public description: string;
 
+  /**
+   * 라이켓 작성 시간
+   *
+   * @example 2024-05-07T00:00:00.000Z
+   */
+  @IsDateString()
+  public createdAt: Date;
+
   constructor(data: LiketEntity) {
-    super(data);
     Object.assign(this, data);
   }
 
-  static createEntity(liket: LiketWithInclude) {
-    const review = liket.Review;
+  static createEntity(
+    data: LiketWithInclude,
+    bgImgInfo: BgImgInfoEntity,
+    imgShapes: ImgShapeEntity[],
+    textShape?: TextShapeEntity,
+  ) {
+    const review = data.Review;
     const content = review.CultureContent;
-    const author = liket.User;
+    const User = review.User;
 
     return new LiketEntity({
-      idx: liket.idx,
-      imgPath: liket.imgPath,
-      description: liket.description,
+      idx: data.idx,
+      cardImgPath: data.cardImgPath,
+      bgImgPath: data.bgImgPath,
+      size: data.size,
       review: {
-        idx: review.idx,
         starRating: review.starRating,
         visitTime: review.visitTime,
-        thumbnail: review.ReviewImg[0]?.imgPath || '',
-        createdAt: review.createdAt,
       },
+      textShape: textShape
+        ? TextShapeEntity.createEntity(textShape)
+        : undefined,
+      imgShapes: imgShapes.map((imgShape) => {
+        return ImgShapeEntity.createEntity(imgShape);
+      }),
+      bgImgInfo: BgImgInfoEntity.createEntity(bgImgInfo),
+      description: data.description,
       cultureContent: {
         idx: content.idx,
         title: content.title,
         genre: TagEntity.createEntity(content.Genre),
         location: LocationEntity.createEntity(content.Location),
-        thumbnail: content.ContentImg[0]?.imgPath || '',
       },
       author: {
-        idx: author.idx,
-        nickname: author.nickname,
-        profileImgPath: author.profileImgPath,
-        provider: author.provider,
+        idx: User.idx,
+        nickname: User.nickname,
+        profileImgPath: User.profileImgPath,
+        provider: User.provider,
       },
-      createdAt: liket.createdAt,
+      createdAt: data.createdAt,
     });
   }
 }
