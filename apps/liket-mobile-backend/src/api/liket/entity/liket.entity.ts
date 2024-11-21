@@ -21,7 +21,7 @@ import { ReviewEntity } from '../../review/entity/review.entity';
 import { ContentEntity } from '../../culture-content/entity/content.entity';
 import { PickType } from '@nestjs/swagger';
 import { BgImgInfoEntity } from './bgImgInfo.entity';
-import { LiketWithInclude } from 'src/api/liket/entity/prisma-type/liket-with-include';
+import { LiketWithInclude } from './prisma-type/liket-with-include';
 import { Type } from 'class-transformer';
 
 class LiketReviewEntity extends PickType(ReviewEntity, [
