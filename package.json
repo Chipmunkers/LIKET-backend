@@ -17,16 +17,18 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/liket-mobile-backend/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test:e2e": "dotenv -e ./apps/liket-mobile-backend/test/e2e/.env.test -- jest --config ./apps/liket-mobile-backend/test/jest-e2e.json --verbose",
+
     "seed": "dotenv -e ./prisma/.env.seed --ts-node prisma/seed.ts",
     "dev-deploy:up": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml up -d",
     "dev-deploy:down": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml down",
-    "test-infra:up": "docker compose -p liket-mobile-test -f test/e2e/infra/docker-compose.yml up -d",
-    "test-infra:down": "docker compose -p liket-mobile-test -f test/e2e/infra/docker-compose.yml down -v",
-    "load-test-infra:up": "docker compose -p liket-mobile-load-test -f test/load/infra/docker-compose.yml up -d --build --force-recreate",
-    "load-test-infra:down": "docker compose -p liket-mobile-load-test -f test/load/infra/docker-compose.yml down -v",
-    "load-test-seed": "ts-node test/load/infra/seed/index.ts",
-    "load-test": "k6 run ./test/load/script/culture-content.js -v"
+
+    "test:e2e": "dotenv -e ./apps/liket-mobile-backend/test/e2e/.env.test -- jest --config ./apps/liket-mobile-backend/test/jest-e2e.json --verbose",
+    "test-infra:up": "docker compose -p liket-mobile-test -f apps/liket-mobile-backend/test/e2e/infra/docker-compose.yml up -d",
+    "test-infra:down": "docker compose -p liket-mobile-test -f apps/liket-mobile-backend/test/e2e/infra/docker-compose.yml down -v",
+    "load-test-infra:up": "docker compose -p liket-mobile-load-test -f apps/liket-mobile-backend/test/load/infra/docker-compose.yml up -d --build --force-recreate",
+    "load-test-infra:down": "docker compose -p liket-mobile-load-test -f apps/liket-mobile-backend/test/load/infra/docker-compose.yml down -v",
+    "load-test-seed": "ts-node apps/liket-mobile-backend/test/load/infra/seed/index.ts",
+    "load-test": "k6 run ./apps/liket-mobile-backend/test/load/script/culture-content.js -v"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.529.1",
