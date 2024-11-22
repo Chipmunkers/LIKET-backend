@@ -36,7 +36,7 @@ LIKET은 `Nest.js`와 `Prisma`를 메인으로 사용합니다. 모든 앱이 �
 
 `ERD Editor`익스텐션을 설치해야 `table.erd.json`파일을 통해 ERD를 시각화할 수 있습니다. 그 외에도, `Prisma`, `Prettier - Code formatter` 설치를 권장합니다.
 
-### [user-server 바로가기]()
+### [user-server 바로가기](https://github.com/Chipmunkers/LIKET-backend/tree/master/apps/user-server)
 
 ### [admin-server 바로가기]()
 
