@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "workspaces": [
     "apps/user-server",
-    "apps/mobile-batch",
+    "apps/batch-server",
     "libs/modules"
   ],
   "scripts": {

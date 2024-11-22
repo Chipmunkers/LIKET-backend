@@ -33,13 +33,13 @@
         "tsConfigPath": "apps/user-server/tsconfig.app.json"
       }
     },
-    "mobile-batch": {
+    "batch-server": {
       "type": "application",
-      "root": "apps/mobile-batch",
+      "root": "apps/batch-server",
       "entryFile": "main",
-      "sourceRoot": "apps/mobile-batch/src",
+      "sourceRoot": "apps/batch-server/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/mobile-batch/tsconfig.app.json"
+        "tsConfigPath": "apps/batch-server/tsconfig.app.json"
       }
     },
     "modules": {
