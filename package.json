@@ -19,17 +19,17 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
 
     "seed": "dotenv -e ./prisma/.env.seed --ts-node prisma/seed.ts",
-    "mobile:dev:infra:up": "docker compose -p liket-mobile -f scripts/liket-mobile-backend/dev/docker-compose.yml up -d",
-    "mobile:dev:infra:down": "docker compose -p liket-mobile -f scripts/liket-mobile-backend/dev/docker-compose.yml down -v",
+    "user-server:dev:infra:up": "docker compose -p liket-mobile -f scripts/liket-mobile-backend/dev/docker-compose.yml up -d",
+    "user-server:dev:infra:down": "docker compose -p liket-mobile -f scripts/liket-mobile-backend/dev/docker-compose.yml down -v",
 
-    "mobile:test:e2e": "dotenv -e ./apps/liket-mobile-backend/test/e2e/.env.test -- jest --config ./apps/liket-mobile-backend/test/jest-e2e.json --verbose",
-    "mobile:test:infra:up": "docker compose -p liket-mobile-test -f scripts/liket-mobile-backend/e2e-test/docker-compose.yml up -d",
-    "mobile:test:infra:down": "docker compose -p liket-mobile-test -f scripts/liket-mobile-backend/e2e-test/docker-compose.yml down -v",
-    
-    "load-test-infra:up": "docker compose -p liket-mobile-load-test -f apps/liket-mobile-backend/test/load/infra/docker-compose.yml up -d --build --force-recreate",
-    "load-test-infra:down": "docker compose -p liket-mobile-load-test -f apps/liket-mobile-backend/test/load/infra/docker-compose.yml down -v",
-    "load-test-seed": "ts-node apps/liket-mobile-backend/test/load/infra/seed/index.ts",
-    "load-test": "k6 run ./apps/liket-mobile-backend/test/load/script/culture-content.js -v"
+    "user-server:test:e2e": "dotenv -e scripts/liket-mobile-backend/e2e-test/.env.test -- jest --config ./apps/liket-mobile-backend/test/jest-e2e.json --verbose",
+    "user-server:test:infra:up": "docker compose -p liket-mobile-test -f scripts/liket-mobile-backend/e2e-test/docker-compose.yml up -d",
+    "user-server:test:infra:down": "docker compose -p liket-mobile-test -f scripts/liket-mobile-backend/e2e-test/docker-compose.yml down -v",
+
+    "user-server:load-test:infra:up": "docker compose -p liket-mobile-load-test -f apps/liket-mobile-backend/test/load/infra/docker-compose.yml up -d --build --force-recreate",
+    "user-server:load-test:infra:down": "docker compose -p liket-mobile-load-test -f apps/liket-mobile-backend/test/load/infra/docker-compose.yml down -v",
+    "user-server:load-test:seed": "ts-node apps/liket-mobile-backend/test/load/infra/seed/index.ts",
+    "user-server:load-test": "k6 run ./apps/liket-mobile-backend/test/load/script/culture-content.js -v"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.529.1",
