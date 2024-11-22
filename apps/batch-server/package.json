@@ -1,0 +1,6 @@
+{
+    "name": "batch-server",
+    "version": "0.0.1",
+    "description": "Liket batch server",
+    "dependencies": {}
+}
