@@ -1,8 +1,8 @@
-CREATE USER liket_admin_deploy WITH PASSWORD 'liket-admin-1234';
+CREATE USER liket_dev_admin WITH PASSWORD '1234';
 
-CREATE DATABASE liket OWNER liket_admin_deploy;
+CREATE DATABASE liket OWNER liket_dev_admin;
 
-\c liket liket_admin_deploy
+\c liket liket_dev_admin
 
 \i '/rdb/ddl.sql'
 

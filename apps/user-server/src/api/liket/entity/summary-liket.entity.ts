@@ -1,5 +1,5 @@
 import { PickType } from '@nestjs/swagger';
-import { LiketEntity } from '../entity/liket.entity';
+import { LiketEntity } from './liket.entity';
 import { SummaryLiketWithInclude } from './prisma-type/summary-liket-with-include';
 
 export class SummaryLiketEntity extends PickType(LiketEntity, [

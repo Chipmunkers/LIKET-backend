@@ -1,5 +1,5 @@
 import { PickType } from '@nestjs/swagger';
-import { SignUpDto } from '../../user/dto/sign-up.dto';
+import { SignUpDto } from './sign-up.dto';
 import { IsJWT, IsString } from 'class-validator';
 
 export class SocialSignUpDto extends PickType(SignUpDto, [
