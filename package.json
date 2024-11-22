@@ -19,12 +19,13 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
 
     "seed": "dotenv -e ./prisma/.env.seed --ts-node prisma/seed.ts",
-    "dev-deploy:up": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml up -d",
-    "dev-deploy:down": "docker compose -p liket-mobile -f dev-deploy/docker-compose.yml down",
+    "mobile:dev:infra:up": "docker compose -p liket-mobile -f scripts/liket-mobile-backend/dev/docker-compose.yml up -d",
+    "mobile:dev:infra:down": "docker compose -p liket-mobile -f scripts/liket-mobile-backend/dev/docker-compose.yml down -v",
 
-    "test:e2e": "dotenv -e ./apps/liket-mobile-backend/test/e2e/.env.test -- jest --config ./apps/liket-mobile-backend/test/jest-e2e.json --verbose",
-    "test-infra:up": "docker compose -p liket-mobile-test -f scripts/liket-mobile-backend/e2e-test/docker-compose.yml up -d",
-    "test-infra:down": "docker compose -p liket-mobile-test -f scripts/liket-mobile-backend/e2e-test/docker-compose.yml down -v",
+    "mobile:test:e2e": "dotenv -e ./apps/liket-mobile-backend/test/e2e/.env.test -- jest --config ./apps/liket-mobile-backend/test/jest-e2e.json --verbose",
+    "mobile:test:infra:up": "docker compose -p liket-mobile-test -f scripts/liket-mobile-backend/e2e-test/docker-compose.yml up -d",
+    "mobile:test:infra:down": "docker compose -p liket-mobile-test -f scripts/liket-mobile-backend/e2e-test/docker-compose.yml down -v",
+    
     "load-test-infra:up": "docker compose -p liket-mobile-load-test -f apps/liket-mobile-backend/test/load/infra/docker-compose.yml up -d --build --force-recreate",
     "load-test-infra:down": "docker compose -p liket-mobile-load-test -f apps/liket-mobile-backend/test/load/infra/docker-compose.yml down -v",
     "load-test-seed": "ts-node apps/liket-mobile-backend/test/load/infra/seed/index.ts",
