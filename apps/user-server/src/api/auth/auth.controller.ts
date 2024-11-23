@@ -23,10 +23,10 @@ import cookieConfig from './config/cookie.config';
 import { Cookies } from '../../common/decorator/cookies.decorator';
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 import { SocialLoginResponseDto } from './dto/response/social-login-response.dto';
-import { LoginAuth } from './login-auth.decorator';
-import { LoginUser } from './model/login-user';
-import { User } from '../user/user.decorator';
 
+/**
+ * @author jochongs
+ */
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
