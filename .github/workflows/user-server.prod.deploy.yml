@@ -1,4 +1,4 @@
-name: Deploy to Amazon ECS
+name: '[User-Server] Prod Deploy'
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     paths:
       - apps/user-server/**
       - libs/**
-      - .github/user-server.dev.prod.deploy.yml
+      - .github/workflows/user-server.dev.prod.deploy.yml
       - '!apps/user-server/test/**'
       - '!apps/user-server/README.md'
 
