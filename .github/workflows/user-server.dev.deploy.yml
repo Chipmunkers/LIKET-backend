@@ -7,7 +7,7 @@ on:
     paths:
       - apps/user-server/**
       - libs/**
-      - .github/user-server.dev.deploy.yml
+      - .github/workflows/user-server.dev.deploy.yml
       - '!apps/user-server/test/**'
       - '!apps/user-server/README.md'
 
