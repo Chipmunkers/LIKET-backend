@@ -3,7 +3,7 @@ name: '[User-Server] Prod Deploy'
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - apps/user-server/**
       - libs/**
