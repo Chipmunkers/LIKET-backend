@@ -1,0 +1,10 @@
+{
+    "name": "liket-libs",
+    "description": "liket server libraries",
+    "devDependencies": {
+        "prisma": "^5.22.0"
+    },
+    "dependencies": {
+        "@prisma/client": "^5.22.0"
+    }
+}

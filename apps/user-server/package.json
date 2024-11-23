@@ -1,0 +1,10 @@
+{
+  "name": "user-server",
+  "version": "0.1.1",
+  "description": "Liket Mobile Backend API Server",
+  "dependencies": {
+    "@nestjs-modules/mailer": "^1.10.3",
+    "@nestjs/cache-manager": "^2.3.0",
+    "@nestjs/throttler": "^5.2.0"
+  }
+}

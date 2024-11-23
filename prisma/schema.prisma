@@ -50,6 +50,7 @@ model CultureContent {
   deletedAt     DateTime?      @map("deleted_at") @db.Timestamptz(6)
   ageIdx        Int            @map("age_idx")
   endDate       DateTime       @map("end_date") @db.Timestamptz(6)
+  viewCount     Int            @default(0) @map("view_count")
   startDate     DateTime       @map("start_date") @db.Timestamptz(6)
   websiteLink   String         @map("website_link") @db.VarChar
   ContentImg    ContentImg[]
@@ -163,18 +164,30 @@ model InquiryType {
 }
 
 model Liket {
-  idx         Int       @id @default(autoincrement())
-  reviewIdx   Int       @default(autoincrement()) @map("review_idx")
-  imgPath     String    @map("img_path") @db.VarChar
-  description String    @db.VarChar
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
-  userIdx     Int       @map("user_idx")
-  Review      Review    @relation(fields: [reviewIdx], references: [idx], onDelete: Cascade, map: "fk_review_tb_to_liket_tb")
-  User        User      @relation(fields: [userIdx], references: [idx])
+  idx                     Int                   @id @default(autoincrement())
+  reviewIdx               Int                   @default(autoincrement()) @map("review_idx")
+  size                    Int                   @db.SmallInt @map("size")
+  textShape               Json?                 @map("text_shape")
+  description             String                @map("description") @db.VarChar(42)
+  cardImgPath             String                @map("card_img_path")
+  bgImgPath               String                @map("bg_img_path")
+  bgImgInfo               Json                  @map("bg_img_info")
+  createdAt               DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt               DateTime?             @map("deleted_at") @db.Timestamptz(6)
+  updatedAt               DateTime              @default(now()) @map("updated_at") @db.Timestamptz(6)
+  LiketImgShape           LiketImgShape[]
+  Review                  Review                @relation(fields: [reviewIdx], references: [idx], map: "fk_review_tb_to_liket_tb")
 
   @@map("liket_tb")
+}
+
+model LiketImgShape {
+  idx               Int         @id @default(autoincrement())
+  liketIdx          Int         @default(autoincrement()) @map("liket_idx")
+  imgShape          Json         @map("img_shape")
+  Liket             Liket       @relation(fields: [liketIdx], references: [idx], map: "fk_liket_tb_to_liket_img_shape_tb")
+
+  @@map("liket_img_shape_tb")
 }
 
 model Location {
@@ -214,6 +227,7 @@ model Review {
   idx               Int            @id @default(autoincrement())
   cultureContentIdx Int            @default(autoincrement()) @map("culture_content_idx")
   userIdx           Int            @default(autoincrement()) @map("user_idx")
+  reportCount       Int            @default(0) @map("report_count")
   likeCount         Int            @default(0) @map("like_count")
   description       String
   visitTime         DateTime       @map("visit_time") @db.Timestamptz(6)
@@ -221,13 +235,17 @@ model Review {
   createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   deletedAt         DateTime?      @map("deleted_at") @db.Timestamptz(6)
   updatedAt         DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+  firstReportedAt   DateTime?      @map("first_reported_at") @db.Timestamptz(6)
   Liket             Liket[]
   ReviewImg         ReviewImg[]
   ReviewLike        ReviewLike[]   @relation("review_like_tb_review_tbToreview_tb")
   CultureContent    CultureContent @relation(fields: [cultureContentIdx], references: [idx], onDelete: Cascade, map: "fk_culture_content_tb_to_review_tb")
   User              User           @relation(fields: [userIdx], references: [idx], onDelete: Cascade, map: "fk_user_tb_to_review_tb")
+  ReviewReport      ReviewReport[]
 
   @@index([likeCount], type: BTree)
+  @@index([reportCount], type: BTree)
+  @@index([firstReportedAt], type: BTree)
   @@map("review_tb")
 }
 
@@ -346,6 +364,7 @@ model User {
   pw               String?            @db.VarChar
   nickname         String             @db.VarChar
   gender           Int?               @db.SmallInt
+  reportCount      Int                @default(0) @map("report_count")
   birth            Int?
   snsId            String?            @map("sns_id") @db.VarChar
   provider         String             @default("local") @db.VarChar
@@ -362,12 +381,13 @@ model User {
   Review           Review[]
   Route            Route[]
   TosAgree         TosAgree[]
-  Liket            Liket[]
   BlockReason      BlockReason[]
   DeleteUserReason DeleteUserReason[]
   RefreshToken     RefreshToken[]
+  ReviewReport     ReviewReport[]
 
   @@index([email], type: BTree)
+  @@index([reportCount], type: BTree)
   @@map("user_tb")
 }
 
@@ -468,4 +488,41 @@ model MapLevel3 {
   lat  Float
 
   @@map("map_level_3_tb")
+}
+
+model ReviewReport {
+  reportUserIdx Int              @map("report_user_idx")
+  reviewIdx     Int              @map("review_idx")
+  typeIdx       Int              @map("type_idx")
+  createdAt     DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt     DateTime?        @map("deleted_at") @db.Timestamptz(6)
+  User          User             @relation(fields: [reportUserIdx], references: [idx])
+  Review        Review           @relation(fields: [reviewIdx], references: [idx])
+  Type          ReviewReportType @relation(fields: [typeIdx], references: [idx])
+
+  @@id([reportUserIdx, reviewIdx])
+  @@map("review_report_tb")
+}
+
+model ReviewReportType {
+  idx          Int            @id @default(autoincrement())
+  name         String         @db.VarChar
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  ReviewReport ReviewReport[]
+
+  @@map("review_report_type_tb")
+}
+
+model Notice {
+  idx         Int       @id @default(autoincrement())
+  title       String    @db.VarChar
+  contents    String    @db.VarChar
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  activatedAt DateTime? @map("activated_at") @db.Timestamptz(6)
+  pinnedAt    DateTime? @map("pinned_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  @@index([pinnedAt], type: BTree)
+  @@index([activatedAt], type: BTree)
+  @@map("notice_tb")
 }

@@ -13,5 +13,7 @@ LICENSE
 /scripts
 .env
 test
-test-legacy
-dev-deploy
+dist
+.prettierignore
+.prettierrc
+table.erd.json
