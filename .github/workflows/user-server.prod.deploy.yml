@@ -4,13 +4,21 @@ on:
   push:
     branches:
       - main
+    paths:
+      - apps/user-server/**
+      - libs/**
+      - .github/user-server.dev.deploy.yml
+    paths-ignore:
+      - apps/user-server/test/**
+      - apps/user-server/README.md
+      - scripts/**
 
 env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}            # set this to your preferred AWS region, e.g. us-west-1
+  AWS_REGION: ${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_REGION }}            # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: liket/mobile-backend             # set this to your Amazon ECR repository name
   ECS_SERVICE: liket-mobile-nestjs-server-service  # set this to your Amazon ECS service name
   ECS_CLUSTER: liket-mobile-backend                # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: .aws/task-definition.json   # set this to the path to your Amazon ECS task definition
+  ECS_TASK_DEFINITION: .aws/user-server/task-definition.json   # set this to the path to your Amazon ECS task definition
                                                    # file, e.g. .aws/task-definition.json
   CONTAINER_NAME: liket-mobile-backend             # set this to the name of the container in the
                                                    # containerDefinitions section of your task definition
@@ -27,8 +35,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.USER_SERVER_PROD_DEPLOY_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -44,7 +52,7 @@ jobs:
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -f apps/user-server/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
