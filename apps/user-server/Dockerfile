@@ -4,9 +4,9 @@ WORKDIR /usr/src/app
 
 COPY package*.json .
 
-RUN npm ci
-
 COPY . .
+
+RUN npm ci
 
 RUN npx prisma generate
 
