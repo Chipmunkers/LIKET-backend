@@ -7,11 +7,9 @@ on:
     paths:
       - apps/user-server/**
       - libs/**
-      - .github/user-server.dev.deploy.yml
-    paths-ignore:
-      - apps/user-server/test/**
-      - apps/user-server/README.md
-      - scripts/**
+      - .github/user-server.dev.prod.deploy.yml
+      - '!apps/user-server/test/**'
+      - '!apps/user-server/README.md'
 
 env:
   AWS_REGION: ${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_REGION }}            # set this to your preferred AWS region, e.g. us-west-1

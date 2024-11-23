@@ -8,10 +8,8 @@ on:
       - apps/user-server/**
       - libs/**
       - .github/user-server.dev.deploy.yml
-    paths-ignore:
-      - apps/user-server/test/**
-      - apps/user-server/README.md
-      - scripts/**
+      - '!apps/user-server/test/**'
+      - '!apps/user-server/README.md'
 
 jobs:
   build:
