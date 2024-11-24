@@ -20,7 +20,7 @@ export class UserEntity {
    *
    * @example https://s3.ap-northeast-2.liket/user_profile/profile_img_123123.png
    */
-  public profileImgPath: string;
+  public profileImgPath: string | null;
 
   /**
    * 사용자 닉네임
@@ -100,7 +100,10 @@ export class UserEntity {
       gender: user.gender,
       email: user.email,
       birth: user.birth,
-      blockReason: user.BlockReason[0] && user.blockedAt ? user.BlockReason[0].reason : null,
+      blockReason:
+        user.BlockReason[0] && user.blockedAt
+          ? user.BlockReason[0].reason
+          : null,
       blockedAt: user.blockedAt,
       createdAt: user.createdAt,
       deletedAt: user.deletedAt,
