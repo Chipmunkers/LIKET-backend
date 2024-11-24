@@ -42,11 +42,8 @@ export class ReviewController {
   @Delete('/:idx')
   @HttpCode(201)
   @ApiTags('Review')
-  @ApiResponse({ status: 404, description: 'Cannot find review' })
   @LoginAuth()
   async deleteReviewByIdx(@Param('idx', ParseIntPipe) idx: number): Promise<void> {
-    await this.reviewService.getReviewByIdx(idx);
-
     await this.reviewService.deleteReviewByIdx(idx);
 
     return;

@@ -34,7 +34,7 @@ export class SummaryReviewEntity {
   /**
    * 리뷰 이미지 목록
    *
-   * @example "["https://s3.ap-northeast-2.liket/review/img_019481.png", "https://s3.ap-northeast-2.liket/review/img_819028.png"]"
+   * @example ["https://s3.ap-northeast-2.liket/review/img_019481.png", "https://s3.ap-northeast-2.liket/review/img_819028.png"]
    */
   imgList: string[];
 

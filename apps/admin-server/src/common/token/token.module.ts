@@ -10,11 +10,7 @@ import { TokenService } from './token.service';
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
-        return {
-          secret: configService.get<{ secret: string }>('jwt')?.secret || '',
-        };
-      },
+      useFactory: (configService: ConfigService) => configService.get('jwt'),
       inject: [ConfigService],
     }),
   ],

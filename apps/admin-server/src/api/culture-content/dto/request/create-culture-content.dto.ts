@@ -15,11 +15,11 @@ import { CreateLocationDto } from './create-location.dto';
 
 export class CreateCultureContentDto {
   @IsString()
-  @Length(1, 40)
+  @Length(1, 60)
   title: string;
 
   @IsString()
-  @Length(1, 1000)
+  @Length(1, 2000)
   description: string;
 
   @IsString()
@@ -53,6 +53,7 @@ export class CreateCultureContentDto {
   endDate: string;
 
   @IsString()
+  @Length(1, 100)
   openTime: string;
 
   @IsBoolean()

@@ -11,6 +11,8 @@ import { UserHistoryModule } from './api/user-history/user-history.module';
 import { LiketModule } from './api/liket/liket.module';
 import { TosModule } from './api/tos/tos.module';
 import { InquiryModule } from './api/inquiry/inquiry.module';
+import { ReviewReportModule } from './api/review-report/review-report.module';
+import { NoticeModule } from './api/notice/notice.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { InquiryModule } from './api/inquiry/inquiry.module';
     LiketModule,
     TosModule,
     InquiryModule,
+    ReviewReportModule,
+    NoticeModule,
   ],
 })
 export class AppModule {}

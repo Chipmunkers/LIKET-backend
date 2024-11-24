@@ -18,6 +18,13 @@ export class ReviewEntity extends SummaryReviewEntity {
    */
   description: string;
 
+  /**
+   * 신고 받은 개수
+   *
+   * @example 12
+   */
+  reportCount: number;
+
   constructor(data: ReviewEntity) {
     super(data);
     Object.assign(this, data);
@@ -30,6 +37,7 @@ export class ReviewEntity extends SummaryReviewEntity {
       imgList: review.ReviewImg.map((reviewImg) => reviewImg.imgPath),
       description: review.description,
       starRating: review.starRating,
+      reportCount: review.reportCount,
       author: {
         idx: review.User.idx,
         nickname: review.User.nickname,

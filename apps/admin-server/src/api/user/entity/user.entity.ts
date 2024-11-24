@@ -74,6 +74,11 @@ export class UserEntity {
   public blockReason: string | null;
 
   /**
+   * 신고 누적 횟수
+   */
+  public reportCount: number;
+
+  /**
    * 사용자 가입일
    *
    * @example 2024-05-01T10:11:00.000Z
@@ -105,6 +110,7 @@ export class UserEntity {
           ? user.BlockReason[0].reason
           : null,
       blockedAt: user.blockedAt,
+      reportCount: user.reportCount,
       createdAt: user.createdAt,
       deletedAt: user.deletedAt,
     });
