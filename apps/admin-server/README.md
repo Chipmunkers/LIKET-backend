@@ -23,3 +23,27 @@
 2. Docker 20 버전 이상
 
 > **주의**: `docker-compose` CLI를 사용하는 도커 버전에서는 대부분의 npm script에서 에러가 발생합니다.
+
+## Develop Setup
+
+### 1. 인프라 구성
+
+아래 명령어를 통해 인프라를 도커를 통해 띄웁니다.
+
+```
+npm run admin-server:dev:infra:up
+```
+
+### 2. 환경변수 작성
+
+루트에 `.env` 파일을 통해 환경변수를 준비합니다.
+
+### 3. 앱 실행
+
+앱을 실행합니다.
+
+```
+npm run start admin-server --watch
+```
+
+> `npm run admin-server:dev:infra:down`을 통해 개발 인프라를 내릴 수 있습니다.
