@@ -20,6 +20,18 @@ LIKET은 `Nest.js`와 `Prisma`를 메인으로 사용합니다. 모든 앱이 �
 
 그 외의 컨벤션은 각 앱에서 자유롭게 정할 수 있습니다.
 
+## Commit rules
+
+1. `feat`, `chore`, `style`, `refactor`, `test`로 커밋 단위를 나누어야합니다.
+2. `user-server`, `admin-server`, `batch-server`, `libs`, `common`으로 코드 변경 스코프를 명시합니다.
+3. 대문자 구분이 필요한 경우 제일 첫 글자를 대문자로 하십시오.
+
+**Example**
+
+```
+feat(admin-server): Implement GET /user API
+```
+
 ## Infrastructure & Deploy
 
 개발 서버는 홈 서버를 통해 배포합니다. 그러나 프로덕션 서버는 ECS에 배포된다는 것을 명심해야합니다. `batch-server`를 제외한 모든 앱은 다중 컨테이너 환경에서 고가용성있게 운영된다는 점을 주의하여 개발해야합니다.
@@ -36,11 +48,11 @@ LIKET은 `Nest.js`와 `Prisma`를 메인으로 사용합니다. 모든 앱이 �
 
 `ERD Editor`익스텐션을 설치해야 `table.erd.json`파일을 통해 ERD를 시각화할 수 있습니다. 그 외에도, `Prisma`, `Prettier - Code formatter` 설치를 권장합니다.
 
-### [user-server 바로가기](https://github.com/Chipmunkers/LIKET-backend/tree/master/apps/user-server)
+### [🖇️ user-server 바로가기](https://github.com/Chipmunkers/LIKET-backend/tree/master/apps/user-server)
 
-### [admin-server 바로가기]()
+### [🖇️ admin-server 바로가기](https://github.com/Chipmunkers/LIKET-backend/tree/master/apps/admin-server)
 
-### [batch-server 바로가기]()
+### [🖇️ batch-server 바로가기]()
 
 ## Directory Description
 
@@ -81,6 +93,8 @@ RDB ERD를 볼 수 있는 파일입니다. 변경되지 않도록 주의해야�
         </sub>
       </a>
       <br />
+      <span>Maintainer</span>
+      <br />
     </td>
     <td align="center">
       <a href="https://github.com/wherehows">
@@ -90,6 +104,8 @@ RDB ERD를 볼 수 있는 파일입니다. 변경되지 않도록 주의해야�
           <b>Younghoo Kim</b>
         </sub>
       </a>
+      <br />
+      <span>Contributor</span>
       <br />
     </td>
   </tr>
