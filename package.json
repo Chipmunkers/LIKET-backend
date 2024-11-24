@@ -24,10 +24,12 @@
     "user-server:test:e2e": "dotenv -e scripts/user-server/e2e-test/.env.test -- jest --config ./apps/user-server/test/jest-e2e.json --verbose",
     "user-server:test:infra:up": "docker compose -p liket-mobile-test -f scripts/user-server/e2e-test/docker-compose.yml up -d",
     "user-server:test:infra:down": "docker compose -p liket-mobile-test -f scripts/user-server/e2e-test/docker-compose.yml down -v",
-    "user-server:load-test:infra:up": "docker compose -p liket-mobile-load-test -f apps/user-server/test/load/infra/docker-compose.yml up -d --build --force-recreate",
-    "user-server:load-test:infra:down": "docker compose -p liket-mobile-load-test -f apps/user-server/test/load/infra/docker-compose.yml down -v",
+    "user-server:load-test:infra:up": "docker compose -p liket-mobile-load-test -f scripts/user-server/load-test/docker-compose.yml up -d --build --force-recreate",
+    "user-server:load-test:infra:down": "docker compose -p liket-mobile-load-test -f scripts/user-server/load-test/docker-compose.yml down -v",
     "user-server:load-test:seed": "ts-node apps/user-server/test/load/infra/seed/index.ts",
-    "user-server:load-test": "k6 run ./apps/user-server/test/load/culture-content.js -v"
+    "user-server:load-test": "k6 run ./apps/user-server/test/load/culture-content.js -v",
+    "admin-server:dev:infra:up": "docker compose -p liket-admin-server -f scripts/admin-server/dev/docker-compose.yml up -d",
+    "admin-server:dev:infra:down": "docker compose -p liket-admin-server -f scripts/admin-server/dev/docker-compose.yml down -v"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.529.1",

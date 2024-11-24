@@ -10,9 +10,9 @@ export default function () {
   let res = http.get(
     'http://localhost:3000/culture-content/all?accept=true&region=12',
     {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      // headers: {
+      //   Authorization: `Bearer ${token}`,
+      // },
     },
   ); // Update with your API endpoint
   if (res.status !== 200) {

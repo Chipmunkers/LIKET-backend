@@ -1,0 +1,10 @@
+import { Module } from '@nestjs/common';
+import { ReviewReportService } from './review-report.service';
+import { ReviewReportController } from './review-report.controller';
+
+@Module({
+  imports: [],
+  providers: [ReviewReportService],
+  controllers: [ReviewReportController],
+})
+export class ReviewReportModule {}

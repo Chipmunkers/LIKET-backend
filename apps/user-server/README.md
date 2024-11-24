@@ -22,7 +22,7 @@
 ## Required For Develop
 
 1. Node.js 20 버전 이상
-2. Docker 20버전 이상
+2. Docker 20 버전 이상
 
 > **주의**: `docker-compose` CLI를 사용하는 도커 버전에서는 대부분의 npm script에서 에러가 발생합니다.
 
