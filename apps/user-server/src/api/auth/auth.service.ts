@@ -18,7 +18,6 @@ import { InvalidRefreshTokenType } from '../../common/module/login-jwt/exception
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 import { SocialLoginUserService } from '../user/social-login-user.service';
 import { SocialLoginEmailDuplicateException } from './exception/SocialLoginEmailDuplicateException';
-import { LoginUser } from './model/login-user';
 import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-payload';
 import { AppleLoginStrategy } from './strategy/apple/apple-login.strategy';
 
