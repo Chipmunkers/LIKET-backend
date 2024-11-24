@@ -10,7 +10,7 @@ RUN npm ci
 
 RUN npx prisma generate
 
-RUN npm run build user-server
+RUN npm run build admin-server
 
 EXPOSE 3000
 
