@@ -2,7 +2,7 @@ services:
   postgresql:
     image: postgres:15.4
     restart: always
-    container_name: liket-backend-DB
+    container_name: DB-for-liket-user-server-dev
     ports:
       - '5433:5432'
     environment:
