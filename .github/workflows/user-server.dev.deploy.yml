@@ -52,8 +52,8 @@ jobs:
         run: |
           sshpass -p "$PW" ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
             docker pull ${{ secrets.COMMON_DOCKER_HUB_USER }}/liket-mobile-dev-api-server:latest
-            docker stop ${{ secrets.USER_SERVER_DEV_DEPLOY_CONATINER_NAME }} || true
-            docker rm ${{ secrets.USER_SERVER_DEV_DEPLOY_CONATINER_NAME }} || true
+            docker stop ${{ secrets.USER_SERVER_DEV_DEPLOY_CONTAINER_NAME }} || true
+            docker rm ${{ secrets.USER_SERVER_DEV_DEPLOY_CONTAINER_NAME }} || true
             
-            docker run -d -p 3000:3000 --name ${{ secrets.USER_SERVER_DEV_DEPLOY_CONATINER_NAME }} --env-file ${{ secrets.USER_SERVER_DEV_DEPLOY_ENV_PATH }} ${{ secrets.COMMON_DOCKER_HUB_USER }}/liket-mobile-dev-api-server:latest
+            docker run -d -p 3000:3000 --name ${{ secrets.USER_SERVER_DEV_DEPLOY_CONTAINER_NAME }} --env-file ${{ secrets.USER_SERVER_DEV_DEPLOY_ENV_PATH }} ${{ secrets.COMMON_DOCKER_HUB_USER }}/liket-mobile-dev-api-server:latest
           EOF
