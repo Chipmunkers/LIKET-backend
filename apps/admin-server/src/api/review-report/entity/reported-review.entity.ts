@@ -12,17 +12,18 @@ const reviewWithInclude = Prisma.validator<Prisma.ReviewDefaultArgs>()({
 });
 type ReviewWithInclude = Prisma.ReviewGetPayload<typeof reviewWithInclude>;
 
-const reviewReportTypeWithInclude = Prisma.validator<Prisma.ReviewReportTypeDefaultArgs>()({
-  select: {
-    idx: true,
-    name: true,
-    _count: {
-      select: {
-        ReviewReport: true,
+const reviewReportTypeWithInclude =
+  Prisma.validator<Prisma.ReviewReportTypeDefaultArgs>()({
+    select: {
+      idx: true,
+      name: true,
+      _count: {
+        select: {
+          ReviewReport: true,
+        },
       },
     },
-  },
-});
+  });
 type ReviewReportTypeWithInclude = Prisma.ReviewReportTypeGetPayload<
   typeof reviewReportTypeWithInclude
 >;
@@ -60,7 +61,7 @@ export class ReportedReviewEntity extends PickType(ReviewEntity, [
    *
    * @example 2024-05-04T11:12:00.000Z
    */
-  firstReportedAt: Date;
+  firstReportedAt: Date | null;
 
   constructor(reportedReviewEntity: ReportedReviewEntity) {
     super();
