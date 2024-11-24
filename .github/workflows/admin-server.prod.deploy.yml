@@ -26,15 +26,9 @@ jobs:
         run: |
           echo "${{ secrets.COMMON_DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.COMMON_DOCKER_HUB_USER }}" --password-stdin
 
-      - name: Get package version
-        id: get_version
-        run: |
-          VERSION=$(jq -r '.version' package.json)
-          echo "::set-output name=VERSION::$VERSION"
-
       - name: Build and push image to docker hub
         env:
-          IMAGE_TAG: ${{ steps.get_version.outputs.VERSION }}
+          IMAGE_TAG: latest
         run: |
           docker build -f apps/admin-server/Dockerfile -t ${{ secrets.COMMON_DOCKER_HUB_USER }}/liket-backoffice-production-api-server .
           docker push ${{ secrets.COMMON_DOCKER_HUB_USER }}/liket-backoffice-production-api-server:$IMAGE_TAG
