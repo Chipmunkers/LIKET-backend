@@ -30,7 +30,7 @@ jobs:
         env:
           IMAGE_TAG: latest
         run: |
-          docker build -f ./dev-deploy/Dockerfile -t ${{ secrets.COMMON_DOCKER_HUB_USER }}/liket-backoffice-dev-api-server .
+          docker build -f apps/admin-server/Dockerfile -t ${{ secrets.COMMON_DOCKER_HUB_USER }}/liket-backoffice-dev-api-server .
           docker push ${{ secrets.COMMON_DOCKER_HUB_USER }}/liket-backoffice-dev-api-server:$IMAGE_TAG
 
   deploy:
