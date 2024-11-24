@@ -104,7 +104,9 @@ export class CultureContentService {
     ]);
 
     return {
-      contentList: contentList.map((content) => SummaryContentEntity.createEntity(content)),
+      contentList: contentList.map((content) =>
+        SummaryContentEntity.createEntity(content),
+      ),
       count,
     };
   };
@@ -163,7 +165,7 @@ export class CultureContentService {
       };
     }
 
-    return null;
+    return undefined;
   }
 
   getContentByIdx: (idx: number) => Promise<ContentEntity> = async (idx) => {
@@ -216,104 +218,106 @@ export class CultureContentService {
     return ContentEntity.createEntity(content);
   };
 
-  createContent: (userIdx: number, createDto: CreateCultureContentDto) => Promise<ContentEntity> =
-    async (userIdx, createDto) => {
-      const createdContent = await this.prisma.$transaction(async (tx) => {
-        const createdLocation = await tx.location.create({
-          data: {
-            address: createDto.location.address,
-            detailAddress: createDto.location.detailAddress,
-            region1Depth: createDto.location.region1Depth,
-            region2Depth: createDto.location.region2Depth,
-            hCode: createDto.location.hCode,
-            bCode: createDto.location.bCode,
-            positionX: createDto.location.positionX,
-            positionY: createDto.location.positionY,
-            sidoCode: createDto.location.bCode.substring(0, 2),
-            sggCode: createDto.location.bCode.substring(2, 5),
-            legCode: createDto.location.bCode.substring(5, 8),
-            riCode: createDto.location.bCode.substring(8, 10),
-          },
-        });
-
-        const requestedCultureContent = await tx.cultureContent.create({
-          include: {
-            User: {
-              include: {
-                BlockReason: {
-                  orderBy: {
-                    idx: 'desc',
-                  },
-                },
-              },
-            },
-            ContentImg: {
-              where: {
-                deletedAt: null,
-              },
-              orderBy: {
-                idx: 'asc',
-              },
-            },
-            Genre: true,
-            Style: {
-              include: {
-                Style: true,
-              },
-              where: {
-                Style: {
-                  deletedAt: null,
-                },
-              },
-            },
-            Age: true,
-            Location: true,
-          },
-          data: {
-            genreIdx: createDto.genreIdx,
-            userIdx: userIdx,
-            locationIdx: createdLocation.idx,
-            ageIdx: createDto.ageIdx,
-            Style: {
-              createMany: {
-                data: createDto.styleIdxList.map((style) => ({
-                  styleIdx: style,
-                })),
-              },
-            },
-            ContentImg: createDto.imgList?.length
-              ? {
-                  createMany: {
-                    data: createDto.imgList.map((img) => ({
-                      imgPath: img.path,
-                    })),
-                  },
-                }
-              : undefined,
-            title: createDto.title,
-            description: createDto.description,
-            websiteLink: createDto.websiteLink,
-            startDate: new Date(createDto.startDate),
-            endDate: new Date(createDto.endDate),
-            openTime: createDto.openTime,
-            isFee: createDto.isFee,
-            isReservation: createDto.isReservation,
-            isParking: createDto.isParking,
-            isPet: createDto.isPet,
-            acceptedAt: null,
-          },
-        });
-
-        return requestedCultureContent;
+  createContent: (
+    userIdx: number,
+    createDto: CreateCultureContentDto,
+  ) => Promise<ContentEntity> = async (userIdx, createDto) => {
+    const createdContent = await this.prisma.$transaction(async (tx) => {
+      const createdLocation = await tx.location.create({
+        data: {
+          address: createDto.location.address,
+          detailAddress: createDto.location.detailAddress,
+          region1Depth: createDto.location.region1Depth,
+          region2Depth: createDto.location.region2Depth,
+          hCode: createDto.location.hCode,
+          bCode: createDto.location.bCode,
+          positionX: createDto.location.positionX,
+          positionY: createDto.location.positionY,
+          sidoCode: createDto.location.bCode.substring(0, 2),
+          sggCode: createDto.location.bCode.substring(2, 5),
+          legCode: createDto.location.bCode.substring(5, 8),
+          riCode: createDto.location.bCode.substring(8, 10),
+        },
       });
 
-      return ContentEntity.createEntity(createdContent);
-    };
+      const requestedCultureContent = await tx.cultureContent.create({
+        include: {
+          User: {
+            include: {
+              BlockReason: {
+                orderBy: {
+                  idx: 'desc',
+                },
+              },
+            },
+          },
+          ContentImg: {
+            where: {
+              deletedAt: null,
+            },
+            orderBy: {
+              idx: 'asc',
+            },
+          },
+          Genre: true,
+          Style: {
+            include: {
+              Style: true,
+            },
+            where: {
+              Style: {
+                deletedAt: null,
+              },
+            },
+          },
+          Age: true,
+          Location: true,
+        },
+        data: {
+          genreIdx: createDto.genreIdx,
+          userIdx: userIdx,
+          locationIdx: createdLocation.idx,
+          ageIdx: createDto.ageIdx,
+          Style: {
+            createMany: {
+              data: createDto.styleIdxList.map((style) => ({
+                styleIdx: style,
+              })),
+            },
+          },
+          ContentImg: createDto.imgList?.length
+            ? {
+                createMany: {
+                  data: createDto.imgList.map((img) => ({
+                    imgPath: img.path,
+                  })),
+                },
+              }
+            : undefined,
+          title: createDto.title,
+          description: createDto.description,
+          websiteLink: createDto.websiteLink,
+          startDate: new Date(createDto.startDate),
+          endDate: new Date(createDto.endDate),
+          openTime: createDto.openTime,
+          isFee: createDto.isFee,
+          isReservation: createDto.isReservation,
+          isParking: createDto.isParking,
+          isPet: createDto.isPet,
+          acceptedAt: null,
+        },
+      });
 
-  updateContentByIdx: (idx: number, updateDto: UpdateCultureContentDto) => Promise<void> = async (
-    idx,
-    updateDto,
-  ) => {
+      return requestedCultureContent;
+    });
+
+    return ContentEntity.createEntity(createdContent);
+  };
+
+  updateContentByIdx: (
+    idx: number,
+    updateDto: UpdateCultureContentDto,
+  ) => Promise<void> = async (idx, updateDto) => {
     await this.prisma.$transaction([
       this.prisma.location.update({
         where: {
@@ -416,7 +420,9 @@ export class CultureContentService {
       }
 
       if (content.acceptedAt) {
-        throw new AlreadyActiveContentException('Already activated culture content');
+        throw new AlreadyActiveContentException(
+          'Already activated culture content',
+        );
       }
 
       await this.prisma.cultureContent.update({
@@ -449,7 +455,9 @@ export class CultureContentService {
       }
 
       if (!content.acceptedAt) {
-        throw new AlreadyDeactiveContentException('Already deactivated culture content');
+        throw new AlreadyDeactiveContentException(
+          'Already deactivated culture content',
+        );
       }
 
       await this.prisma.cultureContent.update({
