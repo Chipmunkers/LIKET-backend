@@ -3,14 +3,14 @@ import { LoggerService } from '../../common/module/logger/logger.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { Prisma, User } from '@prisma/client';
 import { InsertUserDao } from './dao/insert-user.dao';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { UpdateUserDao } from './dao/update-user.dao';
 import { SocialProvider } from '../auth/strategy/social-provider.enum';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class UserRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(UserRepository.name) private readonly logger: LoggerService,
   ) {}
 

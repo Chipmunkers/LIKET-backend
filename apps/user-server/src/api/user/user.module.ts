@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { PrismaModule } from '../../common/module/prisma/prisma.module';
 import { UploadModule } from '../upload/upload.module';
 import { HashModule } from '../../common/module/hash/hash.module';
 import { EmailCertModule } from '../email-cert/email-cert.module';
@@ -12,6 +11,7 @@ import { UserPwService } from './user-pw.service';
 import { UserRepository } from './user.repository';
 import { LiketRepository } from '../liket/liket.repository';
 import { ReviewRepository } from '../review/review.repository';
+import { PrismaModule } from 'libs/modules';
 
 @Module({
   imports: [

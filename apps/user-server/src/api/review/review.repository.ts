@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
@@ -7,11 +6,12 @@ import { Prisma, Review } from '@prisma/client';
 import { ReviewWithInclude } from './entity/prisma-type/review-with-include';
 import { InsertReviewDao } from './dao/insert-review.dao';
 import { UpdateReviewDao } from './dao/update-review.dao';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ReviewRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(ReviewRepository.name) private readonly logger: LoggerService,
   ) {}
 

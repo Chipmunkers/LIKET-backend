@@ -1,10 +1,10 @@
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { PrismaProvider } from 'libs/modules';
 
 export class TosRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(TosRepository.name) private readonly logger: LoggerService,
   ) {}
 

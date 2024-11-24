@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { MyInfoEntity } from './entity/my-info.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -24,17 +23,18 @@ import { LiketRepository } from '../liket/liket.repository';
 import { ReviewRepository } from '../review/review.repository';
 import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
 import { MyReviewEntity } from '../review/entity/my-review.entity';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     private readonly hashService: HashService,
     private readonly emailJwtService: EmailJwtService,
     private readonly loginJwtService: LoginJwtService,
     private readonly socialLoginJwtService: SocialLoginJwtService,
     private readonly userRepository: UserRepository,
-    private readonly liketRepostiory: LiketRepository,
+    private readonly liketRepository: LiketRepository,
     private readonly reviewRepository: ReviewRepository,
     @Logger(UserService.name) private readonly logger: LoggerService,
   ) {}
@@ -145,7 +145,7 @@ export class UserService {
     }
 
     const liketList = (
-      await this.liketRepostiory.selectLiketAll({
+      await this.liketRepository.selectLiketAll({
         user: userIdx,
         orderby: 'time',
         order: 'desc',
@@ -155,7 +155,7 @@ export class UserService {
       return SummaryLiketEntity.createEntity(liket);
     });
 
-    const liketCount = await this.liketRepostiory.selectLiketCountByUserIdx(
+    const liketCount = await this.liketRepository.selectLiketCountByUserIdx(
       userIdx,
     );
 

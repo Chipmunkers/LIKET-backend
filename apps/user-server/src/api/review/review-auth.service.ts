@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
@@ -7,10 +6,11 @@ import { PermissionDeniedException } from '../../common/exception/PermissionDeni
 import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { LoginUser } from '../auth/model/login-user';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ReviewAuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   checkReadAllPermisison: (
     pagerlbe: ReviewPagerbleDto,

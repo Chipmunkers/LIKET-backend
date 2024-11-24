@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { ReviewRepository } from '../review/review.repository';
 import { ReviewReportRepository } from './review-report.repository';
 import { LoginUser } from '../auth/model/login-user';
@@ -9,11 +8,12 @@ import { ReviewNotFoundException } from '../review/exception/ReviewNotFoundExcep
 import { AlreadyReportedReviewException } from './exception/AlreadyReportedReviewException';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ReviewReportService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     private readonly reviewRepository: ReviewRepository,
     private readonly userRepository: UserRepository,
     private readonly reviewReportRepository: ReviewReportRepository,

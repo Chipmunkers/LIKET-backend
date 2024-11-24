@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Prisma, ReviewReport } from '@prisma/client';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ReviewReportRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   /**
    * 리뷰 신고 가져오기

@@ -8,13 +8,11 @@ import { LoggerService } from '../../common/module/logger/logger.service';
 import { LoginUser } from '../auth/model/login-user';
 import { PagerbleDto } from '../../common/dto/pagerble.dto';
 import { SummaryInquiryEntity } from './entity/summary-inquiry.entity';
-import { Prisma } from '@prisma/client';
 import { InquiryRepository } from './inquiry.repository';
 
 @Injectable()
 export class InquiryService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly inquiryRepository: InquiryRepository,
     @Logger(InquiryService.name) private readonly logger: LoggerService,
   ) {}

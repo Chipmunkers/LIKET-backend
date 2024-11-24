@@ -3,7 +3,6 @@ import { MapService } from './map.service';
 import { MapPagerbleDto } from './dto/request/map-pagerble.dto';
 import { ClusteredContentAllResponseDto } from './dto/response/clustered-content-all.dto';
 import { Exception } from '../../common/decorator/exception.decorator';
-import { LoginAuth } from '../auth/login-auth.decorator';
 import { User } from '../user/user.decorator';
 import { LoginUser } from '../auth/model/login-user';
 import { ContentAllResponseDto } from './dto/response/content-all.dto';

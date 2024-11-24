@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { RedisService } from '../../common/module/redis/redis.service';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ContentTagRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     private readonly redis: RedisService,
     @Logger(ContentTagRepository.name) private readonly logger: LoggerService,
   ) {}

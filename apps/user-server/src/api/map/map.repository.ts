@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { MapPagerbleDto } from './dto/request/map-pagerble.dto';
 import { ClusteredEntity } from './entity/clustered-content.entity';
 import { LoginUser } from '../auth/model/login-user';
 import { MapContentPagerbleDto } from './dto/request/map-content-pagerble.dto';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class MapRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   public async getContentCountFromMapLevel(
     pagerbleDto: MapPagerbleDto,

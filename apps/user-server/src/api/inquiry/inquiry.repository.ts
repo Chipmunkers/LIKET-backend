@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { PagerbleDto } from '../../common/dto/pagerble.dto';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { InsertInquiryDao } from './dao/insert-inquiry.dao';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class InquiryRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(InquiryRepository.name) private readonly logger: LoggerService,
   ) {}
 

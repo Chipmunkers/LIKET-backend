@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { CreateLiketDto } from './dto/create-liket.dto';
 import { UpdateLiketDto } from './dto/update-liket.dto';
 import { LiketPageableDto } from './dto/liket-pageable.dto';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class LiketRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   public async insertLiket(reviewIdx: number, insertDto: CreateLiketDto) {
     return await this.prisma.liket.create({

@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { SummaryTosEntity } from './entity/summary-tos.entity';
 import { TosEntity } from './entity/tos.entity';
 import { Logger } from '../../common/module/logger/logger.decorator';
@@ -9,7 +8,6 @@ import { TosRepository } from './tos.repository';
 @Injectable()
 export class TosService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly tosRepository: TosRepository,
     @Logger(TosService.name) private readonly logger: LoggerService,
   ) {}

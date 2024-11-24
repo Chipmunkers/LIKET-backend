@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { Logger } from '../logger/logger.decorator';
 import { LoggerService } from '../logger/logger.service';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class LoginJwtRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(LoginJwtRepository.name) private readonly logger: LoggerService,
   ) {}
 

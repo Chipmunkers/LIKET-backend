@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CultureContentController } from './culture-content.controller';
 import { CultureContentService } from './culture-content.service';
-import { PrismaModule } from '../../common/module/prisma/prisma.module';
 import { ContentAuthService } from './content-auth.service';
 import { CultureContentRepository } from './culture-content.repository';
 import { CultureContentLikeRepository } from './culture-content-like.repository';
@@ -9,6 +8,7 @@ import { ReviewRepository } from '../review/review.repository';
 import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { UserRepository } from '../user/user.repository';
 import { ContentViewService } from './content-view.service';
+import { PrismaModule } from 'libs/modules';
 
 @Module({
   imports: [PrismaModule],

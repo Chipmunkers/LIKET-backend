@@ -21,7 +21,6 @@ import {
   ThrottlerModuleOptions,
 } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { PrismaModule } from './common/module/prisma/prisma.module';
 import { MetricModule } from './api/metric/metric.module';
 import { MapModule } from './api/map/map.module';
 import { AppController } from './app.controller';
@@ -52,7 +51,6 @@ import { NoticeModule } from './api/notice/notice.module';
       load: [modeConfig],
     }),
     MapModule,
-    PrismaModule,
     EmailCertModule,
     UserModule,
     AuthModule,

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Notice } from '@prisma/client';
 import { NoticePageableDto } from './dto/notice-pageable.dto';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class NoticeRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   /**
    * 공지사항 여러개를 SELECT하는 메서드

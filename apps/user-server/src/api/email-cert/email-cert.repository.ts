@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { InsertEmailCertCodeDao } from './dao/insert-email-cert-code.dao';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { SelectEmailCertCodeDao } from './dao/select-email-cert-code.dao';
 import { DeleteEmailCertCodeDao } from './dao/delete-email-cert-code.dao';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class EmailCertRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(EmailCertRepository.name) private readonly logger: LoggerService,
   ) {}
 

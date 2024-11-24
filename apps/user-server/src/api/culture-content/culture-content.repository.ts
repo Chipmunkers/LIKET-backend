@@ -6,11 +6,12 @@ import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { Prisma } from '@prisma/client';
 import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class CultureContentRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(CultureContentRepository.name)
     private readonly logger: LoggerService,
   ) {}

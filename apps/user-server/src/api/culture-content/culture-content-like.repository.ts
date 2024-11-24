@@ -1,13 +1,13 @@
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { Injectable } from '@nestjs/common';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class CultureContentLikeRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(CultureContentLikeRepository.name)
     private readonly logger: LoggerService,
   ) {}
