@@ -96,19 +96,10 @@ export class UserService {
       },
     });
 
-    const liketCount = await this.prisma.liket.count({
-      where: {
-        userIdx: idx,
-        Review: {
-          deletedAt: null,
-        },
-        deletedAt: null,
-      },
-    });
-
     return {
       reviewCount,
-      liketCount,
+      // TODO: 라이켓 부착 필요
+      liketCount: 0,
     };
   };
 
@@ -130,45 +121,43 @@ export class UserService {
     return UserEntity.createEntity(user);
   };
 
-  blockUserByIdx: (idx: number, blockDto: BlockUserDto) => Promise<void> = async (
-    idx,
-    blockDto,
-  ) => {
-    await this.prisma.$transaction(async (tx) => {
-      const user = await this.prisma.user.findUnique({
-        where: {
-          idx,
-          deletedAt: null,
-        },
+  blockUserByIdx: (idx: number, blockDto: BlockUserDto) => Promise<void> =
+    async (idx, blockDto) => {
+      await this.prisma.$transaction(async (tx) => {
+        const user = await this.prisma.user.findUnique({
+          where: {
+            idx,
+            deletedAt: null,
+          },
+        });
+
+        if (!user) {
+          throw new UserNotFoundException('Cannot find user');
+        }
+
+        if (user.blockedAt) {
+          throw new AlreadyBlockUserException('Already block user');
+        }
+
+        await this.prisma.user.update({
+          where: {
+            idx,
+          },
+          data: {
+            blockedAt: new Date(),
+          },
+        });
+
+        await this.prisma.blockReason.create({
+          data: {
+            userIdx: idx,
+            reason: blockDto.reason,
+          },
+        });
       });
 
-      if (!user) {
-        throw new UserNotFoundException('Cannot find user');
-      }
-
-      if (user.blockedAt) {
-        throw new AlreadyBlockUserException('Already block user');
-      }
-
-      await this.prisma.user.update({
-        where: {
-          idx,
-        },
-        data: {
-          blockedAt: new Date(),
-        },
-      });
-
-      await this.prisma.blockReason.create({
-        data: {
-          userIdx: idx,
-          reason: blockDto.reason,
-        },
-      });
-    });
-
-    return;
-  };
+      return;
+    };
 
   cancelToBlockUserByIdx: (idx: number) => Promise<void> = async (idx) => {
     await this.prisma.$transaction(async (tx) => {
