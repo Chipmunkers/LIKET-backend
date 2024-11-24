@@ -15,7 +15,7 @@ export class UploadService {
     private readonly configService: ConfigService,
     private readonly utilService: UtilService,
   ) {
-    this.s3Client = new S3Client(this.configService.get('s3'));
+    this.s3Client = new S3Client(this.configService.get('s3') || '');
   }
 
   public async uploadFileToS3(

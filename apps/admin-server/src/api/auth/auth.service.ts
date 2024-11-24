@@ -30,7 +30,7 @@ export class AuthService {
       throw new InvalidEmailOrPwException('Invalid email or password');
     }
 
-    if (!(await this.hashService.comparePw(loginDto.pw, adminUser.pw))) {
+    if (!(await this.hashService.comparePw(loginDto.pw, adminUser.pw || ''))) {
       throw new InvalidEmailOrPwException('Invalid email or password');
     }
 
