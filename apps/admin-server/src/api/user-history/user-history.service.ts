@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GetReviewAllPagerbleDto } from './dto/request/get-review-all-pagerble.dto';
-import { SummaryReviewEntity } from '../review/entity/summary-review.entity';
 import { Prisma } from '../../common/prisma/prisma.service';
-import { GetLiketAllPagerbleDto } from './dto/request/get-liket-all-pagerble.dto';
-import { LiketEntity } from '../liket/entity/liket.entity';
 import { ReviewEntity } from '../review/entity/review.entity';
 
 @Injectable()
