@@ -1,41 +1,18 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaSetting } from '../../setup/prisma.setup';
-import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
 import * as request from 'supertest';
-import { AppModule } from '../../../../src/app.module';
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
-import { AppGlobalSetting } from '../../setup/app-global.setup';
 import { ReportReviewDto } from '../../../../src/api/review-report/dto/report-review.dto';
 import { ReviewEntity } from '../../../../src/api/review/entity/review.entity';
+import { PrismaProvider } from '../../../../../../libs/modules/src';
+import { TestHelper } from '../../setup/test.helper';
 
 describe('Review Report(e2e)', () => {
-  let app: INestApplication;
-  let appModule: TestingModule;
-  const prismaSetting = PrismaSetting.setup();
-
-  let loginUsers: TestLoginUsers;
+  const test = TestHelper.create();
 
   beforeEach(async () => {
-    await prismaSetting.BEGIN();
-
-    appModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(PrismaService)
-      .useValue(prismaSetting.getPrisma())
-      .compile();
-    app = appModule.createNestApplication();
-    AppGlobalSetting.setup(app);
-    await app.init();
-
-    loginUsers = await LoginSetting.setup(loginUsers, app);
+    await test.init();
   });
 
   afterEach(async () => {
-    prismaSetting.ROLLBACK();
-    await appModule.close();
-    await app.close();
+    await test.destroy();
   });
 
   describe('POST /review/:idx/report', () => {
@@ -44,9 +21,9 @@ describe('Review Report(e2e)', () => {
       const reportDto: ReportReviewDto = {
         typeIdx: 1,
       };
-      const loginUser = loginUsers.user2; // 1번 2번 리뷰 모두 user 1에 의해 작성된 리뷰들임
+      const loginUser = test.getLoginUsers().user2; // 1번 2번 리뷰 모두 user 1에 의해 작성된 리뷰들임
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(reportDto)
@@ -58,9 +35,9 @@ describe('Review Report(e2e)', () => {
       const reportDto = {
         typeIdx: '1',
       };
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
@@ -72,9 +49,9 @@ describe('Review Report(e2e)', () => {
       const reportDto = {
         typeIdx: null,
       };
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
@@ -86,9 +63,9 @@ describe('Review Report(e2e)', () => {
       const reportDto = {
         typeIdx: undefined,
       };
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
@@ -100,9 +77,9 @@ describe('Review Report(e2e)', () => {
       const reportDto: ReportReviewDto = {
         typeIdx: 2,
       };
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
@@ -114,9 +91,9 @@ describe('Review Report(e2e)', () => {
       const reportDto: ReportReviewDto = {
         typeIdx: 2,
       };
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
@@ -129,7 +106,7 @@ describe('Review Report(e2e)', () => {
         typeIdx: 2,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .send(reportDto)
         .expect(401);
@@ -140,9 +117,9 @@ describe('Review Report(e2e)', () => {
       const reportDto: ReportReviewDto = {
         typeIdx: 2,
       };
-      const loginUser = loginUsers.user1; // 1번 사용자는 모든 리뷰의 작성자임
+      const loginUser = test.getLoginUsers().user1; // 1번 사용자는 모든 리뷰의 작성자임
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
@@ -154,15 +131,15 @@ describe('Review Report(e2e)', () => {
       const reportDto: ReportReviewDto = {
         typeIdx: 2,
       };
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
@@ -174,9 +151,9 @@ describe('Review Report(e2e)', () => {
       const reportDto: ReportReviewDto = {
         typeIdx: 99999, // 존재하지 않는 타입
       };
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
@@ -184,10 +161,10 @@ describe('Review Report(e2e)', () => {
     });
 
     it('Select review test after reporting a review', async () => {
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
       const contentIdx = 1;
 
-      const firstGetReviewResponse = await request(app.getHttpServer())
+      const firstGetReviewResponse = await request(test.getServer())
         .get(`/review/all`)
         .query({
           content: contentIdx,
@@ -207,13 +184,13 @@ describe('Review Report(e2e)', () => {
         typeIdx: 1,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reportReviewIdx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
-      const secondGetReviewResponse = await request(app.getHttpServer())
+      const secondGetReviewResponse = await request(test.getServer())
         .get(`/review/all`)
         .query({
           content: contentIdx,
@@ -235,10 +212,10 @@ describe('Review Report(e2e)', () => {
       const reportDto: ReportReviewDto = {
         typeIdx: 1,
       };
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      const reviewBeforeBeingReported = await prismaSetting
-        .getPrisma()
+      const reviewBeforeBeingReported = await test
+        .get(PrismaProvider)
         .review.findUniqueOrThrow({
           select: {
             firstReportedAt: true,
@@ -250,13 +227,13 @@ describe('Review Report(e2e)', () => {
 
       expect(reviewBeforeBeingReported.firstReportedAt).toBeNull();
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(reportDto)
         .expect(201);
 
-      const review = await prismaSetting.getPrisma().review.findUniqueOrThrow({
+      const review = await test.get(PrismaProvider).review.findUniqueOrThrow({
         where: {
           idx: reviewIdx,
         },
@@ -270,12 +247,12 @@ describe('Review Report(e2e)', () => {
       const reportDto: ReportReviewDto = {
         typeIdx: 1,
       };
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
       const firstReportDate = new Date();
 
-      const reviewBeforeBeingReported = await prismaSetting
-        .getPrisma()
+      const reviewBeforeBeingReported = await test
+        .get(PrismaProvider)
         .review.update({
           where: {
             idx: reviewIdx,
@@ -289,13 +266,13 @@ describe('Review Report(e2e)', () => {
         firstReportDate,
       );
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/report`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(reportDto)
         .expect(201);
 
-      const review = await prismaSetting.getPrisma().review.findUniqueOrThrow({
+      const review = await test.get(PrismaProvider).review.findUniqueOrThrow({
         where: {
           idx: reviewIdx,
         },
