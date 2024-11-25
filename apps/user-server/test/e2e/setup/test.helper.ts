@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaSetting } from './prisma.setup';
 import { AppModule } from '../../../src/app.module';
 import { AppGlobalSetting } from './app-global.setup';
+import { LoginSetting, TestLoginUsers } from './login-user.setup';
 
 interface OverrideBy {
   useValue: (value: any) => TestHelper;
@@ -16,6 +17,7 @@ interface OverrideBy {
 export class TestHelper {
   private app: INestApplication;
   private appModule: TestingModule;
+  private loginUsers: TestLoginUsers;
   private readonly overrideProviderMap: Map<any, any> = new Map();
   private readonly prismaSetting: PrismaSetting;
 
@@ -42,10 +44,15 @@ export class TestHelper {
 
     this.appModule = await testingModuleBuilder.compile();
     this.app = this.appModule.createNestApplication();
+    this.loginUsers = await LoginSetting.init(this.app);
 
     AppGlobalSetting.setup(this.app);
 
     await this.app.init();
+  }
+
+  public getLoginUsers() {
+    return this.loginUsers;
   }
 
   public async destroy() {
