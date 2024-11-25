@@ -66,6 +66,10 @@ export class TestHelper {
     await this.app.close();
   }
 
+  public getPrisma() {
+    return this.prismaSetting.getPrisma();
+  }
+
   public get<T = any>(typeOrToken: Type<T>) {
     return this.app.get(typeOrToken);
   }
