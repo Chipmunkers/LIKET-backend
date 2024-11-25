@@ -19,40 +19,17 @@ import { AppGlobalSetting } from '../../setup/app-global.setup';
 import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
 import { ResetPwDto } from '../../../../src/api/user/dto/reset-pw.dto';
 import { LoginDto } from '../../../../src/api/auth/dto/local-login.dto';
+import { TestHelper } from '../../setup/test.helper';
 
 describe('User (e2e)', () => {
-  let app: INestApplication;
-  let appModule: TestingModule;
-  const prismaSetting = PrismaSetting.setup();
-
-  let emailJwtService: EmailJwtService;
-  let socialLoginJwtService: SocialLoginJwtService;
-
-  let loginUsers: TestLoginUsers;
+  const test = TestHelper.create();
 
   beforeEach(async () => {
-    await prismaSetting.BEGIN();
-
-    appModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(PrismaService)
-      .useValue(prismaSetting.getPrisma())
-      .compile();
-    app = appModule.createNestApplication();
-    AppGlobalSetting.setup(app);
-    await app.init();
-
-    emailJwtService = appModule.get(EmailJwtService);
-    socialLoginJwtService = appModule.get(SocialLoginJwtService);
-
-    loginUsers = await LoginSetting.setup(loginUsers, app);
+    await test.init();
   });
 
   afterEach(async () => {
-    prismaSetting.ROLLBACK();
-    await appModule.close();
-    await app.close();
+    await test.destroy();
   });
 
   describe('POST /user/local', () => {
@@ -65,11 +42,13 @@ describe('User (e2e)', () => {
         birth: 2002,
       };
 
+      const emailJwtService = test.get(EmailJwtService);
+
       // 이메일 토큰이 정상이라고 가정
       const email = 'abc123@xxx.xxx';
       spyOn(emailJwtService, 'verify').mockResolvedValue(email);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/local')
         .send(signUpDto)
         .expect(200);
@@ -85,7 +64,7 @@ describe('User (e2e)', () => {
         birth: 2002,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/local')
         .send(signUpDto)
         .expect(401);
@@ -93,6 +72,9 @@ describe('User (e2e)', () => {
 
     it('Duplicate email', async () => {
       const sameEmail = 'user1@gmail.com';
+
+      const emailJwtService = test.get(EmailJwtService);
+
       spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
       const signUpDto: SignUpDto = {
         emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
@@ -102,7 +84,7 @@ describe('User (e2e)', () => {
         birth: 2002,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/local')
         .send(signUpDto)
         .expect(409);
@@ -110,6 +92,9 @@ describe('User (e2e)', () => {
 
     it('Duplicate nickname - but ok', async () => {
       const email = 'abc123@xxx.xxx';
+
+      const emailJwtService = test.get(EmailJwtService);
+
       spyOn(emailJwtService, 'verify').mockResolvedValue(email);
       const signUpDto: SignUpDto = {
         emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
@@ -119,7 +104,7 @@ describe('User (e2e)', () => {
         birth: 2002,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/local')
         .send(signUpDto)
         .expect(200);
@@ -133,7 +118,7 @@ describe('User (e2e)', () => {
         birth: 2002,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/local')
         .send(signUpDto2)
         .expect(200);
@@ -149,6 +134,8 @@ describe('User (e2e)', () => {
         email: 'test123@naver.com',
       };
 
+      const socialLoginJwtService = test.get(SocialLoginJwtService);
+
       const socialSignUpDto: SocialSignUpDto = {
         birth: 2002,
         gender: Gender.MALE,
@@ -156,7 +143,7 @@ describe('User (e2e)', () => {
         token: await socialLoginJwtService.sign(socialLoginUser),
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/social')
         .send(socialSignUpDto)
         .expect(200);
@@ -170,7 +157,7 @@ describe('User (e2e)', () => {
         token: 'this.is.invalidToken',
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/social')
         .send(socialSignUpDto)
         .expect(403);
@@ -186,6 +173,8 @@ describe('User (e2e)', () => {
         email: sameEmail,
       };
 
+      const socialLoginJwtService = test.get(SocialLoginJwtService);
+
       const socialSignUpDto: SocialSignUpDto = {
         birth: 2002,
         gender: Gender.MALE,
@@ -193,7 +182,7 @@ describe('User (e2e)', () => {
         token: await socialLoginJwtService.sign(socialLoginUser),
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/social')
         .send(socialSignUpDto)
         .expect(200);
@@ -212,7 +201,7 @@ describe('User (e2e)', () => {
         token: await socialLoginJwtService.sign(socialLoginUser2),
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/social')
         .send(socialSignUpDto2)
         .expect(409);
@@ -229,6 +218,8 @@ describe('User (e2e)', () => {
         email: 'another@xxxx.xxx',
       };
 
+      const socialLoginJwtService = test.get(SocialLoginJwtService);
+
       const socialSignUpDto: SocialSignUpDto = {
         birth: 2002,
         gender: Gender.MALE,
@@ -236,7 +227,7 @@ describe('User (e2e)', () => {
         token: await socialLoginJwtService.sign(socialLoginUser),
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/social')
         .send(socialSignUpDto)
         .expect(200);
@@ -256,7 +247,7 @@ describe('User (e2e)', () => {
         token: await socialLoginJwtService.sign(socialLoginUser2),
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/social')
         .send(socialSignUpDto2)
         .expect(200);
@@ -273,8 +264,11 @@ describe('User (e2e)', () => {
         gender: Gender.MALE,
         birth: 2002,
       };
+
+      const emailJwtService = test.get(EmailJwtService);
+
       spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/local')
         .send(signUpDto)
         .expect(200);
@@ -286,6 +280,9 @@ describe('User (e2e)', () => {
         nickname: 'jochong',
         email: sameEmail,
       };
+
+      const socialLoginJwtService = test.get(SocialLoginJwtService);
+
       const socialSignUpDto: SocialSignUpDto = {
         birth: 2002,
         gender: Gender.MALE,
@@ -293,7 +290,7 @@ describe('User (e2e)', () => {
         token: await socialLoginJwtService.sign(socialLoginUser),
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/social')
         .send(socialSignUpDto)
         .expect(409);
@@ -302,21 +299,21 @@ describe('User (e2e)', () => {
 
   describe('GET /user/my', () => {
     it('Success', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/user/my')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
     });
 
     it('No login access token', async () => {
-      await request(app.getHttpServer()).get('/user/my').expect(401);
+      await request(test.getServer()).get('/user/my').expect(401);
     });
 
     it('Invalid login access token', async () => {
       const invalidToken = 'invalid.token';
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/user/my')
         .set('Authorization', `Bearer ${invalidToken}`)
         .expect(401);
@@ -325,14 +322,14 @@ describe('User (e2e)', () => {
 
   describe('PUT /my/profile', () => {
     it('Success', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const updateDto: UpdateProfileDto = {
         nickname: 'jochong',
         gender: Gender.FEMALE,
         birth: 2001,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put('/user/my/profile')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(updateDto)
@@ -346,21 +343,21 @@ describe('User (e2e)', () => {
         birth: 2001,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put('/user/my/profile')
         .send(updateDto)
         .expect(401);
     });
 
     it('Duplicated nickname - but ok', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const updateDto: UpdateProfileDto = {
         nickname: 'user1', // Duplicated nickname
         gender: Gender.FEMALE,
         birth: 2001,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put('/user/my/profile')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(updateDto)
@@ -374,7 +371,7 @@ describe('User (e2e)', () => {
         email: 'abc123@naver.com', // Non-duplicated email
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/email/duplicate-check')
         .send(checkDto)
         .expect(201);
@@ -385,7 +382,7 @@ describe('User (e2e)', () => {
         email: 'user1@gmail.com', // non duplicated email
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/email/duplicate-check')
         .send(checkDto)
         .expect(409);
@@ -400,10 +397,12 @@ describe('User (e2e)', () => {
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
       };
 
+      const emailJwtService = test.get(EmailJwtService);
+
       // 유효한 토큰이라 가정
       spyOn(emailJwtService, 'verify').mockResolvedValue('user1@gmail.com');
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/pw/find')
         .send(findPwDto)
         .expect(201);
@@ -415,21 +414,21 @@ describe('User (e2e)', () => {
         emailToken: 'invalid.token', // Invalid token
       };
 
-      await request(app.getHttpServer()).post('/user/pw/find').send(findPwDto);
+      await request(test.getServer()).post('/user/pw/find').send(findPwDto);
       expect(403);
     });
   });
 
   describe('POST /user/pw/reset', () => {
     it('Success', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
       const resetPwDto: ResetPwDto = {
         currPw: 'aa12341234**',
         resetPw: 'abc123!@',
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/pw/reset')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(resetPwDto)
@@ -440,20 +439,20 @@ describe('User (e2e)', () => {
         pw: resetPwDto.resetPw,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/local')
         .send(loginDto)
         .expect(200);
     });
 
     it('Wrong curr password', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const resetPwDto: ResetPwDto = {
         currPw: 'wrong password',
         resetPw: 'abc123!@',
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/pw/reset')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(resetPwDto)
@@ -466,7 +465,7 @@ describe('User (e2e)', () => {
         resetPw: 'aa12341234**',
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/user/pw/reset')
         .send(resetPwDto)
         .expect(401);
@@ -475,9 +474,9 @@ describe('User (e2e)', () => {
 
   describe('DELETE /user', () => {
     it('Success', async () => {
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete('/user')
         .send({
           type: 1,
@@ -486,7 +485,7 @@ describe('User (e2e)', () => {
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/local')
         .send({
           email: 'user2@gmail.com',
@@ -496,9 +495,9 @@ describe('User (e2e)', () => {
     });
 
     it('Success with no contents', async () => {
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete('/user')
         .send({
           type: 1,
@@ -507,7 +506,7 @@ describe('User (e2e)', () => {
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/local')
         .send({
           email: 'user2@gmail.com',
