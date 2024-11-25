@@ -21,7 +21,7 @@
     "seed": "dotenv -e ./prisma/.env.seed --ts-node prisma/seed.ts",
     "user-server:dev:infra:up": "docker compose -p liket-mobile -f scripts/user-server/dev/docker-compose.yml up -d",
     "user-server:dev:infra:down": "docker compose -p liket-mobile -f scripts/user-server/dev/docker-compose.yml down -v",
-    "user-server:test:e2e": "dotenv -e scripts/user-server/e2e-test/.env.test -- jest --config ./apps/user-server/test/jest-e2e.json --verbose",
+    "user-server:test:e2e": "dotenv -e scripts/user-server/e2e-test/.env.test -- jest --config ./apps/user-server/test/jest-e2e.json --verbose apps/user-server/test/e2e",
     "user-server:test:infra:up": "docker compose -p liket-mobile-test -f scripts/user-server/e2e-test/docker-compose.yml up -d",
     "user-server:test:infra:down": "docker compose -p liket-mobile-test -f scripts/user-server/e2e-test/docker-compose.yml down -v",
     "user-server:load-test:infra:up": "docker compose -p liket-mobile-load-test -f scripts/user-server/load-test/docker-compose.yml up -d --build --force-recreate",
