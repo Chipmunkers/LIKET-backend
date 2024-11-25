@@ -1,11 +1,4 @@
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../../../src/app.module';
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
-import { PrismaSetting } from '../../setup/prisma.setup';
-import { AppGlobalSetting } from '../../setup/app-global.setup';
-import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
 import { TestHelper } from '../../setup/test.helper';
 import { PrismaProvider } from '../../../../../../libs/modules/src';
 
