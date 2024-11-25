@@ -4,6 +4,7 @@ import { PrismaSetting } from './prisma.setup';
 import { AppModule } from '../../../src/app.module';
 import { AppGlobalSetting } from './app-global.setup';
 import { LoginSetting, TestLoginUsers } from './login-user.setup';
+import { PrismaProvider } from '../../../../../libs/modules/src';
 
 interface OverrideBy {
   useValue: (value: any) => TestHelper;
@@ -41,6 +42,10 @@ export class TestHelper {
         .overrideProvider(mapKey)
         .useValue(this.overrideProviderMap[mapKey]);
     }
+
+    testingModuleBuilder
+      .overrideProvider(PrismaProvider)
+      .useValue(this.prismaSetting.getPrisma());
 
     this.appModule = await testingModuleBuilder.compile();
     this.app = this.appModule.createNestApplication();
