@@ -9,6 +9,8 @@ export class BannerController {
 
   /**
    * 배너 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/all')
   @ApiTags('Banner')
