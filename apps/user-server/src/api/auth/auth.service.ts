@@ -47,6 +47,8 @@ export class AuthService {
 
   /**
    * 로컬 로그인
+   *
+   * @author jochongs
    */
   public async login(loginDto: LoginDto): Promise<LoginToken> {
     const user = await this.userRepository.selectUserByEmail(loginDto.email);
@@ -98,6 +100,8 @@ export class AuthService {
    * 소셜 로그인 (웹 전용)
    *
    * 인가 코드부터 받아 처리하도록 설계되어 있음.
+   *
+   * @author jochongs
    */
   public async socialLoginForWeb(
     req: Request,
@@ -145,6 +149,8 @@ export class AuthService {
    * 소셜 로그인 (앱 전용)
    *
    * 액세스 토큰을 받아 처리하게 되어있음
+   *
+   * @author jochongs
    */
   public async socialLoginForApp(req: Request, provider: SocialProvider) {
     const strategy = this.socialLoginStrategyMap[provider];
@@ -165,6 +171,8 @@ export class AuthService {
    * 소셜 사용자 정보를 통해 로그인 또는 회원가입
    *
    * socialLoginForWeb 또는 socialLoginForApp 메서드에서 호출하도록 해야함
+   *
+   * @author jochongs
    *
    * @throws {SocialLoginEmailDuplicateException} 중복으로 가입된 이메일인 경우
    * @throws {BlockedUserException} 정지된 사용자인 경우
@@ -224,6 +232,8 @@ export class AuthService {
 
   /**
    * URL 가져오기
+   *
+   * @author jochongs
    */
   public getSocialLoginUrl(provider: SocialProvider) {
     const strategy = this.socialLoginStrategyMap[provider];
@@ -233,6 +243,8 @@ export class AuthService {
 
   /**
    * Access token 재발급하기
+   *
+   * @author jochongs
    */
   public async reissueAccessToken(
     res: Response,
@@ -268,6 +280,8 @@ export class AuthService {
 
   /**
    * 로그아웃 하기
+   *
+   * @author jochongs
    */
   public async logout(refreshToken?: string) {
     //await this.userRepository.deleteUserLastLoginByIdx(loginUser.idx);
@@ -282,6 +296,9 @@ export class AuthService {
     }
   }
 
+  /**
+   * @author jochongs
+   */
   private async checkFirstSocialLogin(
     socialLoginUser: SocialLoginUser,
   ): Promise<boolean> {
@@ -297,6 +314,9 @@ export class AuthService {
     return true;
   }
 
+  /**
+   * @author jochongs
+   */
   private async checkDuplicateSocialEmail(
     socialLoginUser: SocialLoginUser,
   ): Promise<boolean> {
@@ -311,12 +331,17 @@ export class AuthService {
     return false;
   }
 
+  /**
+   * @author jochongs
+   */
   private redirect(res: Response, path: string) {
     res.redirect(process.env.FRONT_DOMAIN + path);
   }
 
   /**
    * 로그인 시간 설정하기
+   *
+   * @author jochongs
    *
    * @param idx 사용자 인덱스
    */

@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 class NaverUserInfo {
   public id: string;
   public nickname: string;
@@ -6,6 +9,9 @@ class NaverUserInfo {
   public birthyead: string;
 }
 
+/**
+ * @author jochongs
+ */
 export class GetNaverUserResponseDto {
   public resultcode: string;
   public message: string;

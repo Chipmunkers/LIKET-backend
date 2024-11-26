@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export default () => ({
   naverLogin: {
     clientId: process.env.NAVER_LOGIN_API_CLIENT_ID,

@@ -24,9 +24,6 @@ import { Cookies } from '../../common/decorator/cookies.decorator';
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 import { SocialLoginResponseDto } from './dto/response/social-login-response.dto';
 
-/**
- * @author jochongs
- */
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
@@ -37,6 +34,8 @@ export class AuthController {
 
   /**
    * 로그인하기
+   *
+   * @author jochongs
    */
   @Post('/local')
   @HttpCode(200)
@@ -55,6 +54,8 @@ export class AuthController {
 
   /**
    * 소셜 로그인 시도
+   *
+   * @author jochongs
    */
   @Get('/:provider')
   @HttpCode(200)
@@ -68,6 +69,8 @@ export class AuthController {
 
   /**
    * 소셜 로그인 콜백 API
+   *
+   * @author jochongs
    */
   @Get('/:provider/callback')
   @HttpCode(200)
@@ -81,6 +84,8 @@ export class AuthController {
 
   /**
    * 소셜 로그인 콜백 API
+   *
+   * @author jochongs
    */
   @Post('/:provider/callback')
   @HttpCode(200)
@@ -96,6 +101,8 @@ export class AuthController {
    * 소셜 앱 로그인
    *
    * 카카오: req.body.accessToken string으로 전달
+   *
+   * @author jochongs
    */
   @Post('/:provider/app')
   @HttpCode(200)
@@ -116,6 +123,8 @@ export class AuthController {
 
   /**
    * Access Token 재발급하기, 소셜 로그인 시 발급되는 refresh token은 body로 전송
+   *
+   * @author jochongs
    */
   @Post('/access-token')
   @HttpCode(200)
@@ -137,6 +146,8 @@ export class AuthController {
 
   /**
    * 로그아웃하기
+   *
+   * @author jochongs
    */
   @Delete('/')
   @HttpCode(201)

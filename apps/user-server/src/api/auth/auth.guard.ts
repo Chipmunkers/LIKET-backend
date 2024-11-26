@@ -9,6 +9,9 @@ import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-p
 import { Response } from 'express';
 import { PrismaProvider } from 'libs/modules';
 
+/**
+ * @author jochongs
+ */
 @Injectable()
 export class LoginAuthGuard implements CanActivate {
   constructor(private readonly prisma: PrismaProvider) {}

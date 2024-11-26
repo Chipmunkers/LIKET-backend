@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export default () => ({
   appleLogin: {
     clientId: process.env.APPLE_LOGIN_CLIENT_ID,

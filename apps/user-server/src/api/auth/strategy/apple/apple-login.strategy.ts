@@ -38,6 +38,9 @@ export class AppleLoginStrategy implements ISocialLoginStrategy {
       .privateKeyString.replace(/\\n/g, '\n');
   }
 
+  /**
+   * @author jochongs
+   */
   async getSocialLoginUser(req: Request) {
     const authorizationCode = req.body.code;
 
@@ -93,6 +96,9 @@ export class AppleLoginStrategy implements ISocialLoginStrategy {
     }
   }
 
+  /**
+   * @author jochongs
+   */
   async login(socialLoginUser: SocialLoginUser) {
     const user = await this.socialLoginUserService.getUserBySocialId(
       socialLoginUser,
@@ -111,6 +117,9 @@ export class AppleLoginStrategy implements ISocialLoginStrategy {
     };
   }
 
+  /**
+   * @author jochongs
+   */
   getRedirectURL(): string {
     const authorizationUrl =
       `https://appleid.apple.com/auth/authorize?` +
@@ -123,9 +132,15 @@ export class AppleLoginStrategy implements ISocialLoginStrategy {
     return authorizationUrl;
   }
 
+  /**
+   * @author jochongs
+   */
   getSignUpRedirectUrl() {
     return '/signup/social';
   }
 
+  /**
+   * @author jochongs
+   */
   getSocialLoginUserForApp: (req: Request) => Promise<SocialLoginUser>;
 }
