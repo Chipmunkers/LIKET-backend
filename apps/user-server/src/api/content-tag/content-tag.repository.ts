@@ -12,6 +12,9 @@ export class ContentTagRepository {
     @Logger(ContentTagRepository.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public selectGenreAll() {
     this.logger.log(this.selectGenreAll, 'SELECT genre');
     return this.prisma.genre.findMany({
@@ -24,6 +27,9 @@ export class ContentTagRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectAgeAll() {
     this.logger.log(this.selectStyleAll, 'SELECT age');
     return this.prisma.age.findMany({
@@ -36,6 +42,9 @@ export class ContentTagRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectAgeByIdx(idx: number) {
     return this.prisma.age.findUniqueOrThrow({
       where: {
@@ -44,6 +53,9 @@ export class ContentTagRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectStyleAll() {
     this.logger.log(this.selectStyleAll, 'SELECT styles');
     return this.prisma.style.findMany({
@@ -56,6 +68,11 @@ export class ContentTagRepository {
     });
   }
 
+  /**
+   * 인기 스타일 목록 불러오기
+   *
+   * @author jochongs
+   */
   public selectHotStyle() {
     return this.prisma.style
       .findMany({
@@ -86,6 +103,11 @@ export class ContentTagRepository {
 
   private readonly HOT_STYLE_CACHE_KEY = 'HOT_STYLE_CACHE_KEY';
 
+  /**
+   * 스타일 가져오기. 각 스타일 태그가 연결되어있는 컨텐츠 개수를 계산해서 가져옴
+   *
+   * @author jochongs
+   */
   public async selectStylesWithContentCount(): Promise<
     { idx: number; name: string; count: number }[]
   > {
