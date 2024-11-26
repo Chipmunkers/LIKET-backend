@@ -1,5 +1,8 @@
 import { Prisma } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 const likeContentWithInclude =
   Prisma.validator<Prisma.CultureContent$ContentLikeArgs>()({
     include: {
@@ -32,6 +35,9 @@ const likeContentWithInclude =
     },
   });
 
+/**
+ * @author jochongs
+ */
 export type LikeContentWithInclude = Prisma.ContentLikeGetPayload<
   typeof likeContentWithInclude
 >;

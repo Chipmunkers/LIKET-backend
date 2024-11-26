@@ -1,4 +1,3 @@
-import { CreateLocationDto } from './create-location.dto';
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -14,6 +13,9 @@ import { ContentEntity } from '../entity/content.entity';
 import { LocationEntity } from '../entity/location.entity';
 import { Type } from 'class-transformer';
 
+/**
+ * @author jochongs
+ */
 export class CreateContentRequestDto extends PickType(ContentEntity, [
   'title',
   'description',

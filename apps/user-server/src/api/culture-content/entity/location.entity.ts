@@ -1,6 +1,9 @@
 import { Location } from '@prisma/client';
-import { IsDecimal, IsNumber, IsString, Length } from 'class-validator';
+import { IsNumber, IsString, Length } from 'class-validator';
 
+/**
+ * @author jochongs
+ */
 export class LocationEntity {
   /**
    * 자세한 주소

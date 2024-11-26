@@ -17,6 +17,9 @@ export class ContentAuthService {
     @Logger(ContentAuthService.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public async checkReadAllPermission(
     pagerble: ContentPagerbleDto,
     loginUser?: LoginUser,
@@ -48,7 +51,10 @@ export class ContentAuthService {
     return;
   }
 
-  checkReadPermission: (
+  /**
+   * @author jochongs
+   */
+  public checkReadPermission: (
     contentIdx: number,
     loginUser?: LoginUser,
   ) => Promise<void> = async (contentIdx, loginUser) => {
@@ -69,6 +75,9 @@ export class ContentAuthService {
     return;
   };
 
+  /**
+   * @author jochongs
+   */
   public async checkWritePermission(
     loginUser: LoginUser,
     createDto: CreateContentRequestDto,
@@ -76,6 +85,9 @@ export class ContentAuthService {
     return;
   }
 
+  /**
+   * @author jochongs
+   */
   public async checkUpdatePermission(
     loginUser: LoginUser,
     contentIdx: number,
@@ -96,6 +108,9 @@ export class ContentAuthService {
     return;
   }
 
+  /**
+   * @author jochongs
+   */
   public async checkDeletePermission(
     loginUser: LoginUser,
     contentIdx: number,
@@ -123,6 +138,9 @@ export class ContentAuthService {
     return;
   }
 
+  /**
+   * @author jochongs
+   */
   private async getContentByContentIdx(contentIdx: number) {
     this.logger.log(
       this.getContentByContentIdx,

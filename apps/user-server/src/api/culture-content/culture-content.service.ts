@@ -32,6 +32,8 @@ export class CultureContentService {
 
   /**
    * 컨텐츠 자세히보기
+   *
+   * @author jochongs
    */
   public async getContentByIdx(
     idx: number,
@@ -61,6 +63,8 @@ export class CultureContentService {
 
   /**
    * 컨텐츠 목록 보기
+   *
+   * @author jochongs
    */
   public async getContentAll(pagerble: ContentPagerbleDto, userIdx?: number) {
     const contentList =
@@ -78,6 +82,8 @@ export class CultureContentService {
 
   /**
    * 곧 오픈하는 컨텐츠 목록 보기
+   *
+   * @author jochongs
    */
   public async getSoonOpenContentAll(
     userIdx?: number,
@@ -94,6 +100,8 @@ export class CultureContentService {
 
   /**
    * 곧 종료하는 컨텐츠 목록 보기
+   *
+   * @author jochongs
    */
   public async getSoonEndContentAll(
     userIdx?: number,
@@ -110,6 +118,8 @@ export class CultureContentService {
 
   /**
    * 인기 컨텐츠 전부 보기
+   *
+   * @author jochongs
    */
   public async getHotContentAll() {
     const genreList =
@@ -122,6 +132,8 @@ export class CultureContentService {
 
   /**
    * 인기 연령대 컨텐츠 목록 보기
+   *
+   * @author jochongs
    */
   public async getHotContentByAge(
     loginUser?: LoginUser,
@@ -144,6 +156,9 @@ export class CultureContentService {
     };
   }
 
+  /**
+   * @author jochongs
+   */
   private async getLoginUserAgeIdx(loginUser?: LoginUser) {
     if (!loginUser) {
       return 1; // 20대
@@ -180,6 +195,8 @@ export class CultureContentService {
 
   /**
    * 인기 스타일 컨텐츠 목록보기
+   *
+   * @author jochongs
    */
   public async getHotContentByStyle(
     loginUser?: LoginUser,
@@ -205,6 +222,8 @@ export class CultureContentService {
 
   /**
    * 인기 스타일 컨텐츠 목록보기 (랜덤)
+   *
+   * @author jochongs
    */
   public async getHotContentByRandomStyle(
     loginUser?: LoginUser,
@@ -255,6 +274,8 @@ export class CultureContentService {
 
   /**
    * 문화생활컨텐츠 생성하기
+   *
+   * @author jochongs
    */
   public async createContentRequest(
     userIdx: number,
@@ -266,6 +287,9 @@ export class CultureContentService {
     );
   }
 
+  /**
+   * @author jochongs
+   */
   public async updateContentRequest(
     idx: number,
     updateDto: UpdateContentDto,
@@ -279,10 +303,16 @@ export class CultureContentService {
     return;
   }
 
+  /**
+   * @author jochongs
+   */
   public async deleteContentRequest(idx: number): Promise<void> {
     await this.cultureContentRepository.deleteContentRequest(idx);
   }
 
+  /**
+   * @author jochongs
+   */
   public async likeContent(userIdx: number, contentIdx: number) {
     const likeState =
       await this.cultureContentLikeRepository.selectCultureContentLike(
@@ -306,6 +336,9 @@ export class CultureContentService {
     return;
   }
 
+  /**
+   * @author jochongs
+   */
   public async cancelToLikeContent(
     userIdx: number,
     contentIdx: number,
@@ -338,6 +371,8 @@ export class CultureContentService {
 
   /**
    * 좋아요 누른 컨텐츠 목록 보기
+   *
+   * @author jochongs
    */
   public async getLikeContentAll(
     loginUser: LoginUser,

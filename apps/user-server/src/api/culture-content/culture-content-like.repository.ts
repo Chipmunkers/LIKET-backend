@@ -12,6 +12,9 @@ export class CultureContentLikeRepository {
     private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public selectCultureContentLike(userIdx: number, contentIdx: number) {
     this.logger.log(
       this.selectCultureContentLike,
@@ -27,6 +30,9 @@ export class CultureContentLikeRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public increaseCultureContentLike(userIdx: number, contentIdx: number) {
     this.logger.log(
       this.increaseCultureContentLike,
@@ -52,6 +58,9 @@ export class CultureContentLikeRepository {
     ]);
   }
 
+  /**
+   * @author jochongs
+   */
   public decreaseCultureContentLike(userIdx: number, contentIdx: number) {
     this.logger.log(
       this.decreaseCultureContentLike,
@@ -79,6 +88,9 @@ export class CultureContentLikeRepository {
     ]);
   }
 
+  /**
+   * @author jochongs
+   */
   public selectLikeContentAll(
     userIdx: number,
     pagerble: LikeContentPagerbleDto,

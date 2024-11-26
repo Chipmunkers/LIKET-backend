@@ -5,6 +5,9 @@ import { ContentEntity } from './content.entity';
 import { SummaryCotnentWithInclude } from './prisma-type/summary-content-with-include';
 import { LikeContentWithInclude } from './prisma-type/like-content-with-include';
 
+/**
+ * @author jochongs
+ */
 export class SummaryContentEntity extends PickType(ContentEntity, [
   'idx',
   'title',
