@@ -1,10 +1,4 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../../../src/app.module';
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
-import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
-import { PrismaSetting } from '../../setup/prisma.setup';
 import { TestHelper } from '../../setup/test.helper';
 
 describe('Terms of service (e2e)', () => {
