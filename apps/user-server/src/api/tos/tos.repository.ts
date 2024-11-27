@@ -8,6 +8,9 @@ export class TosRepository {
     @Logger(TosRepository.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public selectTosAll() {
     this.logger.log(this.selectTosAll, 'SELECT tos');
     return this.prisma.tos.findMany({
@@ -20,6 +23,9 @@ export class TosRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectTosByIdx(idx: number) {
     this.logger.log(this.selectTosByIdx, `SELECT tos WHERE idx = ${idx}`);
     return this.prisma.tos.findUnique({

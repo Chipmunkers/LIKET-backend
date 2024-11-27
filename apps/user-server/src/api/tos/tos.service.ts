@@ -14,6 +14,8 @@ export class TosService {
 
   /**
    * 약관 목록 가져오기
+   *
+   * @author jochongs
    */
   public async getTosAll(): Promise<SummaryTosEntity[]> {
     const tosList = await this.tosRepository.selectTosAll();
@@ -23,6 +25,8 @@ export class TosService {
 
   /**
    * 약관 자세히보기
+   *
+   * @author jochongs
    */
   public async getTosByIdx(idx: number): Promise<TosEntity> {
     const tos = await this.tosRepository.selectTosByIdx(idx);

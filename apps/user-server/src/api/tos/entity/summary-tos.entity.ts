@@ -2,6 +2,9 @@ import { OmitType } from '@nestjs/swagger';
 import { Tos } from '@prisma/client';
 import { TosEntity } from './tos.entity';
 
+/**
+ * @author jochongs
+ */
 export class SummaryTosEntity extends OmitType(TosEntity, [
   'contents',
 ] as const) {
