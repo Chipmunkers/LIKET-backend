@@ -12,7 +12,10 @@ import { PrismaProvider } from 'libs/modules';
 export class ReviewAuthService {
   constructor(private readonly prisma: PrismaProvider) {}
 
-  checkReadAllPermisison: (
+  /**
+   * @author jochongs
+   */
+  public checkReadAllPermisison: (
     pagerlbe: ReviewPagerbleDto,
     loginUser?: LoginUser,
   ) => Promise<void> = async (pagerble, loginUser) => {
@@ -53,7 +56,10 @@ export class ReviewAuthService {
     return;
   };
 
-  checkWritePermission: (
+  /**
+   * @author jochongs
+   */
+  public checkWritePermission: (
     loginUser: LoginUser,
     contentIdx: number,
     createDto: CreateReviewDto,
@@ -61,7 +67,10 @@ export class ReviewAuthService {
     return;
   };
 
-  checkUpdatePermission: (
+  /**
+   * @author jochongs
+   */
+  public checkUpdatePermission: (
     loginUser: LoginUser,
     reviewIdx: number,
     updateDto: UpdateReviewDto,
@@ -90,7 +99,10 @@ export class ReviewAuthService {
     return;
   };
 
-  checkDeletePermission: (
+  /**
+   * @author jochongs
+   */
+  public checkDeletePermission: (
     loginUser: LoginUser,
     reviewIdx: number,
   ) => Promise<void> = async (loginUser, reviewIdx) => {

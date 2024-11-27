@@ -33,6 +33,8 @@ export class ReviewController {
 
   /**
    * 컨텐츠 리뷰 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/review/all')
   @HttpCode(200)
@@ -49,6 +51,8 @@ export class ReviewController {
 
   /**
    * 리뷰 자세히보기
+   *
+   * @author jochongs
    */
   @Get('/review/:idx')
   @Exception(400, 'Invalid path parameter')
@@ -62,6 +66,8 @@ export class ReviewController {
 
   /**
    * 최근 인기 리뷰 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/review/hot/all')
   @HttpCode(200)
@@ -73,6 +79,8 @@ export class ReviewController {
 
   /**
    * 리뷰 생성하기
+   *
+   * @author jochongs
    */
   @Post('/culture-content/:idx/review')
   @HttpCode(201)
@@ -91,6 +99,8 @@ export class ReviewController {
 
   /**
    * 리뷰 수정하기
+   *
+   * @author jochongs
    */
   @Put('/review/:idx')
   @HttpCode(201)
@@ -115,6 +125,8 @@ export class ReviewController {
 
   /**
    * 리뷰 삭제하기
+   *
+   * @author jochongs
    */
   @Delete('/review/:idx')
   @HttpCode(201)
@@ -134,6 +146,8 @@ export class ReviewController {
 
   /**
    * 리뷰 좋아요하기
+   *
+   * @author jochongs
    */
   @Post('/review/:idx/like')
   @HttpCode(201)
@@ -152,6 +166,8 @@ export class ReviewController {
 
   /**
    * 리뷰 좋아요 취소하기
+   *
+   * @author jochongs
    */
   @Delete('/review/:idx/like')
   @HttpCode(201)

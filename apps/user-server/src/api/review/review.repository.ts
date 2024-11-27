@@ -230,6 +230,9 @@ export class ReviewRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectReviewAvgStarRatingByContentIdx(contentIdx: number) {
     this.logger.log(
       this.selectReviewAvgStarRatingByContentIdx,
@@ -249,6 +252,9 @@ export class ReviewRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public insertReview(dao: InsertReviewDao) {
     this.logger.log(this.insertReview, 'INSERT review');
     return this.prisma.review.create({
@@ -269,6 +275,9 @@ export class ReviewRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public updateReviewByIdx(idx: number, dao: UpdateReviewDao) {
     this.logger.log(this.updateReviewByIdx, `UPDATE review WHERE idx = ${idx}`);
     return this.prisma.review.update({

@@ -3,6 +3,9 @@ import { ReviewEntity } from './review.entity';
 import { MyReviewWithInclude } from './prisma-type/my-review-with-include';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
 
+/**
+ * @author jochongs
+ */
 export class MyReviewEntity extends PickType(ReviewEntity, [
   'idx',
   'thumbnail',

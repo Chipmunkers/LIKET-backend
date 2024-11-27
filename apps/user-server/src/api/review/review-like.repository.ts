@@ -10,6 +10,9 @@ export class ReviewLikeRepository {
     @Logger(ReviewLikeRepository.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public selectReviewLike(userIdx: number, reviewIdx: number) {
     this.logger.log(this.selectReviewLike, 'SELECT review like');
     return this.prisma.reviewLike.findUnique({
@@ -22,6 +25,9 @@ export class ReviewLikeRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public increaseReviewLike(userIdx: number, reviewIdx: number) {
     this.logger.log(this.increaseReviewLike, 'UPDATE review like +1');
     return this.prisma.$transaction([
@@ -44,6 +50,9 @@ export class ReviewLikeRepository {
     ]);
   }
 
+  /**
+   * @author jochongs
+   */
   public decreaseReviewLike(userIdx: number, reviewIdx: number) {
     this.logger.log(this.increaseReviewLike, 'UPDATE review like -1');
     return this.prisma.$transaction([
