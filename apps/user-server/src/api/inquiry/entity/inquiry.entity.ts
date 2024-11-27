@@ -1,7 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { AnswerEntity } from './answer.entity';
 import { InquiryTypeEntity } from './inquiry-type.entity';
-import { SummaryInquiryEntity } from './summary-inquiry.entity';
 import { UserProfileEntity } from '../../user/entity/user-profile.entity';
 
 const inquiryWithInclude = Prisma.validator<Prisma.InquiryDefaultArgs>()({
@@ -15,6 +14,9 @@ const inquiryWithInclude = Prisma.validator<Prisma.InquiryDefaultArgs>()({
 
 type InquiryWithInclude = Prisma.InquiryGetPayload<typeof inquiryWithInclude>;
 
+/**
+ * @author jochongs
+ */
 export class InquiryEntity {
   /**
    * 문의 인덱스

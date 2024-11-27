@@ -19,6 +19,8 @@ export class InquiryService {
 
   /**
    * 문의 목록 보기
+   *
+   * @author jochongs
    */
   public async getInquiryAllByLoginUser(
     loginUser: LoginUser,
@@ -40,6 +42,8 @@ export class InquiryService {
 
   /**
    * 문의 자세히보기
+   *
+   * @author jochongs
    */
   public async getInquiryByIdx(idx: number): Promise<InquiryEntity> {
     const inquiry = await this.inquiryRepository.selectInquiryByIdx(idx);
@@ -57,6 +61,8 @@ export class InquiryService {
 
   /**
    * 문의 작성하기
+   *
+   * @author jochongs
    */
   public async createInquiry(
     userIdx: number,
@@ -75,6 +81,8 @@ export class InquiryService {
 
   /**
    * 문의 삭제하기
+   *
+   * @author jochongs
    */
   public async deleteInquiry(idx: number): Promise<void> {
     await this.inquiryRepository.deleteInquiryByIdx(idx);

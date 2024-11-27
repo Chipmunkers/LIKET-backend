@@ -11,11 +11,17 @@ export class InquiryTypeRepository {
     @Logger(InquiryTypeRepository.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public selectInquiryTypeAll(tx?: Prisma.TransactionClient) {
     this.logger.log(this.selectInquiryTypeAll, 'SELECT inquiry');
     return (tx || this.prisma).inquiryType.findMany();
   }
 
+  /**
+   * @author jochongs
+   */
   public selectInquiryByIdx(idx: number, tx?: Prisma.TransactionClient) {
     this.logger.log(
       this.selectInquiryByIdx,

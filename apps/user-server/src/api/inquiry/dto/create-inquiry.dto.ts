@@ -7,6 +7,9 @@ import {
   Length,
 } from 'class-validator';
 
+/**
+ * @author jochongs
+ */
 export class CreateInquiryDto {
   @IsString()
   @Length(1, 30)

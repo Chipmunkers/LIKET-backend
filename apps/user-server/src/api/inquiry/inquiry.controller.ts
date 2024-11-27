@@ -29,6 +29,8 @@ export class InquiryController {
 
   /**
    * 문의 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/all')
   @Exception(400, 'Invalid querystring')
@@ -46,6 +48,8 @@ export class InquiryController {
 
   /**
    * 문의 자세히보기
+   *
+   * @author jochongs
    */
   @Get('/:idx')
   @Exception(400, 'Invalid path parameter')
@@ -66,6 +70,8 @@ export class InquiryController {
 
   /**
    * 문의 생성하기
+   *
+   * @author jochongs
    */
   @Post('/')
   @HttpCode(200)
@@ -87,6 +93,8 @@ export class InquiryController {
 
   /**
    * 문의 삭제하기
+   *
+   * @author jochongs
    */
   @Delete('/:idx')
   @HttpCode(201)
