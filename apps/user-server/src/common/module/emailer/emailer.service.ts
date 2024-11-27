@@ -10,6 +10,11 @@ export class EmailerService {
     @Logger(EmailerService.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * 이메일을 보내는 메서드.
+   *
+   * @author jochongs
+   */
   async send(toEmail: string, title: string, contents: string) {
     this.logger.log(this.send, `Send mail to ${toEmail}`);
 

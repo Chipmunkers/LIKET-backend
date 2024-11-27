@@ -2,6 +2,9 @@ import { prefixesForLoggers } from './logger.decorator';
 import { Provider } from '@nestjs/common';
 import { LoggerService } from './logger.service';
 
+/**
+ * @author jochongs
+ */
 function loggerFactory(logger: LoggerService, prefix: string) {
   if (prefix) {
     logger.setPrefix(prefix);
@@ -9,6 +12,9 @@ function loggerFactory(logger: LoggerService, prefix: string) {
   return logger;
 }
 
+/**
+ * @author jochongs
+ */
 function createLoggerProvider(prefix: string): Provider<LoggerService> {
   return {
     provide: `LoggerService${prefix}`,
@@ -17,6 +23,9 @@ function createLoggerProvider(prefix: string): Provider<LoggerService> {
   };
 }
 
+/**
+ * @author jochongs
+ */
 export function createLoggerProviders(): Array<Provider<LoggerService>> {
   return prefixesForLoggers.map((prefix) => createLoggerProvider(prefix));
 }

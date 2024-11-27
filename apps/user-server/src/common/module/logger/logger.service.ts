@@ -13,6 +13,8 @@ export class LoggerService {
 
   /**
    * 로그: develop
+   *
+   * @author jochongs
    */
   public log(methodName: string, message: string): void;
   public log(method: Method, message: string): void;
@@ -30,6 +32,8 @@ export class LoggerService {
 
   /**
    * 경고: product
+   *
+   * @author jochongs
    */
   public warn(methodName: string, message: string): void;
   public warn(method: Method, message: string): void;
@@ -47,6 +51,8 @@ export class LoggerService {
 
   /**
    * 에러: product
+   *
+   * @author jochongs
    */
   public error(methodName: string, message: string): void;
   public error(method: Method, message: string): void;
@@ -66,10 +72,16 @@ export class LoggerService {
     }
   }
 
+  /**
+   * @author jochongs
+   */
   private isMethod(method: string | Method): method is Method {
     return typeof method !== 'string';
   }
 
+  /**
+   * @author jochongs
+   */
   setPrefix(prefix: string) {
     this.prefix = prefix;
   }

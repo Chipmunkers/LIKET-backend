@@ -11,7 +11,12 @@ export class LoginJwtRepository {
   ) {}
 
   /**
-   * refresh token을 탐색하는 함수
+   * refresh token을 탐색하는 메서드
+   * 더 이상 Refresh Token을 RDB에서 관리하지 않습니다.
+   * 따라서 deprecated 되었습니다. 반드시 사용하지 마십시오.
+   *
+   *
+   * @author jochongs
    *
    * @deprecated
    */
@@ -26,7 +31,11 @@ export class LoginJwtRepository {
   }
 
   /**
-   * refresh token이 만료된 시간을 업데이트하는 함수
+   * refresh token이 만료된 시간을 업데이트하는 메서드
+   * 더 이상 Refresh Token을 RDB에서 관리하지 않습니다.
+   * 따라서 deprecated 되었습니다. 반드시 사용하지 마십시오.
+   *
+   * @author jochongs
    *
    * @deprecated
    */
@@ -48,7 +57,11 @@ export class LoginJwtRepository {
   }
 
   /**
-   * refresh token을 저장하는 함수
+   * refresh token을 저장하는 메서드
+   * 더 이상 Refresh Token을 RDB에서 관리하지 않습니다.
+   * 따라서 deprecated 되었습니다. 반드시 사용하지 마십시오.
+   *
+   * @author jochongs
    *
    * @deprecated
    */

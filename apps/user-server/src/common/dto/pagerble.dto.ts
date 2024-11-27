@@ -1,6 +1,9 @@
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
+/**
+ * @author jochongs
+ */
 export class PagerbleDto {
   /**
    * 페이지네이션 번호, 1부터 시작
