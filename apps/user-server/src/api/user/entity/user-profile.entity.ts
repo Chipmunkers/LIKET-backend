@@ -2,6 +2,9 @@ import { PickType } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { UserEntity } from './user.entity';
 
+/**
+ * @author jochongs
+ */
 export class UserProfileEntity extends PickType(UserEntity, [
   'idx',
   'profileImgPath',

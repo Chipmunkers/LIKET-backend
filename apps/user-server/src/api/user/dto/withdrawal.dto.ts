@@ -1,5 +1,8 @@
 import { IsInt, IsOptional, IsString, Length } from 'class-validator';
 
+/**
+ * @author jochongs
+ */
 export class WithdrawalDto {
   @IsString()
   @IsOptional()

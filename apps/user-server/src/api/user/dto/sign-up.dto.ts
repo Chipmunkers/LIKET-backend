@@ -1,7 +1,10 @@
-import { IsJWT, IsStrongPassword, Length, Matches } from 'class-validator';
+import { IsJWT, Matches } from 'class-validator';
 import { PickType } from '@nestjs/swagger';
 import { UserEntity } from '../entity/user.entity';
 
+/**
+ * @author jochongs
+ */
 export class SignUpDto extends PickType(UserEntity, [
   'nickname',
   'gender',

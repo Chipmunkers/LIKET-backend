@@ -47,6 +47,8 @@ export class UserController {
 
   /**
    * 회원가입하기 (file 필드로 이미지 전송)
+   *
+   * @author jochongs
    */
   @Post('/local')
   @HttpCode(200)
@@ -84,6 +86,8 @@ export class UserController {
 
   /**
    * 내 정보보기 (로그인 확인용)
+   *
+   * @author jochongs
    */
   @Get('/login')
   @LoginAuth()
@@ -95,9 +99,11 @@ export class UserController {
 
   /**
    * 소셜 회원가입 하기 (프로필 이미지 file로 전달)
-   * Deprecated됨
+   * 소셜 회원가입이 원터치 방식으로 변경됨에 따라 Deprecated됨
    *
    * @deprecated
+   *
+   * @author jochongs
    */
   @Post('/social')
   @ApiTags('Auth')
@@ -139,6 +145,8 @@ export class UserController {
 
   /**
    * 내 정보 보기
+   *
+   * @author jochongs
    */
   @Get('/my')
   @HttpCode(200)
@@ -151,6 +159,8 @@ export class UserController {
 
   /**
    * 프로필 수정하기
+   *
+   * @author jochongs
    */
   @Put('/my/profile')
   @HttpCode(201)
@@ -168,6 +178,8 @@ export class UserController {
 
   /**
    * 프로필 이미지 수정하기
+   *
+   * @author jochongs
    */
   @Put('/my/profile-img')
   @HttpCode(201)
@@ -182,6 +194,8 @@ export class UserController {
 
   /**
    * 이메일 중복 확안하기
+   *
+   * @author jochongs
    */
   @Post('/email/duplicate-check')
   @HttpCode(201)
@@ -195,6 +209,8 @@ export class UserController {
 
   /**
    * 비밀번호 찾기
+   *
+   * @author jochongs
    */
   @Post('/pw/find')
   @HttpCode(201)
@@ -208,6 +224,8 @@ export class UserController {
 
   /**
    * 비밀번호 변경하기
+   *
+   * @author jochongs
    */
   @Post('/pw/reset')
   @HttpCode(201)
@@ -222,6 +240,8 @@ export class UserController {
 
   /**
    * 회원탈퇴하기
+   *
+   * @author jochongs
    */
   @Delete('/')
   @HttpCode(201)

@@ -41,6 +41,8 @@ export class UserService {
 
   /**
    * 회원가입하기
+   *
+   * @author jochongs
    */
   public async signUp(
     signUpDto: SignUpDto,
@@ -170,6 +172,8 @@ export class UserService {
 
   /**
    * 프로필 이미지 수정하기
+   *
+   * @author jochongs
    */
   public async updateProfileImg(loginUser: LoginUser, profileImgPath?: string) {
     await this.userRepository.updateProfileImgByUserIdx(
@@ -180,6 +184,8 @@ export class UserService {
 
   /**
    * 특정 사용자 가져오기
+   *
+   * @author jochongs
    */
   public async getUserByIdx(userIdx: number): Promise<UserEntity> {
     const user = await this.userRepository.selectUserByIdx(userIdx);
@@ -197,6 +203,8 @@ export class UserService {
 
   /**
    * 사용자 정보 변경하기
+   *
+   * @author jochongs
    */
   public async updateProfile(
     idx: number,
@@ -212,6 +220,8 @@ export class UserService {
 
   /**
    * 이메일 중복 검사 확인하기
+   *
+   * @author jochongs
    */
   public async checkEmailDuplicate(
     checkDto: EmailDuplicateCheckDto,
@@ -225,6 +235,9 @@ export class UserService {
     throw new EmailDuplicateException('duplicated email');
   }
 
+  /**
+   * @author jochongs
+   */
   public async getUserByEmail(email: string) {
     const user = await this.userRepository.selectUserByEmail(email);
 
@@ -241,6 +254,8 @@ export class UserService {
 
   /**
    * 회원탈퇴 하기
+   *
+   * @author jochongs
    */
   public async withdrawal(
     loginUser: LoginUser,

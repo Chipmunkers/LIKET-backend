@@ -2,6 +2,9 @@ import { User } from '@prisma/client';
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, Matches, Max, Min } from 'class-validator';
 
+/**
+ * @author jochongs
+ */
 export class UserEntity {
   /**
    * 사용자 인덱스

@@ -14,6 +14,9 @@ export class UserRepository {
     @Logger(UserRepository.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public insertUser(
     dao: InsertUserDao,
     tx?: Prisma.TransactionClient,
@@ -33,6 +36,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectUserByEmail(
     email: string,
     tx?: Prisma.TransactionClient,
@@ -49,6 +55,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectUserByIdx(
     idx: number,
     tx?: Prisma.TransactionClient,
@@ -62,6 +71,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectMyUser(myIdx: number, tx?: Prisma.TransactionClient) {
     this.logger.log(this.selectMyUser, `SELECT my user WHERE idx = ${myIdx}`);
     return (tx || this.prisma).user.findFirst({
@@ -93,6 +105,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectUserByNickname(
     nickname: string,
     tx?: Prisma.TransactionClient,
@@ -109,6 +124,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectSocialLoginUser(
     snsId: string,
     provider: SocialProvider,
@@ -127,6 +145,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectUserBySnsId(snsId: string, provider: SocialProvider) {
     this.logger.log(
       this.selectUserBySnsId,
@@ -141,6 +162,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public updateUserByIdx(
     idx: number,
     updateDao: UpdateUserDao,
@@ -161,6 +185,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public updateUserLastLoginByIdx(idx: number) {
     return this.prisma.user.update({
       where: {
@@ -172,6 +199,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public deleteUserLastLoginByIdx(idx: number) {
     return this.prisma.user.update({
       where: {
@@ -183,6 +213,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public deleteUserByIdx(idx: number, tx?: Prisma.TransactionClient) {
     this.logger.log(this.deleteUserByIdx, `DELETE user WHERE idx = ${idx}`);
     return this.prisma.user.update({
@@ -196,6 +229,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public updateUserPwByIdx(idx: number, pw: string) {
     this.logger.log(
       this.updateUserPwByIdx,
@@ -211,6 +247,9 @@ export class UserRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public updateProfileImgByUserIdx(idx: number, profileImg?: string) {
     return this.prisma.user.update({
       where: {

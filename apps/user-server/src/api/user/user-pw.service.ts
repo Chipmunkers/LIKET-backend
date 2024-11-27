@@ -24,6 +24,8 @@ export class UserPwService {
 
   /**
    * 비밀번호 찾기
+   *
+   * @author jochongs
    */
   public async findPw(findPwDto: FindPwDto) {
     const email = await this.emailJwtService.verify(
@@ -40,6 +42,8 @@ export class UserPwService {
 
   /**
    * 사용자 비밀번호 변경하기
+   *
+   * @author jochongs
    */
   public async resetLoginUserPw(
     loginUser: LoginUser,
@@ -60,6 +64,8 @@ export class UserPwService {
 
   /**
    * 비밀번호 변경하기
+   *
+   * @author jochongs
    */
   public async updatePw(idx: number, pw: string): Promise<void> {
     await this.userService.getUserByIdx(idx);

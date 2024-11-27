@@ -2,6 +2,9 @@ import { IsJWT } from 'class-validator';
 import { PickType } from '@nestjs/swagger';
 import { SignUpDto } from './sign-up.dto';
 
+/**
+ * @author jochongs
+ */
 export class FindPwDto extends PickType(SignUpDto, ['pw'] as const) {
   /**
    * 이메일 인증 토큰

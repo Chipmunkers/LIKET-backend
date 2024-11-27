@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export class InsertUserDao {
   public email: string;
   public pw: string;

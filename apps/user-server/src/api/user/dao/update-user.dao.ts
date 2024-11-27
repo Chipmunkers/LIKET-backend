@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export class UpdateUserDao {
   public nickname: string;
   public gender: number | null;
