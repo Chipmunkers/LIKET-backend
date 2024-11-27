@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export class UploadedFileEntity {
   /**
    * 파일 전체 URL

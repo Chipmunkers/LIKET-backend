@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export class UploadFileResponseDto {
   /**
    * 업로드한 이미지에 접근할 수 있는 Full url
