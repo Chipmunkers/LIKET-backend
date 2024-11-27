@@ -1,5 +1,8 @@
 import { InquiryType } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 export class InquiryTypeEntity {
   /**
    * 문의 유형 인덱스

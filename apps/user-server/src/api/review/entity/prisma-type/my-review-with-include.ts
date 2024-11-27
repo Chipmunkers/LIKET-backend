@@ -12,6 +12,9 @@ const myReviewEntityWithInclude = Prisma.validator<Prisma.ReviewDefaultArgs>()({
   },
 });
 
+/**
+ * @author jochongs
+ */
 export type MyReviewWithInclude = Prisma.ReviewGetPayload<
   typeof myReviewEntityWithInclude
 >;

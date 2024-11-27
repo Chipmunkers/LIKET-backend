@@ -3,6 +3,9 @@ import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { LocationEntity } from './location.entity';
 import { CotnentWithInclude } from './prisma-type/content-with-include';
 
+/**
+ * @author jochongs
+ */
 export class ContentEntity {
   /**
    * 컨텐츠 인덱스

@@ -19,7 +19,10 @@ export class LoginJwtService {
     @Logger('LoginJwtService') private readonly logger: LoggerService,
   ) {}
 
-  async verify(jwt: string): Promise<LoginJwtPayload> {
+  /**
+   * @author jochongs
+   */
+  public async verify(jwt: string): Promise<LoginJwtPayload> {
     try {
       this.logger.log(this.verify, 'Try to verify login jwt');
       return await this.jwtService.verifyAsync<LoginJwtPayload>(jwt);
@@ -29,7 +32,10 @@ export class LoginJwtService {
     }
   }
 
-  sign(idx: number, isAdmin: boolean): string {
+  /**
+   * @author jochongs
+   */
+  public sign(idx: number, isAdmin: boolean): string {
     const payload: LoginJwtPayload = {
       idx: idx,
       isAdmin: isAdmin,
@@ -43,8 +49,13 @@ export class LoginJwtService {
 
   /**
    * Refresh Token 생성하기
+   *
+   * @author jochongs
    */
-  async signRefreshToken(idx: number, isAdmin: boolean): Promise<string> {
+  public async signRefreshToken(
+    idx: number,
+    isAdmin: boolean,
+  ): Promise<string> {
     this.logger.log(this.signRefreshToken, 'Create login refresh token');
 
     const payload: RefreshTokenPayload = {
@@ -70,9 +81,11 @@ export class LoginJwtService {
   /**
    * Refresh Token 검증하기
    *
+   * @author jochongs
+   *
    * @param refreshToken 검증할 토큰
    */
-  async verifyRefreshToken(refreshToken: string) {
+  public async verifyRefreshToken(refreshToken: string) {
     this.logger.log(this.verifyRefreshToken.name, 'Verify refresh token');
     let payload: RefreshTokenPayload | LoginJwtPayload;
 
@@ -100,6 +113,11 @@ export class LoginJwtService {
   }
 
   /**
+   * 리프레쉬 토큰 만료 전략이 변경됨에 따라 deprecated 되었습니다.
+   * 반드시 사용하지 마십시오.
+   *
+   * @author jochongs
+   *
    * @deprecated
    */
   public async expireRefreshToken(token?: string) {
@@ -108,6 +126,9 @@ export class LoginJwtService {
     }
   }
 
+  /**
+   * @author jochongs
+   */
   private isRefreshToken(
     payload: RefreshTokenPayload | LoginJwtPayload,
   ): payload is RefreshTokenPayload {

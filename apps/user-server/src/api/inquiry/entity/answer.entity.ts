@@ -1,5 +1,8 @@
 import { Answer } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 export class AnswerEntity {
   /**
    * 답변 인덱스

@@ -6,10 +6,13 @@ const bannerWithInclude = Prisma.validator<Prisma.ActiveBannerDefaultArgs>()({
   },
 });
 
-type bannerWithInclude = Prisma.ActiveBannerGetPayload<
+type BannerWithInclude = Prisma.ActiveBannerGetPayload<
   typeof bannerWithInclude
 >;
 
+/**
+ * @author jochongs
+ */
 export class BannerEntity {
   /**
    * 배너의 인덱스
@@ -50,7 +53,7 @@ export class BannerEntity {
     Object.assign(this, data);
   }
 
-  static createActiveBannerEntity(banner: bannerWithInclude): BannerEntity {
+  static createActiveBannerEntity(banner: BannerWithInclude): BannerEntity {
     return new BannerEntity({
       idx: banner.idx,
       name: banner.Banner.name,

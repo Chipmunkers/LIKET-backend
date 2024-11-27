@@ -17,4 +17,7 @@ const liketWithInclude = Prisma.validator<Prisma.LiketDefaultArgs>()({
   },
 });
 
+/**
+ * @author wherehows
+ */
 export type LiketWithInclude = Prisma.LiketGetPayload<typeof liketWithInclude>;

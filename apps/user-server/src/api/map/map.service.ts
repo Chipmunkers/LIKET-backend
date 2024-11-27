@@ -9,6 +9,9 @@ import { MapContentPagerbleDto } from './dto/request/map-content-pagerble.dto';
 export class MapService {
   constructor(private readonly mapRepository: MapRepository) {}
 
+  /**
+   * @author jochongs
+   */
   public async getClusteredContentsAllForMap(pagerble: MapPagerbleDto) {
     return await this.mapRepository.getContentCountFromMapLevel(
       pagerble,
@@ -16,6 +19,9 @@ export class MapService {
     );
   }
 
+  /**
+   * @author jochongs
+   */
   public async getContentAll(
     pagerbleDto: MapContentPagerbleDto,
     loginUser?: LoginUser,

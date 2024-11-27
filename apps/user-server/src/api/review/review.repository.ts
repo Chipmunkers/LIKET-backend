@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
@@ -7,11 +6,12 @@ import { Prisma, Review } from '@prisma/client';
 import { ReviewWithInclude } from './entity/prisma-type/review-with-include';
 import { InsertReviewDao } from './dao/insert-review.dao';
 import { UpdateReviewDao } from './dao/update-review.dao';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ReviewRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(ReviewRepository.name) private readonly logger: LoggerService,
   ) {}
 
@@ -230,6 +230,9 @@ export class ReviewRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectReviewAvgStarRatingByContentIdx(contentIdx: number) {
     this.logger.log(
       this.selectReviewAvgStarRatingByContentIdx,
@@ -249,6 +252,9 @@ export class ReviewRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public insertReview(dao: InsertReviewDao) {
     this.logger.log(this.insertReview, 'INSERT review');
     return this.prisma.review.create({
@@ -269,6 +275,9 @@ export class ReviewRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public updateReviewByIdx(idx: number, dao: UpdateReviewDao) {
     this.logger.log(this.updateReviewByIdx, `UPDATE review WHERE idx = ${idx}`);
     return this.prisma.review.update({

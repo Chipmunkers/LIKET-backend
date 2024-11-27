@@ -1,6 +1,9 @@
 import { Gender } from '../../user/model/Gender';
 import { SocialProvider } from '../strategy/social-provider.enum';
 
+/**
+ * @author jochongs
+ */
 export class SocialLoginUser {
   public id: string;
   public provider: SocialProvider;

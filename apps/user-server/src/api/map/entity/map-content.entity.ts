@@ -4,6 +4,9 @@ import { ContentWithInclude } from './prisma/content-with-include';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { LocationEntity } from '../../culture-content/entity/location.entity';
 
+/**
+ * @author jochongs
+ */
 export class MapContentEntity extends PickType(ContentEntity, [
   'idx',
   'title',

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
@@ -9,14 +8,18 @@ import { LoginUser } from '../auth/model/login-user';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { AcceptedContentException } from './exception/AcceptedContentException';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ContentAuthService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(ContentAuthService.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public async checkReadAllPermission(
     pagerble: ContentPagerbleDto,
     loginUser?: LoginUser,
@@ -48,7 +51,10 @@ export class ContentAuthService {
     return;
   }
 
-  checkReadPermission: (
+  /**
+   * @author jochongs
+   */
+  public checkReadPermission: (
     contentIdx: number,
     loginUser?: LoginUser,
   ) => Promise<void> = async (contentIdx, loginUser) => {
@@ -69,6 +75,9 @@ export class ContentAuthService {
     return;
   };
 
+  /**
+   * @author jochongs
+   */
   public async checkWritePermission(
     loginUser: LoginUser,
     createDto: CreateContentRequestDto,
@@ -76,6 +85,9 @@ export class ContentAuthService {
     return;
   }
 
+  /**
+   * @author jochongs
+   */
   public async checkUpdatePermission(
     loginUser: LoginUser,
     contentIdx: number,
@@ -96,6 +108,9 @@ export class ContentAuthService {
     return;
   }
 
+  /**
+   * @author jochongs
+   */
   public async checkDeletePermission(
     loginUser: LoginUser,
     contentIdx: number,
@@ -123,6 +138,9 @@ export class ContentAuthService {
     return;
   }
 
+  /**
+   * @author jochongs
+   */
   private async getContentByContentIdx(contentIdx: number) {
     this.logger.log(
       this.getContentByContentIdx,

@@ -42,6 +42,8 @@ export class CultureContentController {
 
   /**
    * 문화생활컨텐츠 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/all')
   @HttpCode(200)
@@ -63,6 +65,8 @@ export class CultureContentController {
 
   /**
    * 오픈 예정 컨텐츠 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/soon-open/all')
   @HttpCode(200)
@@ -80,6 +84,8 @@ export class CultureContentController {
 
   /**
    * 종료 예정 컨텐츠 목록보기
+   *
+   * @author jochongs
    */
   @Get('/soon-end/all')
   public async getSoonEndCultureContentAll(
@@ -96,6 +102,8 @@ export class CultureContentController {
 
   /**
    * 핫플 차트 보기
+   *
+   * @author jochongs
    */
   @Get('/hot/all')
   public async getHotCultureContentAll(): Promise<HotCultureContentEntity[]> {
@@ -104,6 +112,8 @@ export class CultureContentController {
 
   /**
    * 연령대의 인기 컨텐츠 보기
+   *
+   * @author jochongs
    */
   @Get('/hot-age/all')
   public async getHotAgeCultureContentAll(
@@ -114,6 +124,8 @@ export class CultureContentController {
 
   /**
    * 인기 스타일 컨텐츠 목록보기
+   *
+   * @author jochongs
    */
   @Get('/hot-style/all')
   public async getHotStyleCultureContentAll(
@@ -124,6 +136,8 @@ export class CultureContentController {
 
   /**
    * 인기 스타일 컨텐츠 목록보기 (랜덤)
+   *
+   * @author jochongs
    */
   @Get('/hot-random-style/all')
   public async getHotRandomStyleCultureContentAll(
@@ -136,6 +150,8 @@ export class CultureContentController {
 
   /**
    * 컨텐츠 자세히보기
+   *
+   * @author jochongs
    */
   @Get('/:idx')
   @HttpCode(200)
@@ -161,6 +177,8 @@ export class CultureContentController {
 
   /**
    * 컨텐츠 좋아요 하기
+   *
+   * @author jochongs
    */
   @Post('/:idx/like')
   @HttpCode(201)
@@ -179,6 +197,8 @@ export class CultureContentController {
 
   /**
    * 컨텐츠 좋아요 취소하기
+   *
+   * @author jochongs
    */
   @Delete('/:idx/like')
   @HttpCode(201)
@@ -200,6 +220,8 @@ export class CultureContentController {
 
   /**
    * 컨텐츠 요청하기
+   *
+   * @author jochongs
    */
   @Post('/request')
   @HttpCode(200)
@@ -221,6 +243,8 @@ export class CultureContentController {
 
   /**
    * 컨텐츠 수정하기 (수락하지 않은 컨텐츠만 수정 가능)
+   *
+   * @author jochongs
    */
   @Put('/request/:idx')
   @HttpCode(201)
@@ -250,6 +274,8 @@ export class CultureContentController {
 
   /**
    * 컨텐츠 삭제하기 (수락하지 않은 컨텐츠만 수정 가능)
+   *
+   * @author jochongs
    */
   @Delete('/request/:idx')
   @HttpCode(201)
@@ -270,6 +296,8 @@ export class CultureContentController {
 
   /**
    * 좋아요 컨텐츠 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/like/all')
   @Exception(400, 'Invalid querystring')

@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { SummaryTosEntity } from './entity/summary-tos.entity';
 import { TosEntity } from './entity/tos.entity';
 import { Logger } from '../../common/module/logger/logger.decorator';
@@ -9,13 +8,14 @@ import { TosRepository } from './tos.repository';
 @Injectable()
 export class TosService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly tosRepository: TosRepository,
     @Logger(TosService.name) private readonly logger: LoggerService,
   ) {}
 
   /**
    * 약관 목록 가져오기
+   *
+   * @author jochongs
    */
   public async getTosAll(): Promise<SummaryTosEntity[]> {
     const tosList = await this.tosRepository.selectTosAll();
@@ -25,6 +25,8 @@ export class TosService {
 
   /**
    * 약관 자세히보기
+   *
+   * @author jochongs
    */
   public async getTosByIdx(idx: number): Promise<TosEntity> {
     const tos = await this.tosRepository.selectTosByIdx(idx);

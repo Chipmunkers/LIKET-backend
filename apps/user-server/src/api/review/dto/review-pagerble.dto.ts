@@ -3,6 +3,9 @@ import { PagerbleDto } from '../../../common/dto/pagerble.dto';
 import { IsIn, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
+/**
+ * @author jochongs
+ */
 export class ReviewPagerbleDto extends PickType(PagerbleDto, [
   'page',
   'order',

@@ -1,16 +1,16 @@
-import { PrismaService } from '../../../src/common/module/prisma/prisma.service';
 import { PrismaTestingHelper } from '@chax-at/transactional-prisma-testing';
+import { PrismaProvider } from 'libs/modules';
 
 export class PrismaSetting {
-  private readonly prisma: PrismaService;
-  private readonly prismaTestingHelper: PrismaTestingHelper<PrismaService>;
+  private readonly prisma: PrismaProvider;
+  private readonly prismaTestingHelper: PrismaTestingHelper<PrismaProvider>;
 
   private constructor() {
     if (this.prismaTestingHelper) {
       return;
     }
 
-    this.prisma = new PrismaService();
+    this.prisma = new PrismaProvider();
     this.prismaTestingHelper = new PrismaTestingHelper(this.prisma);
     this.prisma = this.prismaTestingHelper.getProxyClient();
   }

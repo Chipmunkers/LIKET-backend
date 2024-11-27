@@ -3,6 +3,9 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { MulterOptionProvider } from './multer-option.provider';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
+/**
+ * @author jochongs
+ */
 export const UploadFiles = (
   field: string,
   fileLimitCount: number,

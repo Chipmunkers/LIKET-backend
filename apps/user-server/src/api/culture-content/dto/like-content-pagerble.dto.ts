@@ -4,6 +4,9 @@ import { ToBoolean } from '../../../common/decorator/to-boolean.decorator';
 import { IsBoolean, IsInt, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
+/**
+ * @author jochongs
+ */
 export class LikeContentPagerbleDto extends PickType(PagerbleDto, ['page']) {
   /**
    * 오픈 중인 컨텐츠 필터링

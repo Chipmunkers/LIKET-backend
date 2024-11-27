@@ -11,6 +11,8 @@ export class InquiryTypeController {
 
   /**
    * 문의 유형 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/all')
   @LoginAuth()

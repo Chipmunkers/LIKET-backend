@@ -22,6 +22,8 @@ export class LiketService {
 
   /**
    * 라이켓 생성
+   *
+   * @author wherehows
    */
   public async createLiket(reviewIdx: number, createDto: CreateLiketDto) {
     const liket = await this.liketRepository.insertLiket(reviewIdx, createDto);
@@ -57,6 +59,8 @@ export class LiketService {
 
   /**
    * 라이켓 리스트 조회
+   *
+   * @author wherehows
    */
   public async getLiketAll(pageable: LiketPageableDto) {
     const liketList = await this.liketRepository.selectLiketAll(pageable);
@@ -70,6 +74,8 @@ export class LiketService {
 
   /**
    * 업데이트 라이켓
+   *
+   * @author wherehows
    */
   public async updateLiket(idx: number, updateDto: UpdateLiketDto) {
     return await this.liketRepository.updateLiketByIdx(idx, updateDto);
@@ -77,6 +83,8 @@ export class LiketService {
 
   /**
    *라이켓 자세히보기
+
+   @author wherehows
    */
   public async getLiketByIdx(idx: number) {
     const liket = await this.liketRepository.selectLiketByIdx(idx);
@@ -116,6 +124,8 @@ export class LiketService {
 
   /**
    * 라이켓 삭제
+   *
+   * @author wherehows
    */
   public async deleteLiket(liketIdx: number) {
     return this.liketRepository.deleteLiketByIdx(liketIdx);

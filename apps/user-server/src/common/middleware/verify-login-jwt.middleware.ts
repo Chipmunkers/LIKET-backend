@@ -3,6 +3,11 @@ import { NextFunction, Request, Response } from 'express';
 import { LoginJwtService } from '../module/login-jwt/login-jwt.service';
 import { LoginJwtPayload } from '../module/login-jwt/model/login-jwt-payload';
 
+/**
+ * 모든 요청에 대하여 로그인 토큰을 검증하는 미들웨어.
+ *
+ * @author jochongs
+ */
 @Injectable()
 export class VerifyLoginJwtMiddleware implements NestMiddleware {
   constructor(private readonly loginJwtService: LoginJwtService) {}

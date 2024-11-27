@@ -22,6 +22,9 @@ const reviewWithInclude = Prisma.validator<Prisma.ReviewDefaultArgs>()({
   },
 });
 
+/**
+ * @author jochongs
+ */
 export type ReviewWithInclude = Prisma.ReviewGetPayload<
   typeof reviewWithInclude
 >;

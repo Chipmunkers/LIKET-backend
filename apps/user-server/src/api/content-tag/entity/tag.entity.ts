@@ -1,5 +1,8 @@
 import { Age, Genre, Style } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 export class TagEntity {
   /**
    * 장르 또는 스타일 또는 연령대의 인덱스

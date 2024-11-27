@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export default () => ({
   s3: {
     region: process.env.AWS_REGION,

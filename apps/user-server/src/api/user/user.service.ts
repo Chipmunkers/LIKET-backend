@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { MyInfoEntity } from './entity/my-info.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -24,23 +23,26 @@ import { LiketRepository } from '../liket/liket.repository';
 import { ReviewRepository } from '../review/review.repository';
 import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
 import { MyReviewEntity } from '../review/entity/my-review.entity';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     private readonly hashService: HashService,
     private readonly emailJwtService: EmailJwtService,
     private readonly loginJwtService: LoginJwtService,
     private readonly socialLoginJwtService: SocialLoginJwtService,
     private readonly userRepository: UserRepository,
-    private readonly liketRepostiory: LiketRepository,
+    private readonly liketRepository: LiketRepository,
     private readonly reviewRepository: ReviewRepository,
     @Logger(UserService.name) private readonly logger: LoggerService,
   ) {}
 
   /**
    * 회원가입하기
+   *
+   * @author jochongs
    */
   public async signUp(
     signUpDto: SignUpDto,
@@ -145,7 +147,7 @@ export class UserService {
     }
 
     const liketList = (
-      await this.liketRepostiory.selectLiketAll({
+      await this.liketRepository.selectLiketAll({
         user: userIdx,
         orderby: 'time',
         order: 'desc',
@@ -155,7 +157,7 @@ export class UserService {
       return SummaryLiketEntity.createEntity(liket);
     });
 
-    const liketCount = await this.liketRepostiory.selectLiketCountByUserIdx(
+    const liketCount = await this.liketRepository.selectLiketCountByUserIdx(
       userIdx,
     );
 
@@ -170,6 +172,8 @@ export class UserService {
 
   /**
    * 프로필 이미지 수정하기
+   *
+   * @author jochongs
    */
   public async updateProfileImg(loginUser: LoginUser, profileImgPath?: string) {
     await this.userRepository.updateProfileImgByUserIdx(
@@ -180,6 +184,8 @@ export class UserService {
 
   /**
    * 특정 사용자 가져오기
+   *
+   * @author jochongs
    */
   public async getUserByIdx(userIdx: number): Promise<UserEntity> {
     const user = await this.userRepository.selectUserByIdx(userIdx);
@@ -197,6 +203,8 @@ export class UserService {
 
   /**
    * 사용자 정보 변경하기
+   *
+   * @author jochongs
    */
   public async updateProfile(
     idx: number,
@@ -212,6 +220,8 @@ export class UserService {
 
   /**
    * 이메일 중복 검사 확인하기
+   *
+   * @author jochongs
    */
   public async checkEmailDuplicate(
     checkDto: EmailDuplicateCheckDto,
@@ -225,6 +235,9 @@ export class UserService {
     throw new EmailDuplicateException('duplicated email');
   }
 
+  /**
+   * @author jochongs
+   */
   public async getUserByEmail(email: string) {
     const user = await this.userRepository.selectUserByEmail(email);
 
@@ -241,6 +254,8 @@ export class UserService {
 
   /**
    * 회원탈퇴 하기
+   *
+   * @author jochongs
    */
   public async withdrawal(
     loginUser: LoginUser,

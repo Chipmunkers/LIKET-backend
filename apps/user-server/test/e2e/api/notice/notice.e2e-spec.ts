@@ -1,18 +1,9 @@
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../../../src/app.module';
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
-import { PrismaSetting } from '../../setup/prisma.setup';
-import { AppGlobalSetting } from '../../setup/app-global.setup';
-import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
+import { TestHelper } from '../../setup/test.helper';
+import { PrismaProvider } from '../../../../../../libs/modules/src';
 
 describe('Review (e2e)', () => {
-  let app: INestApplication;
-  let appModule: TestingModule;
-  const prismaSetting = PrismaSetting.setup();
-
-  let loginUsers: TestLoginUsers;
+  const test = TestHelper.create();
 
   const noticeSeeds = [
     {
@@ -58,7 +49,7 @@ describe('Review (e2e)', () => {
 
   beforeAll(async () => {
     for (const notice of noticeSeeds) {
-      await prismaSetting.getPrisma().notice.upsert({
+      await test.getPrisma().notice.upsert({
         where: {
           idx: notice.idx,
         },
@@ -79,30 +70,16 @@ describe('Review (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prismaSetting.BEGIN();
-
-    appModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(PrismaService)
-      .useValue(prismaSetting.getPrisma())
-      .compile();
-    app = appModule.createNestApplication();
-    AppGlobalSetting.setup(app);
-    await app.init();
-
-    loginUsers = await LoginSetting.setup(loginUsers, app);
+    await test.init();
   });
 
   afterEach(async () => {
-    prismaSetting.ROLLBACK();
-    await appModule.close();
-    await app.close();
+    await test.destroy();
   });
 
   describe('GET /notice/all', () => {
     it('Success', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/notice/all')
         .expect(200);
 
@@ -117,7 +94,7 @@ describe('Review (e2e)', () => {
     });
 
     it('Fail - invalid pageable', async () => {
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/notice/all')
         .query({
           page: 'null',
@@ -126,7 +103,7 @@ describe('Review (e2e)', () => {
     });
 
     it('Success - Delete notice test', async () => {
-      await prismaSetting.getPrisma().notice.create({
+      await test.get(PrismaProvider).notice.create({
         data: {
           title: '삭제된 공지사항',
           contents: '삭제된 공지사항',
@@ -134,7 +111,7 @@ describe('Review (e2e)', () => {
         },
       });
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/notice/all')
         .expect(200);
 
@@ -148,7 +125,7 @@ describe('Review (e2e)', () => {
     it('Success', async () => {
       const notice = noticeSeeds[0];
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get(`/notice/${notice.idx}`)
         .expect(200);
 
@@ -160,23 +137,19 @@ describe('Review (e2e)', () => {
     it('Non-existent notice', async () => {
       const noticeIdx = 999;
 
-      await request(app.getHttpServer())
-        .get(`/notice/${noticeIdx}`)
-        .expect(404);
+      await request(test.getServer()).get(`/notice/${noticeIdx}`).expect(404);
     });
 
     it('Invalid notice idx', async () => {
       const noticeIdx = null;
 
-      await request(app.getHttpServer())
-        .get(`/notice/${noticeIdx}`)
-        .expect(400);
+      await request(test.getServer()).get(`/notice/${noticeIdx}`).expect(400);
     });
 
     it('Attempt to get deleted notice', async () => {
       const deletedNotice = noticeSeeds[4];
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get(`/notice/${deletedNotice.idx}`)
         .expect(404);
     });
@@ -184,7 +157,7 @@ describe('Review (e2e)', () => {
     it('Attempt to get deactivated notice', async () => {
       const deactivatedNotice = noticeSeeds[2];
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get(`/notice/${deactivatedNotice.idx}`)
         .expect(404);
     });

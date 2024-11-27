@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ReviewLikeRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(ReviewLikeRepository.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public selectReviewLike(userIdx: number, reviewIdx: number) {
     this.logger.log(this.selectReviewLike, 'SELECT review like');
     return this.prisma.reviewLike.findUnique({
@@ -22,6 +25,9 @@ export class ReviewLikeRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public increaseReviewLike(userIdx: number, reviewIdx: number) {
     this.logger.log(this.increaseReviewLike, 'UPDATE review like +1');
     return this.prisma.$transaction([
@@ -44,6 +50,9 @@ export class ReviewLikeRepository {
     ]);
   }
 
+  /**
+   * @author jochongs
+   */
   public decreaseReviewLike(userIdx: number, reviewIdx: number) {
     this.logger.log(this.increaseReviewLike, 'UPDATE review like -1');
     return this.prisma.$transaction([

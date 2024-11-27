@@ -41,6 +41,12 @@ export class LoginSetting {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
+  /**
+   * testLoginUsers를 내부에서 검사할 이유가 없을 것 같다고 판단하여 deprecated되었습니다.
+   * 대신, init 메서드를 사용하십시오.
+   *
+   * @deprecated
+   */
   static async setup(
     testLoginUsers: TestLoginUsers,
     app: INestApplication,
@@ -49,6 +55,10 @@ export class LoginSetting {
       return testLoginUsers;
     }
 
+    return await this.createTestLoginUsers(app);
+  }
+
+  static async init(app: INestApplication) {
     return await this.createTestLoginUsers(app);
   }
 

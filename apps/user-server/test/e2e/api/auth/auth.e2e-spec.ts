@@ -1,43 +1,20 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { AppModule } from '../../../../src/app.module';
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import { LoginDto } from '../../../../src/api/auth/dto/local-login.dto';
 import { KakaoLoginStrategy } from '../../../../src/api/auth/strategy/kakao/kakao-login.strategy';
 import { SocialLoginUser } from '../../../../src/api/auth/model/social-login-user';
 import { SocialProvider } from '../../../../src/api/auth/strategy/social-provider.enum';
-import { AppGlobalSetting } from '../../setup/app-global.setup';
-import { PrismaSetting } from '../../setup/prisma.setup';
-import e from 'express';
+import { TestHelper } from '../../setup/test.helper';
+import { PrismaProvider } from '../../../../../../libs/modules/src';
 
 describe('Auth (e2e)', () => {
-  let app: INestApplication;
-  let appModule: TestingModule;
-  const prismaSetting = PrismaSetting.setup();
-
-  let kakaoLoginStrategy: KakaoLoginStrategy;
+  const test = TestHelper.create();
 
   beforeEach(async () => {
-    await prismaSetting.BEGIN();
-
-    appModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(PrismaService)
-      .useValue(prismaSetting.getPrisma())
-      .compile();
-    app = appModule.createNestApplication();
-    AppGlobalSetting.setup(app);
-    await app.init();
-
-    kakaoLoginStrategy = appModule.get(KakaoLoginStrategy);
+    await test.init();
   });
 
   afterEach(async () => {
-    prismaSetting.ROLLBACK();
-    await appModule.close();
-    await app.close();
+    await test.destroy();
   });
 
   describe('POST /auth/local', () => {
@@ -47,7 +24,7 @@ describe('Auth (e2e)', () => {
         pw: 'aa12341234**',
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/local')
         .send(loginDto)
         .expect(200);
@@ -59,12 +36,12 @@ describe('Auth (e2e)', () => {
         pw: 'aa12341234**',
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/local')
         .send(loginDto)
         .expect(200);
 
-      const loginUser = await prismaSetting.getPrisma().user.findFirst({
+      const loginUser = await test.get(PrismaProvider).user.findFirst({
         where: {
           email: loginDto.email,
         },
@@ -82,7 +59,7 @@ describe('Auth (e2e)', () => {
         pw: 'aa12341234**',
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/local')
         .send(loginDto)
         .expect(401);
@@ -94,7 +71,7 @@ describe('Auth (e2e)', () => {
         pw: 'wrongPassword', // Wrong password
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/local')
         .send(loginDto)
         .expect(401);
@@ -106,7 +83,7 @@ describe('Auth (e2e)', () => {
         pw: 'aa12341234**', // Wrong password
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/local')
         .send(loginDto)
         .expect(418);
@@ -118,7 +95,7 @@ describe('Auth (e2e)', () => {
         pw: 'aa12341234**', // Wrong password
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/local')
         .send(loginDto)
         .expect(401);
@@ -127,13 +104,13 @@ describe('Auth (e2e)', () => {
 
   describe('GET /auth/:provider', () => {
     it('Success', async () => {
-      await request(app.getHttpServer()).get('/auth/kakao').expect(302);
+      await request(test.getServer()).get('/auth/kakao').expect(302);
     });
 
     it('Invalid provider', async () => {
       const invalidProvider = 'invalidProvider';
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get(`/auth/${invalidProvider}`)
         .expect(400);
     });
@@ -147,13 +124,14 @@ describe('Auth (e2e)', () => {
         nickname: 'jochong',
         email: 'test123@naver.com',
       };
+
+      const kakaoLoginStrategy = test.get(KakaoLoginStrategy);
+
       jest
         .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
         .mockResolvedValue(socialLoginUser);
 
-      await request(app.getHttpServer())
-        .get('/auth/kakao/callback')
-        .expect(302);
+      await request(test.getServer()).get('/auth/kakao/callback').expect(302);
     });
 
     it('Success - second login', async () => {
@@ -163,11 +141,14 @@ describe('Auth (e2e)', () => {
         nickname: 'jochong',
         email: 'kakao1@daum.net',
       };
+
+      const kakaoLoginStrategy = test.get(KakaoLoginStrategy);
+
       jest
         .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
         .mockResolvedValue(socialLoginUser);
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/auth/kakao/callback')
         .expect(302);
 
@@ -181,11 +162,14 @@ describe('Auth (e2e)', () => {
         nickname: 'jochong',
         email: 'test123@gmail.com',
       };
+
+      const kakaoLoginStrategy = test.get(KakaoLoginStrategy);
+
       jest
         .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
         .mockResolvedValue(socialLoginUser);
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/auth/kakao/callback')
         .expect(302);
 
@@ -199,11 +183,14 @@ describe('Auth (e2e)', () => {
         nickname: 'jochong',
         email: 'user1@gmail.com',
       };
+
+      const kakaoLoginStrategy = test.get(KakaoLoginStrategy);
+
       jest
         .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
         .mockResolvedValue(socialLoginUser);
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/auth/kakao/callback')
         .expect(302);
 
@@ -213,13 +200,15 @@ describe('Auth (e2e)', () => {
     });
 
     it('Error occurred from external API', async () => {
+      const kakaoLoginStrategy = test.get(KakaoLoginStrategy);
+
       jest
         .spyOn(kakaoLoginStrategy, 'getSocialLoginUser')
         .mockImplementation(async () => {
           throw new Error('External Error');
         });
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/auth/kakao/callback')
         .expect(302);
 
@@ -231,14 +220,14 @@ describe('Auth (e2e)', () => {
     it('Invalid provider', async () => {
       const invalidProvider = 'invalidProvider';
 
-      request(app.getHttpServer()).get(`/auth/${invalidProvider}`).expect(400);
+      request(test.getServer()).get(`/auth/${invalidProvider}`).expect(400);
     });
   });
 
   describe('POST /auth/access-token', () => {
     it('Success', async () => {
       // 로그인
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .post('/auth/local')
         .send({
           email: 'user1@gmail.com',
@@ -246,23 +235,23 @@ describe('Auth (e2e)', () => {
         });
       const refreshTokenCookie = response.headers['set-cookie'][0];
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/access-token')
         .set('Cookie', refreshTokenCookie)
         .expect(200);
     });
 
     it('No refresh token', async () => {
-      await request(app.getHttpServer()).post('/auth/access-token').expect(401);
+      await request(test.getServer()).post('/auth/access-token').expect(401);
     });
 
     it('No refresh token', async () => {
-      await request(app.getHttpServer()).post('/auth/access-token').expect(401);
+      await request(test.getServer()).post('/auth/access-token').expect(401);
     });
 
     it('Using an already used refresh token - but ok', async () => {
       // 로그인
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .post('/auth/local')
         .send({
           email: 'user1@gmail.com',
@@ -270,13 +259,13 @@ describe('Auth (e2e)', () => {
         });
       const refreshTokenCookie = response.headers['set-cookie'][0];
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/access-token')
         .set('Cookie', refreshTokenCookie)
         .expect(200);
 
       // 다시 사용
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/auth/access-token')
         .set('Cookie', refreshTokenCookie)
         .expect(200);
@@ -286,7 +275,7 @@ describe('Auth (e2e)', () => {
   describe('DELETE /auth', () => {
     it('Success with cookie', async () => {
       // 로그인
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .post('/auth/local')
         .send({
           email: 'user1@gmail.com',
@@ -294,14 +283,14 @@ describe('Auth (e2e)', () => {
         });
       const refreshTokenCookie = response.headers['set-cookie'][0];
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete('/auth')
         .set('Cookie', refreshTokenCookie)
         .expect(201);
     });
 
     it('Success with no cookie', async () => {
-      await request(app.getHttpServer()).delete('/auth').expect(201);
+      await request(test.getServer()).delete('/auth').expect(201);
     });
 
     it('Delete last login time', async () => {
@@ -310,11 +299,11 @@ describe('Auth (e2e)', () => {
         pw: 'aa12341234**',
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .post('/auth/local')
         .send(loginDto);
 
-      const loginUser = await prismaSetting.getPrisma().user.findFirst({
+      const loginUser = await test.get(PrismaProvider).user.findFirst({
         where: {
           email: loginDto.email,
         },
@@ -327,12 +316,12 @@ describe('Auth (e2e)', () => {
 
       const refreshTokenCookie = response.headers['set-cookie'][0];
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete('/auth')
         .set('Cookie', refreshTokenCookie)
         .expect(201);
 
-      const logoutUser = await prismaSetting.getPrisma().user.findFirst({
+      const logoutUser = await test.get(PrismaProvider).user.findFirst({
         where: {
           email: loginDto.email,
         },

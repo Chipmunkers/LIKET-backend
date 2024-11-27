@@ -4,14 +4,18 @@ import {
   ExecutionContext,
   HttpException,
 } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { InvalidLoginJwtException } from './exception/InvalidLoginJwtException';
 import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-payload';
 import { Response } from 'express';
+import { PrismaProvider } from 'libs/modules';
 
+/**
+ * @author jochongs
+ */
 @Injectable()
 export class LoginAuthGuard implements CanActivate {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaProvider) {}
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse<Response>();

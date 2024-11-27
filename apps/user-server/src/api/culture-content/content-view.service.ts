@@ -25,7 +25,7 @@ export class ContentViewService {
   public static readonly UPDATE_TIME = 2 * 1000;
 
   /**
-   * 조회수 쿨타임
+   * 조회수 쿨타임. 첫 조회 이후 해당 쿨타임 만큼 시간이 지나지 않으면 조회수 카운트가 이루어지지 않음
    *
    * @author jochongs
    *

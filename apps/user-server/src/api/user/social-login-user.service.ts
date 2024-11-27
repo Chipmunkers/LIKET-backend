@@ -18,6 +18,8 @@ export class SocialLoginUserService {
 
   /**
    * 소셜사 제공 id로 사용자 찾기
+   *
+   * @author jochongs
    */
   public async getUserBySocialId(
     socialUser: SocialLoginUser,
@@ -41,6 +43,8 @@ export class SocialLoginUserService {
 
   /**
    * 소셜 사용자 회원가입하기
+   *
+   * @author jochongs
    */
   public async signUpSocialUser(socialUser: SocialLoginUser) {
     return await this.userRepository.insertUser({

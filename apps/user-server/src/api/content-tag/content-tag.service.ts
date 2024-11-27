@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { TagEntity } from './entity/tag.entity';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
@@ -7,14 +6,12 @@ import { ContentTagRepository } from './content-tag.repository';
 
 @Injectable()
 export class ContentTagService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly contentTagRepository: ContentTagRepository,
-    @Logger(ContentTagService.name) private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly contentTagRepository: ContentTagRepository) {}
 
   /**
    * 장르 목록 가져오기
+   *
+   * @author jochongs
    */
   public async getGenreAll(): Promise<{
     tagList: TagEntity[];
@@ -28,6 +25,8 @@ export class ContentTagService {
 
   /**
    * 연령대 목록 가져오기
+   *
+   * @author jochongs
    */
   public async getAgeAll(): Promise<{
     tagList: TagEntity[];
@@ -41,6 +40,8 @@ export class ContentTagService {
 
   /**
    * 스타일 목록 가져오기
+   *
+   * @author jochongs
    */
   public async getStyleAll(): Promise<{
     tagList: TagEntity[];

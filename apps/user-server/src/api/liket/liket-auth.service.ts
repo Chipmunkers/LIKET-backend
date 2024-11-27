@@ -15,7 +15,10 @@ export class LiketAuthService {
     private readonly reviewRepository: ReviewRepository,
   ) {}
 
-  async checkCreatePermission(reviewIdx: number, userIdx: number) {
+  /**
+   * @author wherehows
+   */
+  public async checkCreatePermission(reviewIdx: number, userIdx: number) {
     const review = await this.reviewRepository.selectReviewByIdx(reviewIdx);
 
     const liket = await this.liketRepository.selectLiketByReviewIdx(reviewIdx);
@@ -35,7 +38,10 @@ export class LiketAuthService {
     return;
   }
 
-  async checkDeletePermission(loginUser: LoginUser, liketIdx: number) {
+  /**
+   * @author wherehows
+   */
+  public async checkDeletePermission(loginUser: LoginUser, liketIdx: number) {
     const liket = await this.liketRepository.selectLiketByIdx(liketIdx);
 
     if (!liket) {
@@ -49,7 +55,13 @@ export class LiketAuthService {
     return;
   }
 
-  checkReadAllPermissions(pageable: LiketPageableDto, loginUser: LoginUser) {
+  /**
+   * @author wherehows
+   */
+  public checkReadAllPermissions(
+    pageable: LiketPageableDto,
+    loginUser: LoginUser,
+  ) {
     if (pageable.user !== loginUser.idx) {
       throw new PermissionDeniedException();
     }
@@ -57,7 +69,10 @@ export class LiketAuthService {
     return;
   }
 
-  async checkUpdatePermission(loginUser: LoginUser, liketIdx: number) {
+  /**
+   * @author wherehows
+   */
+  public async checkUpdatePermission(loginUser: LoginUser, liketIdx: number) {
     const liket = await this.liketRepository.selectLiketByIdx(liketIdx);
 
     if (!liket) {

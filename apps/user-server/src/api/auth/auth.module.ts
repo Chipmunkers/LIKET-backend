@@ -1,5 +1,4 @@
-import { Global, Module } from '@nestjs/common';
-import { PrismaModule } from '../../common/module/prisma/prisma.module';
+import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { HashModule } from '../../common/module/hash/hash.module';
@@ -21,7 +20,6 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     HashModule,
-    PrismaModule,
     UserModule,
     LoginJwtModule,
     SocialLoginJwtModule,

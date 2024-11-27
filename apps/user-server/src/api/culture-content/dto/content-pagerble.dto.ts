@@ -13,6 +13,9 @@ import {
 import { Transform, Type } from 'class-transformer';
 import { ToBoolean } from '../../../common/decorator/to-boolean.decorator';
 
+/**
+ * @author jochongs
+ */
 export class ContentPagerbleDto extends PickType(PagerbleDto, [
   'page',
   'order',

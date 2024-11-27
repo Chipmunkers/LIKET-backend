@@ -8,6 +8,9 @@ import {
 import { PickType } from '@nestjs/swagger';
 import { ReviewEntity } from '../entity/review.entity';
 
+/**
+ * @author jochongs
+ */
 export class CreateReviewDto extends PickType(ReviewEntity, [
   'visitTime',
   'description',

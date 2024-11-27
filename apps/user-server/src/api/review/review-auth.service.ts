@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
@@ -7,12 +6,16 @@ import { PermissionDeniedException } from '../../common/exception/PermissionDeni
 import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { LoginUser } from '../auth/model/login-user';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ReviewAuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
-  checkReadAllPermisison: (
+  /**
+   * @author jochongs
+   */
+  public checkReadAllPermisison: (
     pagerlbe: ReviewPagerbleDto,
     loginUser?: LoginUser,
   ) => Promise<void> = async (pagerble, loginUser) => {
@@ -53,7 +56,10 @@ export class ReviewAuthService {
     return;
   };
 
-  checkWritePermission: (
+  /**
+   * @author jochongs
+   */
+  public checkWritePermission: (
     loginUser: LoginUser,
     contentIdx: number,
     createDto: CreateReviewDto,
@@ -61,7 +67,10 @@ export class ReviewAuthService {
     return;
   };
 
-  checkUpdatePermission: (
+  /**
+   * @author jochongs
+   */
+  public checkUpdatePermission: (
     loginUser: LoginUser,
     reviewIdx: number,
     updateDto: UpdateReviewDto,
@@ -90,7 +99,10 @@ export class ReviewAuthService {
     return;
   };
 
-  checkDeletePermission: (
+  /**
+   * @author jochongs
+   */
+  public checkDeletePermission: (
     loginUser: LoginUser,
     reviewIdx: number,
   ) => Promise<void> = async (loginUser, reviewIdx) => {

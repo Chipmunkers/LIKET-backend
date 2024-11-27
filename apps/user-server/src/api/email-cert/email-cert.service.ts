@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { IEmailCertService } from './interface/IEmailCertService';
 import { EmailCertType } from './model/email-cert-type';
 import { EmailerService } from '../../common/module/emailer/emailer.service';
@@ -20,6 +19,9 @@ export class EmailCertService implements IEmailCertService {
     @Logger(EmailCertService.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public async sendCertCode(
     toEmail: string,
     type: EmailCertType,
@@ -39,6 +41,9 @@ export class EmailCertService implements IEmailCertService {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   private generateRandomCode() {
     const randomCode = Math.floor(Math.random() * 10 ** 6)
       .toString()
@@ -50,6 +55,9 @@ export class EmailCertService implements IEmailCertService {
     return randomCode;
   }
 
+  /**
+   * @author jochongs
+   */
   async checkCertCode(
     email: string,
     code: string,
@@ -87,12 +95,18 @@ export class EmailCertService implements IEmailCertService {
     return await this.createEmailJwt(email, type);
   }
 
+  /**
+   * @author jochongs
+   */
   private generateTimeLimit(min: number) {
     const threeMinuteAgo = new Date();
     threeMinuteAgo.setMinutes(threeMinuteAgo.getMinutes() - min);
     return threeMinuteAgo;
   }
 
+  /**
+   * @author jochongs
+   */
   private async createEmailJwt(
     email: string,
     type: EmailCertType,

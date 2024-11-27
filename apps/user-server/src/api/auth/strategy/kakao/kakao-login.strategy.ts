@@ -30,6 +30,9 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
     this.REDIRECT_URL = this.configService.get('kakaoLogin').redirectUrl;
   }
 
+  /**
+   * @author jochongs
+   */
   public async login(socialLoginUser: SocialLoginUser) {
     const user = await this.socialLoginUserService.getUserBySocialId(
       socialLoginUser,
@@ -48,6 +51,9 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
     };
   }
 
+  /**
+   * @author jochongs
+   */
   public async getSocialLoginUser(req: Request) {
     const callbackResponseDto = KakaoCallbackResponseDto.createDto(req);
 
@@ -58,6 +64,9 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
     return await this.getUserInfoFromAccessToken(accessToken);
   }
 
+  /**
+   * @author jochongs
+   */
   public getRedirectURL() {
     // prettier-ignore
     return (
@@ -68,10 +77,16 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
     );
   }
 
+  /**
+   * @author jochongs
+   */
   public getSignUpRedirectUrl() {
     return '/signup/social';
   }
 
+  /**
+   * @author jochongs
+   */
   public async getSocialLoginUserForApp(
     req: Request,
   ): Promise<SocialLoginUser> {
@@ -80,6 +95,9 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
     return await this.getUserInfoFromAccessToken(accessToken);
   }
 
+  /**
+   * @author jochongs
+   */
   private async getUserInfoFromAccessToken(
     accessToken: string,
   ): Promise<SocialLoginUser> {
@@ -112,12 +130,18 @@ export class KakaoLoginStrategy implements ISocialLoginStrategy {
     }
   }
 
+  /**
+   * @author jochongs
+   */
   private getGenderFromString(gender?: string): Gender | undefined {
     if (!gender) return;
 
     return gender === 'male' ? Gender.MALE : Gender.FEMALE;
   }
 
+  /**
+   * @author jochongs
+   */
   private async getAccessTokenFromCode(code: string): Promise<string> {
     try {
       this.logger.log(
