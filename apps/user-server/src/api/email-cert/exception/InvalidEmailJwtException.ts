@@ -1,5 +1,8 @@
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 
+/**
+ * @author jochongs
+ */
 export class InvalidEmailJwtException extends UnauthorizedException {
   constructor(message: string) {
     super(message);

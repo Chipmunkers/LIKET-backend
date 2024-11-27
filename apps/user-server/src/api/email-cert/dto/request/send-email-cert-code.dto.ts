@@ -1,6 +1,9 @@
 import { IsEmail, IsEnum } from 'class-validator';
 import { EmailCertType } from '../../model/email-cert-type';
 
+/**
+ * @author jochongs
+ */
 export class SendEmailCertCodeDto {
   /**
    * 인증번호를 발송할 이메일

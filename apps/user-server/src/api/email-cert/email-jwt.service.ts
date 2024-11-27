@@ -12,6 +12,10 @@ export class EmailJwtService {
   ) {}
 
   /**
+   * 이메일 토큰을 검증하여 이메일을 리턴하는 메서드
+   *
+   * @author jochongs
+   *
    * @returns 이메일
    */
   public async verify(jwt: string, type: EmailCertType): Promise<string> {

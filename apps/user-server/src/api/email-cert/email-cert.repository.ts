@@ -13,6 +13,9 @@ export class EmailCertRepository {
     @Logger(EmailCertRepository.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public selectEmailCertCodeByEmail(dao: SelectEmailCertCodeDao) {
     this.logger.log(
       this.selectEmailCertCodeByEmail,
@@ -29,6 +32,9 @@ export class EmailCertRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public insertEmailCertCode(dao: InsertEmailCertCodeDao) {
     this.logger.log(this.insertEmailCertCode, 'INSERT email cert code');
     return this.prisma.emailCertCode.create({
@@ -40,6 +46,9 @@ export class EmailCertRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public deleteEmailCertCodeByEmail(dao: DeleteEmailCertCodeDao) {
     this.logger.log(
       this.deleteEmailCertCodeByEmail,

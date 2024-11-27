@@ -1,5 +1,8 @@
 import { EmailCertType } from '../model/email-cert-type';
 
+/**
+ * @author jochongs
+ */
 export interface IEmailCertService {
   sendCertCode: (toEmail: string, type: EmailCertType) => Promise<void>;
 
