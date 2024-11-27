@@ -8,6 +8,9 @@ import { PrismaProvider } from 'libs/modules';
 export class LiketRepository {
   constructor(private readonly prisma: PrismaProvider) {}
 
+  /**
+   * @author wherehows
+   */
   public async insertLiket(reviewIdx: number, insertDto: CreateLiketDto) {
     return await this.prisma.liket.create({
       include: {
@@ -47,6 +50,9 @@ export class LiketRepository {
     });
   }
 
+  /**
+   * @author wherehows
+   */
   public async updateLiketByIdx(idx: number, updateDto: UpdateLiketDto) {
     return this.prisma.liket.update({
       where: {
@@ -80,6 +86,9 @@ export class LiketRepository {
     });
   }
 
+  /**
+   * @author wherehows
+   */
   public async deleteLiketByIdx(idx: number) {
     return this.prisma.liket.update({
       where: { idx },
@@ -89,6 +98,9 @@ export class LiketRepository {
     });
   }
 
+  /**
+   * @author wherehows
+   */
   public async selectLiketByIdx(idx: number) {
     return await this.prisma.liket.findUnique({
       include: {
@@ -115,6 +127,9 @@ export class LiketRepository {
     });
   }
 
+  /**
+   * @author wherehows
+   */
   public async selectLiketAll(pageable: LiketPageableDto) {
     const liketList = await this.prisma.liket.findMany({
       include: {
@@ -144,6 +159,9 @@ export class LiketRepository {
     return liketList;
   }
 
+  /**
+   * @author wherehows
+   */
   public async selectLiketByReviewIdx(reviewIdx: number) {
     return await this.prisma.liket.findFirst({
       where: {

@@ -1,5 +1,8 @@
 import { IsInt, IsNumber, Max, Min } from 'class-validator';
 
+/**
+ * @author wherehows
+ */
 export class ImgShapeEntity {
   /**
    * 여러 이미지나 스티커가 존재할 때 특정 이미지나 스티커를 이동 + 삭제 시키기 위해 구분하는 필드

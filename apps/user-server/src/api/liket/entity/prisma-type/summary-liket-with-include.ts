@@ -10,6 +10,9 @@ const summaryLiketWithInclude = Prisma.validator<Prisma.LiketDefaultArgs>()({
   },
 });
 
+/**
+ * @author wherehows
+ */
 export type SummaryLiketWithInclude = Prisma.LiketGetPayload<
   typeof summaryLiketWithInclude
 >;

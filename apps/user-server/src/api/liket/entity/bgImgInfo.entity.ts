@@ -1,5 +1,8 @@
 import { IsNumber, Max, Min } from 'class-validator';
 
+/**
+ * @author wherehows
+ */
 export class BgImgInfoEntity {
   /**
    * 각도

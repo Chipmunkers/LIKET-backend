@@ -2,6 +2,9 @@ import { PickType } from '@nestjs/swagger';
 import { LiketEntity } from './liket.entity';
 import { SummaryLiketWithInclude } from './prisma-type/summary-liket-with-include';
 
+/**
+ * @author wherehows
+ */
 export class SummaryLiketEntity extends PickType(LiketEntity, [
   'idx',
   'cardImgPath',
