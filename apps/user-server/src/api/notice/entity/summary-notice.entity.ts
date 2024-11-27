@@ -2,6 +2,9 @@ import { PickType } from '@nestjs/swagger';
 import { NoticeEntity } from './notice.entity';
 import { Notice } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 export class SummaryNoticeEntity extends PickType(NoticeEntity, [
   'idx',
   'title',
