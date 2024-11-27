@@ -12,6 +12,9 @@ const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()(
   },
 );
 
+/**
+ * @author jochongs
+ */
 export type ContentWithInclude = Prisma.CultureContentGetPayload<
   typeof ContentWithInclude
 >;

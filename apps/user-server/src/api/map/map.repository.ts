@@ -9,6 +9,16 @@ import { PrismaProvider } from 'libs/modules';
 export class MapRepository {
   constructor(private readonly prisma: PrismaProvider) {}
 
+  /**
+   * 클러스터링 레벨에 따라 활성화된 컨텐츠 개수를 가져오는 메서드
+   * 첫 번째 파라미터로 입력받은 범위 내로 검색되며 레벨의 의미는 다음과 같다.
+   *
+   * 레벨 1: 시/도 로 클러스터링
+   * 레벨 2: 시/군/구 로 클러스터링
+   * 레벨 3: 읍/면/동 으로 클러스터링
+   *
+   * @author jochongs
+   */
   public async getContentCountFromMapLevel(
     pagerbleDto: MapPagerbleDto,
     clusteringLevel: 1 | 2 | 3,
@@ -97,6 +107,11 @@ export class MapRepository {
     );
   }
 
+  /**
+   * 범위 내에 모든 컨텐츠를 가져오는 메서드
+   *
+   * @author jochongs
+   */
   public async getContentAllFromMap(
     pagerbleDto: MapContentPagerbleDto,
     loginUser?: LoginUser,

@@ -7,6 +7,9 @@ import {
   IsOptional,
 } from 'class-validator';
 
+/**
+ * @author jochongs
+ */
 export class MapPagerbleDto {
   /**
    * 좌측 상단 x 좌표

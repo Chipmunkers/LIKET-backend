@@ -16,6 +16,8 @@ export class MapController {
 
   /**
    * 클러스터링해서 데이터 가져오기
+   *
+   * @author jochongs
    */
   @Get('/culture-content/clustered/all')
   @Exception(400, 'Invalid querystring')
@@ -31,6 +33,8 @@ export class MapController {
 
   /**
    * 클러스터링 없이 데이터 가져오기
+   *
+   * @author jochongs
    */
   @Get('/culture-content/all')
   @Exception(400, 'Invalid querystring')
