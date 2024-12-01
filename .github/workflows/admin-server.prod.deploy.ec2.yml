@@ -7,7 +7,7 @@ on:
     paths:
       - apps/admin-server/**
       - libs/**
-      - .github/workflows/admin-server.prod.deploy.yml
+      - .github/workflows/admin-server.prod.deploy.ec2.yml
       - '!apps/admin-server/test/**'
       - '!apps/admin-server/README.md'
 
@@ -40,7 +40,7 @@ jobs:
             ECR_REPOSITORY: ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}
             IMAGE_TAG: latest
           run: |
-            docker build -f ./dev-deploy/Dockerfile -t admin-api-server .
+            docker build -f apps/admin-server/Dockerfile -t admin-api-server .
             docker tag admin-api-server:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
   
