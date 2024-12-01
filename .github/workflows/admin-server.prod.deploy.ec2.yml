@@ -7,7 +7,7 @@ on:
     paths:
       - apps/admin-server/**
       - libs/**
-      - .github/workflows/admin-server.prod.deploy.yml
+      - .github/workflows/admin-server.prod.deploy.ec2.yml
       - '!apps/admin-server/test/**'
       - '!apps/admin-server/README.md'
 
