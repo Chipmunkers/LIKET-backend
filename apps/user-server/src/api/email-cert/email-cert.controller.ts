@@ -13,6 +13,8 @@ export class EmailCertController {
 
   /**
    * 이메일 인증번호 발송하기
+   *
+   * @author jochongs
    */
   @Post('/send')
   @Exception(400, 'Invalid body')
@@ -24,6 +26,8 @@ export class EmailCertController {
 
   /**
    * 이메일 인증번호 확인하기
+   *
+   * @author jochongs
    */
   @Post('/check')
   @Exception(400, 'Invalid body')

@@ -1,18 +1,8 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaSetting } from '../../setup/prisma.setup';
-import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
-import { AppModule } from '../../../../src/app.module';
 import * as request from 'supertest';
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
-import { AppGlobalSetting } from '../../setup/app-global.setup';
+import { TestHelper } from '../../setup/test.helper';
 
 describe('Liket (e2e)', () => {
-  let app: INestApplication;
-  let appModule: TestingModule;
-  const prismaSetting = PrismaSetting.setup();
-
-  let loginUsers: TestLoginUsers;
+  const test = TestHelper.create();
 
   const liketSeeds = [
     {
@@ -71,7 +61,7 @@ describe('Liket (e2e)', () => {
 
   beforeAll(async () => {
     for (const liket of liketSeeds) {
-      await prismaSetting.getPrisma().liket.upsert({
+      await test.getPrisma().liket.upsert({
         where: {
           idx: liket.idx,
         },
@@ -97,7 +87,7 @@ describe('Liket (e2e)', () => {
     }
 
     for (const imgShape of liketImgShapeSeeds) {
-      await prismaSetting.getPrisma().liketImgShape.upsert({
+      await test.getPrisma().liketImgShape.upsert({
         where: {
           idx: imgShape.liketIdx,
         },
@@ -113,32 +103,18 @@ describe('Liket (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prismaSetting.BEGIN();
-
-    appModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(PrismaService)
-      .useValue(prismaSetting.getPrisma())
-      .compile();
-    app = appModule.createNestApplication();
-    AppGlobalSetting.setup(app);
-    await app.init();
-
-    loginUsers = await LoginSetting.setup(loginUsers, app);
+    await test.init();
   });
 
   afterEach(async () => {
-    prismaSetting.ROLLBACK();
-    await appModule.close();
-    await app.close();
+    await test.destroy();
   });
 
   describe('GET /liket/:idx', () => {
     it('Success - no token', async () => {
       const liketIdx = 1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get(`/liket/${liketIdx}`)
         .expect(200);
 
@@ -148,9 +124,9 @@ describe('Liket (e2e)', () => {
 
     it('Success - login', async () => {
       const liketIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get(`/liket/${liketIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
@@ -161,21 +137,21 @@ describe('Liket (e2e)', () => {
 
     it('Non-existent liket', async () => {
       const liketIdx = 999999;
-      await request(app.getHttpServer()).get(`/liket/${liketIdx}`).expect(404);
+      await request(test.getServer()).get(`/liket/${liketIdx}`).expect(404);
     });
 
     it('Invalid path parameter', async () => {
       const liketIdx = 'invalid';
-      await request(app.getHttpServer()).get(`/liket/${liketIdx}`).expect(400);
+      await request(test.getServer()).get(`/liket/${liketIdx}`).expect(400);
     });
   });
 
   describe('POST /review/:idx/liket', () => {
     it('Success', async () => {
       const reviewIdx = 2;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(successLiketData)
@@ -184,11 +160,11 @@ describe('Liket (e2e)', () => {
 
     it('Success - without textShape', async () => {
       const reviewIdx = 2;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
       const { textShape, ...liketDataWithoutTextShape } = successLiketData;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(liketDataWithoutTextShape) // text shape field can be undefined
@@ -198,7 +174,7 @@ describe('Liket (e2e)', () => {
     it('No token', async () => {
       const reviewIdx = 2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${null}`)
         .send(successLiketData)
@@ -207,10 +183,10 @@ describe('Liket (e2e)', () => {
 
     it('Invalid dto - ImgShapes', async () => {
       const reviewIdx = 2;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const { imgShapes, ...liketDataWithoutImgShapes } = successLiketData;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -219,7 +195,7 @@ describe('Liket (e2e)', () => {
         })
         .expect(400);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -239,9 +215,9 @@ describe('Liket (e2e)', () => {
 
     it('Invalid dto - textShape', async () => {
       const reviewIdx = 2;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -250,7 +226,7 @@ describe('Liket (e2e)', () => {
         })
         .expect(400);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -267,10 +243,10 @@ describe('Liket (e2e)', () => {
 
     it('Invalid dto - bgImgInfo', async () => {
       const reviewIdx = 2;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
       const { bgImgInfo, ...liketDataWithoutBgImgInfo } = successLiketData;
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -278,7 +254,7 @@ describe('Liket (e2e)', () => {
         })
         .expect(400);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -287,7 +263,7 @@ describe('Liket (e2e)', () => {
         })
         .expect(400);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -308,9 +284,9 @@ describe('Liket (e2e)', () => {
 
     it('Invalid dto - size', async () => {
       const reviewIdx = 2;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -322,9 +298,9 @@ describe('Liket (e2e)', () => {
 
     it('Invalid dto - description', async () => {
       const reviewIdx = 2;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -336,9 +312,9 @@ describe('Liket (e2e)', () => {
 
     it('Non-existent review', async () => {
       const reviewIdx = 99999;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(successLiketData)
@@ -347,9 +323,9 @@ describe('Liket (e2e)', () => {
 
     it('Invalid path parameter', async () => {
       const reivewIdx = 'invalid';
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reivewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(successLiketData)
@@ -358,9 +334,9 @@ describe('Liket (e2e)', () => {
 
     it('Attempt to create liket for review written by other user', async () => {
       const reviewIdx = 2;
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(successLiketData)
@@ -369,15 +345,15 @@ describe('Liket (e2e)', () => {
 
     it('Attempt to create liket in a situation that a liket for review already exist', async () => {
       const reviewIdx = 2;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(successLiketData)
         .expect(200);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(successLiketData)
@@ -386,14 +362,14 @@ describe('Liket (e2e)', () => {
 
     it('Attempt to create liket for deleted review', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(successLiketData)
@@ -403,9 +379,9 @@ describe('Liket (e2e)', () => {
 
   describe('GET /liket/all', () => {
     it('Success', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/liket/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
@@ -419,8 +395,8 @@ describe('Liket (e2e)', () => {
     });
 
     it('Attempt to see liket list created by other user', async () => {
-      const loginUser = loginUsers.user2;
-      await request(app.getHttpServer())
+      const loginUser = test.getLoginUsers().user2;
+      await request(test.getServer())
         .get('/liket/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
@@ -435,9 +411,9 @@ describe('Liket (e2e)', () => {
   describe('DELETE /liket/:idx', () => {
     it('Success', async () => {
       const liketIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/liket/${liketIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
@@ -445,9 +421,9 @@ describe('Liket (e2e)', () => {
 
     it('Attempt to delete liket created by other user', async () => {
       const liketIdx = 1;
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/liket/${liketIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
@@ -455,9 +431,9 @@ describe('Liket (e2e)', () => {
 
     it('Non-existent liket', async () => {
       const liketIdx = 9999999;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/liket/${liketIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
@@ -465,9 +441,9 @@ describe('Liket (e2e)', () => {
 
     it('Invalid path parameter', async () => {
       const liketIdx = 'invalid';
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/liket/${liketIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(400);

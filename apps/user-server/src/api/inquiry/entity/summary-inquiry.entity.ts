@@ -14,6 +14,9 @@ const InquiryWithInclude = Prisma.validator<Prisma.InquiryDefaultArgs>()({
 
 type InquiryWithInclude = Prisma.InquiryGetPayload<typeof InquiryWithInclude>;
 
+/**
+ * @author jochongs
+ */
 export class SummaryInquiryEntity extends PickType(InquiryEntity, [
   'idx',
   'title',

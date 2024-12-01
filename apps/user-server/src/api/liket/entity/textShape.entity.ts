@@ -1,5 +1,8 @@
 import { IsNumber, IsString, Length, Matches } from 'class-validator';
 
+/**
+ * @author wherehows
+ */
 export class TextShapeEntity {
   /**
    * 6 자리 또는 3 자리 기반의 Hex 컬러 코드

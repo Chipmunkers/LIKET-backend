@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export class ClusteredEntity {
   /**
    * 법정동 코드

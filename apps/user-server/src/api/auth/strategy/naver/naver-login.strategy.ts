@@ -35,6 +35,9 @@ export class NaverLoginStrategy implements ISocialLoginStrategy {
     this.CLIENT_SECRET = configService.get('naverLogin').clientSecret;
   }
 
+  /**
+   * @author jochongs
+   */
   public async login(socialLoginUser: SocialLoginUser): Promise<LoginToken> {
     const user = await this.socialLoginUserService.getUserBySocialId(
       socialLoginUser,
@@ -53,6 +56,9 @@ export class NaverLoginStrategy implements ISocialLoginStrategy {
     };
   }
 
+  /**
+   * @author jochongs
+   */
   public async getSocialLoginUser(req: Request): Promise<SocialLoginUser> {
     const callbackResponseDto = NaverCallbackResponseDto.createDto(req);
 
@@ -63,6 +69,9 @@ export class NaverLoginStrategy implements ISocialLoginStrategy {
     return await this.getUserInfoFromAccessToken(accessToken);
   }
 
+  /**
+   * @author jochongs
+   */
   public getRedirectURL() {
     const state = this.utilService.getUUID();
 
@@ -76,16 +85,25 @@ export class NaverLoginStrategy implements ISocialLoginStrategy {
     );
   }
 
+  /**
+   * @author jochongs
+   */
   public getSignUpRedirectUrl(): string {
     return '/signup/social';
   }
 
+  /**
+   * @author jochongs
+   */
   public async getSocialLoginUserForApp(
     req: Request,
   ): Promise<SocialLoginUser> {
     throw new Error('아직 구현되지 않았습니다.');
   }
 
+  /**
+   * @author jochongs
+   */
   private async getAccessTokenFromCode(code: string): Promise<string> {
     try {
       this.logger.log(
@@ -120,6 +138,9 @@ export class NaverLoginStrategy implements ISocialLoginStrategy {
     }
   }
 
+  /**
+   * @author jochongs
+   */
   private async getUserInfoFromAccessToken(
     accessToken: string,
   ): Promise<SocialLoginUser> {
@@ -144,6 +165,9 @@ export class NaverLoginStrategy implements ISocialLoginStrategy {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   private getGender(gender: 'F' | 'M' | 'U') {
     return gender === 'U'
       ? undefined

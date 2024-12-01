@@ -10,6 +10,8 @@ export class ContentTagController {
 
   /**
    * 스타일 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/style/all')
   @HttpCode(200)
@@ -19,6 +21,8 @@ export class ContentTagController {
 
   /**
    * 연령대 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/age/all')
   @HttpCode(200)
@@ -28,6 +32,8 @@ export class ContentTagController {
 
   /**
    * 장르 목록 보기
+   *
+   * @author jochongs
    */
   @Get('/genre/all')
   @HttpCode(200)

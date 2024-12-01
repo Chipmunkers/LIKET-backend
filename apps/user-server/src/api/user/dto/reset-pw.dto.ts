@@ -1,7 +1,8 @@
-import { PickType } from '@nestjs/swagger';
-import { SignUpDto } from './sign-up.dto';
 import { Matches } from 'class-validator';
 
+/**
+ * @author jochongs
+ */
 export class ResetPwDto {
   /**
    * 현재 비밀번호

@@ -23,6 +23,8 @@ export class UploadService {
 
   /**
    * Upload a file and save the uploaded file information in database
+   *
+   * @author jochongs
    */
   public async uploadFileToS3(
     file: Express.Multer.File,
@@ -39,6 +41,8 @@ export class UploadService {
 
   /**
    * Upload files and svae upload files informations in database
+   *
+   * @author jochongs
    */
   public async uploadFilesToS3(
     files: Express.Multer.File[],
@@ -60,6 +64,8 @@ export class UploadService {
 
   /**
    * Extract file extension from file name
+   *
+   * @author jochongs
    */
   private extractFileExt(fileName: string): string {
     return fileName.split('.')[fileName.split('.').length - 1];
@@ -67,6 +73,8 @@ export class UploadService {
 
   /**
    * Upload file to S3
+   *
+   * @author jochongs
    */
   private async uploadToS3(
     file: Express.Multer.File,

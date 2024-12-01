@@ -1,5 +1,8 @@
 import { Prisma } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 const genreWithContent = Prisma.validator<Prisma.GenreDefaultArgs>()({
   include: {
     CultureContent: {
@@ -10,4 +13,7 @@ const genreWithContent = Prisma.validator<Prisma.GenreDefaultArgs>()({
   },
 });
 
+/**
+ * @author jochongs
+ */
 export type GenreWithContent = Prisma.GenreGetPayload<typeof genreWithContent>;

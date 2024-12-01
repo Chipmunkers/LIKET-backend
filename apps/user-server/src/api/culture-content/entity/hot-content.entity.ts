@@ -3,6 +3,9 @@ import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { ContentEntity } from './content.entity';
 import { GenreWithContent } from './prisma-type/genre-with-content';
 
+/**
+ * @author jochongs
+ */
 class HotCultureContent extends PickType(ContentEntity, [
   'idx',
   'title',
@@ -11,6 +14,9 @@ class HotCultureContent extends PickType(ContentEntity, [
   'thumbnail',
 ]) {}
 
+/**
+ * @author jochongs
+ */
 export class HotCultureContentEntity extends PickType(TagEntity, [
   'idx',
   'name',

@@ -1,48 +1,24 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../../../src/app.module';
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import * as request from 'supertest';
 import { CreateContentRequestDto } from '../../../../src/api/culture-content/dto/create-content-request.dto';
 import invalidCreateContentRequest from './invalid-create-content-request';
-import { PrismaSetting } from '../../setup/prisma.setup';
-import { AppGlobalSetting } from '../../setup/app-global.setup';
-import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
+import { TestHelper } from '../../setup/test.helper';
 
 describe('Culture Content (e2e)', () => {
-  let app: INestApplication;
-  let appModule: TestingModule;
-  const prismaSetting = PrismaSetting.setup();
-
-  let loginUsers: TestLoginUsers;
+  const test = TestHelper.create();
 
   beforeEach(async () => {
-    await prismaSetting.BEGIN();
-
-    appModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(PrismaService)
-      .useValue(prismaSetting.getPrisma())
-      .compile();
-    app = appModule.createNestApplication();
-    AppGlobalSetting.setup(app);
-    await app.init();
-
-    loginUsers = await LoginSetting.setup(loginUsers, app);
+    await test.init();
   });
 
   afterEach(async () => {
-    prismaSetting.ROLLBACK();
-    await appModule.close();
-    await app.close();
+    await test.destroy();
   });
 
   describe('GET /culture-content/all', () => {
     it('Success: all content with token', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
@@ -55,9 +31,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success: get my contents', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           user: 1,
@@ -70,9 +46,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success: get my not accepted contents', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -86,9 +62,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success: genre filter', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
@@ -102,9 +78,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success: age filter', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
@@ -119,9 +95,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success: style filter', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
@@ -137,9 +113,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success: region filter', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
@@ -156,9 +132,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success: open filter', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
@@ -176,9 +152,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success: orderby', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
@@ -197,15 +173,13 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('No token', async () => {
-      await request(app.getHttpServer())
-        .get('/culture-content/all')
-        .expect(200);
+      await request(test.getServer()).get('/culture-content/all').expect(200);
     });
 
     it('Filter other user', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
@@ -216,9 +190,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Filter other user', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           user: 2,
@@ -228,9 +202,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Filter not accepted contents with other user', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -241,9 +215,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Valid DTO - 1', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
@@ -263,9 +237,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Valid DTO - 2', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -285,9 +259,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - accept', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: 'invalid', // Invalid
@@ -307,9 +281,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - accept', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: 0, // Invalid
@@ -329,9 +303,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - user', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -351,9 +325,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - genre', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -373,9 +347,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - age', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -395,9 +369,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - style', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -417,9 +391,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - open', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -439,9 +413,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - orderby', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -461,9 +435,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - search', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -483,9 +457,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - page', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -505,9 +479,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Invalid DTO - order', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
@@ -529,7 +503,7 @@ describe('Culture Content (e2e)', () => {
 
   describe('GET /culture-content/soon-open/all', () => {
     it('Success with no token', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/soon-open/all')
         .expect(200);
 
@@ -538,9 +512,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success with token', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/soon-open/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
@@ -552,7 +526,7 @@ describe('Culture Content (e2e)', () => {
 
   describe('GET /culture-content/soon-end/all', () => {
     it('Success with no token', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/soon-end/all')
         .expect(200);
 
@@ -561,9 +535,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success with token', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/soon-end/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
@@ -575,7 +549,7 @@ describe('Culture Content (e2e)', () => {
 
   describe('GET /culture-content/all', () => {
     it('Success with no token', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/hot/all')
         .expect(200);
 
@@ -587,9 +561,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success with token', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/hot/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
@@ -604,7 +578,7 @@ describe('Culture Content (e2e)', () => {
 
   describe('GET /culture-content/hot-age/all', () => {
     it('Success with no token', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/hot-age/all')
         .expect(200);
 
@@ -613,9 +587,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success with token', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/hot-age/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
@@ -627,7 +601,7 @@ describe('Culture Content (e2e)', () => {
 
   describe('GET /culture-content/hot-style/all', () => {
     it('Success with no token', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/hot-style/all')
         .expect(200);
 
@@ -636,9 +610,9 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success with token', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/culture-content/hot-style/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
@@ -651,9 +625,9 @@ describe('Culture Content (e2e)', () => {
   describe('POST /culture-content/:idx/like', () => {
     it("Success - like author's content", async () => {
       const idx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
@@ -661,9 +635,9 @@ describe('Culture Content (e2e)', () => {
 
     it('Success - like for content user do not own', async () => {
       const idx = 1;
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
@@ -671,9 +645,9 @@ describe('Culture Content (e2e)', () => {
 
     it('Success - like not accepted content', async () => {
       const idx = 2;
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
@@ -681,14 +655,14 @@ describe('Culture Content (e2e)', () => {
 
     it('Duplicate like', async () => {
       const idx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
@@ -696,20 +670,20 @@ describe('Culture Content (e2e)', () => {
 
     it('Duplicate like, like the other user', async () => {
       const idx = 1;
-      const loginUser = loginUsers.user1;
-      const otherLoginUserToken = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user1;
+      const otherLoginUserToken = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${otherLoginUserToken.accessToken}`)
         .expect(201);
@@ -719,7 +693,7 @@ describe('Culture Content (e2e)', () => {
       const idx = 1; // Non-existent content idx
 
       // 좋아요 취소하기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .expect(401);
     });
@@ -728,16 +702,16 @@ describe('Culture Content (e2e)', () => {
   describe('DELETE /culture-content/:idx/like', () => {
     it("Success - author's content", async () => {
       const idx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
       // 좋아요 누르기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 취소하기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
@@ -745,16 +719,16 @@ describe('Culture Content (e2e)', () => {
 
     it('Success - Non-author cancels like', async () => {
       const idx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
       // 좋아요 누르기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 취소하기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
@@ -762,10 +736,10 @@ describe('Culture Content (e2e)', () => {
 
     it('Cancel like (already unliked)', async () => {
       const idx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
       // 좋아요 취소하기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
@@ -773,22 +747,22 @@ describe('Culture Content (e2e)', () => {
 
     it('Success - like again', async () => {
       const idx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
       // 좋아요 누르기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 취소하기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 누르기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
@@ -796,10 +770,10 @@ describe('Culture Content (e2e)', () => {
 
     it('Cancel like non-existent content', async () => {
       const idx = 99999; // Non-existent content idx
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
       // 좋아요 취소하기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
@@ -807,10 +781,10 @@ describe('Culture Content (e2e)', () => {
 
     it('Invalid path parameter', async () => {
       const idx = 'invalidPathParameter'; // Non-existent content idx
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
       // 좋아요 취소하기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/${idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(400);
@@ -820,7 +794,7 @@ describe('Culture Content (e2e)', () => {
       const idx = 1;
 
       // 좋아요 취소하기
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/${idx}/like`)
         // No token
         .expect(401);
@@ -855,9 +829,9 @@ describe('Culture Content (e2e)', () => {
         isParking: true,
         isPet: true,
       };
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .post('/culture-content/request')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
@@ -894,17 +868,17 @@ describe('Culture Content (e2e)', () => {
         isPet: true,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/culture-content/request')
         .send(createDto)
         .expect(401);
     });
 
     it('Invalid dto', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
       for (const dto of invalidCreateContentRequest()) {
-        await request(app.getHttpServer())
+        await request(test.getServer())
           .post('/culture-content/request')
           .set('Authorization', `Bearer ${loginUser.accessToken}`)
           .send(dto)
@@ -941,10 +915,10 @@ describe('Culture Content (e2e)', () => {
         isParking: true,
         isPet: true,
       };
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const idx = 2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
@@ -978,10 +952,10 @@ describe('Culture Content (e2e)', () => {
         isParking: true,
         isPet: true,
       };
-      const loginUser = loginUsers.user2; // Non author
+      const loginUser = test.getLoginUsers().user2; // Non author
       const idx = 2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
@@ -1015,10 +989,10 @@ describe('Culture Content (e2e)', () => {
         isParking: true,
         isPet: true,
       };
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const idx = 9999; // Non-existent content
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
@@ -1052,10 +1026,10 @@ describe('Culture Content (e2e)', () => {
         isParking: true,
         isPet: true,
       };
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const idx = 1; // Accepted content
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
@@ -1065,30 +1039,30 @@ describe('Culture Content (e2e)', () => {
 
   describe('DELETE /culture-content/request/:idx', () => {
     it('Success', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const idx = 2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Non author delete content', async () => {
-      const loginUser = loginUsers.user2; // Non author
+      const loginUser = test.getLoginUsers().user2; // Non author
       const idx = 2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
     });
 
     it('Delete non-existent content', async () => {
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
       const idx = 9999; // Non-existent content
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
@@ -1097,27 +1071,27 @@ describe('Culture Content (e2e)', () => {
     it('No token', async () => {
       const idx = 2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${null}`)
         .expect(401);
     });
 
     it('Accepted content', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const idx = 1; // Accepted content
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });
 
     it('Invalid path parameter', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const idx = 'invalid idx'; // Invalid path parameter
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(400);

@@ -1,5 +1,8 @@
 import { IsEmail, Length } from 'class-validator';
 
+/**
+ * @author jochongs
+ */
 export class LoginDto {
   /**
    * 이메일

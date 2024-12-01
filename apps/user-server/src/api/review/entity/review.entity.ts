@@ -12,6 +12,9 @@ import {
   Length,
 } from 'class-validator';
 
+/**
+ * @author jochongs
+ */
 class ReviewContent extends PickType(ContentEntity, [
   'idx',
   'title',
@@ -20,6 +23,9 @@ class ReviewContent extends PickType(ContentEntity, [
   'thumbnail',
 ] as const) {}
 
+/**
+ * @author jochongs
+ */
 export class ReviewEntity {
   /**
    * 리뷰 인덱스

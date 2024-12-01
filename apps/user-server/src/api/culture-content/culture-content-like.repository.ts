@@ -1,17 +1,20 @@
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { Injectable } from '@nestjs/common';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class CultureContentLikeRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(CultureContentLikeRepository.name)
     private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public selectCultureContentLike(userIdx: number, contentIdx: number) {
     this.logger.log(
       this.selectCultureContentLike,
@@ -27,6 +30,9 @@ export class CultureContentLikeRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public increaseCultureContentLike(userIdx: number, contentIdx: number) {
     this.logger.log(
       this.increaseCultureContentLike,
@@ -52,6 +58,9 @@ export class CultureContentLikeRepository {
     ]);
   }
 
+  /**
+   * @author jochongs
+   */
   public decreaseCultureContentLike(userIdx: number, contentIdx: number) {
     this.logger.log(
       this.decreaseCultureContentLike,
@@ -79,6 +88,9 @@ export class CultureContentLikeRepository {
     ]);
   }
 
+  /**
+   * @author jochongs
+   */
   public selectLikeContentAll(
     userIdx: number,
     pagerble: LikeContentPagerbleDto,

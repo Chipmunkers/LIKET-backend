@@ -12,6 +12,8 @@ export class TosController {
 
   /**
    * 약관 목록보기
+   *
+   * @author jochongs
    */
   @Get('/all')
   async getUserTosAll(): Promise<GetTosAllResponseDto> {
@@ -24,6 +26,8 @@ export class TosController {
 
   /**
    * 약관 자세히보기
+   *
+   * @author jochongs
    */
   @Get('/:idx')
   @Exception(400, 'Invalid path parameter')

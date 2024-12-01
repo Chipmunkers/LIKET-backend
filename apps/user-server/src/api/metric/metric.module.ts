@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MetricController } from './metric.controller';
-import { PrismaModule } from '../../common/module/prisma/prisma.module';
+import { PrismaModule } from 'libs/modules';
 
 @Module({
   imports: [PrismaModule],

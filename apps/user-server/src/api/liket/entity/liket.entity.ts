@@ -36,6 +36,9 @@ class LiketContentEntity extends PickType(ContentEntity, [
   'genre',
 ]) {}
 
+/**
+ * @author wherehows
+ */
 export class LiketEntity {
   /**
    * 라이켓 인덱스

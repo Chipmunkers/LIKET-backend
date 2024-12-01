@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export class CheckEmailCertCodeResponseDto {
   /**
    * 이메일 정보를 담고있는 jwt

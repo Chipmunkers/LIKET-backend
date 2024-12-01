@@ -1,17 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { PagerbleDto } from '../../common/dto/pagerble.dto';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { InsertInquiryDao } from './dao/insert-inquiry.dao';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class InquiryRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(InquiryRepository.name) private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * @author jochongs
+   */
   public selectInquiryByUserIdx(userIdx: number, dao: PagerbleDto) {
     this.logger.log(
       this.selectInquiryByUserIdx,
@@ -48,6 +51,11 @@ export class InquiryRepository {
   }
 
   /**
+   * 더 이상, 개수를 세어 반환하지 않습니다. 따라서 deprecated 되었습니다.
+   * 사용하지 마십시오.
+   *
+   * @author jochongs
+   *
    * @deprecated
    */
   public selectInquiryCountByUserIdx(userIdx: number) {
@@ -60,6 +68,9 @@ export class InquiryRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public selectInquiryByIdx(idx: number) {
     this.logger.log(
       this.selectInquiryByIdx,
@@ -90,6 +101,9 @@ export class InquiryRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public insertInquiry(dao: InsertInquiryDao) {
     this.logger.log(this.insertInquiry, 'INSERT inquiry');
     return this.prisma.inquiry.create({
@@ -109,6 +123,9 @@ export class InquiryRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public deleteInquiryByIdx(idx: number) {
     this.logger.log(
       this.deleteInquiryByIdx,

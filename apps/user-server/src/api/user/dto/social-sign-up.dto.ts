@@ -2,6 +2,9 @@ import { PickType } from '@nestjs/swagger';
 import { SignUpDto } from './sign-up.dto';
 import { IsJWT, IsString } from 'class-validator';
 
+/**
+ * @author jochongs
+ */
 export class SocialSignUpDto extends PickType(SignUpDto, [
   'birth',
   'gender',

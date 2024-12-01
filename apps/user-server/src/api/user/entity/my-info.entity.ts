@@ -10,6 +10,9 @@ class MyLiket extends PickType(SummaryLiketEntity, [
   'author',
 ] as const) {}
 
+/**
+ * @author jochongs
+ */
 export class MyInfoEntity extends PickType(UserEntity, [
   'idx',
   'profileImgPath',

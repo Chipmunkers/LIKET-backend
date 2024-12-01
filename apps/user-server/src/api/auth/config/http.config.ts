@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export default () => ({
   http: {
     timeout: process.env.HTTP_TIMEOUT,

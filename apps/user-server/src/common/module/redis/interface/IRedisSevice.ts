@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export interface IRedisService {
   get: (key: string) => Promise<string | null>;
 

@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export class UpdateReviewDao {
   starRating: number;
   description: string;

@@ -1,44 +1,20 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../../../src/app.module';
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import * as request from 'supertest';
-import { PrismaSetting } from '../../setup/prisma.setup';
-import { AppGlobalSetting } from '../../setup/app-global.setup';
-import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
+import { TestHelper } from '../../setup/test.helper';
 
 describe('Review (e2e)', () => {
-  let app: INestApplication;
-  let appModule: TestingModule;
-  const prismaSetting = PrismaSetting.setup();
-
-  let loginUsers: TestLoginUsers;
+  const test = TestHelper.create();
 
   beforeEach(async () => {
-    await prismaSetting.BEGIN();
-
-    appModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(PrismaService)
-      .useValue(prismaSetting.getPrisma())
-      .compile();
-    app = appModule.createNestApplication();
-    AppGlobalSetting.setup(app);
-    await app.init();
-
-    loginUsers = await LoginSetting.setup(loginUsers, app);
+    await test.init();
   });
 
   afterEach(async () => {
-    prismaSetting.ROLLBACK();
-    await appModule.close();
-    await app.close();
+    await test.destroy();
   });
 
   describe('GET /review/all', () => {
     it('Success', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/review/all')
         .query({
           content: 1,
@@ -53,9 +29,9 @@ describe('Review (e2e)', () => {
     });
 
     it('Attempt to get reviews of other user', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/review/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
@@ -65,10 +41,10 @@ describe('Review (e2e)', () => {
     });
 
     it('Non-existent content', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const contentIdx = 99999; // Non-existent content
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/review/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
@@ -78,10 +54,10 @@ describe('Review (e2e)', () => {
     });
 
     it('Non-accepted content | author', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
       const contentIdx = 2;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/review/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
@@ -94,10 +70,10 @@ describe('Review (e2e)', () => {
     });
 
     it('Non-accepted content | author', async () => {
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
       const contentIdx = 2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/review/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
@@ -107,7 +83,7 @@ describe('Review (e2e)', () => {
     });
 
     it('Invalid dto - content', async () => {
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/review/all')
         .query({
           content: 'invalid', // Invalid content
@@ -119,7 +95,7 @@ describe('Review (e2e)', () => {
     });
 
     it('Invalid dto - user', async () => {
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/review/all')
         .query({
           content: 1,
@@ -132,7 +108,7 @@ describe('Review (e2e)', () => {
     });
 
     it('Invalid dto - orderby', async () => {
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get('/review/all')
         .query({
           content: 1,
@@ -148,7 +124,7 @@ describe('Review (e2e)', () => {
     it('Success - no token', async () => {
       const reviewIdx = 1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get(`/review/${reviewIdx}`)
         .expect(200);
 
@@ -157,9 +133,9 @@ describe('Review (e2e)', () => {
 
     it('Success - login', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
@@ -169,9 +145,9 @@ describe('Review (e2e)', () => {
 
     it('Non-existent review', async () => {
       const reviewIdx = 999999; // Non-existent review
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .get(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
@@ -180,7 +156,7 @@ describe('Review (e2e)', () => {
 
   describe('GET /review/hot/all', () => {
     it('Success - no token', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/review/hot/all')
         .expect(200);
 
@@ -189,9 +165,9 @@ describe('Review (e2e)', () => {
     });
 
     it('Success - login', async () => {
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(test.getServer())
         .get('/review/hot/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
@@ -204,9 +180,9 @@ describe('Review (e2e)', () => {
   describe('POST /culture-content/:idx/review', () => {
     it('Success', async () => {
       const contentIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${contentIdx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -221,7 +197,7 @@ describe('Review (e2e)', () => {
     it('No token', async () => {
       const contentIdx = 1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${contentIdx}/review`)
         .set('Authorization', `Bearer ${null}`)
         .send({
@@ -235,9 +211,9 @@ describe('Review (e2e)', () => {
 
     it('Non-existent content', async () => {
       const contentIdx = 99999; // Non-existent content
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${contentIdx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -251,9 +227,9 @@ describe('Review (e2e)', () => {
 
     it('Non-accepted content', async () => {
       const contentIdx = 2; // Non-existent content
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${contentIdx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -267,9 +243,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid path parameter', async () => {
       const contentIdx = 'invalid'; // Invalid path parameter
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${contentIdx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -283,9 +259,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid DTO - starRating', async () => {
       const contentIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${contentIdx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -299,9 +275,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid DTO - description', async () => {
       const contentIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${contentIdx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -315,9 +291,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid DTO - visit time', async () => {
       const contentIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${contentIdx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -331,9 +307,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid DTO - img list', async () => {
       const contentIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/culture-content/${contentIdx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -349,9 +325,9 @@ describe('Review (e2e)', () => {
   describe('PUT /review/:idx', () => {
     it('Success', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -365,9 +341,9 @@ describe('Review (e2e)', () => {
 
     it('Non-existent review', async () => {
       const reviewIdx = 9999; // Non-existent review
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -381,9 +357,9 @@ describe('Review (e2e)', () => {
 
     it('Attempt to update review of other user', async () => {
       const reviewIdx = 1; // Non-existent review
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -397,9 +373,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid path parameter', async () => {
       const contentIdx = 'invalid'; // Invalid path parameter
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/review/${contentIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -413,9 +389,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid DTO - starRating', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -429,9 +405,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid DTO - description', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -445,9 +421,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid DTO - visit time', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -461,9 +437,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid DTO - img list', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .put(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
@@ -479,9 +455,9 @@ describe('Review (e2e)', () => {
   describe('DELETE /review/:idx', () => {
     it('Success', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
@@ -490,7 +466,7 @@ describe('Review (e2e)', () => {
     it('No token', async () => {
       const reviewIdx = 'invalid'; // Invalid path parameter
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${null}`)
         .expect(401);
@@ -498,9 +474,9 @@ describe('Review (e2e)', () => {
 
     it('Non-existent review', async () => {
       const reviewIdx = 9999; // Non-existent review
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
@@ -508,9 +484,9 @@ describe('Review (e2e)', () => {
 
     it('Attempt to delete review of other user', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
@@ -518,9 +494,9 @@ describe('Review (e2e)', () => {
 
     it('Invalid path parameter', async () => {
       const reviewIdx = 'invalid'; // Invalid path parameter
-      const loginUser = loginUsers.user2;
+      const loginUser = test.getLoginUsers().user2;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/review/${reviewIdx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(400);
@@ -530,9 +506,9 @@ describe('Review (e2e)', () => {
   describe('POST /review/:idx/like', () => {
     it('Success', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
@@ -540,14 +516,14 @@ describe('Review (e2e)', () => {
 
     it('Duplicate like', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
@@ -556,7 +532,7 @@ describe('Review (e2e)', () => {
     it('No token', async () => {
       const reviewIdx = 1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/like`)
         .set('Authorization', `Bearer ${null}`)
         .expect(401);
@@ -564,9 +540,9 @@ describe('Review (e2e)', () => {
 
     it('Like non-existent review', async () => {
       const reviewIdx = 9999; // Non-existent review
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
@@ -576,14 +552,14 @@ describe('Review (e2e)', () => {
   describe('DELETE /review/:idx/like', () => {
     it('Success', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post(`/review/${reviewIdx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/review/${reviewIdx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
@@ -591,9 +567,9 @@ describe('Review (e2e)', () => {
 
     it('Cancel like (already unliked)', async () => {
       const reviewIdx = 1;
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/review/${reviewIdx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
@@ -601,9 +577,9 @@ describe('Review (e2e)', () => {
 
     it('Non-existent review', async () => {
       const reviewIdx = 999999; // Non-existent
-      const loginUser = loginUsers.user1;
+      const loginUser = test.getLoginUsers().user1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/review/${reviewIdx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
@@ -612,7 +588,7 @@ describe('Review (e2e)', () => {
     it('No token', async () => {
       const reviewIdx = 1;
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .delete(`/review/${reviewIdx}/like`)
         .set('Authorization', `Bearer ${null}`)
         .expect(401);

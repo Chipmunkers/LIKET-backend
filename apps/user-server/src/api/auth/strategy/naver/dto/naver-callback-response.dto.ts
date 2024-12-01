@@ -1,6 +1,9 @@
 import { Request } from 'express';
 import { InternalServerErrorException } from '@nestjs/common';
 
+/**
+ * @author jochongs
+ */
 export class NaverCallbackResponseDto {
   code: string;
   state: string;

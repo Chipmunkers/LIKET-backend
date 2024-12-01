@@ -2,6 +2,9 @@ import { PickType } from '@nestjs/swagger';
 import { Location } from '@prisma/client';
 import { LocationEntity } from './location.entity';
 
+/**
+ * @author jochongs
+ */
 export class SummaryLocationEntity extends PickType(LocationEntity, [
   'region1Depth',
   'region2Depth',

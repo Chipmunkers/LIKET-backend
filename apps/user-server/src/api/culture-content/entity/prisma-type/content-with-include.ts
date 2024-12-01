@@ -1,5 +1,8 @@
 import { Prisma } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()(
   {
     include: {
@@ -23,6 +26,9 @@ const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()(
   },
 );
 
+/**
+ * @author jochongs
+ */
 export type CotnentWithInclude = Prisma.CultureContentGetPayload<
   typeof ContentWithInclude
 >;

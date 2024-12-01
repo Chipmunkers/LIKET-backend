@@ -11,4 +11,7 @@ const userWithInclude = Prisma.validator<Prisma.UserDefaultArgs>()({
   },
 });
 
+/**
+ * @author jochongs
+ */
 export type UserWithInclude = Prisma.UserGetPayload<typeof userWithInclude>;

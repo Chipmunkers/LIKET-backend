@@ -1,4 +1,3 @@
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { Injectable } from '@nestjs/common';
@@ -6,15 +5,22 @@ import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { Prisma } from '@prisma/client';
 import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class CultureContentRepository {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaProvider,
     @Logger(CultureContentRepository.name)
     private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * 컨텐츠 자세히보는 메서드.
+   * 삭제된 컨텐츠는 절대 가져오지 않음.
+   *
+   * @author jochongs
+   */
   public selectCultureContentByIdx(idx: number, userIdx?: number) {
     this.logger.log(
       this.selectCultureContentByIdx,
@@ -68,6 +74,12 @@ export class CultureContentRepository {
     });
   }
 
+  /**
+   * 컨텐츠 목록을 보는 메서드.
+   * 삭제된 컨텐츠는 절대 가져오지 않음.
+   *
+   * @author jochongs
+   */
   public selectCultureContentAll(
     pagerble: ContentPagerbleDto,
     userIdx?: number,
@@ -159,6 +171,11 @@ export class CultureContentRepository {
     });
   }
 
+  /**
+   * 정렬 순서 필터링을 리턴하는 메서드
+   *
+   * @author jochongs
+   */
   private getOrderBy(
     orderby: 'time' | 'like' | 'create',
   ): 'acceptedAt' | 'likeCount' | 'idx' {
@@ -173,6 +190,12 @@ export class CultureContentRepository {
     return 'idx';
   }
 
+  /**
+   * 곧 오픈 예정인 컨텐츠 목록을 가져오는 메서드
+   * `getSoonOpenContentAll`서비스 메서드만을 위한 메서드로 관리되어야 함.
+   *
+   * @author jochongs
+   */
   public selectSoonOpenCultureContentAll(userIdx?: number) {
     this.logger.log(
       this.selectSoonOpenCultureContentAll,
@@ -231,6 +254,12 @@ export class CultureContentRepository {
     });
   }
 
+  /**
+   * 곧 종료 예정인 컨텐츠 목록을 가져오는 메서드
+   * `getSoonEndContentAll`서비스 메서드만을 위한 메서드로 관리되어야 함.
+   *
+   * @author jochongs
+   */
   public selectSoonEndCultureContentAll(userIdx?: number) {
     this.logger.log(
       this.selectSoonEndCultureContentAll,
@@ -289,6 +318,12 @@ export class CultureContentRepository {
     });
   }
 
+  /**
+   * 장르를 기준으로 활성화된 컨텐츠 중 좋아요가 가장 많은 순서대로 보는 메서드
+   * `getHotContentAll`서비스 메서드만을 위한 메서드로 관리되어야 함.
+   *
+   * @author jochongs
+   */
   public selectHotCultureContentAll() {
     this.logger.log(
       this.selectHotCultureContentAll,
@@ -342,6 +377,12 @@ export class CultureContentRepository {
     });
   }
 
+  /**
+   * 특정 연령대의 좋아요가 많은 순서대로 컨텐츠 목록을 가져오는 메서드
+   * `getHotContentByAge`서비스 메서드만을 위한 메서드로 관리되어야 함.
+   *
+   * @author jochongs
+   */
   public selectHotCultureContentByAgeIdx(ageIdx: number, userIdx?: number) {
     this.logger.log(
       this.selectHotCultureContentByAgeIdx,
@@ -401,6 +442,12 @@ export class CultureContentRepository {
     });
   }
 
+  /**
+   * 특정 스타일을 가지고 있는 컨텐츠 목록을 좋아요 순으로 가져오는 메서드
+   * 인기 스타일의 정의가 자주 바뀌기 때문에 메서드 여러 개에서 공용으로 사용된다는 것을 주의.
+   *
+   * @author jochongs
+   */
   public selectHotCultureContentByStyleIdx(styleIdx: number, userIdx?: number) {
     this.logger.log(
       this.selectHotCultureContentByStyleIdx,
@@ -466,6 +513,9 @@ export class CultureContentRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public insertCultureContent(
     userIdx: number,
     createDto: CreateContentRequestDto,
@@ -528,6 +578,9 @@ export class CultureContentRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public updateCultureContentByIdx(idx: number, updateDto: UpdateContentDto) {
     this.logger.log(
       this.updateCultureContentByIdx,
@@ -608,6 +661,9 @@ export class CultureContentRepository {
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public deleteContentRequest(idx: number) {
     this.logger.log(
       this.deleteContentRequest,

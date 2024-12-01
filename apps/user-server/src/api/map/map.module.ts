@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../common/module/prisma/prisma.module';
 import { MapService } from './map.service';
 import { MapRepository } from './map.repository';
 import { MapController } from './map.controller';
+import { PrismaModule } from 'libs/modules';
 
 @Module({
   imports: [PrismaModule],

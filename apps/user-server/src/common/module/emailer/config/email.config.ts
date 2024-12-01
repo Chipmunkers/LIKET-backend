@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export default () => ({
   email: {
     transport: {

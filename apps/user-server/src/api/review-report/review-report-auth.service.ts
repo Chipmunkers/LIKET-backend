@@ -8,6 +8,9 @@ import { PermissionDeniedException } from '../../common/exception/PermissionDeni
 export class ReviewReportAuthService {
   constructor(private readonly reviewRepository: ReviewRepository) {}
 
+  /**
+   * @author jochongs
+   */
   public async checkWritePermission(
     idx: number,
     reportDto: ReportReviewDto,

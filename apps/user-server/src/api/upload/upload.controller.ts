@@ -28,6 +28,8 @@ export class UploadController {
 
   /**
    * 프로필 이미지 업로드하기
+   *
+   * @author jochongs
    */
   @Post('/profile-img')
   @HttpCode(200)
@@ -46,6 +48,8 @@ export class UploadController {
 
   /**
    * 문화생활컨텐츠 사진 업로드하기
+   *
+   * @author jochongs
    */
   @Post('/content-img')
   @HttpCode(200)
@@ -71,6 +75,8 @@ export class UploadController {
 
   /**
    * 문의 의미지 입력하기
+   *
+   * @author jochongs
    */
   @Post('/inquiry')
   @HttpCode(200)
@@ -96,6 +102,8 @@ export class UploadController {
 
   /**
    * 리뷰 이미지 업로드하기
+   *
+   * @author jochongs
    */
   @Post('/review')
   @HttpCode(200)
@@ -117,6 +125,8 @@ export class UploadController {
 
   /**
    * 라이켓 배경 이미지 업로드하기
+   *
+   * @author jochongs
    */
   @Post('/liket/bg-img')
   @HttpCode(200)
@@ -135,6 +145,8 @@ export class UploadController {
 
   /**
    * 라이켓 이미지 업로드하기
+   *
+   * @author jochongs
    */
   @Post('/liket')
   @HttpCode(200)

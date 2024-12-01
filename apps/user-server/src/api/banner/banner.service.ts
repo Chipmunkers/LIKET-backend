@@ -14,6 +14,8 @@ export class BannerService {
 
   /**
    * 배너 가져오기
+   *
+   * @author jochongs
    */
   public async getBannerAll(): Promise<BannerEntity[]> {
     const bannerList = await this.bannerRepository.selectBannerAll();

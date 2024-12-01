@@ -7,38 +7,24 @@ import { EmailCertType } from '../../../../src/api/email-cert/model/email-cert-t
 import { MailerService } from '@nestjs-modules/mailer';
 import { PrismaSetting } from '../../setup/prisma.setup';
 import { AppGlobalSetting } from '../../setup/app-global.setup';
+import { TestHelper } from '../../setup/test.helper';
+import { PrismaProvider } from '../../../../../../libs/modules/src';
 
 describe('Email Cert (e2e)', () => {
-  let app: INestApplication;
-  let appModule: TestingModule;
-  const prismaSetting = PrismaSetting.setup();
-
-  let mailerService: MailerService;
+  const test = TestHelper.create();
 
   beforeEach(async () => {
-    await prismaSetting.BEGIN();
-
-    appModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(PrismaService)
-      .useValue(prismaSetting.getPrisma())
-      .compile();
-    app = appModule.createNestApplication();
-    AppGlobalSetting.setup(app);
-    await app.init();
-
-    mailerService = appModule.get(MailerService);
+    await test.init();
   });
 
   afterEach(async () => {
-    prismaSetting.ROLLBACK();
-    await appModule.close();
-    await app.close();
+    await test.destroy();
   });
 
   describe('POST /email-cert/send', () => {
     it('Success', async () => {
+      const mailerService = test.get(MailerService);
+
       jest.spyOn(mailerService, 'sendMail').mockResolvedValue({} as any);
 
       const sendDto = {
@@ -46,13 +32,15 @@ describe('Email Cert (e2e)', () => {
         type: EmailCertType.SIGN_UP,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/email-cert/send')
         .send(sendDto)
         .expect(201);
     });
 
     it('Invalid email', async () => {
+      const mailerService = test.get(MailerService);
+
       jest.spyOn(mailerService, 'sendMail').mockResolvedValue({} as any);
 
       const sendDto = {
@@ -60,13 +48,15 @@ describe('Email Cert (e2e)', () => {
         type: EmailCertType.SIGN_UP,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/email-cert/send')
         .send(sendDto)
         .expect(400);
     });
 
     it('Invalid type', async () => {
+      const mailerService = test.get(MailerService);
+
       jest.spyOn(mailerService, 'sendMail').mockResolvedValue({} as any);
 
       const sendDto = {
@@ -74,13 +64,15 @@ describe('Email Cert (e2e)', () => {
         type: 999, // Invalid type
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/email-cert/send')
         .send(sendDto)
         .expect(400);
     });
 
     it('Error external library', async () => {
+      const mailerService = test.get(MailerService);
+
       jest.spyOn(mailerService, 'sendMail').mockImplementation(async () => {
         throw new Error('Unexpected error occurred');
       });
@@ -90,7 +82,7 @@ describe('Email Cert (e2e)', () => {
         type: EmailCertType.SIGN_UP,
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/email-cert/send')
         .send(sendDto)
         .expect(500);
@@ -107,11 +99,11 @@ describe('Email Cert (e2e)', () => {
         code: correctCode,
       };
 
-      prismaSetting.getPrisma().emailCertCode.findFirst = jest
+      test.get(PrismaProvider).emailCertCode.findFirst = jest
         .fn()
         .mockResolvedValue({ code: correctCode });
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/email-cert/check')
         .send(checkDto)
         .expect(201);
@@ -127,11 +119,11 @@ describe('Email Cert (e2e)', () => {
       };
 
       const correctCode = '123123';
-      prismaSetting.getPrisma().emailCertCode.findFirst = jest
+      test.get(PrismaProvider).emailCertCode.findFirst = jest
         .fn()
         .mockResolvedValue({ code: correctCode });
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/email-cert/check')
         .send(checkDto)
         .expect(404);
@@ -147,7 +139,7 @@ describe('Email Cert (e2e)', () => {
 
       // Expired code
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/email-cert/check')
         .send(checkDto)
         .expect(404);
@@ -161,7 +153,7 @@ describe('Email Cert (e2e)', () => {
         code: '999999',
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/email-cert/check')
         .send(checkDto)
         .expect(400);
@@ -175,13 +167,15 @@ describe('Email Cert (e2e)', () => {
         code: '999999',
       };
 
-      await request(app.getHttpServer())
+      await request(test.getServer())
         .post('/email-cert/check')
         .send(checkDto)
         .expect(400);
     });
 
     it('Send sign up but check wrong type', async () => {
+      const mailerService = test.get(MailerService);
+
       jest.spyOn(mailerService, 'sendMail').mockResolvedValue({} as any);
 
       const correctCode = '123123';
@@ -191,10 +185,10 @@ describe('Email Cert (e2e)', () => {
         type: EmailCertType.SIGN_UP,
       };
 
-      prismaSetting.getPrisma().emailCertCode.create = jest
+      test.get(PrismaProvider).emailCertCode.create = jest
         .fn()
         .mockImplementation(async () => {
-          await prismaSetting.getPrisma().emailCertCode.create({
+          await test.get(PrismaProvider).emailCertCode.create({
             data: {
               type: sendDto.type,
               email: email,
@@ -203,7 +197,7 @@ describe('Email Cert (e2e)', () => {
           });
 
           // 이메일 번호 발송
-          await request(app.getHttpServer())
+          await request(test.getServer())
             .post('/email-cert/send')
             .send(sendDto)
             .expect(201);
@@ -214,7 +208,7 @@ describe('Email Cert (e2e)', () => {
             code: correctCode,
           };
 
-          await request(app.getHttpServer())
+          await request(test.getServer())
             .post('/email-cert/check')
             .send(checkDto)
             .expect(404);

@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export class SignUpResponseDto {
   /**
    * 로그인 액세스 토큰

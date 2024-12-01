@@ -26,6 +26,8 @@ export class ReviewService {
 
   /**
    * 리뷰 목록 보기
+   *
+   * @author jochongs
    */
   public async getReviewAll(
     pagerble: ReviewPagerbleDto,

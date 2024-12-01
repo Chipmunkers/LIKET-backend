@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export enum FILE_GROUPING {
   PROFILE_IMG = 1,
   REVIEW = 2,

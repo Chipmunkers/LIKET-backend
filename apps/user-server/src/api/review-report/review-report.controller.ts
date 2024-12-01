@@ -31,7 +31,6 @@ export class ReviewReportController {
   @Post('/review/:idx/report')
   @HttpCode(201)
   @Exception(400, 'Invalid idx')
-  @Exception(401, 'No token or expired token')
   @Exception(403, 'Permission Denied (report the review of login user)')
   @Exception(404, 'Cannot find review with idx')
   @Exception(409, 'Already reported review by login user')

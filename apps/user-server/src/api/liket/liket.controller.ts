@@ -31,6 +31,8 @@ export class LiketController {
 
   /**
    * 라이켓 목록 보기
+   *
+   * @author wherehows
    */
   @Get('/liket/all')
   @Exception(400, 'Invalid querystring')
@@ -46,6 +48,8 @@ export class LiketController {
 
   /**
    * 라이켓 생성하기
+   *
+   * @author wherehows
    */
   @Post('/review/:idx/liket')
   @Exception(400, 'Invalid body or path')
@@ -65,6 +69,8 @@ export class LiketController {
 
   /**
    * 라이켓 자세히보기
+   *
+   * @author wherehows
    */
   @Get('/liket/:idx')
   @Exception(400, 'Invalid path')
@@ -75,6 +81,8 @@ export class LiketController {
 
   /**
    * 라이켓 수정하기
+   *
+   * @author wherehows
    */
   @Put('/liket/:idx')
   @Exception(400, 'Invalid path or body')
@@ -92,6 +100,8 @@ export class LiketController {
 
   /**
    * 라이켓 삭제하기
+   *
+   * @author wherehows
    */
   @Delete('/liket/:idx')
   @Exception(400, 'Invalid path')

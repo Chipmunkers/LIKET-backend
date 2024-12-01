@@ -1,0 +1,69 @@
+name: '[User-Server] Prod Deploy'
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - apps/user-server/**
+      - libs/**
+      - .github/workflows/user-server.prod.deploy.ec2.yml
+      - '!apps/user-server/test/**'
+      - '!apps/user-server/README.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Build
+        uses: docker/setup-buildx-action@v1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.USER_SERVER_PROD_DEPLOY_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ secrets.USER_SERVER_PROD_DEPLOY_ECR_REGISTRY }}
+          ECR_REPOSITORY: ${{ secrets.USER_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}
+          IMAGE_TAG: latest
+        run: |
+          docker build -f ./dev-deploy/Dockerfile -t user-api-server .
+          docker tag user-api-server:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build 
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to EC2
+        env:
+          HOST: ${{ secrets.COMMON_DEPLOY_EC2_HOST }}
+          KEY: ${{ secrets.COMMON_DEPLOY_EC2_KEY }}
+          USER: ubuntu
+        run: |
+          echo "$KEY" > key.pem
+          chmod 400 key.pem
+          ssh -o StrictHostKeyChecking=no -i key.pem $USER@$HOST << 'EOF'
+            aws ecr get-login-password --region ${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.COMMON_AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_REGION }}.amazonaws.com
+            docker pull ${{ secrets.USER_SERVER_PROD_DEPLOY_ECR_REGISTRY }}/${{ secrets.USER_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}:latest
+            docker stop ${{ secrets.USER_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
+            docker rm ${{ secrets.USER_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
+            
+            docker run -d -p 3000:3000 --name ${{ secrets.USER_SERVER_PROD_DEPLOY_CONTAINER_NAME }} --env-file ${{ secrets.USER_SERVER_PROD_DEPLOY_ENV_PATH }} ${{ secrets.USER_SERVER_PROD_DEPLOY_ECR_REGISTRY }}/${{ secrets.USER_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}:latest
+          EOF

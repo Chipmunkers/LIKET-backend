@@ -1,5 +1,8 @@
 import { Notice } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 export class NoticeEntity {
   /**
    * 공지사항 인덱스

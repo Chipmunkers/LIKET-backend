@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export default () => ({
   kakaoLogin: {
     apiKey: process.env.KAKAO_LOGIN_API_KEY,

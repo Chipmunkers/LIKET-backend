@@ -1,5 +1,8 @@
 import { Tos } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 export class TosEntity {
   /**
    * 약관 인덱스

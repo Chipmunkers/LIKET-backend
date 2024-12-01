@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { CreateLiketDto } from './dto/create-liket.dto';
 import { UpdateLiketDto } from './dto/update-liket.dto';
 import { LiketPageableDto } from './dto/liket-pageable.dto';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class LiketRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
+  /**
+   * @author wherehows
+   */
   public async insertLiket(reviewIdx: number, insertDto: CreateLiketDto) {
     return await this.prisma.liket.create({
       include: {
@@ -47,6 +50,9 @@ export class LiketRepository {
     });
   }
 
+  /**
+   * @author wherehows
+   */
   public async updateLiketByIdx(idx: number, updateDto: UpdateLiketDto) {
     return this.prisma.liket.update({
       where: {
@@ -80,6 +86,9 @@ export class LiketRepository {
     });
   }
 
+  /**
+   * @author wherehows
+   */
   public async deleteLiketByIdx(idx: number) {
     return this.prisma.liket.update({
       where: { idx },
@@ -89,6 +98,9 @@ export class LiketRepository {
     });
   }
 
+  /**
+   * @author wherehows
+   */
   public async selectLiketByIdx(idx: number) {
     return await this.prisma.liket.findUnique({
       include: {
@@ -115,6 +127,9 @@ export class LiketRepository {
     });
   }
 
+  /**
+   * @author wherehows
+   */
   public async selectLiketAll(pageable: LiketPageableDto) {
     const liketList = await this.prisma.liket.findMany({
       include: {
@@ -144,6 +159,9 @@ export class LiketRepository {
     return liketList;
   }
 
+  /**
+   * @author wherehows
+   */
   public async selectLiketByReviewIdx(reviewIdx: number) {
     return await this.prisma.liket.findFirst({
       where: {
