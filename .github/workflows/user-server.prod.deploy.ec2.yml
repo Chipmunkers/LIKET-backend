@@ -60,7 +60,7 @@ jobs:
           echo "$KEY" > key.pem
           chmod 400 key.pem
           ssh -o StrictHostKeyChecking=no -i key.pem $USER@$HOST << 'EOF'
-            aws ecr get-login-password --region ${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+            aws ecr get-login-password --region ${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.COMMON_AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_REGION }}.amazonaws.com
             docker pull ${{ secrets.USER_SERVER_PROD_DEPLOY_ECR_REGISTRY }}/${{ secrets.USER_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}:latest
             docker stop ${{ secrets.USER_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
             docker rm ${{ secrets.USER_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
