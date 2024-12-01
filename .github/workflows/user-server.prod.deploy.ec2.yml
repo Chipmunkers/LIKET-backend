@@ -39,7 +39,7 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.USER_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}
           IMAGE_TAG: latest
         run: |
-          docker build -f ./dev-deploy/Dockerfile -t user-api-server .
+          docker build -f apps/user-server/Dockerfile -t user-api-server .
           docker tag user-api-server:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
