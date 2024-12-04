@@ -19,3 +19,5 @@ export const PERFORM_STATE = {
    */
   COMPLETED: '03',
 } as const;
+
+export type PERFORM_STATE = (typeof PERFORM_STATE)[keyof typeof PERFORM_STATE];

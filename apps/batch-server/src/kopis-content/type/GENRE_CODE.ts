@@ -49,3 +49,5 @@ export const GENRE_CODE = {
    */
   MUSICAL: 'GGGA',
 } as const;
+
+export type GENRE_CODE = (typeof GENRE_CODE)[keyof typeof GENRE_CODE];
