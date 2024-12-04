@@ -7,11 +7,10 @@ async function bootstrap() {
 
   const kopisPerformService = app.get(KopisPerformService);
 
-  await kopisPerformService.getPerformAll({
-    stdate: '20231212',
-    eddate: '20251231',
+  const data = await kopisPerformService.getPerformAll({
     cpage: 1,
     rows: 100,
+    afterdate: '20241204',
   });
 
   await app.listen(3000);
