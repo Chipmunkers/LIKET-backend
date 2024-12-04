@@ -26,8 +26,7 @@ export class KopisPerformService {
     });
 
     const result = await this.httpService.axiosRef.get(
-      `
-        http://www.kopis.or.kr/openApi/restful/pblprfr`,
+      'http://www.kopis.or.kr/openApi/restful/pblprfr',
       {
         params: {
           service: this.KOPIS_SERVICE_KEY,
