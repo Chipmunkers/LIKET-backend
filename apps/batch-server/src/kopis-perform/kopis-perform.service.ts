@@ -19,6 +19,8 @@ export class KopisPerformService {
 
   /**
    * 오늘 업데이트된 데이터 전부 가져오기
+   *
+   * @author jochongs
    */
   public async getSummaryPerformAllUpdatedAfterToday() {
     let page = 1;
@@ -48,6 +50,8 @@ export class KopisPerformService {
    * 공연 정보 전부 가져오기
    *
    * 가장 low level API 요청입니다.
+   *
+   * @author jochongs
    */
   public async getPerformAll(dto: GetPerformAllDto) {
     const result = await this.httpService.axiosRef.get(
