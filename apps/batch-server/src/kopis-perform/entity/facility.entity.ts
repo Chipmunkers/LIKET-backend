@@ -23,7 +23,7 @@ export class FacilityEntity {
    *
    * @example 9
    */
-  mt13cnt: number;
+  mt13cnt: string;
 
   /**
    * 시설특성
@@ -37,28 +37,28 @@ export class FacilityEntity {
    *
    * @example 1986
    */
-  opende: number;
+  opende: string | null;
 
   /**
    * 객석 수
    *
    * @example 32349
    */
-  seatscale: number;
+  seatscale: string;
 
   /**
    * 전화번호
    *
    * @example 02-410-1114
    */
-  telno: string;
+  telno: string | null;
 
   /**
    * 홈페이지
    *
    * @example http://www.olympicpark.co.kr/
    */
-  relateurl: string;
+  relateurl: string | null;
 
   /**
    * 주소
@@ -70,86 +70,86 @@ export class FacilityEntity {
   /**
    * 위도
    *
-   * @example 37.52112
+   * @example "37.52112"
    */
-  la: number;
+  la: string;
 
   /**
    * 경도
    *
-   * @example 127.12836360000005
+   * @example "127.12836360000005"
    */
-  lo: number;
+  lo: string;
 
   /**
    * 레스토랑
    *
    * @example Y
    */
-  restaurant: string;
+  restaurant: 'N' | 'Y';
 
   /**
    * 카페
    *
    * @example Y
    */
-  cafe: string;
+  cafe: 'N' | 'Y';
 
   /**
    * 편의점
    *
    * @example Y
    */
-  store: string;
+  store: 'N' | 'Y';
 
   /**
    * 놀이터
    *
    * @example N
    */
-  nolibang: string;
+  nolibang: 'N' | 'Y';
 
   /**
    * 수유실
    *
    * @example N
    */
-  suyu: string;
+  suyu: 'N' | 'Y';
 
   /**
    * 장애시설 - 주차장
    *
    * @example N
    */
-  parkbarrier: string;
+  parkbarrier: 'N' | 'Y';
 
   /**
    * 장애시설 - 광장
    *
    * @example N
    */
-  restbarrier: string;
+  restbarrier: 'N' | 'Y';
 
   /**
    * 장애시설 - 화장실
    *
    * @example N
    */
-  runbarrier: string;
+  runbarrier: 'N' | 'Y';
 
   /**
    * 장애시설 - 엘리베이터
    *
    * @example N
    */
-  elevbarrier: string;
+  elevbarrier: 'N' | 'Y';
 
   /**
    * 주차시설
    *
    * @example Y
    */
-  parkinglot: string;
+  parkinglot: 'N' | 'Y';
 
   /**
    * 공연장명
@@ -171,48 +171,48 @@ export class FacilityEntity {
      *
      * @example 15,000
      */
-    seatscale2: string;
+    seatscale: string;
 
     /**
      * 무대시설 - 오케스트라피트
      *
      * @example Y/N/Z/0
      */
-    stageorchart: string;
+    stageorchart: 'N' | 'Y';
 
     /**
      * 무대시설 - 연습실
      *
      * @example Y
      */
-    stagepracat: string;
+    stagepracat: 'N' | 'Y';
 
     /**
      * 무대시설 - 방송실
      *
      * @example Y
      */
-    stagedrest: string;
+    stagedrest: 'N' | 'Y';
 
     /**
      * 무대시설 - 예정공장
      *
      * @example N
      */
-    stageoutrdat: string;
+    stageoutrdat: 'N' | 'Y';
 
     /**
      * 장애인시설 - 관객석
      *
      * @example 20
      */
-    disabledseatscale: number;
+    disabledseatscale: string | null;
 
     /**
      * 무대시설 - 무대면적
      *
      * @example 15.8X13.3X8.7
      */
-    stagearea: string;
-  };
+    stagearea: string | null;
+  }[];
 }
