@@ -6,6 +6,7 @@ import { parseStringPromise } from 'xml2js';
 import { GetPerformAllResponseDto } from './dto/response/get-perform-all.dto';
 import { SummaryPerformEntity } from './entity/summary-perform.entity';
 import { GetPerformByIdResponseDto } from './dto/response/get-perform-by-id.dto';
+import { FacilityService } from './kopis.facility.service';
 
 @Injectable()
 export class KopisPerformService {
@@ -15,6 +16,7 @@ export class KopisPerformService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly logger: Logger,
+    private readonly facilityService: FacilityService,
   ) {
     this.KOPIS_SERVICE_KEY = this.configService.get('kopis').key || '';
   }
@@ -34,7 +36,7 @@ export class KopisPerformService {
       const performs = await this.getPerformAll({
         rows: 100,
         cpage: page,
-        afterdate: this.getToday(),
+        afterdate: this.getYesterday(),
       });
 
       const performIdList = summaryPerformList.map((perform) => perform.mt20id);
@@ -60,26 +62,35 @@ export class KopisPerformService {
    *
    * @author jochongs
    */
-  public async getDetailPerformAllUpdatedAfterToday() {
+  public async getDetailPerformAllUpdatedAfterYesterday() {
     const summaryPerformList =
       await this.getSummaryPerformAllUpdatedAfterToday();
 
     return await Promise.all(
-      summaryPerformList.map((summaryPerform) =>
-        this.getPerformById(summaryPerform.mt20id),
-      ),
+      summaryPerformList.map(async (summaryPerform) => {
+        const perform = await this.getPerformById(summaryPerform.mt20id);
+
+        const facility = await this.facilityService.getFacilityByPerform(
+          perform,
+        );
+
+        return {
+          perform,
+          facility,
+        };
+      }),
     );
   }
-
-  public async;
 
   /**
    * 오늘 날짜 데이터를 포맷화해서 가져오기
    *
    * @returns 20241204
    */
-  private getToday() {
+  private getYesterday() {
     const date = new Date();
+
+    date.setHours(date.getHours() - 24);
 
     return `${date.getFullYear().toString()}${(date.getMonth() + 1)
       .toString()
