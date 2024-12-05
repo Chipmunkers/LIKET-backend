@@ -5,6 +5,6 @@
  */
 export default () => ({
   kopis: {
-    key: process.env.KOPIS_SERVICE_KEY,
-  },
+    keys: (process.env.KOPIS_SERVICE_KEY || '').split(' '),
+  } as const,
 });

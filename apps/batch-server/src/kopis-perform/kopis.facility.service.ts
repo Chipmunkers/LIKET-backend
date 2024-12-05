@@ -1,23 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { FacilityEntity } from './entity/facility.entity';
 import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
 import { parseStringPromise } from 'xml2js';
 import { GetFacilityByIdDto } from './dto/response/get-facility-by-id.dto';
 import { PerformEntity } from './entity/perform.entity';
+import { KopisKeyService } from './kopis-key.service';
 
 @Injectable()
 export class FacilityService {
-  private readonly KOPIS_SERVICE_KEY: string;
-  private readonly facilityCacheStore: Record<string, FacilityEntity>;
+  private readonly facilityCacheStore: Record<string, FacilityEntity> = {};
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
     private readonly logger: Logger,
-  ) {
-    this.KOPIS_SERVICE_KEY = this.configService.get('kopis').key || '';
-  }
+    private readonly kopisKeyService: KopisKeyService,
+  ) {}
 
   /**
    * 공연의 공연시설 조회하기
@@ -46,15 +43,11 @@ export class FacilityService {
    * @author jochongs
    */
   private async getDetailFacilityById(id: string) {
-    this.logger.debug(
-      this.getDetailFacilityById.name,
-      'Get facility | id = ' + id,
-    );
     const result = await this.httpService.axiosRef.get(
       `http://www.kopis.or.kr/openApi/restful/prfplc/${id}`,
       {
         params: {
-          service: this.KOPIS_SERVICE_KEY,
+          service: this.kopisKeyService.getKey(),
         },
       },
     );

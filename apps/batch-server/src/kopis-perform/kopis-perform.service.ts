@@ -1,25 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GetPerformAllDto } from './dto/request/get-perform-all.dto';
 import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
 import { parseStringPromise } from 'xml2js';
 import { GetPerformAllResponseDto } from './dto/response/get-perform-all.dto';
 import { SummaryPerformEntity } from './entity/summary-perform.entity';
 import { GetPerformByIdResponseDto } from './dto/response/get-perform-by-id.dto';
 import { FacilityService } from './kopis.facility.service';
+import { KopisKeyService } from './kopis-key.service';
+import { KopisErrorResponseDto } from './dto/response/kopis-error-response.dto';
 
 @Injectable()
 export class KopisPerformService {
-  private readonly KOPIS_SERVICE_KEY: string;
-
   constructor(
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
     private readonly logger: Logger,
+    private readonly KopisKeyService: KopisKeyService,
     private readonly facilityService: FacilityService,
-  ) {
-    this.KOPIS_SERVICE_KEY = this.configService.get('kopis').key || '';
-  }
+  ) {}
 
   /**
    * 오늘 업데이트된 데이터 전부 가져오기 (요약으로 가져옴)
@@ -32,7 +29,7 @@ export class KopisPerformService {
     const summaryPerformList: SummaryPerformEntity[] = [];
 
     while (true) {
-      this.logger.log('HTTP Request. page = ' + page);
+      this.logger.debug('HTTP GET Perform all, page = ' + page);
       const performs = await this.getPerformAll({
         rows: 100,
         cpage: page,
@@ -58,7 +55,11 @@ export class KopisPerformService {
   }
 
   /**
-   * 오늘 업데이트 된 데이터 전부 자세히보기로 가져오기
+   * 어제 이후로 업데이트 된 공연 목록보기
+   * !주의: 공연과 시설 모두 가져옵니다.
+   *
+   * 해당 메서드는 API key 사용 횟수가 빠르게 소모됩니다.
+   * 하루에 한 번 사용하도록 주의하십시오.
    *
    * @author jochongs
    */
@@ -109,15 +110,19 @@ export class KopisPerformService {
       'http://www.kopis.or.kr/openApi/restful/pblprfr',
       {
         params: {
-          service: this.KOPIS_SERVICE_KEY,
+          service: this.KopisKeyService.getKey(),
           ...dto,
         },
       },
     );
 
-    const data = await this.parseXMLtoJSON<GetPerformAllResponseDto>(
-      result.data,
-    );
+    const data = await this.parseXMLtoJSON<
+      GetPerformAllResponseDto | KopisErrorResponseDto
+    >(result.data);
+
+    if (this.isKopisErrorResponse(data)) {
+      throw new Error(JSON.stringify(data));
+    }
 
     return data.dbs.db;
   }
@@ -130,22 +135,32 @@ export class KopisPerformService {
    * @author jochongs
    */
   private async getPerformById(id: string) {
-    this.logger.log(
+    this.logger.debug(
       this.getPerformById.name,
-      'Request Detail Perform | id = ' + id,
+      'HTTP GET Detail Perform | id = ' + id,
     );
+    const SERVICE_KEY = this.KopisKeyService.getKey();
     const result = await this.httpService.axiosRef.get(
       `http://www.kopis.or.kr/openApi/restful/pblprfr/${id}`,
       {
         params: {
-          service: this.KOPIS_SERVICE_KEY,
+          service: SERVICE_KEY,
         },
       },
     );
 
-    const data = await this.parseXMLtoJSON<GetPerformByIdResponseDto>(
-      result.data,
-    );
+    const data = await this.parseXMLtoJSON<
+      GetPerformByIdResponseDto | KopisErrorResponseDto
+    >(result.data);
+
+    if (this.isKopisErrorResponse(data)) {
+      this.logger.error(
+        'Used Service key = ' + SERVICE_KEY,
+        this.getPerformById.name,
+      );
+      this.logger.error(data, this.getPerformById.name);
+      throw new Error(JSON.stringify({ ...data, SERVICE_KEY }));
+    }
 
     return data.dbs.db;
   }
@@ -160,5 +175,21 @@ export class KopisPerformService {
       explicitArray: false,
       emptyTag: () => null,
     });
+  }
+
+  /**
+   * 에러 판별
+   */
+  private isKopisErrorResponse(
+    value:
+      | GetPerformAllResponseDto
+      | KopisErrorResponseDto
+      | GetPerformByIdResponseDto,
+  ): value is KopisErrorResponseDto {
+    const obj = value.dbs.db;
+
+    if ((obj as any).returncode) return true;
+
+    return false;
   }
 }
