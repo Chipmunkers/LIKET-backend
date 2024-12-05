@@ -1,0 +1,42 @@
+import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { SearchAddressResponseDto } from './dto/response/serach-address.dto';
+
+@Injectable()
+export class KakaoAddressService {
+  private readonly KAKAO_APPLICATION_REST_API_KEY: string;
+
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+  ) {
+    this.KAKAO_APPLICATION_REST_API_KEY =
+      this.configService.get('kakaoAddress').key;
+  }
+
+  /**
+   * 주소를 좌표로 변환하는 메서드
+   *
+   * @author jochongs
+   *
+   * @param address 검색할 주소
+   */
+  public async searchAddress(address: string) {
+    const result =
+      await this.httpService.axiosRef.get<SearchAddressResponseDto>(
+        'https://dapi.kakao.com/v2/local/search/address.json',
+        {
+          headers: {
+            Authorization: `KakaoAK ${this.KAKAO_APPLICATION_REST_API_KEY}`,
+          },
+          params: {
+            query: address,
+            analyze_type: 'exact',
+          },
+        },
+      );
+
+    return result.data;
+  }
+}
