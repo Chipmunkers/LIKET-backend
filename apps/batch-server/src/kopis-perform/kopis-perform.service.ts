@@ -71,6 +71,8 @@ export class KopisPerformService {
     );
   }
 
+  public async;
+
   /**
    * 오늘 날짜 데이터를 포맷화해서 가져오기
    *
@@ -102,11 +104,8 @@ export class KopisPerformService {
       },
     );
 
-    const data: GetPerformAllResponseDto = await parseStringPromise(
+    const data = await this.parseXMLtoJSON<GetPerformAllResponseDto>(
       result.data,
-      {
-        explicitArray: false,
-      },
     );
 
     return data.dbs.db;
@@ -133,14 +132,22 @@ export class KopisPerformService {
       },
     );
 
-    const data: GetPerformByIdResponseDto = await parseStringPromise(
+    const data = await this.parseXMLtoJSON<GetPerformByIdResponseDto>(
       result.data,
-      {
-        explicitArray: false,
-        emptyTag: () => null,
-      },
     );
 
     return data.dbs.db;
+  }
+
+  /**
+   * XML 데이터를 JSON 데이로 바꿔주는 메서드
+   *
+   * @author jochongs
+   */
+  private async parseXMLtoJSON<T = any>(value: any): Promise<T> {
+    return await parseStringPromise(value, {
+      explicitArray: false,
+      emptyTag: () => null,
+    });
   }
 }
