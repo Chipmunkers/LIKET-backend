@@ -51,14 +51,14 @@ export class PerformEntity {
    *
    * @example: "김부연, 임정균, 최수영"
    */
-  prfcast: string;
+  prfcast: string | null;
 
   /**
    * 공연제작진
    *
    * @example: "천정민"
    */
-  prfcrew: string;
+  prfcrew: string | null;
 
   /**
    * 공연 런타임
@@ -79,28 +79,28 @@ export class PerformEntity {
    *
    * @example: "극단 피에로"
    */
-  entrpsnmP: string;
+  entrpsnmP: string | null;
 
   /**
    * 기획사
    *
    * @example: "기획사"
    */
-  entrpsnmA: string;
+  entrpsnmA: string | null;
 
   /**
    * 주최
    *
    * @example: "주최"
    */
-  entrpsnmH: string;
+  entrpsnmH: string | null;
 
   /**
    * 주관
    *
    * @example: "주관"
    */
-  entrpsnmS: string;
+  entrpsnmS: string | null;
 
   /**
    * 티켓가격
@@ -121,7 +121,7 @@ export class PerformEntity {
    *
    * @example: "즐거움"
    */
-  sty: string;
+  sty: string | null;
 
   /**
    * 공연장르명
@@ -142,49 +142,49 @@ export class PerformEntity {
    *
    * @example: "N"
    */
-  openrun: string;
+  openrun: 'N' | 'Y';
 
   /**
    * 방문 여부
    *
    * @example: "N"
    */
-  visit: string;
+  visit: 'N' | 'Y';
 
   /**
    * 아동 여부
    *
    * @example: "N"
    */
-  child: string;
+  child: 'N' | 'Y';
 
   /**
    * 대학로 여부
    *
    * @example: "Y"
    */
-  daehakro: string;
+  daehakro: 'N' | 'Y';
 
   /**
    * 축제 여부
    *
    * @example: "N"
    */
-  festival: string;
+  festival: 'N' | 'Y';
 
   /**
    * 뮤지컬 라이선스 여부
    *
    * @example: "N"
    */
-  musicallicense: string;
+  musicallicense: 'N' | 'Y';
 
   /**
    * 뮤지컬 창작 여부
    *
    * @example: "N"
    */
-  musicalcreate: string;
+  musicalcreate: 'N' | 'Y';
 
   /**
    * 최종 수정일
