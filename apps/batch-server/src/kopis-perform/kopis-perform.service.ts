@@ -6,6 +6,7 @@ import { GetPerformAllResponseDto } from './dto/response/get-perform-all.dto';
 import { GetPerformByIdResponseDto } from './dto/response/get-perform-by-id.dto';
 import { KopisKeyService } from './kopis-key.service';
 import { KopisErrorResponseDto } from './dto/response/kopis-error-response.dto';
+import { KopisAPIException } from './exception/KopisAPIException';
 
 @Injectable()
 export class KopisPerformService {
@@ -37,7 +38,7 @@ export class KopisPerformService {
     >(result.data);
 
     if (this.isKopisErrorResponse(data)) {
-      throw new Error(JSON.stringify(data));
+      throw new KopisAPIException('Fail to GET perform list', data);
     }
 
     return data.dbs.db;
@@ -66,7 +67,7 @@ export class KopisPerformService {
     >(result.data);
 
     if (this.isKopisErrorResponse(data)) {
-      throw new Error(JSON.stringify({ ...data, SERVICE_KEY }));
+      throw new KopisAPIException('Fail to GET detail perform', data);
     }
 
     return data.dbs.db;

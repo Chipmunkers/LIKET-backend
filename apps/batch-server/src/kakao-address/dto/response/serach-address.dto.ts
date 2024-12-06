@@ -1,5 +1,5 @@
-import { KakaoAddressEntity } from '../../entity/kakao-address.entity';
-import { KakaoRoadAddressEntity } from '../../entity/kakao-road-address.entity';
+import { KakaoAddressEntity } from '../../entity/address.entity';
+import { KakaoRoadAddressEntity } from '../../entity/road-address.entity';
 
 export class SearchAddressResponseDto {
   /**

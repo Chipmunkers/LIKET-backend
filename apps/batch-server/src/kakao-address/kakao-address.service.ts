@@ -2,6 +2,8 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SearchAddressResponseDto } from './dto/response/serach-address.dto';
+import { AxiosError } from 'axios';
+import { KakaoAddressAPIException } from './exception/KakaoAddressAPIException';
 
 @Injectable()
 export class KakaoAddressService {
@@ -23,20 +25,24 @@ export class KakaoAddressService {
    * @param address 검색할 주소
    */
   public async searchAddress(address: string) {
-    const result =
-      await this.httpService.axiosRef.get<SearchAddressResponseDto>(
-        'https://dapi.kakao.com/v2/local/search/address.json',
-        {
-          headers: {
-            Authorization: `KakaoAK ${this.KAKAO_APPLICATION_REST_API_KEY}`,
+    try {
+      const result =
+        await this.httpService.axiosRef.get<SearchAddressResponseDto>(
+          'https://dapi.kakao.com/v2/local/search/address.json',
+          {
+            headers: {
+              Authorization: `KakaoAK ${this.KAKAO_APPLICATION_REST_API_KEY}`,
+            },
+            params: {
+              query: address,
+              analyze_type: 'exact',
+            },
           },
-          params: {
-            query: address,
-            analyze_type: 'exact',
-          },
-        },
-      );
+        );
 
-    return result.data;
+      return result.data;
+    } catch (err: any) {
+      throw new KakaoAddressAPIException('Fail to GET kakao address', err);
+    }
   }
 }
