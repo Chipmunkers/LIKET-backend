@@ -35,10 +35,17 @@ export class KakaoAddressService {
             },
             params: {
               query: address,
-              analyze_type: 'exact',
             },
           },
         );
+
+      if (result.data.documents.length === 0) {
+        throw new KakaoAddressAPIException('Fail to GET kakao address', {
+          requestContext: {
+            address,
+          },
+        });
+      }
 
       return result.data;
     } catch (err: any) {
