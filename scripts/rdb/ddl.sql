@@ -401,7 +401,7 @@ CREATE TABLE temp_culture_content_tb
   description    varchar                 ,
   website_link   varchar                  NOT NULL,
   start_date     timestamp with time zone NOT NULL,
-  end_date       timestamp with time zone NOT NULL,
+  end_date       timestamp with time zone ,
   open_time      varchar                  NOT NULL,
   is_fee         boolean                  NOT NULL DEFAULT false,
   is_reservation boolean                  NOT NULL DEFAULT false,

@@ -1222,15 +1222,15 @@
           "3zvDAtI6eHowBo_UbHTWh"
         ],
         "ui": {
-          "x": 3845.8496,
-          "y": 2054.7524,
+          "x": 3936.8944,
+          "y": 2083.1106,
           "zIndex": 236,
           "widthName": 127,
           "widthComment": 60,
           "color": "#AB003A"
         },
         "meta": {
-          "updateAt": 1733489715424,
+          "updateAt": 1733489753817,
           "createAt": 1733488122997
         }
       }
@@ -5300,19 +5300,19 @@
         "id": "8ussJx7M6fTJnLMLvFrcT",
         "tableId": "yLaihOqEofuQtskOtJydk",
         "name": "end_date",
-        "comment": "종료 날짜",
+        "comment": "종료 날짜(null이면 openrun)",
         "dataType": "timestamp with time zone",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 60,
-          "widthComment": 60,
+          "widthComment": 147,
           "widthDataType": 147,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1733487280712,
+          "updateAt": 1733490295250,
           "createAt": 1733487280712
         }
       },
@@ -6985,8 +6985,8 @@
           "columnIds": [
             "wtBDLUGdNBAStXO7r_9_n"
           ],
-          "x": 3845.8496,
-          "y": 2130.7524,
+          "x": 3936.8944,
+          "y": 2159.1106,
           "direction": 1
         },
         "meta": {
@@ -7904,8 +7904,8 @@
         "name": 1733487280709,
         "dataType": 1733487280709,
         "default": 1733487280709,
-        "comment": 1733487280709,
-        "options(notNull)": 1733487280709,
+        "comment": 1733490295235,
+        "options(notNull)": 1733490290341,
         "options(unique)": 1733487280709,
         "options(autoIncrement)": 1733487280709
       }
