@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { S3UploadOptions } from './type/S3UploadOptions';
 import { UploadedFileEntity } from './entity/uploaded-file.entity';
 import { Upload } from '@aws-sdk/lib-storage';
+import { S3UploadException } from 'libs/modules/s3/exception/S3UploadException';
 
 @Injectable()
 export class S3Service {
@@ -38,8 +39,6 @@ export class S3Service {
       responseType: 'stream',
     });
 
-    console.log(`${options.path}/${options.filename}`);
-
     try {
       const upload = new Upload({
         client: this.s3Client,
@@ -53,8 +52,6 @@ export class S3Service {
 
       const result = await upload.done();
 
-      console.log(result);
-
       return UploadedFileEntity.create({
         url: result.Location || '',
         name: options.filename,
@@ -62,8 +59,7 @@ export class S3Service {
         path: `/${result.Key}`,
       });
     } catch (err) {
-      console.log(err);
-      throw err;
+      throw new S3UploadException('Fail to Upload file on S3', err);
     }
   }
 
