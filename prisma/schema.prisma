@@ -537,7 +537,7 @@ model TempCultureContent {
   ageIdx           Int?                @map("age_idx")
   performId        String              @unique @map("perform_id") @db.VarChar
   title            String              @db.VarChar
-  description      String              @db.VarChar
+  description      String?             @db.VarChar
   websiteLink      String              @map("website_link") @db.VarChar
   startDate        DateTime            @map("start_date") @db.Timestamptz(6)
   endDate          DateTime?           @map("end_date") @db.Timestamptz(6)
