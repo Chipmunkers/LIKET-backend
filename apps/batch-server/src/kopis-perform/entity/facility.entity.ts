@@ -1,3 +1,5 @@
+import { ArrayOrObject } from '../type/ArrayOrObject';
+
 /**
  * 공연 시설 엔티티
  *
@@ -158,7 +160,7 @@ export class FacilityEntity {
    */
   prfplcnm: string;
 
-  mt13s: {
+  mt13s: ArrayOrObject<{
     /**
      * 공연시설 세부 ID
      *
@@ -214,5 +216,5 @@ export class FacilityEntity {
      * @example 15.8X13.3X8.7
      */
     stagearea: string | null;
-  }[];
+  }>;
 }

@@ -1,3 +1,5 @@
+import { ArrayOrObject } from '../type/ArrayOrObject';
+
 /**
  * 공연 상세 정보
  *
@@ -195,13 +197,10 @@ export class PerformEntity {
 
   /**
    * 소개 이미지 목록
-   *
-   * @example: [
-   *   "http://www.kopis.or.kr/upload/pfmIntroImage/PF_PF132236_160704_0226303.jpg",
-   *   "http://www.kopis.or.kr/upload/pfmIntroImage/PF_PF132236_160704_0226302.jpg"
-   * ]
    */
-  styurls: string[];
+  styurls: {
+    styurl: string | string[];
+  };
 
   /**
    * 공연 시간
@@ -209,4 +208,8 @@ export class PerformEntity {
    * @example: "화요일~금요일(20:00), 토요일(16:00,19:00), 일요일(15:00,18:00)"
    */
   dtguidance: string;
+
+  relates: {
+    relate: ArrayOrObject<{ relatenm: string; relateurl: string }>;
+  };
 }

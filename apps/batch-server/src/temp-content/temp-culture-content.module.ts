@@ -4,7 +4,8 @@ import { KopisModule } from '../kopis-perform/kopis.module';
 import { KakaoAddressModule } from '../kakao-address/kakao-address.module';
 import { TempCultureContentSchedule } from './temp-culture-content.schedule';
 import { TempCultureContentService } from './temp-culture-content.service';
-import { S3Module } from 'libs/modules';
+import { PrismaModule, S3Module } from 'libs/modules';
+import { TempCultureContentRepository } from 'apps/batch-server/src/temp-content/temp-culture-content.repository';
 
 @Module({
   imports: [
@@ -12,7 +13,13 @@ import { S3Module } from 'libs/modules';
     KopisModule,
     KakaoAddressModule,
     S3Module,
+    PrismaModule,
   ],
-  providers: [Logger, TempCultureContentSchedule, TempCultureContentService],
+  providers: [
+    Logger,
+    TempCultureContentSchedule,
+    TempCultureContentService,
+    TempCultureContentRepository,
+  ],
 })
 export class TempContentModule {}
