@@ -3,7 +3,7 @@
  *
  * @author jochongs
  */
-export class AddressEntity {
+export class KakaoAddressEntity {
   /**
    * 전체 지번 주소
    *

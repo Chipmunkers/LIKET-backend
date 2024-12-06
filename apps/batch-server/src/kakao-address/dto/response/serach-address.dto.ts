@@ -1,5 +1,5 @@
-import { AddressEntity } from '../../entity/address.entity';
-import { RoadAddressEntity } from '../../entity/road-address.entity';
+import { KakaoAddressEntity } from '../../entity/kakao-address.entity';
+import { KakaoRoadAddressEntity } from '../../entity/kakao-road-address.entity';
 
 export class SearchAddressResponseDto {
   /**
@@ -39,8 +39,8 @@ export class SearchAddressResponseDto {
     /** Y좌표 */
     y: string;
 
-    address: AddressEntity;
+    address: KakaoAddressEntity;
 
-    road_address: RoadAddressEntity;
+    road_address: KakaoRoadAddressEntity;
   }[];
 }

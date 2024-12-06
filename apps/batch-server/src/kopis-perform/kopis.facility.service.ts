@@ -7,7 +7,7 @@ import { PerformEntity } from './entity/perform.entity';
 import { KopisKeyService } from './kopis-key.service';
 
 @Injectable()
-export class FacilityService {
+export class KopisFacilityService {
   private readonly facilityCacheStore: Record<string, FacilityEntity> = {};
 
   constructor(

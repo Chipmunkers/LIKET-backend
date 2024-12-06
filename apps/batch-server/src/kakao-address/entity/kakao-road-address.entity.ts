@@ -3,7 +3,7 @@
  *
  * @author jochongs
  */
-export class RoadAddressEntity {
+export class KakaoRoadAddressEntity {
   /**
    * 전체 도로명 주소
    *
