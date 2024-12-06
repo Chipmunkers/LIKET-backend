@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FacilityEntity } from './entity/facility.entity';
 import { HttpService } from '@nestjs/axios';
 import { parseStringPromise } from 'xml2js';
@@ -12,7 +12,6 @@ export class KopisFacilityService {
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly logger: Logger,
     private readonly kopisKeyService: KopisKeyService,
   ) {}
 

@@ -35,6 +35,8 @@ export class TempCultureContentService {
           summaryPerform.mt20id,
         );
 
+        this.logger.log(`Perform Count: ${summaryPerformList.length}`);
+
         const facility = await this.kopisFacilityService.getFacilityByPerform(
           perform,
         );
@@ -65,16 +67,19 @@ export class TempCultureContentService {
 
     const summaryPerformList: SummaryPerformEntity[] = [];
 
+    const yesterday = this.getYesterday();
+
+    this.logger.log(`Search Updated Performs after: ${yesterday}`);
+
     while (true) {
       const performs = await this.kopisPerformService.getPerformAll({
         rows: 100,
         cpage: page,
-        afterdate: this.getYesterday(),
+        afterdate: yesterday,
       });
 
       const performIdList = summaryPerformList.map((perform) => perform.mt20id);
 
-      this.logger.debug('HTTP GET Perform all, page = ' + page);
       performs.forEach((perform) => {
         if (performIdList.includes(perform.mt20id)) return;
 

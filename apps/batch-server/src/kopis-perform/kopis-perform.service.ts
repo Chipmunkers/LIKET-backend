@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { GetPerformAllDto } from './dto/request/get-perform-all.dto';
 import { HttpService } from '@nestjs/axios';
 import { parseStringPromise } from 'xml2js';
@@ -11,7 +11,6 @@ import { KopisErrorResponseDto } from './dto/response/kopis-error-response.dto';
 export class KopisPerformService {
   constructor(
     private readonly httpService: HttpService,
-    private readonly logger: Logger,
     private readonly KopisKeyService: KopisKeyService,
   ) {}
 
@@ -52,10 +51,6 @@ export class KopisPerformService {
    * @author jochongs
    */
   public async getPerformById(id: string) {
-    this.logger.debug(
-      this.getPerformById.name,
-      'HTTP GET Detail Perform | id = ' + id,
-    );
     const SERVICE_KEY = this.KopisKeyService.getKey();
     const result = await this.httpService.axiosRef.get(
       `http://www.kopis.or.kr/openApi/restful/pblprfr/${id}`,
@@ -71,11 +66,6 @@ export class KopisPerformService {
     >(result.data);
 
     if (this.isKopisErrorResponse(data)) {
-      this.logger.error(
-        'Used Service key = ' + SERVICE_KEY,
-        this.getPerformById.name,
-      );
-      this.logger.error(data, this.getPerformById.name);
       throw new Error(JSON.stringify({ ...data, SERVICE_KEY }));
     }
 

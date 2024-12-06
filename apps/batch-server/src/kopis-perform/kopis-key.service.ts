@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { KeyLimitExceedException } from './exception/KeyLimitExceedException';
 
@@ -19,10 +19,7 @@ export class KopisKeyService {
    */
   private KEY_QUERY_LIMIT = 1500;
 
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly logger: Logger,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     this.KOPIS_SERVICE_KEY_LIST = this.configService.get('kopis').keys || '';
   }
 

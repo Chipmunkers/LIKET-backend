@@ -7,5 +7,6 @@ import { KakaoAddressService } from './kakao-address.service';
 @Module({
   imports: [HttpModule, ConfigModule.forFeature(kakaoAddressConfig)],
   providers: [KakaoAddressService],
+  exports: [KakaoAddressService],
 })
 export class KakaoAddressModule {}
