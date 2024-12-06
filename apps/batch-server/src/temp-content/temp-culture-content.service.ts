@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SummaryPerformEntity } from '../kopis-perform/entity/summary-perform.entity';
 import { KopisPerformService } from '../kopis-perform/kopis-perform.service';
 import { KopisFacilityService } from '../kopis-perform/kopis.facility.service';
+import { RawTempContentEntity } from './entity/raw-temp-content.entity';
+import { KakaoAddressService } from '../kakao-address/kakao-address.service';
 
 @Injectable()
 export class TempCultureContentService {
@@ -9,6 +11,7 @@ export class TempCultureContentService {
     private readonly logger: Logger,
     private readonly kopisPerformService: KopisPerformService,
     private readonly kopisFacilityService: KopisFacilityService,
+    private readonly kakaoAddressService: KakaoAddressService,
   ) {}
 
   /**
@@ -20,7 +23,9 @@ export class TempCultureContentService {
    *
    * @author jochongs
    */
-  public async getDetailPerformAllUpdatedAfterYesterday() {
+  public async getDetailPerformAllUpdatedAfterYesterday(): Promise<
+    RawTempContentEntity[]
+  > {
     const summaryPerformList =
       await this.getSummaryPerformAllUpdatedAfterToday();
 
@@ -34,9 +39,17 @@ export class TempCultureContentService {
           perform,
         );
 
+        const addressData = await this.kakaoAddressService.searchAddress(
+          facility.adres,
+        );
+        const address = addressData.documents[0].address;
+        const roadAddress = addressData.documents[0].road_address;
+
         return {
           perform,
           facility,
+          address,
+          roadAddress,
         };
       }),
     );
