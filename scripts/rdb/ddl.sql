@@ -420,7 +420,7 @@ CREATE TABLE temp_content_location_tb
 (
   idx            int      NOT NULL GENERATED ALWAYS AS IDENTITY,
   address        varchar  NOT NULL,
-  detail_address varchar  NOT NULL,
+  detail_address varchar ,
   region_1_depth varchar  NOT NULL,
   region_2_depth varchar  NOT NULL,
   h_code         char(10) NOT NULL,

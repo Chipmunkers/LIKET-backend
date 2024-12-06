@@ -1161,7 +1161,8 @@
           "XdQAX2R-s_R6d63HxMRS6",
           "zSQyFoiICJ1BEiWLsY8V1",
           "MZmOksWpbbb91RfpJhvdD",
-          "hvCVq-9w44jkSiydyZXzU"
+          "hvCVq-9w44jkSiydyZXzU",
+          "egbTL_ONlp7b3t-0kI5vE"
         ],
         "ui": {
           "x": 3842.0398,
@@ -1172,7 +1173,7 @@
           "color": "#9E0036"
         },
         "meta": {
-          "updateAt": 1733488100939,
+          "updateAt": 1733490605112,
           "createAt": 1733487560414
         }
       },
@@ -5543,7 +5544,7 @@
         "comment": "주소 상세",
         "dataType": "varchar",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 85,
@@ -5552,7 +5553,7 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1733487744212,
+          "updateAt": 1733490658610,
           "createAt": 1733487744212
         }
       },
@@ -6094,6 +6095,26 @@
         "meta": {
           "updateAt": 1733489654609,
           "createAt": 1733489640602
+        }
+      },
+      "egbTL_ONlp7b3t-0kI5vE": {
+        "id": "egbTL_ONlp7b3t-0kI5vE",
+        "tableId": "hRVOpEgwnEB6tHvWGgAX9",
+        "name": "temp_content_location_tb",
+        "comment": "",
+        "dataType": "",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 151,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1733490604309,
+          "createAt": 1733490604309
         }
       }
     },
@@ -8081,7 +8102,7 @@
         "dataType": 1733487744207,
         "default": 1733487744207,
         "comment": 1733487744207,
-        "options(notNull)": 1733487744207,
+        "options(notNull)": 1733490658608,
         "options(unique)": 1733487744207,
         "options(autoIncrement)": 1733487744207
       }
@@ -8490,6 +8511,20 @@
         "options(notNull)": 1733489645314,
         "options(unique)": 1733489640601,
         "options(autoIncrement)": 1733489640601
+      }
+    ],
+    "egbTL_ONlp7b3t-0kI5vE": [
+      "tableColumnEntities",
+      1733490604307,
+      1733490605109,
+      {
+        "name": 1733490604307,
+        "dataType": 1733490604307,
+        "default": 1733490604307,
+        "comment": 1733490604307,
+        "options(notNull)": 1733490604307,
+        "options(unique)": 1733490604307,
+        "options(autoIncrement)": 1733490604307
       }
     ]
   }
