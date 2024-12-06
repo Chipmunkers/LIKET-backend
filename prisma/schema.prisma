@@ -71,12 +71,13 @@ model CultureContent {
 }
 
 model Age {
-  idx            Int              @id @default(autoincrement())
-  name           String           @db.VarChar
-  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt      DateTime?        @map("deleted_at") @db.Timestamptz(6)
-  CultureContent CultureContent[]
+  idx                Int                  @id @default(autoincrement())
+  name               String               @db.VarChar
+  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime             @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt          DateTime?            @map("deleted_at") @db.Timestamptz(6)
+  CultureContent     CultureContent[]
+  TempCulutreContent TempCulutreContent[]
 
   @@map("age_tb")
 }
@@ -92,23 +93,25 @@ model StyleMapping {
 }
 
 model Style {
-  idx       Int            @id @default(autoincrement())
-  name      String         @db.VarChar
-  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime?      @map("deleted_at") @db.Timestamptz(6)
-  Style     StyleMapping[]
+  idx              Int                @id @default(autoincrement())
+  name             String             @db.VarChar
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt        DateTime?          @map("deleted_at") @db.Timestamptz(6)
+  Style            StyleMapping[]
+  TempStyleMapping TempStyleMapping[]
 
   @@map("style_tb")
 }
 
 model Genre {
-  idx            Int              @id @default(autoincrement())
-  name           String           @db.VarChar
-  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt      DateTime?        @map("deleted_at") @db.Timestamptz(6)
-  CultureContent CultureContent[]
+  idx                Int                  @id @default(autoincrement())
+  name               String               @db.VarChar
+  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime             @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt          DateTime?            @map("deleted_at") @db.Timestamptz(6)
+  CultureContent     CultureContent[]
+  TempCulutreContent TempCulutreContent[]
 
   @@map("genre_tb")
 }
@@ -164,28 +167,28 @@ model InquiryType {
 }
 
 model Liket {
-  idx                     Int                   @id @default(autoincrement())
-  reviewIdx               Int                   @default(autoincrement()) @map("review_idx")
-  size                    Int                   @db.SmallInt @map("size")
-  textShape               Json?                 @map("text_shape")
-  description             String                @map("description") @db.VarChar(42)
-  cardImgPath             String                @map("card_img_path")
-  bgImgPath               String                @map("bg_img_path")
-  bgImgInfo               Json                  @map("bg_img_info")
-  createdAt               DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
-  deletedAt               DateTime?             @map("deleted_at") @db.Timestamptz(6)
-  updatedAt               DateTime              @default(now()) @map("updated_at") @db.Timestamptz(6)
-  LiketImgShape           LiketImgShape[]
-  Review                  Review                @relation(fields: [reviewIdx], references: [idx], map: "fk_review_tb_to_liket_tb")
+  idx           Int             @id @default(autoincrement())
+  reviewIdx     Int             @default(autoincrement()) @map("review_idx")
+  size          Int             @map("size") @db.SmallInt
+  textShape     Json?           @map("text_shape")
+  description   String          @map("description") @db.VarChar(42)
+  cardImgPath   String          @map("card_img_path")
+  bgImgPath     String          @map("bg_img_path")
+  bgImgInfo     Json            @map("bg_img_info")
+  createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt     DateTime?       @map("deleted_at") @db.Timestamptz(6)
+  updatedAt     DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
+  LiketImgShape LiketImgShape[]
+  Review        Review          @relation(fields: [reviewIdx], references: [idx], map: "fk_review_tb_to_liket_tb")
 
   @@map("liket_tb")
 }
 
 model LiketImgShape {
-  idx               Int         @id @default(autoincrement())
-  liketIdx          Int         @default(autoincrement()) @map("liket_idx")
-  imgShape          Json         @map("img_shape")
-  Liket             Liket       @relation(fields: [liketIdx], references: [idx], map: "fk_liket_tb_to_liket_img_shape_tb")
+  idx      Int   @id @default(autoincrement())
+  liketIdx Int   @default(autoincrement()) @map("liket_idx")
+  imgShape Json  @map("img_shape")
+  Liket    Liket @relation(fields: [liketIdx], references: [idx], map: "fk_liket_tb_to_liket_img_shape_tb")
 
   @@map("liket_img_shape_tb")
 }
@@ -525,4 +528,67 @@ model Notice {
   @@index([pinnedAt], type: BTree)
   @@index([activatedAt], type: BTree)
   @@map("notice_tb")
+}
+
+model TempCulutreContent {
+  idx              Int                 @id @default(autoincrement())
+  locationIdx      Int                 @map("location_idx")
+  genreIdx         Int                 @map("genre_idx")
+  ageIdx           Int?                @map("age_idx")
+  performId        String              @unique @map("perform_id") @db.VarChar
+  title            String              @db.VarChar
+  description      String              @db.VarChar
+  websiteLink      String              @map("website_link") @db.VarChar
+  startDate        DateTime            @map("start_date") @db.Timestamptz(6)
+  endDate          DateTime?           @map("end_date") @db.Timestamptz(6)
+  openTime         String              @map("open_time") @db.VarChar
+  isFee            Boolean             @default(false) @map("is_fee")
+  isReservation    Boolean             @default(false) @map("is_reservation")
+  isPet            Boolean             @default(false) @map("is_pet")
+  isParking        Boolean             @default(false) @map("is_parking")
+  updatedAt        DateTime?           @map("updated_at") @db.Timestamptz(6)
+  regsiteredAt     DateTime?           @map("regsitered_at") @db.Timestamptz(6)
+  createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  Genre            Genre               @relation(fields: [genreIdx], references: [idx], onDelete: Cascade, map: "fk_genre_tb_to_temp_culutre_content_tb")
+  Age              Age?                @relation(fields: [ageIdx], references: [idx], onDelete: Cascade, map: "fk_age_tb_to_temp_culutre_content_tb")
+  Location         TempContentLocation @relation(fields: [locationIdx], references: [idx], onDelete: Cascade, map: "fk_temp_content_location_tb_to_temp_culutre_content_tb")
+  TempContentImg   TempContentImg[]
+  TempStyleMapping TempStyleMapping[]
+
+  @@map("temp_culutre_content_tb")
+}
+
+model TempContentLocation {
+  idx                Int                  @id @default(autoincrement())
+  address            String               @db.VarChar
+  detailAddress      String?              @map("detail_address") @db.VarChar
+  region1Depth       String               @map("region_1_depth") @db.VarChar
+  region2Depth       String               @map("region_2_depth") @db.VarChar
+  hCode              String               @map("h_code") @db.VarChar
+  bCode              String               @map("b_code") @db.VarChar
+  positionX          Float                @map("position_x")
+  positionY          Float                @map("position_y")
+  TempCulutreContent TempCulutreContent[]
+
+  @@map("temp_content_location_tb")
+}
+
+model TempStyleMapping {
+  contentIdx Int                @map("content_idx")
+  styleIdx   Int                @map("style_idx")
+  Content    TempCulutreContent @relation(fields: [contentIdx], references: [idx], onDelete: Cascade, map: "fk_temp_culutre_content_tb_to_temp_style_mapping_tb")
+  Style      Style              @relation(fields: [styleIdx], references: [idx], onDelete: Cascade, map: "fk_style_tb_to_temp_style_mapping_tb")
+
+  @@id([styleIdx, contentIdx])
+  @@map("temp_style_mapping_tb")
+}
+
+model TempContentImg {
+  idx                Int                @id @default(autoincrement())
+  contentIdx         Int                @default(autoincrement()) @map("content_idx")
+  imgPath            String             @map("img_path") @db.VarChar
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  TempCulutreContent TempCulutreContent @relation(fields: [contentIdx], references: [idx], onDelete: Cascade, map: "fk_temp_culutre_content_tb_to_temp_content_img_tb")
+
+  @@map("temp_content_img_tb")
 }
