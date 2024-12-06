@@ -390,6 +390,62 @@ CREATE TABLE notice_tb
 CREATE INDEX index_pinned_at ON notice_tb(pinned_at);
 CREATE INDEX index_activated_at ON notice_tb(activated_at);
 
+CREATE TABLE temp_culture_content_tb
+(
+  idx            int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  location_idx   int                      NOT NULL,
+  genre_idx      int                      NOT NULL,
+  age_idx        int                     ,
+  perform_id     varchar                  NOT NULL UNIQUE,
+  title          varchar                  NOT NULL,
+  description    varchar                 ,
+  website_link   varchar                  NOT NULL,
+  start_date     timestamp with time zone NOT NULL,
+  end_date       timestamp with time zone NOT NULL,
+  open_time      varchar                  NOT NULL,
+  is_fee         boolean                  NOT NULL DEFAULT false,
+  is_reservation boolean                  NOT NULL DEFAULT false,
+  is_pet         boolean                  NOT NULL DEFAULT false,
+  is_parking     boolean                  NOT NULL DEFAULT false,
+  registered_at  timestamp with time zone,
+  created_at     timestamp with time zone NOT NULL DEFAULT NOW(),
+  updated_at     timestamp with time zone,
+  PRIMARY KEY (idx)
+);
+
+CREATE INDEX index_updated_at ON temp_culture_content_tb(updated_at);
+CREATE INDEX index_registered_at ON temp_culture_content_tb(registered_at);
+
+CREATE TABLE temp_content_location_tb
+(
+  idx            int      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  address        varchar  NOT NULL,
+  detail_address varchar  NOT NULL,
+  region_1_depth varchar  NOT NULL,
+  region_2_depth varchar  NOT NULL,
+  h_code         char(10) NOT NULL,
+  b_code         char(10) NOT NULL,
+  position_x     float8   NOT NULL,
+  position_y     float8   NOT NULL,
+  PRIMARY KEY (idx)
+);
+
+CREATE TABLE temp_style_mpapping_tb
+(
+  content_idx int NOT NULL,
+  style_idx   int NOT NULL,
+  PRIMARY KEY (content_idx, style_idx)
+);
+
+CREATE TABLE temp_content_img_tb
+(
+  idx         int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
+  content_idx int                      NOT NULL,
+  img_path    varchar                  NOT NULL,
+  created_at  timestamp with time zone NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (idx)
+);
+
 ALTER TABLE culture_content_tb
   ADD CONSTRAINT FK_genre_tb_TO_culture_content_tb
     FOREIGN KEY (genre_idx)
@@ -542,3 +598,33 @@ ALTER TABLE review_report_tb
   ADD CONSTRAINT FK_user_tb_TO_review_report_tb
     FOREIGN KEY (report_user_idx)
     REFERENCES user_tb (idx);
+
+ALTER TABLE temp_culture_content_tb
+  ADD CONSTRAINT FK_temp_content_location_tb_TO_temp_culture_content_tb
+    FOREIGN KEY (location_idx)
+    REFERENCES temp_content_location_tb (idx);
+
+ALTER TABLE temp_culture_content_tb
+  ADD CONSTRAINT FK_genre_tb_TO_temp_culture_content_tb
+    FOREIGN KEY (genre_idx)
+    REFERENCES genre_tb (idx);
+
+ALTER TABLE temp_culture_content_tb
+  ADD CONSTRAINT FK_age_tb_TO_temp_culture_content_tb
+    FOREIGN KEY (age_idx)
+    REFERENCES age_tb (idx);
+
+ALTER TABLE temp_style_mpapping_tb
+  ADD CONSTRAINT FK_temp_culture_content_tb_TO_temp_style_mpapping_tb
+    FOREIGN KEY (content_idx)
+    REFERENCES temp_culture_content_tb (idx);
+
+ALTER TABLE temp_style_mpapping_tb
+  ADD CONSTRAINT FK_style_tb_TO_temp_style_mpapping_tb
+    FOREIGN KEY (style_idx)
+    REFERENCES style_tb (idx);
+
+ALTER TABLE temp_content_img_tb
+  ADD CONSTRAINT FK_temp_culture_content_tb_TO_temp_content_img_tb
+    FOREIGN KEY (content_idx)
+    REFERENCES temp_culture_content_tb (idx);
