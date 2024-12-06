@@ -105,7 +105,7 @@ export class KopisPerformService {
    *
    * @author jochongs
    */
-  private async getPerformAll(dto: GetPerformAllDto) {
+  public async getPerformAll(dto: GetPerformAllDto) {
     const result = await this.httpService.axiosRef.get(
       'http://www.kopis.or.kr/openApi/restful/pblprfr',
       {
@@ -134,7 +134,7 @@ export class KopisPerformService {
    *
    * @author jochongs
    */
-  private async getPerformById(id: string) {
+  public async getPerformById(id: string) {
     this.logger.debug(
       this.getPerformById.name,
       'HTTP GET Detail Perform | id = ' + id,
