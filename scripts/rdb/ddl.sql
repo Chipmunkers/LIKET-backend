@@ -430,7 +430,7 @@ CREATE TABLE temp_content_location_tb
   PRIMARY KEY (idx)
 );
 
-CREATE TABLE temp_style_mpapping_tb
+CREATE TABLE temp_style_mapping_tb
 (
   content_idx int NOT NULL,
   style_idx   int NOT NULL,
@@ -614,13 +614,13 @@ ALTER TABLE temp_culture_content_tb
     FOREIGN KEY (age_idx)
     REFERENCES age_tb (idx);
 
-ALTER TABLE temp_style_mpapping_tb
-  ADD CONSTRAINT FK_temp_culture_content_tb_TO_temp_style_mpapping_tb
+ALTER TABLE temp_style_mapping_tb
+  ADD CONSTRAINT FK_temp_culture_content_tb_TO_temp_style_mapping_tb
     FOREIGN KEY (content_idx)
     REFERENCES temp_culture_content_tb (idx);
 
-ALTER TABLE temp_style_mpapping_tb
-  ADD CONSTRAINT FK_style_tb_TO_temp_style_mpapping_tb
+ALTER TABLE temp_style_mapping_tb
+  ADD CONSTRAINT FK_style_tb_TO_temp_style_mapping_tb
     FOREIGN KEY (style_idx)
     REFERENCES style_tb (idx);
 
