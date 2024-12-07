@@ -3,6 +3,7 @@ import { TempContentService } from './temp-content.service';
 import { Cron } from '@nestjs/schedule';
 import { TempContentPipeService } from './temp-content-pipe.service';
 import { TempContentRepository } from './temp-content.repository';
+import { RawTempContentEntity } from './entity/raw-temp-content.entity';
 
 @Injectable()
 export class TempContentSchedule {
@@ -19,44 +20,50 @@ export class TempContentSchedule {
       await this.tempContentService.getDetailPerformAllUpdatedAfterYesterday();
 
     for (const rawTempContentEntity of rawTempContentEntityList) {
-      try {
-        const tempContentEntity =
-          await this.tempContentPipeService.createTempContentEntity(
-            rawTempContentEntity,
-          );
+      await this.upsertTempContentEntity(rawTempContentEntity);
+    }
+  }
 
-        const tempContent =
-          await this.tempContentRepository.selectTempContentById(
-            tempContentEntity.id,
-          );
+  private async upsertTempContentEntity(
+    rawTempContentEntity: RawTempContentEntity,
+  ) {
+    try {
+      const tempContentEntity =
+        await this.tempContentPipeService.createTempContentEntity(
+          rawTempContentEntity,
+        );
 
-        if (!tempContent) {
-          // 최초 INSERT
-          await this.tempContentRepository.insertTempContent(tempContentEntity);
-          this.logger.debug(
-            'Success saving perform | id = ' + tempContentEntity.id,
-            'perform-cron-job',
-          );
-        } else {
-          // 이미 있는 데이터
-          await this.tempContentRepository.updateTempContentByIdx(
-            tempContent.idx,
-            tempContent.locationIdx,
-            tempContentEntity,
-          );
-          this.logger.debug(
-            'Success update perform | id = ' + tempContentEntity.id,
-            'perform-cron-job',
-          );
-        }
-      } catch (err) {
-        this.logger.error(
-          'Fail to save content entity | id = ' +
-            rawTempContentEntity.perform.mt20id,
+      const tempContent =
+        await this.tempContentRepository.selectTempContentById(
+          tempContentEntity.id,
+        );
+
+      if (!tempContent) {
+        // 최초 INSERT
+        await this.tempContentRepository.insertTempContent(tempContentEntity);
+        this.logger.debug(
+          'Success saving perform | id = ' + tempContentEntity.id,
           'perform-cron-job',
         );
-        console.log(err);
+      } else {
+        // 이미 있는 데이터
+        await this.tempContentRepository.updateTempContentByIdx(
+          tempContent.idx,
+          tempContent.locationIdx,
+          tempContentEntity,
+        );
+        this.logger.debug(
+          'Success update perform | id = ' + tempContentEntity.id,
+          'perform-cron-job',
+        );
       }
+    } catch (err) {
+      this.logger.error(
+        'Fail to save content entity | id = ' +
+          rawTempContentEntity.perform.mt20id,
+        'perform-cron-job',
+      );
+      console.log(err);
     }
   }
 }
