@@ -42,6 +42,13 @@ export class TempContentRepository {
           isReservation: tempEntity.isReservation,
           isPet: tempEntity.isPet,
           isParking: tempEntity.isParking,
+          TempContentImg: {
+            createMany: {
+              data: tempEntity.imgList.map((img) => ({
+                imgPath: img,
+              })),
+            },
+          },
         },
       });
     });
