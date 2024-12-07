@@ -199,7 +199,7 @@ export class PerformEntity {
    * 소개 이미지 목록
    */
   styurls: {
-    styurl: string | string[];
+    styurl: ArrayOrObject<string>;
   };
 
   /**
