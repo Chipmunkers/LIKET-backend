@@ -14,6 +14,11 @@ export class TempContentSchedule {
     private readonly logger: Logger,
   ) {}
 
+  /**
+   * 00시 00분 01초에 전날 데이터를 불러오는 API
+   *
+   * @author jochongs
+   */
   @Cron('1 0 0 * * *')
   async savePerformList() {
     const rawTempContentEntityList =
@@ -24,6 +29,9 @@ export class TempContentSchedule {
     }
   }
 
+  /**
+   * @author jochongs
+   */
   private async upsertTempContentEntity(
     rawTempContentEntity: RawTempContentEntity,
   ) {
