@@ -115,7 +115,7 @@ export class TempContentPipeService {
     }
 
     this.logger.warn(`genre does not match | ${genreName}`, 'extractGenre');
-    return 5;
+    return 5; // 콘서트
   }
 
   /**
