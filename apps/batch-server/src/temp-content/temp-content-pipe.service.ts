@@ -86,6 +86,10 @@ export class TempContentPipeService {
       return 5; // 콘서트
     }
 
+    if (genreName === '무용') {
+      return 5; // 콘서트
+    }
+
     if (genreName === '서양음악(클래식)') {
       return 5; // 콘서트
     }
