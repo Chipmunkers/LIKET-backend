@@ -535,7 +535,7 @@ model TempCultureContent {
   locationIdx      Int                 @map("location_idx")
   genreIdx         Int                 @map("genre_idx")
   ageIdx           Int?                @map("age_idx")
-  performId        String              @unique @map("perform_id") @db.VarChar
+  performId        String              @map("perform_id") @db.VarChar
   title            String              @db.VarChar
   description      String?             @db.VarChar
   websiteLink      String              @map("website_link") @db.VarChar
@@ -547,15 +547,16 @@ model TempCultureContent {
   isPet            Boolean             @default(false) @map("is_pet")
   isParking        Boolean             @default(false) @map("is_parking")
   updatedAt        DateTime?           @map("updated_at") @db.Timestamptz(6)
-  regsiteredAt     DateTime?           @map("regsitered_at") @db.Timestamptz(6)
+  registeredAt     DateTime?           @map("registered_at") @db.Timestamptz(6)
   createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
-  Genre            Genre               @relation(fields: [genreIdx], references: [idx], onDelete: Cascade, map: "fk_genre_tb_to_temp_culutre_content_tb")
-  Age              Age?                @relation(fields: [ageIdx], references: [idx], onDelete: Cascade, map: "fk_age_tb_to_temp_culutre_content_tb")
-  Location         TempContentLocation @relation(fields: [locationIdx], references: [idx], onDelete: Cascade, map: "fk_temp_content_location_tb_to_temp_culutre_content_tb")
+  Genre            Genre               @relation(fields: [genreIdx], references: [idx], onDelete: Cascade, map: "fk_genre_tb_to_temp_culture_content_tb")
+  Age              Age?                @relation(fields: [ageIdx], references: [idx], onDelete: Cascade, map: "fk_age_tb_to_temp_culture_content_tb")
+  Location         TempContentLocation @relation(fields: [locationIdx], references: [idx], onDelete: Cascade, map: "fk_temp_content_location_tb_to_temp_culture_content_tb")
   TempContentImg   TempContentImg[]
   TempStyleMapping TempStyleMapping[]
 
-  @@map("temp_culutre_content_tb")
+  @@unique([performId])
+  @@map("temp_culture_content_tb")
 }
 
 model TempContentLocation {
@@ -576,7 +577,7 @@ model TempContentLocation {
 model TempStyleMapping {
   contentIdx Int                @map("content_idx")
   styleIdx   Int                @map("style_idx")
-  Content    TempCultureContent @relation(fields: [contentIdx], references: [idx], onDelete: Cascade, map: "fk_temp_culutre_content_tb_to_temp_style_mapping_tb")
+  Content    TempCultureContent @relation(fields: [contentIdx], references: [idx], onDelete: Cascade, map: "fk_temp_culture_content_tb_to_temp_style_mapping_tb")
   Style      Style              @relation(fields: [styleIdx], references: [idx], onDelete: Cascade, map: "fk_style_tb_to_temp_style_mapping_tb")
 
   @@id([styleIdx, contentIdx])
@@ -588,7 +589,7 @@ model TempContentImg {
   contentIdx         Int                @default(autoincrement()) @map("content_idx")
   imgPath            String             @map("img_path") @db.VarChar
   createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  TempCultureContent TempCultureContent @relation(fields: [contentIdx], references: [idx], onDelete: Cascade, map: "fk_temp_culutre_content_tb_to_temp_content_img_tb")
+  TempCultureContent TempCultureContent @relation(fields: [contentIdx], references: [idx], onDelete: Cascade, map: "fk_temp_culture_content_tb_to_temp_content_img_tb")
 
   @@map("temp_content_img_tb")
 }
