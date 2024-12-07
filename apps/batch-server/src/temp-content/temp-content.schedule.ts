@@ -4,6 +4,7 @@ import { Cron } from '@nestjs/schedule';
 import { TempContentPipeService } from './temp-content-pipe.service';
 import { TempContentRepository } from './temp-content.repository';
 import { RawTempContentEntity } from './entity/raw-temp-content.entity';
+import { TempContentEntity } from './entity/temp-content.entity';
 
 @Injectable()
 export class TempContentSchedule {
@@ -33,7 +34,12 @@ export class TempContentSchedule {
     const rawTempContentEntityList =
       await this.tempContentService.getDetailPerformAllUpdatedAfterYesterday();
 
-    for (const rawTempContentEntity of rawTempContentEntityList) {
+    for (const i in rawTempContentEntityList) {
+      this.logger.log(
+        `process: ${Number(i) + 1}/${rawTempContentEntityList.length}`,
+        'temp-content-cron',
+      );
+      const rawTempContentEntity = rawTempContentEntityList[i];
       await this.upsertTempContentEntity(rawTempContentEntity);
     }
 
@@ -57,6 +63,10 @@ export class TempContentSchedule {
         await this.tempContentRepository.selectTempContentById(
           tempContentEntity.id,
         );
+
+      if (this.MODE === 'develop') {
+        await this.saveContentByTempContentEntityForDevelop(tempContentEntity);
+      }
 
       if (!tempContent) {
         // 최초 INSERT
@@ -82,6 +92,31 @@ export class TempContentSchedule {
         'Fail to save content entity | id = ' +
           rawTempContentEntity.perform.mt20id,
         'perform-cron-job',
+      );
+      console.log(err);
+    }
+  }
+
+  /**
+   * @author jochongs
+   */
+  private async saveContentByTempContentEntityForDevelop(
+    tempEntity: TempContentEntity,
+  ) {
+    if (this.MODE !== 'develop') return;
+
+    try {
+      await this.tempContentRepository.insertContentByTempContentEntityForDevelop(
+        tempEntity,
+      );
+      this.logger.debug(
+        'Success to save culture-content',
+        'save-content-for-develop',
+      );
+    } catch (err) {
+      this.logger.error(
+        'Fail to save | id =' + tempEntity.id,
+        'save-content-for-develop',
       );
       console.log(err);
     }
