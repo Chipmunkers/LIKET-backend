@@ -188,6 +188,7 @@ export class TempContentRepository {
           isReservation: tempEntity.isReservation,
           isParking: tempEntity.isParking,
           isPet: tempEntity.isPet,
+          acceptedAt: new Date(),
         },
       });
     });
