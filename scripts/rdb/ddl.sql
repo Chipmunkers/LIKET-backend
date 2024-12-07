@@ -75,7 +75,7 @@ CREATE TABLE culture_content_tb
   user_idx       int                      NOT NULL,
   location_idx   int                      NOT NULL,
   age_idx        int                      NOT NULL,
-  performId      int                     ,
+  perform_id     varchar                 ,
   title          varchar                  NOT NULL,
   description    varchar                 ,
   website_link   varchar                  NOT NULL,
@@ -99,6 +99,7 @@ CREATE INDEX index_content_like_count ON culture_content_tb(like_count);
 CREATE INDEX index_content_accepted_at ON culture_content_tb(accepted_at);
 CREATE INDEX index_content_start_date ON culture_content_tb(start_date);
 CREATE INDEX index_content_end_date ON culture_content_tb(end_date);
+CREATE INDEX index_content_perform_id ON culture_content_tb(perform_id);
 
 CREATE TABLE genre_tb
 (

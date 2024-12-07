@@ -192,4 +192,16 @@ export class TempContentRepository {
       });
     });
   }
+
+  /**
+   *
+   */
+  public async selectContentByPerformId(id: string) {
+    return await this.prisma.cultureContent.findUnique({
+      where: {
+        performId: id,
+        deletedAt: null,
+      },
+    });
+  }
 }
