@@ -7,12 +7,21 @@ import { RawTempContentEntity } from './entity/raw-temp-content.entity';
 
 @Injectable()
 export class TempContentSchedule {
+  MODE: 'develop' | 'product' | 'test';
+
   constructor(
     private readonly tempContentService: TempContentService,
     private readonly tempContentPipeService: TempContentPipeService,
     private readonly tempContentRepository: TempContentRepository,
     private readonly logger: Logger,
-  ) {}
+  ) {
+    this.MODE =
+      process.env.MODE === 'develop'
+        ? 'develop'
+        : process.env.MODE === 'product'
+        ? 'product'
+        : 'test';
+  }
 
   /**
    * 00시 00분 01초에 전날 데이터를 불러오는 API
@@ -26,6 +35,9 @@ export class TempContentSchedule {
 
     for (const rawTempContentEntity of rawTempContentEntityList) {
       await this.upsertTempContentEntity(rawTempContentEntity);
+    }
+
+    if (this.MODE === 'develop') {
     }
   }
 

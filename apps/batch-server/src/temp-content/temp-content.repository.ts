@@ -122,4 +122,74 @@ export class TempContentRepository {
       });
     });
   }
+
+  /**
+   * ! process.env.MODE 가 develop일 때만 작동합니다.
+   *
+   * @author jochongs
+   */
+  public async insertContentByTempContentEntityForDevelop(
+    tempEntity: TempContentEntity,
+  ) {
+    if (process.env.MODE !== 'develop') {
+      return;
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const createdLocation = await tx.location.create({
+        data: {
+          address: tempEntity.location.address,
+          detailAddress: tempEntity.location.detailAddress || 'Empty',
+          region1Depth: tempEntity.location.region1Depth,
+          region2Depth: tempEntity.location.region2Depth,
+          hCode: tempEntity.location.hCode,
+          bCode: tempEntity.location.bCode,
+          sidoCode: tempEntity.location.bCode.substring(0, 2),
+          sggCode: tempEntity.location.bCode.substring(2, 5),
+          legCode: tempEntity.location.bCode.substring(5, 8),
+          riCode: tempEntity.location.bCode.substring(8, 10),
+          positionX: tempEntity.location.positionX,
+          positionY: tempEntity.location.positionY,
+        },
+      });
+
+      await tx.cultureContent.create({
+        data: {
+          genreIdx: tempEntity.genreIdx,
+          userIdx: 1, // Admin
+          locationIdx: createdLocation.idx,
+          ageIdx: tempEntity.ageIdx || 1,
+          Style: {
+            createMany: {
+              data: [
+                {
+                  styleIdx: 1,
+                },
+                {
+                  styleIdx: 2,
+                },
+              ],
+            },
+          },
+          ContentImg: {
+            createMany: {
+              data: tempEntity.imgList.map((img) => ({
+                imgPath: img,
+              })),
+            },
+          },
+          title: tempEntity.title,
+          description: tempEntity.description || 'Empty',
+          websiteLink: tempEntity.websiteLink,
+          startDate: tempEntity.startDate,
+          endDate: tempEntity.endDate || new Date('2028-01-01'),
+          openTime: tempEntity.openTime,
+          isFee: tempEntity.isFee,
+          isReservation: tempEntity.isReservation,
+          isParking: tempEntity.isParking,
+          isPet: tempEntity.isPet,
+        },
+      });
+    });
+  }
 }
