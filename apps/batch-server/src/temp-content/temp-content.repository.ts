@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
-export class TempCultureContentRepository {
+export class TempContentRepository {
   constructor(private readonly prisma: PrismaProvider) {}
 
   /**

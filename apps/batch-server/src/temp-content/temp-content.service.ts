@@ -7,7 +7,7 @@ import { KakaoAddressService } from '../kakao-address/kakao-address.service';
 import { GetRawContentException } from './exception/GetRawContentException';
 
 @Injectable()
-export class TempCultureContentService {
+export class TempContentService {
   constructor(
     private readonly logger: Logger,
     private readonly kopisPerformService: KopisPerformService,
