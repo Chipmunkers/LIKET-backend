@@ -41,7 +41,7 @@ export class KopisPerformService {
       throw new KopisAPIException('Fail to GET perform list', data);
     }
 
-    return data.dbs.db;
+    return data.dbs?.db || [];
   }
 
   /**
@@ -94,7 +94,9 @@ export class KopisPerformService {
       | KopisErrorResponseDto
       | GetPerformByIdResponseDto,
   ): value is KopisErrorResponseDto {
-    const obj = value.dbs.db;
+    const obj = value.dbs?.db;
+
+    if (!obj) return false;
 
     if ((obj as any).returncode) return true;
 
