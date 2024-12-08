@@ -114,7 +114,7 @@ export class TempContentPipeService {
       return 4;
     }
 
-    this.logger.warn(`genre does not match | ${genreName}`, 'extractGenre');
+    this.logger.warn(`genre does not match | ${genreName}`, 'kopis-cron');
     return 5; // 콘서트
   }
 
@@ -165,7 +165,7 @@ export class TempContentPipeService {
     } else {
       this.logger.warn(
         'There is a case where a poster is not present',
-        'extractImgList',
+        'kopis-cron',
       );
     }
 

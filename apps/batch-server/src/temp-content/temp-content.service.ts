@@ -5,15 +5,29 @@ import { KopisFacilityService } from '../kopis-perform/kopis.facility.service';
 import { RawTempContentEntity } from './entity/raw-temp-content.entity';
 import { KakaoAddressService } from '../kakao-address/kakao-address.service';
 import { GetRawContentException } from './exception/GetRawContentException';
+import { TempContentPipeService } from './temp-content-pipe.service';
+import { TempContentRepository } from './temp-content.repository';
+import { TempContentEntity } from './entity/temp-content.entity';
 
 @Injectable()
 export class TempContentService {
+  private readonly MODE: 'develop' | 'product' | 'test';
+
   constructor(
     private readonly logger: Logger,
     private readonly kopisPerformService: KopisPerformService,
     private readonly kopisFacilityService: KopisFacilityService,
     private readonly kakaoAddressService: KakaoAddressService,
-  ) {}
+    private readonly tempContentPipeService: TempContentPipeService,
+    private readonly tempContentRepository: TempContentRepository,
+  ) {
+    this.MODE =
+      process.env.MODE === 'develop'
+        ? 'develop'
+        : process.env.MODE === 'product'
+        ? 'product'
+        : 'test';
+  }
 
   /**
    * 어제 이후로 업데이트 된 공연 목록보기
@@ -64,6 +78,97 @@ export class TempContentService {
   }
 
   /**
+   * 공연예술 가져와 저장하기
+   * 시간이 오래걸릴 수 있습니다.
+   * CRON에서 호출하기를 기대합니다.
+   *
+   * @author jochongs
+   */
+  public async saveAllPerformFromKopisAPI(): Promise<void> {
+    const summaryPerformList =
+      await this.getSummaryPerformAllUpdatedAfterToday();
+
+    for (const i in summaryPerformList) {
+      this.logger.log(
+        `Saving Perform ${Number(i) + 1}/${summaryPerformList.length}`,
+        'kopis-cron',
+      );
+      const summaryPerform = summaryPerformList[i];
+
+      try {
+        const rawTempContent = await this.getRawTempContentEntityByPerformId(
+          summaryPerform.mt20id,
+        );
+
+        const tempContent =
+          await this.tempContentPipeService.createTempContentEntity(
+            rawTempContent,
+          );
+
+        await this.upsertTempContent(tempContent);
+
+        if (this.MODE === 'develop') {
+          await this.upsertContentForDevelop(tempContent);
+        }
+      } catch (err) {
+        this.logger.error(
+          `Fail to save perform | id = ${summaryPerform.mt20id}`,
+          'kopis-cron',
+        );
+        console.log(err);
+      }
+    }
+  }
+
+  /**
+   * @author jochongs
+   */
+  private async upsertTempContent(
+    tempContent: TempContentEntity,
+  ): Promise<void> {
+    const alreadyExistTempContentInDB =
+      await this.tempContentRepository.selectTempContentById(tempContent.id);
+
+    if (alreadyExistTempContentInDB) {
+      await this.tempContentRepository.updateTempContentByIdx(
+        alreadyExistTempContentInDB.idx,
+        alreadyExistTempContentInDB.locationIdx,
+        tempContent,
+      );
+      this.logger.debug(
+        'Success update perform | id = ' + tempContent.id,
+        'kopis-cron',
+      );
+    } else {
+      await this.tempContentRepository.insertTempContent(tempContent);
+      this.logger.debug(
+        'Success saving perform | id = ' + tempContent.id,
+        'kopis-cron',
+      );
+    }
+  }
+
+  /**
+   * @author jochongs
+   */
+  private async upsertContentForDevelop(
+    tempContent: TempContentEntity,
+  ): Promise<void> {
+    if (this.MODE !== 'develop') return;
+
+    const alreadyExistCultureContent =
+      await this.tempContentRepository.selectContentByPerformId(tempContent.id);
+
+    if (alreadyExistCultureContent) {
+      return;
+    }
+
+    await this.tempContentRepository.insertContentByTempContentEntityForDevelop(
+      tempContent,
+    );
+  }
+
+  /**
    * RawTempContentEntity 생성하기
    *
    * KOPIS 서비스 키 최대 2번을 사용할 수 있는 메서드입니다.
@@ -111,7 +216,10 @@ export class TempContentService {
 
     const yesterday = this.getYesterday();
 
-    this.logger.log(`Search Updated Performs after: ${yesterday}`);
+    this.logger.log(
+      `Search Updated Performs after: ${yesterday}`,
+      'kopis-cron',
+    );
 
     while (true) {
       const performs = await this.kopisPerformService.getPerformAll({
@@ -146,7 +254,7 @@ export class TempContentService {
   private getYesterday() {
     const date = new Date();
 
-    date.setHours(date.getHours() - 24);
+    date.setHours(date.getHours() - 24 * 4); // TODO: 변경필요
 
     return `${date.getFullYear().toString()}${(date.getMonth() + 1)
       .toString()
