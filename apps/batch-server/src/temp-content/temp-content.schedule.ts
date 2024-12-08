@@ -30,7 +30,7 @@ export class TempContentSchedule {
    * @author jochongs
    */
   @Cron('1 0 0 * * *')
-  async savePerformList() {
+  async savePerformListCronJob() {
     const rawTempContentEntityList =
       await this.tempContentService.getDetailPerformAllUpdatedAfterYesterday();
 
