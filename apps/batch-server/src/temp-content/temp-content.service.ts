@@ -254,7 +254,7 @@ export class TempContentService {
   private getYesterday() {
     const date = new Date();
 
-    date.setHours(date.getHours() - 24 * 4); // TODO: 변경필요
+    date.setHours(date.getHours() - 24);
 
     return `${date.getFullYear().toString()}${(date.getMonth() + 1)
       .toString()
