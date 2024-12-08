@@ -8,6 +8,10 @@ async function bootstrap() {
     logger: new ConsoleLogger(),
   });
 
+  const tempContentSchedule = app.get(TempContentSchedule);
+
+  await tempContentSchedule.savePerformListCronJob();
+
   await app.listen(3000);
 }
 bootstrap();
