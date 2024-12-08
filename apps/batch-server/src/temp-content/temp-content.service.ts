@@ -22,7 +22,12 @@ export class TempContentService {
    * 해당 메서드는 API key 사용 횟수가 빠르게 소모됩니다.
    * 하루에 한 번 사용하도록 주의하십시오.
    *
+   * ! 프로덕션에서 Promise.all을 감당하지 못하여 Deprecated 되었습니다.
+   * ! 사용하지 마십시오.
+   *
    * @author jochongs
+   *
+   * @deprecated
    */
   public async getDetailPerformAllUpdatedAfterYesterday(): Promise<
     RawTempContentEntity[]
