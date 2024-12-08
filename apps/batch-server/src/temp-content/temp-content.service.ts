@@ -97,7 +97,9 @@ export class TempContentService {
    *
    * @author jochongs
    */
-  private async getSummaryPerformAllUpdatedAfterToday() {
+  public async getSummaryPerformAllUpdatedAfterToday(): Promise<
+    SummaryPerformEntity[]
+  > {
     let page = 1;
 
     const summaryPerformList: SummaryPerformEntity[] = [];
