@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SummaryPerformEntity } from '../kopis-perform/entity/summary-perform.entity';
-import { KopisPerformService } from '../kopis-perform/kopis-perform.service';
-import { KopisFacilityService } from '../kopis-perform/kopis.facility.service';
+import { SummaryPerformEntity } from '../content-cron/external-apis/kopis/entity/summary-perform.entity';
+import { KopisPerformService } from '../content-cron/external-apis/kopis/kopis-perform.service';
+import { KopisFacilityService } from '../content-cron/external-apis/kopis/kopis.facility.service';
 import { RawTempContentEntity } from './entity/raw-temp-content.entity';
 import { KakaoAddressService } from '../kakao-address/kakao-address.service';
 import { GetRawContentException } from './exception/GetRawContentException';

@@ -1,7 +1,7 @@
 import { KakaoAddressEntity } from '../../kakao-address/entity/address.entity';
 import { KakaoRoadAddressEntity } from '../../kakao-address/entity/road-address.entity';
-import { FacilityEntity } from '../../kopis-perform/entity/facility.entity';
-import { PerformEntity } from '../../kopis-perform/entity/perform.entity';
+import { FacilityEntity } from '../../content-cron/external-apis/kopis/entity/facility.entity';
+import { PerformEntity } from '../../content-cron/external-apis/kopis/entity/perform.entity';
 
 /**
  * API로부터 받은 그대로를 보관하는 Entity입니다.
