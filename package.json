@@ -106,7 +106,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^libs/modules(|/.*)$": "<rootDir>/libs/modules/src/$1"
+      "^libs/modules(|/.*)$": "<rootDir>/libs/modules/src/$1",
+      "^libs/common(|/.*)$": "<rootDir>/libs/common/src/$1"
     }
   }
 }
