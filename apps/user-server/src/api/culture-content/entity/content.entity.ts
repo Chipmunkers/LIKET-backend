@@ -1,7 +1,14 @@
-import { IsBoolean, IsDateString, IsString, Length } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { LocationEntity } from './location.entity';
 import { CotnentWithInclude } from './prisma-type/content-with-include';
+import { Type } from 'class-transformer';
 
 /**
  * @author jochongs
@@ -80,6 +87,7 @@ export class ContentEntity {
    * @example 2024-05-07T00:00:00.000Z
    */
   @IsDateString()
+  @IsOptional()
   public endDate: Date | null;
 
   /**
