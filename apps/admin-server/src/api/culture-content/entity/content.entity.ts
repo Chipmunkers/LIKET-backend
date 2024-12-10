@@ -4,26 +4,30 @@ import { LocationEntity } from './location.entity';
 import { TagEntity } from './tag.entity';
 import { SummaryContentEntity } from './summary-content.entity';
 
-const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()({
-  include: {
-    User: {
-      include: {
-        BlockReason: true,
+const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()(
+  {
+    include: {
+      User: {
+        include: {
+          BlockReason: true,
+        },
       },
-    },
-    ContentImg: true,
-    Genre: true,
-    Style: {
-      include: {
-        Style: true,
+      ContentImg: true,
+      Genre: true,
+      Style: {
+        include: {
+          Style: true,
+        },
       },
+      Age: true,
+      Location: true,
     },
-    Age: true,
-    Location: true,
   },
-});
+);
 
-type CotnentWithInclude = Prisma.CultureContentGetPayload<typeof ContentWithInclude>;
+type CotnentWithInclude = Prisma.CultureContentGetPayload<
+  typeof ContentWithInclude
+>;
 
 export class ContentEntity extends SummaryContentEntity {
   /**
@@ -38,7 +42,7 @@ export class ContentEntity extends SummaryContentEntity {
    *
    * @example "성수 디올 팝업스토어는 어떤 곳이고\n어떤 이벤트가 진행중입니다."
    */
-  public description: string;
+  public description: string | null;
 
   /**
    * 웹 사이트 링크
@@ -62,7 +66,9 @@ export class ContentEntity extends SummaryContentEntity {
       endDate: content.endDate,
       user: UserEntity.createEntity(content.User),
       age: TagEntity.createEntity(content.Age),
-      styleList: content.Style.map((style) => TagEntity.createEntity(style.Style)),
+      styleList: content.Style.map((style) =>
+        TagEntity.createEntity(style.Style),
+      ),
       location: LocationEntity.createEntity(content.Location),
       createdAt: content.createdAt,
       acceptedAt: content.acceptedAt,
