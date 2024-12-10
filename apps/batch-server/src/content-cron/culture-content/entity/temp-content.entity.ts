@@ -17,7 +17,7 @@ export class TempContentEntity {
   genreIdx: number;
 
   /** 연령대 인덱스 */
-  ageIdx: number | null;
+  ageIdx: number;
 
   /** 공연명 */
   title: string;

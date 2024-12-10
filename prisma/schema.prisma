@@ -38,7 +38,7 @@ model CultureContent {
   locationIdx   Int            @default(autoincrement()) @map("location_idx")
   performId     String?        @map("perform_id") @db.VarChar
   title         String         @map("title") @db.VarChar
-  description   String         @map("description") @db.VarChar
+  description   String?        @map("description") @db.VarChar
   openTime      String         @map("open_time") @db.VarChar
   isFee         Boolean        @default(false) @map("is_fee")
   isReservation Boolean        @default(false) @map("is_reservation")
