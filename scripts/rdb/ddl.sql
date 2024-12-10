@@ -80,7 +80,7 @@ CREATE TABLE culture_content_tb
   description    varchar                 ,
   website_link   varchar                  NOT NULL,
   start_date     timestamp with time zone NOT NULL,
-  end_date       timestamp with time zone NOT NULL,
+  end_date       timestamp with time zone ,
   view_count     int                      NOT NULL DEFAULT 0,
   open_time      varchar                  NOT NULL,
   is_fee         boolean                  NOT NULL DEFAULT false,

@@ -1706,7 +1706,7 @@
         "comment": "종료 날짜",
         "dataType": "timestamp with time zone",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 60,
@@ -1715,7 +1715,7 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1721292572697,
+          "updateAt": 1733806486999,
           "createAt": 1721292572697
         }
       },
@@ -8558,6 +8558,14 @@
         "dataType": 1733558503602,
         "options(notNull)": 1733558503892,
         "options(unique)": 1733559600772
+      }
+    ],
+    "c9fb6850-7813-42d6-82a7-d637ee1c46c7": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "options(notNull)": 1733806486998
       }
     ]
   }
