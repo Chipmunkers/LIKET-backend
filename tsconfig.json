@@ -24,10 +24,10 @@
       "libs/modules/*": [
         "libs/modules/src/*"
       ],
-      "@app/common": [
+      "lib/common": [
         "libs/common/src"
       ],
-      "@app/common/*": [
+      "lib/common/*": [
         "libs/common/src/*"
       ],
       "lib/testing": [
