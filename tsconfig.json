@@ -24,16 +24,16 @@
       "libs/modules/*": [
         "libs/modules/src/*"
       ],
-      "lib/common": [
+      "libs/common": [
         "libs/common/src"
       ],
-      "lib/common/*": [
+      "libs/common/*": [
         "libs/common/src/*"
       ],
-      "lib/testing": [
+      "libs/testing": [
         "libs/testing/src"
       ],
-      "lib/testing/*": [
+      "libs/testing/*": [
         "libs/testing/src/*"
       ]
     }
