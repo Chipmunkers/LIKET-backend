@@ -29,6 +29,12 @@
       ],
       "@app/common/*": [
         "libs/common/src/*"
+      ],
+      "lib/testing": [
+        "libs/testing/src"
+      ],
+      "lib/testing/*": [
+        "libs/testing/src/*"
       ]
     }
   }
