@@ -3,9 +3,11 @@ import invalidCreateContentRequest from './invalid-create-content-request';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { CreateContentRequestDto } from 'apps/user-server/src/api/culture-content/dto/create-content-request.dto';
+import { CultureContentSeedHelper } from 'libs/testing/seed/culture-content-seed.helper';
 
 describe('Culture Content (e2e)', () => {
   const test = TestHelper.create(AppModule);
+  const contentSeedHelper = test.seedHelper(CultureContentSeedHelper);
 
   beforeEach(async () => {
     await test.init();
@@ -44,6 +46,30 @@ describe('Culture Content (e2e)', () => {
 
       expect(response.body?.contentList).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
+    });
+
+    it('Success: get my contents', async () => {
+      const otherUser = test.getLoginUsers().user1;
+      const loginUser = test.getLoginUsers().user2;
+
+      await contentSeedHelper.seedAll([
+        { userIdx: otherUser.idx, acceptedAt: new Date() },
+        { userIdx: loginUser.idx, acceptedAt: new Date() },
+        { userIdx: loginUser.idx },
+        { userIdx: loginUser.idx, deletedAt: new Date() },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          user: loginUser.idx,
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      expect(response.body?.contentList).toBeDefined();
+      expect(Array.isArray(response.body.contentList)).toBeTruthy();
+      expect(response.body.contentList.length).toBe(2);
     });
 
     it('Success: get my not accepted contents', async () => {
