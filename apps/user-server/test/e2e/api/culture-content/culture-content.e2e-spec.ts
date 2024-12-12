@@ -114,6 +114,19 @@ describe('Culture Content (e2e)', () => {
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
+    it('Success: genre filter without login token', async () => {
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          genre: 1,
+        })
+        .expect(200);
+
+      expect(response.body?.contentList).toBeDefined();
+      expect(Array.isArray(response.body?.contentList)).toBe(true);
+    });
+
     it('Success: age filter', async () => {
       const loginUser = test.getLoginUsers().user1;
 
