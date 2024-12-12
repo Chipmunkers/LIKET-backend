@@ -1,11 +1,11 @@
-import { InquiryType } from 'libs/common/constants/inquiry-type';
-
 /**
  * @author jochongs
  */
 export type InquiryInput = {
-  userIdx?: number;
-  typeIdx?: InquiryType;
+  userIdx: number;
+  typeIdx?: number;
+  title?: string;
   contents?: string;
-  deletedAt?: string | null;
+  deletedAt?: Date | null;
+  imgList?: string[];
 };
