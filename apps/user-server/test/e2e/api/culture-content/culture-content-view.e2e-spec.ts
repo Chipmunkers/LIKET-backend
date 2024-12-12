@@ -1,10 +1,11 @@
 import * as request from 'supertest';
-import { ContentViewService } from '../../../../src/api/culture-content/content-view.service';
-import { TestHelper } from '../../setup/test.helper';
-import { PrismaProvider } from '../../../../../../libs/modules/src';
+import { PrismaProvider } from 'libs/modules';
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { ContentViewService } from 'apps/user-server/src/api/culture-content/content-view.service';
 
 describe('Culture Content View (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
 
   beforeEach(async () => {
     await test.init();

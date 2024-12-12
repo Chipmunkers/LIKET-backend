@@ -1,13 +1,13 @@
+import { LoginDto } from 'apps/user-server/src/api/auth/dto/local-login.dto';
+import { SocialLoginUser } from 'apps/user-server/src/api/auth/model/social-login-user';
+import { KakaoLoginStrategy } from 'apps/user-server/src/api/auth/strategy/kakao/kakao-login.strategy';
+import { SocialProvider } from 'apps/user-server/src/api/auth/strategy/social-provider.enum';
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import * as request from 'supertest';
-import { LoginDto } from '../../../../src/api/auth/dto/local-login.dto';
-import { KakaoLoginStrategy } from '../../../../src/api/auth/strategy/kakao/kakao-login.strategy';
-import { SocialLoginUser } from '../../../../src/api/auth/model/social-login-user';
-import { SocialProvider } from '../../../../src/api/auth/strategy/social-provider.enum';
-import { TestHelper } from '../../setup/test.helper';
-import { PrismaProvider } from '../../../../../../libs/modules/src';
 
 describe('Auth (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
 
   beforeEach(async () => {
     await test.init();
@@ -41,7 +41,7 @@ describe('Auth (e2e)', () => {
         .send(loginDto)
         .expect(200);
 
-      const loginUser = await test.get(PrismaProvider).user.findFirst({
+      const loginUser = await test.getPrisma().user.findFirst({
         where: {
           email: loginDto.email,
         },
@@ -303,7 +303,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/local')
         .send(loginDto);
 
-      const loginUser = await test.get(PrismaProvider).user.findFirst({
+      const loginUser = await test.getPrisma().user.findFirst({
         where: {
           email: loginDto.email,
         },
@@ -321,7 +321,7 @@ describe('Auth (e2e)', () => {
         .set('Cookie', refreshTokenCookie)
         .expect(201);
 
-      const logoutUser = await test.get(PrismaProvider).user.findFirst({
+      const logoutUser = await test.getPrisma().user.findFirst({
         where: {
           email: loginDto.email,
         },

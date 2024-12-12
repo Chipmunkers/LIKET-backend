@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { LoginSetting, TestLoginUsers } from './login-user.setup';
 import { ITestHelper } from 'libs/testing';
 import * as cookieParser from 'cookie-parser';
+import { Type } from 'libs/common';
 
 /**
  * User-Server E2E 테스트 헬퍼
@@ -11,8 +12,8 @@ import * as cookieParser from 'cookie-parser';
 export class TestHelper extends ITestHelper {
   private loginUsers: TestLoginUsers;
 
-  public static create() {
-    return new TestHelper();
+  public static create(RootModule: Type) {
+    return new TestHelper(RootModule);
   }
 
   async appSetup(): Promise<void> {

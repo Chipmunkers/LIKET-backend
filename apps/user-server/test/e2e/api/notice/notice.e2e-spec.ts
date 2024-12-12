@@ -1,9 +1,9 @@
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import * as request from 'supertest';
-import { TestHelper } from '../../setup/test.helper';
-import { PrismaProvider } from '../../../../../../libs/modules/src';
 
 describe('Review (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
 
   const noticeSeeds = [
     {
@@ -103,7 +103,7 @@ describe('Review (e2e)', () => {
     });
 
     it('Success - Delete notice test', async () => {
-      await test.get(PrismaProvider).notice.create({
+      await test.getPrisma().notice.create({
         data: {
           title: '삭제된 공지사항',
           contents: '삭제된 공지사항',

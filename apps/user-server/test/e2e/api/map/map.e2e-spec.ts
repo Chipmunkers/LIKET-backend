@@ -1,8 +1,9 @@
 import * as request from 'supertest';
-import { TestHelper } from '../../setup/test.helper';
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 
 describe('Map (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
 
   beforeEach(async () => {
     await test.init();

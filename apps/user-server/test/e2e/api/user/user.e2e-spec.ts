@@ -13,13 +13,13 @@ import { FindPwDto } from '../../../../src/api/user/dto/find-pw.dto';
 import spyOn = jest.spyOn;
 import { ResetPwDto } from '../../../../src/api/user/dto/reset-pw.dto';
 import { LoginDto } from '../../../../src/api/auth/dto/local-login.dto';
-import { TestHelper } from '../../setup/test.helper';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 
 describe('User (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
 
   beforeEach(async () => {
-    await test.init(AppModule);
+    await test.init();
   });
 
   afterEach(async () => {

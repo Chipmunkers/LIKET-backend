@@ -19,16 +19,21 @@ export abstract class ITestHelper {
   protected appModule: TestingModule;
   protected readonly overrideProviderMap: Map<any, any> = new Map();
   protected readonly prismaSetup: PrismaSetup = PrismaSetup.setup();
+  private readonly RootModule: Type;
+
+  constructor(AppModule: Type) {
+    this.RootModule = AppModule;
+  }
 
   /**
    * 테스트를 시작하는 메서드.
    * beforeEach에서 사용하기를 권장.
    */
-  public async init(AppModule: Type): Promise<void> {
+  public async init(): Promise<void> {
     await this.prismaSetup.BEGIN();
 
     const testingModuleBuilder = Test.createTestingModule({
-      imports: [AppModule],
+      imports: [this.RootModule],
     });
 
     for (const mapKey of this.overrideProviderMap.keys()) {

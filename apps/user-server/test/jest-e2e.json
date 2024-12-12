@@ -9,6 +9,7 @@
   "moduleNameMapper": {
     "^libs/modules(.*)": "<rootDir>/libs/modules/src/$1",
     "^libs/common(.*)": "<rootDir>/libs/common/src/$1",
-    "^libs/testing(.*)": "<rootDir>/libs/testing/src/$1"
+    "^libs/testing(.*)": "<rootDir>/libs/testing/src/$1",
+    "^apps(.*)": "<rootDir>/apps/$1"
   }
 }

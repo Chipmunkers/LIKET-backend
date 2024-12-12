@@ -1,11 +1,11 @@
 import * as request from 'supertest';
-import { ReportReviewDto } from '../../../../src/api/review-report/dto/report-review.dto';
-import { ReviewEntity } from '../../../../src/api/review/entity/review.entity';
-import { PrismaProvider } from '../../../../../../libs/modules/src';
-import { TestHelper } from '../../setup/test.helper';
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { ReportReviewDto } from 'apps/user-server/src/api/review-report/dto/report-review.dto';
+import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
 
 describe('Review Report(e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
 
   beforeEach(async () => {
     await test.init();
@@ -215,7 +215,7 @@ describe('Review Report(e2e)', () => {
       const loginUser = test.getLoginUsers().user2;
 
       const reviewBeforeBeingReported = await test
-        .get(PrismaProvider)
+        .getPrisma()
         .review.findUniqueOrThrow({
           select: {
             firstReportedAt: true,
@@ -233,7 +233,7 @@ describe('Review Report(e2e)', () => {
         .send(reportDto)
         .expect(201);
 
-      const review = await test.get(PrismaProvider).review.findUniqueOrThrow({
+      const review = await test.getPrisma().review.findUniqueOrThrow({
         where: {
           idx: reviewIdx,
         },
@@ -251,16 +251,14 @@ describe('Review Report(e2e)', () => {
 
       const firstReportDate = new Date();
 
-      const reviewBeforeBeingReported = await test
-        .get(PrismaProvider)
-        .review.update({
-          where: {
-            idx: reviewIdx,
-          },
-          data: {
-            firstReportedAt: firstReportDate,
-          },
-        });
+      const reviewBeforeBeingReported = await test.getPrisma().review.update({
+        where: {
+          idx: reviewIdx,
+        },
+        data: {
+          firstReportedAt: firstReportDate,
+        },
+      });
 
       expect(reviewBeforeBeingReported.firstReportedAt).toEqual(
         firstReportDate,
@@ -272,7 +270,7 @@ describe('Review Report(e2e)', () => {
         .send(reportDto)
         .expect(201);
 
-      const review = await test.get(PrismaProvider).review.findUniqueOrThrow({
+      const review = await test.getPrisma().review.findUniqueOrThrow({
         where: {
           idx: reviewIdx,
         },

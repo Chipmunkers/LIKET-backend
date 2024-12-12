@@ -1,10 +1,11 @@
 import * as request from 'supertest';
-import { CreateContentRequestDto } from '../../../../src/api/culture-content/dto/create-content-request.dto';
 import invalidCreateContentRequest from './invalid-create-content-request';
-import { TestHelper } from '../../setup/test.helper';
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { CreateContentRequestDto } from 'apps/user-server/src/api/culture-content/dto/create-content-request.dto';
 
 describe('Culture Content (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
 
   beforeEach(async () => {
     await test.init();

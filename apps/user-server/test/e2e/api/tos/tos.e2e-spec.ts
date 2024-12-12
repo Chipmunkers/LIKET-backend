@@ -1,8 +1,9 @@
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import * as request from 'supertest';
-import { TestHelper } from '../../setup/test.helper';
 
 describe('Terms of service (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
 
   beforeEach(async () => {
     await test.init();
