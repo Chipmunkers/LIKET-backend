@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export const STYLE = {
   /** 혼자 */
   ALONE: 1,
@@ -55,4 +58,4 @@ export const STYLE = {
   SERIOUS: 27,
 } as const;
 
-export type STYLE = (typeof STYLE)[keyof typeof STYLE];
+export type Style = (typeof STYLE)[keyof typeof STYLE];

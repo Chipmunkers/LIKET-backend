@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export const GENRE = {
   /** 팝업 스토어 */
   POPUP_STORE: 1,
@@ -13,4 +16,4 @@ export const GENRE = {
   FESTIVAL: 6,
 } as const;
 
-export type GENRE = (typeof GENRE)[keyof typeof GENRE];
+export type Genre = (typeof GENRE)[keyof typeof GENRE];

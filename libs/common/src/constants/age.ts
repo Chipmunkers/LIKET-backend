@@ -1,3 +1,6 @@
+/**
+ * @author jochongs
+ */
 export const AGE = {
   /** 전체 */
   ALL: 1,
@@ -13,4 +16,4 @@ export const AGE = {
   FORTIES_FIFTIES: 6,
 } as const;
 
-export type AGE = (typeof AGE)[keyof typeof AGE];
+export type Age = (typeof AGE)[keyof typeof AGE];
