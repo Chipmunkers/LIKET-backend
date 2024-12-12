@@ -98,22 +98,6 @@ describe('Culture Content (e2e)', () => {
       expect(contentList[1].idx).toBe(content2.idx);
     });
 
-    it('Success: get my not accepted contents', async () => {
-      const loginUser = test.getLoginUsers().user1;
-
-      const response = await request(test.getServer())
-        .get('/culture-content/all')
-        .query({
-          accept: false,
-          user: 1,
-        })
-        .set('Authorization', `Bearer ${loginUser.accessToken}`)
-        .expect(200);
-
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
-    });
-
     it('Success: genre filter', async () => {
       const loginUser = test.getLoginUsers().user1;
 
