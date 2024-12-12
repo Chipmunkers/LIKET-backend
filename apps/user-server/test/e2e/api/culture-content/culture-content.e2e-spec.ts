@@ -4,6 +4,7 @@ import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { CreateContentRequestDto } from 'apps/user-server/src/api/culture-content/dto/create-content-request.dto';
 import { CultureContentSeedHelper } from 'libs/testing/seed/culture-content-seed.helper';
+import { GENRE } from 'libs/common';
 
 describe('Culture Content (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -125,6 +126,45 @@ describe('Culture Content (e2e)', () => {
 
       expect(response.body?.contentList).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
+    });
+
+    it('Genre filtering test', async () => {
+      const randomUser = test.getLoginUsers().user2;
+
+      const [acceptedConcertContent] = await contentSeedHelper.seedAll([
+        {
+          userIdx: randomUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.CONCERT,
+        },
+        {
+          userIdx: randomUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.FESTIVAL,
+        },
+        {
+          userIdx: randomUser.idx,
+          genreIdx: GENRE.CONCERT,
+        },
+        {
+          userIdx: randomUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.CONCERT,
+          deletedAt: new Date(0),
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          genre: GENRE.CONCERT,
+        });
+
+      const contentList = response.body.contentList;
+
+      expect(contentList.length).toBe(1);
+      expect(contentList[0].idx).toBe(acceptedConcertContent.idx);
     });
 
     it('Success: age filter', async () => {
