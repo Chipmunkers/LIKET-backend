@@ -34,21 +34,6 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success: get my contents', async () => {
-      const loginUser = test.getLoginUsers().user1;
-
-      const response = await request(test.getServer())
-        .get('/culture-content/all')
-        .query({
-          user: 1,
-        })
-        .set('Authorization', `Bearer ${loginUser.accessToken}`)
-        .expect(200);
-
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
-    });
-
-    it('Success: get my contents', async () => {
       const otherUser = test.getLoginUsers().user1;
       const loginUser = test.getLoginUsers().user2;
 
@@ -70,6 +55,18 @@ describe('Culture Content (e2e)', () => {
       expect(response.body?.contentList).toBeDefined();
       expect(Array.isArray(response.body.contentList)).toBeTruthy();
       expect(response.body.contentList.length).toBe(2);
+    });
+
+    it('Get not accepted content', async () => {
+      const loginUser = test.getLoginUsers().user2;
+
+      await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: false,
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(403);
     });
 
     it('Success: get my not accepted contents', async () => {
