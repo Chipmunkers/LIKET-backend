@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaSetup } from '../setup/prisma.setup';
 import { Type } from 'libs/common';
 import { PrismaProvider } from 'libs/modules';
+import { ISeedHelper } from 'libs/testing/interface/seed-helper.interface';
 
 interface OverrideBy {
   useValue: (value: any) => ITestHelper;
@@ -73,6 +74,10 @@ export abstract class ITestHelper {
 
   public get<T = any>(typeOrToken: Type<T>) {
     return this.app.get(typeOrToken);
+  }
+
+  public seedHelper<T extends ISeedHelper>(SeedHelper: Type<T>): T {
+    return new SeedHelper(this.getPrisma());
   }
 
   public overrideProvider<T = any>(provider: T): OverrideBy {

@@ -1,3 +1,42 @@
+/**
+ * 객체의 랜덤 값 여러 개를 뽑아오는 메서드
+ * 중복 가능 여부는 옵션을 통해 제어하십시오.
+ *
+ * @author jochongs
+ */
+export const getRandomValuesFromConstant = <T extends Record<any, any>>(
+  data: T,
+  count: number,
+  options: {
+    duplicate?: boolean;
+  } = {},
+): T[keyof T][] => {
+  const keys = Object.keys(data);
+
+  if (keys.length < count) {
+    throw new Error('Requested count exceeds the number of available items.');
+  }
+
+  const valueList: T[keyof T][] = [];
+
+  while (valueList.length < count) {
+    const randomKey = keys[getRandomIndexFromArray(keys)];
+
+    valueList.push(data[randomKey]);
+
+    if (!options.duplicate) {
+      delete data[randomKey];
+    }
+  }
+
+  return valueList;
+};
+
+/**
+ * 객체의 랜덤 값 하나를 뽑아오는 메서드
+ *
+ * @author jochongs
+ */
 export const getRandomValueFromConstant = <T extends Record<any, any>>(
   data: T,
 ): T[keyof T] => {
@@ -12,6 +51,9 @@ export const getRandomValueFromConstant = <T extends Record<any, any>>(
   return data[randomKey];
 };
 
+/**
+ * 배열의 랜덤 키 값을 뽑아오는 메서드
+ */
 export const getRandomIndexFromArray = (list: Array<unknown>) => {
   if (!list.length) {
     throw new Error('Provided array is empty');
