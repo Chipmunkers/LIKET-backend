@@ -147,7 +147,11 @@ export class CultureContentSeedHelper extends ISeedHelper<
   public async seedAll(
     inputList: CultureContentInput[],
   ): Promise<CultureContentOutput[]> {
-    return await Promise.all(inputList.map((input) => this.seed(input)));
+    const results: CultureContentOutput[] = [];
+    for (const input of inputList) {
+      results.push(await this.seed(input));
+    }
+    return results;
   }
 
   private getRandomGenre() {

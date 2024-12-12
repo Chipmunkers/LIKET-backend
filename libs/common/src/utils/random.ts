@@ -11,21 +11,27 @@ export const getRandomValuesFromConstant = <T extends Record<any, any>>(
     duplicate?: boolean;
   } = {},
 ): T[keyof T][] => {
-  const keys = Object.keys(data);
+  const keys = [...Object.keys(data)]; // 원본 데이터 수정 방지
 
-  if (keys.length < count) {
+  if (!options.duplicate && keys.length < count) {
     throw new Error('Requested count exceeds the number of available items.');
   }
 
   const valueList: T[keyof T][] = [];
+  const usedIndices = new Set<number>();
 
   while (valueList.length < count) {
-    const randomKey = keys[getRandomIndexFromArray(keys)];
+    const randomIndex = getRandomIndexFromArray(keys);
 
-    valueList.push(data[randomKey]);
+    if (!options.duplicate && usedIndices.has(randomIndex)) {
+      continue;
+    }
+
+    valueList.push(data[keys[randomIndex]]);
+    usedIndices.add(randomIndex);
 
     if (!options.duplicate) {
-      delete data[randomKey];
+      keys.splice(randomIndex, 1);
     }
   }
 

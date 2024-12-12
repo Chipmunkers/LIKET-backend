@@ -69,6 +69,35 @@ describe('Culture Content (e2e)', () => {
         .expect(403);
     });
 
+    it('Get not accepted contents that were created by login user', async () => {
+      const otherUser = test.getLoginUsers().user1;
+      const loginUser = test.getLoginUsers().user2;
+
+      const [content1, content2] = await contentSeedHelper.seedAll([
+        { userIdx: loginUser.idx, acceptedAt: null },
+        { userIdx: loginUser.idx, acceptedAt: null },
+        { userIdx: otherUser.idx, acceptedAt: null },
+        { userIdx: loginUser.idx, acceptedAt: null, deletedAt: new Date() },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: false,
+          user: loginUser.idx,
+          order: 'asc',
+          orderby: 'create',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const { contentList } = response.body;
+
+      expect(contentList.length).toBe(2);
+      expect(contentList[0].idx).toBe(content1.idx);
+      expect(contentList[1].idx).toBe(content2.idx);
+    });
+
     it('Success: get my not accepted contents', async () => {
       const loginUser = test.getLoginUsers().user1;
 
