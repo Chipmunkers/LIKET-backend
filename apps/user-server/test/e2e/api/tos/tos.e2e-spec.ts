@@ -1,9 +1,11 @@
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { TosSeedHelper } from 'libs/testing/seed/tos-seed.helper';
 import * as request from 'supertest';
 
 describe('Terms of service (e2e)', () => {
   const test = TestHelper.create(AppModule);
+  const tosSeedHelper = test.seedHelper(TosSeedHelper);
 
   beforeEach(async () => {
     await test.init();
@@ -26,13 +28,16 @@ describe('Terms of service (e2e)', () => {
 
   describe('GET /tos/:idx', () => {
     it('Success', async () => {
-      const idx = 1;
+      const tosSeed = await tosSeedHelper.seed({});
 
       const response = await request(test.getServer())
-        .get(`/tos/${idx}`)
+        .get(`/tos/${tosSeed.idx}`)
         .expect(200);
 
-      expect(response.body?.idx).toBe(1);
+      expect(response.body?.idx).toBe(tosSeed.idx);
+      expect(response.body?.title).toBe(tosSeed.title);
+      expect(response.body?.contents).toBe(tosSeed.contents);
+      expect(response.body?.isEssential).toBe(tosSeed.isEssential);
     });
 
     it('Invalid path parameter', async () => {
