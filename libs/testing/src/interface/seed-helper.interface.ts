@@ -15,5 +15,11 @@ export abstract class ISeedHelper<TInput = any, TOutput = any> {
 
   public abstract seed(input: TInput): Promise<TOutput>;
 
-  public abstract seedAll(inputList: TInput[]): Promise<TOutput[]>;
+  public async seedAll(inputList: TInput[]): Promise<TOutput[]> {
+    const results: TOutput[] = [];
+    for (const input of inputList) {
+      results.push(await this.seed(input));
+    }
+    return results;
+  }
 }

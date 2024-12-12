@@ -144,16 +144,6 @@ export class CultureContentSeedHelper extends ISeedHelper<
     };
   }
 
-  public async seedAll(
-    inputList: CultureContentInput[],
-  ): Promise<CultureContentOutput[]> {
-    const results: CultureContentOutput[] = [];
-    for (const input of inputList) {
-      results.push(await this.seed(input));
-    }
-    return results;
-  }
-
   private getRandomGenre() {
     return getRandomValueFromConstant(GENRE);
   }
