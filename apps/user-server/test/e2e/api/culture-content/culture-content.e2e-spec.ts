@@ -57,7 +57,7 @@ describe('Culture Content (e2e)', () => {
       expect(response.body.contentList.length).toBe(2);
     });
 
-    it('Get not accepted content', async () => {
+    it('Get not accepted contents', async () => {
       const loginUser = test.getLoginUsers().user2;
 
       await request(test.getServer())
