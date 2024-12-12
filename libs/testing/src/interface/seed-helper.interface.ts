@@ -15,5 +15,5 @@ export abstract class ISeedHelper<TInput = any, TOutput = any> {
 
   public abstract seed(input: TInput): Promise<TOutput>;
 
-  public abstract seedAll(input: TInput[]): Promise<TOutput[]>;
+  public abstract seedAll(inputList: TInput[]): Promise<TOutput[]>;
 }
