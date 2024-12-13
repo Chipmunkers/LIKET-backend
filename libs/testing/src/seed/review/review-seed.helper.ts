@@ -61,7 +61,7 @@ export class ReviewSeedHelper extends ISeedHelper<ReviewInput, ReviewOutput> {
       description: input.description ?? faker.lorem.sentences(4),
       visitTime: input.visitTime ?? this.getRandomVisitDate(),
       deletedAt: input.deletedAt ?? null,
-      firstReportedAt: input.deletedAt ?? null,
+      firstReportedAt: input.firstReportedAt ?? null,
     };
   }
 

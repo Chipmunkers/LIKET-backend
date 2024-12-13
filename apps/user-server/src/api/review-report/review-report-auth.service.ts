@@ -19,7 +19,7 @@ export class ReviewReportAuthService {
     const review = await this.reviewRepository.selectReviewByIdx(idx);
 
     // 리뷰 존재여부는 reviewReportService에서 확인, 로직상 어쩔 수 없음
-    if (review?.idx === loginUser.idx) {
+    if (review?.userIdx === loginUser.idx) {
       throw new PermissionDeniedException('Permission Denied');
     }
   }
