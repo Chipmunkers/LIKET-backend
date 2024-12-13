@@ -23,7 +23,7 @@ export class InquirySeedHelper extends ISeedHelper<
         typeIdx: filledInput.typeIdx,
         title: filledInput.title,
         contents: filledInput.contents,
-        deletedAt: filledInput.contents,
+        deletedAt: filledInput.deletedAt,
         InquiryImg: {
           createMany: {
             data: filledInput.imgList.map((imgPath) => ({

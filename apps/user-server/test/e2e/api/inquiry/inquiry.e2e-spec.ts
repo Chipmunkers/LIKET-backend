@@ -1,9 +1,11 @@
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { InquirySeedHelper } from 'libs/testing';
 import * as request from 'supertest';
 
 describe('Inquiry (e2e)', () => {
   const test = TestHelper.create(AppModule);
+  const inquirySeedHelper = test.seedHelper(InquirySeedHelper);
 
   beforeEach(async () => {
     await test.init();
@@ -15,7 +17,15 @@ describe('Inquiry (e2e)', () => {
 
   describe('GET /inquiry/all', () => {
     it('Success - user1', async () => {
-      const loginUser = test.getLoginUsers().user1;
+      const loginUser = test.getLoginUsers().user2;
+
+      const [firstInquiry, secondInquiry, thirdInquiry] =
+        await inquirySeedHelper.seedAll([
+          { userIdx: loginUser.idx },
+          { userIdx: loginUser.idx },
+          { userIdx: loginUser.idx },
+          { userIdx: loginUser.idx, deletedAt: new Date() },
+        ]);
 
       const response = await request(test.getServer())
         .get('/inquiry/all')
@@ -25,10 +35,19 @@ describe('Inquiry (e2e)', () => {
       expect(response.body?.inquiryList).toBeDefined();
       expect(Array.isArray(response.body.inquiryList)).toBe(true);
       expect(response.body.inquiryList.length).toBe(3);
+      expect(response.body.inquiryList[0].idx).toBe(thirdInquiry.idx);
+      expect(response.body.inquiryList[1].idx).toBe(secondInquiry.idx);
+      expect(response.body.inquiryList[2].idx).toBe(firstInquiry.idx);
     });
 
     it('Success - user2', async () => {
+      const otherUser = test.getLoginUsers().user1;
       const loginUser = test.getLoginUsers().user2;
+
+      await inquirySeedHelper.seedAll([
+        { userIdx: otherUser.idx },
+        { userIdx: otherUser.idx },
+      ]);
 
       const response = await request(test.getServer())
         .get('/inquiry/all')
@@ -63,20 +82,25 @@ describe('Inquiry (e2e)', () => {
   describe('GET /inquiry/:idx', () => {
     it('Success', async () => {
       const loginUser = test.getLoginUsers().user1;
-      const idx = 1;
+
+      const inquiry = await inquirySeedHelper.seed({
+        userIdx: loginUser.idx,
+      });
 
       const response = await request(test.getServer())
-        .get(`/inquiry/${idx}`)
+        .get(`/inquiry/${inquiry.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body?.idx).toBeDefined();
-      expect(response.body.idx).toBe(1);
+      expect(response.body.idx).toBe(inquiry.idx);
+      expect(response.body.title).toBe(inquiry.title);
+      expect(response.body.contents).toBe(inquiry.contents);
     });
 
     it('Non-existent inquiry', async () => {
       const loginUser = test.getLoginUsers().user1;
-      const idx = 9999; // Non-existent inquiry
+      const idx = -9999; // Non-existent inquiry
 
       await request(test.getServer())
         .get(`/inquiry/${idx}`)
@@ -94,11 +118,15 @@ describe('Inquiry (e2e)', () => {
     });
 
     it('Permission denied - non author user', async () => {
+      const otherUser = test.getLoginUsers().user1;
       const loginUser = test.getLoginUsers().user2;
-      const idx = 1;
+
+      const inquiry = await inquirySeedHelper.seed({
+        userIdx: otherUser.idx,
+      });
 
       await request(test.getServer())
-        .get(`/inquiry/${idx}`)
+        .get(`/inquiry/${inquiry.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
     });
@@ -262,18 +290,22 @@ describe('Inquiry (e2e)', () => {
     });
 
     it('Permission denied - non author user', async () => {
+      const otherUser = test.getLoginUsers().user1;
       const loginUser = test.getLoginUsers().user2;
-      const idx = 1;
+
+      const inquiry = await inquirySeedHelper.seed({
+        userIdx: otherUser.idx,
+      });
 
       await request(test.getServer())
-        .delete(`/inquiry/${idx}`)
+        .delete(`/inquiry/${inquiry.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
     });
 
     it('Non-existent inquiry', async () => {
       const loginUser = test.getLoginUsers().user2;
-      const idx = 999999; // Non-existent inquiry
+      const idx = -999999; // Non-existent inquiry
 
       await request(test.getServer())
         .delete(`/inquiry/${idx}`)
