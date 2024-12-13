@@ -1,6 +1,6 @@
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
-import { TosSeedHelper } from 'libs/testing/seed/tos/tos-seed.helper';
+import { TosSeedHelper } from 'libs/testing';
 import * as request from 'supertest';
 
 describe('Terms of service (e2e)', () => {
