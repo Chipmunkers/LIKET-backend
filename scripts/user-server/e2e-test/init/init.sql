@@ -201,12 +201,3 @@ VALUES
         NOW(), -- accepted_at
         NOW()
     );
-
--- 리뷰
-INSERT INTO review_tb
-(culture_content_idx, user_idx, description, visit_time, star_rating)
-VALUES
-    -- 1
-    (1, 1, '정말 재미있었습니다.', '2024-05-05', 4),
-    -- 2
-    (1, 1, '꼭 가보세요. 다비드 자맹의 작품 정말 역대급입니다.', '2024-05-06', 5);
