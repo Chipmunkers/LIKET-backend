@@ -3,7 +3,7 @@ import invalidCreateContentRequest from './invalid-create-content-request';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { CreateContentRequestDto } from 'apps/user-server/src/api/culture-content/dto/create-content-request.dto';
-import { CultureContentSeedHelper } from 'libs/testing/seed/culture-content-seed.helper';
+import { CultureContentSeedHelper } from 'libs/testing/seed/culture-content/culture-content-seed.helper';
 import { GENRE } from 'libs/common';
 
 describe('Culture Content (e2e)', () => {
