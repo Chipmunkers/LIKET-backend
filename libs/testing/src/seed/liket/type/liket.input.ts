@@ -58,4 +58,11 @@ export type LiketInput = {
    * @default "랜덤 문자열"
    */
   description?: string;
+
+  /**
+   * 삭제 일
+   *
+   * @default null
+   */
+  deletedAt?: Date | null;
 };
