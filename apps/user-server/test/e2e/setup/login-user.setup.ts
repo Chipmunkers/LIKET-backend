@@ -61,6 +61,21 @@ export class TestLoginUsers {
 
     throw new Error('Login users did not setup');
   }
+
+  /**
+   * 첫 번째 파라미터 유저 idx값인 사용자를 가져오는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 인덱스
+   */
+  public of(idx: number): TestLoginUser {
+    for (const user of this.userList) {
+      if (user.idx === idx) return user;
+    }
+
+    throw new Error('Cannot find user in login user list, idx = ' + idx);
+  }
 }
 
 export class LoginSetting {
