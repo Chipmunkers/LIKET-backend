@@ -60,7 +60,9 @@ describe('Liket (e2e)', () => {
     },
   ] as const;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await test.init();
+
     for (const liket of liketSeeds) {
       await test.getPrisma().liket.upsert({
         where: {
@@ -101,10 +103,6 @@ describe('Liket (e2e)', () => {
         },
       });
     }
-  });
-
-  beforeEach(async () => {
-    await test.init();
   });
 
   afterEach(async () => {
