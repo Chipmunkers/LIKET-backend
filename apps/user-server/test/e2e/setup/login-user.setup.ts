@@ -52,7 +52,7 @@ export class TestLoginUsers {
    *
    * @author jochongs
    *
-   * @param idx 사용자인덱스
+   * @param idx 사용자 인덱스
    */
   public not(idx: number): TestLoginUser {
     for (const user of this.userList) {
