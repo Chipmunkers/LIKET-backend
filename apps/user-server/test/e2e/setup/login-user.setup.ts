@@ -27,12 +27,16 @@ export class TestLoginUser {
 }
 
 export class TestLoginUsers {
+  private readonly userList: TestLoginUser[] = [];
+
   private readonly _user1: TestLoginUser;
   private readonly _user2: TestLoginUser;
 
   constructor(user1: TestLoginUser, user2: TestLoginUser) {
     this._user1 = user1;
     this._user2 = user2;
+    this.userList.push(user1);
+    this.userList.push(user2);
   }
 
   get user1(): TestLoginUser {
@@ -41,6 +45,21 @@ export class TestLoginUsers {
 
   get user2(): TestLoginUser {
     return this._user2;
+  }
+
+  /**
+   * 첫 번째 파라미터의 유저 idx값이 아닌 사용자를 가져오는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자인덱스
+   */
+  public not(idx: number): TestLoginUser {
+    for (const user of this.userList) {
+      if (user.idx !== idx) return user;
+    }
+
+    throw new Error('Login users did not setup');
   }
 }
 
