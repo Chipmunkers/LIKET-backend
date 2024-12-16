@@ -43,7 +43,7 @@ export type LiketInput = {
    *
    * @default []
    */
-  ImgShapeEntity?: ImgShapeEntity[];
+  imgShapeList?: ImgShapeEntity[];
 
   /**
    * 사이즈
