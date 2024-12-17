@@ -8,7 +8,7 @@ import { LiketOutput } from 'libs/testing/seed/liket/type/liket.output';
 /**
  * @author jochongs
  */
-export class LiketSeedHelepr extends ISeedHelper<LiketInput, LiketOutput> {
+export class LiketSeedHelper extends ISeedHelper<LiketInput, LiketOutput> {
   public async seed(input: LiketInput): Promise<LiketOutput> {
     const filledInput = await this.getFilledInputValue(input);
 
