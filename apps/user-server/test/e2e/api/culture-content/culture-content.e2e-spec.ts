@@ -714,67 +714,83 @@ describe('Culture Content (e2e)', () => {
 
   describe('POST /culture-content/:idx/like', () => {
     it("Success - like author's content", async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
 
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
+
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Success - like for content user do not own', async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Success - like not accepted content', async () => {
-      const idx = 2;
       const loginUser = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: null,
+      });
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Duplicate like', async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+      });
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });
 
     it('Duplicate like, like the other user', async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
       const otherLoginUserToken = test.getLoginUsers().user2;
 
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
+
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${otherLoginUserToken.accessToken}`)
         .expect(201);
     });
@@ -791,69 +807,82 @@ describe('Culture Content (e2e)', () => {
 
   describe('DELETE /culture-content/:idx/like', () => {
     it("Success - author's content", async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
 
       // 좋아요 누르기
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 취소하기
       await request(test.getServer())
-        .delete(`/culture-content/${idx}/like`)
+        .delete(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Success - Non-author cancels like', async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
 
       // 좋아요 누르기
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 취소하기
       await request(test.getServer())
-        .delete(`/culture-content/${idx}/like`)
+        .delete(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
-    it('Cancel like (already unliked)', async () => {
-      const idx = 1;
+    it('Cancel like (already disliked)', async () => {
+      const content = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().user2.idx,
+        acceptedAt: new Date(),
+      });
       const loginUser = test.getLoginUsers().user1;
 
       // 좋아요 취소하기
       await request(test.getServer())
-        .delete(`/culture-content/${idx}/like`)
+        .delete(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });
 
     it('Success - like again', async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
 
       // 좋아요 누르기
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 취소하기
       await request(test.getServer())
-        .delete(`/culture-content/${idx}/like`)
+        .delete(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 누르기
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
@@ -1006,10 +1035,14 @@ describe('Culture Content (e2e)', () => {
         isPet: true,
       };
       const loginUser = test.getLoginUsers().user1;
-      const idx = 2;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: null,
+      });
 
       await request(test.getServer())
-        .put(`/culture-content/request/${idx}`)
+        .put(`/culture-content/request/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
         .expect(201);
@@ -1042,11 +1075,15 @@ describe('Culture Content (e2e)', () => {
         isParking: true,
         isPet: true,
       };
-      const loginUser = test.getLoginUsers().user2; // Non author
-      const idx = 2;
+      const loginUser = test.getLoginUsers().user2;
+
+      const contentOfOtherUser = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .put(`/culture-content/request/${idx}`)
+        .put(`/culture-content/request/${contentOfOtherUser.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
         .expect(403);
@@ -1117,10 +1154,14 @@ describe('Culture Content (e2e)', () => {
         isPet: true,
       };
       const loginUser = test.getLoginUsers().user1;
-      const idx = 1; // Accepted content
+
+      const acceptedContent = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .put(`/culture-content/request/${idx}`)
+        .put(`/culture-content/request/${acceptedContent.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
         .expect(409);
@@ -1130,20 +1171,29 @@ describe('Culture Content (e2e)', () => {
   describe('DELETE /culture-content/request/:idx', () => {
     it('Success', async () => {
       const loginUser = test.getLoginUsers().user1;
-      const idx = 2;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        deletedAt: null,
+      });
 
       await request(test.getServer())
-        .delete(`/culture-content/request/${idx}`)
+        .delete(`/culture-content/request/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Non author delete content', async () => {
       const loginUser = test.getLoginUsers().user2; // Non author
-      const idx = 2;
+      const otherUser = test.getLoginUsers().not(loginUser.idx);
+
+      const content = await contentSeedHelper.seed({
+        userIdx: otherUser.idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .delete(`/culture-content/request/${idx}`)
+        .delete(`/culture-content/request/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
     });
@@ -1169,10 +1219,13 @@ describe('Culture Content (e2e)', () => {
 
     it('Accepted content', async () => {
       const loginUser = test.getLoginUsers().user1;
-      const idx = 1; // Accepted content
+      const notAcceptedContent = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .delete(`/culture-content/request/${idx}`)
+        .delete(`/culture-content/request/${notAcceptedContent.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });

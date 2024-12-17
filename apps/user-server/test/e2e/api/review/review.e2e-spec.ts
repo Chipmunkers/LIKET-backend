@@ -19,10 +19,16 @@ describe('Review (e2e)', () => {
 
   describe('GET /review/all', () => {
     it('Success', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
       const response = await request(test.getServer())
         .get('/review/all')
         .query({
-          content: 1,
+          content: content.idx,
           orderby: 'time',
           page: 1,
           order: 'desc',
