@@ -18,61 +18,6 @@ describe('Liket (e2e)', () => {
   let content: CultureContentOutput;
   let review: ReviewOutput;
 
-  const liketSeeds = [
-    {
-      idx: 1,
-      reviewIdx: 1,
-      bgImgPath: '/liket/bg/img_000001.png',
-      bgImgInfo: {
-        rotation: -304.2448570172177,
-        width: 109.52810264879164,
-        height: 109.52810264879164,
-        offsetX: 82.44220158804448,
-        offsetY: 54.75638762191013,
-        x: 108,
-        y: 209,
-      },
-      cardImgPath: '/liket/bg/img_000001.png',
-      textShape: {
-        fill: '#f5d949',
-        text: '별이 빛나는 밤에',
-        x: 444,
-        y: 555,
-      },
-      size: 2,
-      description: '42글자로 표현하기 어려운 팝업 스토어',
-    },
-  ] as const;
-
-  const liketImgShapeSeeds = [
-    {
-      idx: 1,
-      liketIdx: 1,
-      imgShape: {
-        code: 1,
-        stickerNumber: 1,
-        width: 164.9074803925627,
-        height: 109.5281026487916,
-        x: 108,
-        y: 209,
-        rotation: 24,
-      },
-    },
-    {
-      idx: 2,
-      liketIdx: 1,
-      imgShape: {
-        code: 9,
-        stickerNumber: 1,
-        width: 164.9074803925627,
-        height: 109.5281026487916,
-        x: 108,
-        y: 209,
-        rotation: 34,
-      },
-    },
-  ] as const;
-
   beforeEach(async () => {
     await test.init();
 
