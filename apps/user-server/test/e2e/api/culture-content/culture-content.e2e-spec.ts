@@ -58,6 +58,111 @@ describe('Culture Content (e2e)', () => {
       expect(response.body.contentList.length).toBe(2);
     });
 
+    it('Success: Get Open contents test with end date null', async () => {
+      const oneMothAfter = new Date();
+      oneMothAfter.setMonth(oneMothAfter.getMonth() + 1);
+
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      const [endDateNullContents, endDateNotNullContents] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: test.getLoginUsers().user1.idx,
+            startDate: oneMonthAgo,
+            endDate: null,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: test.getLoginUsers().user1.idx,
+            startDate: oneMonthAgo,
+            endDate: oneMothAfter,
+            acceptedAt: new Date(),
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          open: true,
+        });
+
+      const contentList = response.body.contentList;
+
+      expect(contentList.length).toBe(2);
+    });
+
+    it('Success: Get Open contents with not open content', async () => {
+      const oneMothAfter = new Date();
+      oneMothAfter.setMonth(oneMothAfter.getMonth() + 1);
+
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      const [firstContent, secondContent] = await contentSeedHelper.seedAll([
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMothAfter,
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo,
+          endDate: oneMothAfter,
+          acceptedAt: new Date(),
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          open: true,
+        });
+
+      const contentList = response.body.contentList;
+
+      expect(contentList.length).toBe(1);
+      expect(contentList[0].idx).toBe(secondContent.idx);
+    });
+
+    it('Success: Get Open contents with not open content - 2', async () => {
+      const oneMothAfter = new Date();
+      oneMothAfter.setMonth(oneMothAfter.getMonth() + 1);
+
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      const [firstContent, secondContent] = await contentSeedHelper.seedAll([
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo,
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMothAfter,
+          endDate: oneMothAfter,
+          acceptedAt: new Date(),
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          open: true,
+        });
+
+      const contentList = response.body.contentList;
+
+      expect(contentList.length).toBe(1);
+      expect(contentList[0].idx).toBe(firstContent.idx);
+    });
+
     it('Get not accepted contents', async () => {
       const loginUser = test.getLoginUsers().user2;
 
@@ -612,6 +717,41 @@ describe('Culture Content (e2e)', () => {
       expect(response.body?.contentList).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
+
+    it('Success with contents', async () => {
+      const oneMonthAfter = new Date();
+      oneMonthAfter.setMonth(oneMonthAfter.getMonth() + 1);
+
+      await contentSeedHelper.seedAll([
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAfter,
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAfter,
+          endDate: oneMonthAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          // open state content
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: new Date(),
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+      ]);
+
+      const response = await request(test.getServer()).get(
+        '/culture-content/soon-open/all',
+      );
+
+      const { contentList } = response.body;
+
+      expect(contentList.length).toBe(2);
+    });
   });
 
   describe('GET /culture-content/soon-end/all', () => {
@@ -634,6 +774,44 @@ describe('Culture Content (e2e)', () => {
 
       expect(response.body?.contentList).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
+    });
+
+    it('Success with contents', async () => {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      const oneDateAfter = new Date();
+      oneDateAfter.setDate(oneDateAfter.getDate() + 1);
+
+      await contentSeedHelper.seedAll([
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneDateAfter,
+          endDate: oneDateAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: new Date(),
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+        {
+          // open state content
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: new Date(),
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+      ]);
+
+      const response = await request(test.getServer()).get(
+        '/culture-content/soon-open/all',
+      );
+
+      const { contentList } = response.body;
+
+      expect(contentList.length).toBe(1);
     });
   });
 
