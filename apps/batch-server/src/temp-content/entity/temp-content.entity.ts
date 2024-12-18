@@ -4,6 +4,7 @@ import { TempContentLocationEntity } from './temp-content-location.entity';
  * RawTempContentEntity를 가공한 Entity
  *
  * @author jochongs
+ * @deprecated
  */
 export class TempContentEntity {
   /** 공연 ID */
