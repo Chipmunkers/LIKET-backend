@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PerformEntity } from 'apps/batch-server/src/content-cron/external-apis/kopis/entity/perform.entity';
 import { SummaryPerformEntity } from 'apps/batch-server/src/content-cron/external-apis/kopis/entity/summary-perform.entity';
+import { KopisPerformApiAdapter } from 'apps/batch-server/src/content-cron/external-apis/kopis/kopis-perform-api.adapter';
 import { KopisPerformProvider } from 'apps/batch-server/src/content-cron/external-apis/kopis/provider/kopis-perform.provider';
 import { MonthInfo } from 'apps/batch-server/src/content-cron/external-apis/kopis/type/MonthInfo';
 import { IExternalApiAdapterService } from 'apps/batch-server/src/content-cron/interface/external-api-adapter.service';
@@ -13,6 +14,7 @@ export class KopisPerformApiService
   constructor(
     private readonly kopisPerformProvider: KopisPerformProvider,
     private readonly logger: Logger,
+    private readonly KopisPerformApiAdapter: KopisPerformApiAdapter,
   ) {}
 
   /**
@@ -50,7 +52,7 @@ export class KopisPerformApiService
    * @author jochongs
    */
   public getAdapter(): IExternalApiAdapterService<PerformEntity> {
-    throw new Error('Method not implemented.');
+    return this.KopisPerformApiAdapter;
   }
 
   /**
@@ -63,7 +65,9 @@ export class KopisPerformApiService
     let page = 1;
     while (true) {
       this.logger.debug(
-        `GET summary content ${monthInfo.startDate}~${monthInfo.endDate}`,
+        `GET summary content ${this.getYYYYMMDDformat(
+          monthInfo.startDate,
+        )}~${this.getYYYYMMDDformat(monthInfo.endDate)} | page = ${page}`,
       );
       const summaryPerformList = await this.kopisPerformProvider.getPerformAll({
         cpage: page,
@@ -108,7 +112,7 @@ export class KopisPerformApiService
 
       const beforeMonthInfo = threeMonthSequence[i - 1];
 
-      threeMonthSequence.push(this.getNextMonth(beforeMonthInfo.startDate));
+      threeMonthSequence.push(this.getNextMonth(beforeMonthInfo.endDate));
     }
 
     return threeMonthSequence;

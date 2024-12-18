@@ -19,6 +19,9 @@ export class TempContentEntity {
   /** 연령대 인덱스 */
   ageIdx: number;
 
+  /** 스타일 인덱스 */
+  styleIdxList: number[];
+
   /** 공연명 */
   title: string;
 
