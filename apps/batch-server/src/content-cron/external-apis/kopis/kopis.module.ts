@@ -9,6 +9,7 @@ import { KopisPerformApiService } from 'apps/batch-server/src/content-cron/exter
 import { KopisPerformApiAdapter } from 'apps/batch-server/src/content-cron/external-apis/kopis/kopis-perform-api.adapter';
 import { S3Module } from 'libs/modules';
 import { KakaoAddressModule } from 'apps/batch-server/src/kakao-address/kakao-address.module';
+import { OpenAIModule } from 'libs/modules/openAI/openAI.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { KakaoAddressModule } from 'apps/batch-server/src/kakao-address/kakao-ad
     ConfigModule.forFeature(kopisConfig),
     S3Module,
     KakaoAddressModule,
+    OpenAIModule,
   ],
   providers: [
     KopisPerformProvider,
