@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AGE, STYLE } from 'libs/common';
+import { Age, AGE, Style, STYLE } from 'libs/common';
 import OpenAI from 'openai';
+import * as fs from 'fs';
 
 @Injectable()
 export class OpenAIService {
@@ -131,5 +132,60 @@ export class OpenAIService {
     });
 
     return JSON.parse(completion.choices[0].message.content || '');
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async fineTuningContentStyleAndAge(
+    data: Object,
+    styleIdxList: Style[],
+    ageIdx: Age,
+    why: string,
+  ) {
+    const filePath = 'test-data/fine-tune/data.jsonl';
+    fs.writeFileSync(
+      filePath,
+      JSON.stringify(
+        this.prepareFineTuningData(data, styleIdxList, ageIdx, why),
+      ),
+    );
+
+    return await this.openai.fineTuning.jobs.create({
+      training_file: filePath,
+      model: 'gpt-4o-mini',
+    });
+  }
+
+  private prepareFineTuningData(
+    data: Object,
+    styleIdxList: Style[],
+    ageIdx: Age,
+    why: string,
+  ): {
+    prompt: string;
+    completion: string;
+  } {
+    return {
+      prompt: `당신은 문화 콘텐츠 데이터를 분석하여 가장 적합한 스타일과 연령대를 결정하는 역할을 맡고 있습니다. 아래는 미리 정의된 스타일과 연령대 목록입니다:
+
+스타일: ${JSON.stringify(STYLE)}
+
+연령대: ${JSON.stringify(AGE)}
+
+다음 문화생활컨텐츠를 참고하십시오.
+${JSON.stringify(data)}
+
+아래 질문에 답변하세요:
+1. 위 스타일 목록에서 이 콘텐츠에 가장 적합한 스타일은 무엇입니까? 1~3개를 선택하고 그 이유를 설명하세요.
+2. 위 연령대 목록에서 이 콘텐츠에 가장 적합한 연령대를 하나 선택하고 그 이유를 설명하세요. 콘텐츠의 장르와 일반적인 관객층을 반드시 고려하세요.
+
+아래 JSON 형식으로 응답을 제공하세요:
+{
+  "styleIdxList": [number, number, number], // 선택한 스타일의 인덱스 목록
+  "ageIdx": number // 선택한 연령대의 인덱스
+}`,
+      completion: `${JSON.stringify({ ageIdx, styleIdxList })}\n${why}`,
+    };
   }
 }
