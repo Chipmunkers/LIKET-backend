@@ -3,6 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { Age, AGE, Style, STYLE } from 'libs/common';
 import OpenAI from 'openai';
 import * as fs from 'fs';
+import * as path from 'path';
+import { Readable } from 'stream';
+import { FsReadStream } from 'openai/_shims';
 
 @Injectable()
 export class OpenAIService {
@@ -144,16 +147,21 @@ export class OpenAIService {
     why: string,
   ) {
     const filePath = 'test-data/fine-tune/data.jsonl';
-    fs.writeFileSync(
-      filePath,
-      JSON.stringify(
-        this.prepareFineTuningData(data, styleIdxList, ageIdx, why),
-      ),
+    const preparedData = JSON.stringify(
+      this.prepareFineTuningData(data, styleIdxList, ageIdx, why),
     );
+    fs.writeFileSync(filePath, preparedData);
+
+    const fileResponse = await this.openai.files.create({
+      file: fs.createReadStream(filePath),
+      purpose: 'fine-tune',
+    });
+
+    console.dir(fileResponse, { depth: null });
 
     return await this.openai.fineTuning.jobs.create({
-      training_file: filePath,
-      model: 'gpt-4o-mini',
+      training_file: fileResponse.id,
+      model: 'gpt-3.5-turbo',
     });
   }
 
