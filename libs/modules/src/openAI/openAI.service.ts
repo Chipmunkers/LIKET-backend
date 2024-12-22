@@ -72,7 +72,9 @@ export class OpenAIService {
    *
    * @author jochongs
    */
-  public async extractStyleAndAge(data: object) {
+  public async extractStyleAndAge(
+    data: object,
+  ): Promise<{ styleIdxList: number[]; ageIdx: number }> {
     const completion = await this.openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
