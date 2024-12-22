@@ -157,8 +157,6 @@ export class OpenAIService {
       purpose: 'fine-tune',
     });
 
-    console.dir(fileResponse, { depth: null });
-
     return await this.openai.fineTuning.jobs.create({
       training_file: fileResponse.id,
       model: 'gpt-3.5-turbo',
