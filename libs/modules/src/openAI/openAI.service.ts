@@ -133,6 +133,8 @@ export class OpenAIService {
   }
 
   /**
+   * !아래 메서드를 사용하지 않는 것을 권장드립니다.
+   *
    * @author jochongs
    */
   public async fineTuningContentStyleAndAge(
