@@ -82,7 +82,7 @@ export class OpenAIService {
             {
               type: 'text',
               text: `당신은 문화 콘텐츠 데이터를 분석하여 가장 적합한 스타일과 연령대를 결정하는 역할을 맡고 있습니다. 아래는 미리 정의된 스타일과 연령대 목록입니다:
-  
+
                 스타일: ${JSON.stringify(STYLE)}
   
                 연령대: ${JSON.stringify(AGE)}
@@ -111,7 +111,7 @@ export class OpenAIService {
             type: 'object',
             properties: {
               styleIdxList: {
-                description: 'List of style indices (1-3 values)',
+                description: 'List of style indices (1-3 values).',
                 type: 'array',
                 items: { type: 'number' },
                 minItems: 1,
@@ -120,11 +120,6 @@ export class OpenAIService {
               ageIdx: {
                 description: 'Selected age index',
                 type: 'number',
-              },
-              why: {
-                description:
-                  '왜 styleIdxList와 ageIdx를 그렇게 선택했는지 상세하게 설명해줘. 한국어로 설명해줘.',
-                type: 'string',
               },
             },
             required: ['styleIdxList', 'ageIdx'],
@@ -152,15 +147,17 @@ export class OpenAIService {
     );
     fs.writeFileSync(filePath, preparedData);
 
-    const fileResponse = await this.openai.files.create({
+    const fileCreateResponse = await this.openai.files.create({
       file: fs.createReadStream(filePath),
       purpose: 'fine-tune',
     });
 
-    return await this.openai.fineTuning.jobs.create({
-      training_file: fileResponse.id,
-      model: 'gpt-3.5-turbo',
+    const jobCreateResponse = await this.openai.fineTuning.jobs.create({
+      training_file: fileCreateResponse.id,
+      model: 'gpt-4o-mini-2024-07-18',
     });
+
+    return await this.openai.fineTuning.jobs.retrieve(jobCreateResponse.id);
   }
 
   private prepareFineTuningData(
@@ -168,12 +165,8 @@ export class OpenAIService {
     styleIdxList: Style[],
     ageIdx: Age,
     why: string,
-  ): {
-    prompt: string;
-    completion: string;
-  } {
-    return {
-      prompt: `당신은 문화 콘텐츠 데이터를 분석하여 가장 적합한 스타일과 연령대를 결정하는 역할을 맡고 있습니다. 아래는 미리 정의된 스타일과 연령대 목록입니다:
+  ) {
+    const question = `아래는 미리 정의된 스타일과 연령대 목록입니다:
 
 스타일: ${JSON.stringify(STYLE)}
 
@@ -190,8 +183,28 @@ ${JSON.stringify(data)}
 {
   "styleIdxList": [number, number, number], // 선택한 스타일의 인덱스 목록
   "ageIdx": number // 선택한 연령대의 인덱스
-}`,
-      completion: `${JSON.stringify({ ageIdx, styleIdxList })}\n${why}`,
+}`;
+    const expectResponse = `${JSON.stringify({
+      ageIdx,
+      styleIdxList,
+    })}\n${why}`;
+
+    return {
+      message: [
+        {
+          role: 'system',
+          content:
+            '당신은 문화 콘텐츠 데이터를 분석하여 가장 적합한 스타일과 연령대를 결정하는 역할을 맡고 있습니다. ',
+        },
+        {
+          role: 'user',
+          content: question,
+        },
+        {
+          role: 'assistant',
+          content: expectResponse,
+        },
+      ],
     };
   }
 }
