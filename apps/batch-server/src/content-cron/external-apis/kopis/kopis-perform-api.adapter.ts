@@ -9,7 +9,7 @@ import { KakaoAddressEntity } from 'apps/batch-server/src/kakao-address/entity/a
 import { KakaoRoadAddressEntity } from 'apps/batch-server/src/kakao-address/entity/road-address.entity';
 import { KakaoAddressService } from 'apps/batch-server/src/kakao-address/kakao-address.service';
 import { AGE, GENRE } from 'libs/common';
-import { S3Service, UploadedFileEntity } from 'libs/modules';
+import { OpenAIService, S3Service, UploadedFileEntity } from 'libs/modules';
 import * as uuid from 'uuid';
 
 @Injectable()
@@ -21,6 +21,7 @@ export class KopisPerformApiAdapter
     private readonly s3Service: S3Service,
     private readonly kakaoAddressService: KakaoAddressService,
     private readonly facilityProvider: KopisFacilityProvider,
+    private readonly openAIService: OpenAIService,
   ) {}
 
   /**
@@ -39,11 +40,21 @@ export class KopisPerformApiAdapter
       documents: [{ address, road_address }],
     } = await this.kakaoAddressService.searchAddress(facilityEntity.adres);
 
+    const { styleIdxList, ageIdx } =
+      await this.openAIService.extractStyleAndAge({
+        perform,
+        facilityEntity,
+        address,
+        road_address,
+      });
+
     return await this.createTempContentEntity(
       perform,
       facilityEntity,
       address,
       road_address,
+      ageIdx,
+      styleIdxList,
     );
   }
 
@@ -57,6 +68,8 @@ export class KopisPerformApiAdapter
     facility: FacilityEntity,
     address: KakaoAddressEntity,
     roadAddress: KakaoRoadAddressEntity,
+    ageIdx: number,
+    styleIdxList: number[],
   ): Promise<TempContentEntity> {
     return TempContentEntity.create({
       id: perform.mt20id,
