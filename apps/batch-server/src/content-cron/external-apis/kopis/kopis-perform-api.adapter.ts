@@ -71,8 +71,8 @@ export class KopisPerformApiAdapter
       id: perform.mt20id,
       location: await this.extractLocation(address, roadAddress),
       genreIdx: await this.extractGenreIdx(perform),
-      ageIdx: (await this.extractAgeIdx(perform)) || AGE.ALL, // TODO: AI 필요
-      styleIdxList: await this.extractStyleIdxList(perform), // TODO: AI 필요
+      ageIdx: ageIdx,
+      styleIdxList: styleIdxList,
       title: await this.extractTitle(perform),
       imgList: (await this.extractImgList(perform)).map((img) => img.path),
       description: await this.extractDescription(perform), // TODO: AI 필요
@@ -153,20 +153,6 @@ export class KopisPerformApiAdapter
 
     this.logger.warn(`genre does not match | ${genreName}`, 'kopis-cron');
     return GENRE.CONCERT;
-  }
-
-  /**
-   * @author jochongs
-   */
-  private async extractAgeIdx(perform: PerformEntity): Promise<number | null> {
-    return null;
-  }
-
-  /**
-   * @author jochongs
-   */
-  private async extractStyleIdxList(perform: PerformEntity): Promise<number[]> {
-    return [1, 2, 3];
   }
 
   /**
