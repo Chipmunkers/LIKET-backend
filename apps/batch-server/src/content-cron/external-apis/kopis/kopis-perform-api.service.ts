@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PerformEntity } from 'apps/batch-server/src/content-cron/external-apis/kopis/entity/perform.entity';
 import { SummaryPerformEntity } from 'apps/batch-server/src/content-cron/external-apis/kopis/entity/summary-perform.entity';
 import { KopisPerformApiAdapter } from 'apps/batch-server/src/content-cron/external-apis/kopis/kopis-perform-api.adapter';
@@ -13,7 +13,6 @@ export class KopisPerformApiService
 {
   constructor(
     private readonly kopisPerformProvider: KopisPerformProvider,
-    private readonly logger: Logger,
     private readonly KopisPerformApiAdapter: KopisPerformApiAdapter,
   ) {}
 
@@ -64,11 +63,6 @@ export class KopisPerformApiService
     const result: SummaryPerformEntity[] = [];
     let page = 1;
     while (true) {
-      this.logger.debug(
-        `GET summary content ${this.getYYYYMMDDformat(
-          monthInfo.startDate,
-        )}~${this.getYYYYMMDDformat(monthInfo.endDate)} | page = ${page}`,
-      );
       const summaryPerformList = await this.kopisPerformProvider.getPerformAll({
         cpage: page,
         rows: 100,

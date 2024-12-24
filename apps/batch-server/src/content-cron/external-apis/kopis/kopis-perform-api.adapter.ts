@@ -28,10 +28,6 @@ export class KopisPerformApiAdapter
    * @author jochongs
    */
   public async transform(perform: PerformEntity): Promise<TempContentEntity> {
-    this.logger.debug(
-      `transforming perform id = ${perform.mt20id}`,
-      `Transform`,
-    );
     const facilityEntity = await this.facilityProvider.getFacilityByPerform(
       perform,
     );
