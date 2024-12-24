@@ -23,4 +23,9 @@ export interface IExternalApiService<Summary = any, Detail = any> {
    * 어댑터 가져오는 메서드
    */
   getAdapter(): IExternalApiAdapterService<Detail>;
+
+  /**
+   *
+   */
+  getId(data: Summary): string;
 }

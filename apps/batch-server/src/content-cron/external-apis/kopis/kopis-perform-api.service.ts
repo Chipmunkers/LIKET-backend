@@ -55,6 +55,13 @@ export class KopisPerformApiService
   }
 
   /**
+   * @author jochongs
+   */
+  getId(data: SummaryPerformEntity): string {
+    return data.mt20id;
+  }
+
+  /**
    * API 요청 결과 가져오기
    *
    * @author jochongs
