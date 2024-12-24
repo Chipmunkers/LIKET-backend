@@ -1,11 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
 import { Age, AGE, Style, STYLE } from 'libs/common';
 import OpenAI from 'openai';
-import * as fs from 'fs';
-import * as path from 'path';
-import { Readable } from 'stream';
-import { FsReadStream } from 'openai/_shims';
 
 @Injectable()
 export class OpenAIService {
