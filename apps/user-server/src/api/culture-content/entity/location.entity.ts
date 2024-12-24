@@ -12,7 +12,7 @@ export class LocationEntity {
    */
   @IsString()
   @Length(1, 200)
-  public detailAddress: string;
+  public detailAddress: string | null;
 
   /**
    * 주소
