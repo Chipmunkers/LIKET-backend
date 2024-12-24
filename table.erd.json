@@ -2886,7 +2886,7 @@
         "comment": "주소 상세",
         "dataType": "varchar",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 85,
@@ -2895,7 +2895,7 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1721292572697,
+          "updateAt": 1735024953574,
           "createAt": 1721292572697
         }
       },
@@ -8566,6 +8566,14 @@
       -1,
       {
         "options(notNull)": 1733806486998
+      }
+    ],
+    "fa2e8384-8d9c-48d3-b99d-ec58d4aad91b": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "options(notNull)": 1735024953572
       }
     ]
   }

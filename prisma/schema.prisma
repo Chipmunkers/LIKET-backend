@@ -203,7 +203,7 @@ model Location {
   bCode          String           @map("b_code") @db.Char(10)
   positionX      Float            @map("position_x")
   positionY      Float            @map("position_y")
-  detailAddress  String           @map("detail_address") @db.VarChar
+  detailAddress  String?          @map("detail_address") @db.VarChar
   sidoCode       String           @map("sido_code") @db.Char(2)
   sggCode        String           @map("sgg_code") @db.Char(2)
   legCode        String           @map("leg_code") @db.Char(2)
