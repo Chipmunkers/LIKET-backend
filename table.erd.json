@@ -6126,7 +6126,7 @@
         "comment": "",
         "dataType": "varchar",
         "default": "",
-        "options": 8,
+        "options": 4,
         "ui": {
           "keys": 0,
           "widthName": 65,
@@ -6135,7 +6135,7 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1733559600776,
+          "updateAt": 1735196513485,
           "createAt": 1733558498957
         }
       }
@@ -8556,8 +8556,8 @@
       {
         "name": 1733558502061,
         "dataType": 1733558503602,
-        "options(notNull)": 1733558503892,
-        "options(unique)": 1733559600772
+        "options(notNull)": 1735196174333,
+        "options(unique)": 1735196513484
       }
     ],
     "c9fb6850-7813-42d6-82a7-d637ee1c46c7": [
