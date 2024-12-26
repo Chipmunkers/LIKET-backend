@@ -191,6 +191,7 @@
           "7ed01ecc-c041-4043-872f-64a53e1ce19a",
           "75fd3418-40e3-44b1-84c0-ebfbdce25e3f",
           "yMr-STdjoyF28cMZ-VV3T",
+          "-WyaIojuRILYVLxJ8gzRa",
           "561bcbfb-f1bc-4d28-a1a9-4391c557b83a",
           "848bcf2b-22ff-4ee4-b449-d78b2aeff19f",
           "e013996d-4e86-4cf2-8766-e4f737d809e9",
@@ -217,7 +218,7 @@
           "color": "#E91E63"
         },
         "meta": {
-          "updateAt": 1733558506574,
+          "updateAt": 1735197058374,
           "createAt": 1721292572697
         }
       },
@@ -6138,6 +6139,26 @@
           "updateAt": 1735196513485,
           "createAt": 1733558498957
         }
+      },
+      "-WyaIojuRILYVLxJ8gzRa": {
+        "id": "-WyaIojuRILYVLxJ8gzRa",
+        "tableId": "215f934c-f4e3-474f-b6d6-302ed6e9694b",
+        "name": "",
+        "comment": "",
+        "dataType": "",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1735197056763,
+          "createAt": 1735197046556
+        }
       }
     },
     "relationshipEntities": {
@@ -8574,6 +8595,14 @@
       -1,
       {
         "options(notNull)": 1735024953572
+      }
+    ],
+    "-WyaIojuRILYVLxJ8gzRa": [
+      "tableColumnEntities",
+      1735197046556,
+      1735197058373,
+      {
+        "name": 1735197056762
       }
     ]
   }

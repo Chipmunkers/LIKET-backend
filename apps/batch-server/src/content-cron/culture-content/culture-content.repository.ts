@@ -10,6 +10,18 @@ export class CultureContentRepository {
   /**
    * @author jochongs
    */
+  public async selectCultureContentById(id: string) {
+    return await this.prisma.cultureContent.findFirst({
+      where: {
+        performId: id,
+        deletedAt: null,
+      },
+    });
+  }
+
+  /**
+   * @author jochongs
+   */
   public async insertCultureContent(
     tempContent: TempContentEntity,
   ): Promise<CultureContent> {
