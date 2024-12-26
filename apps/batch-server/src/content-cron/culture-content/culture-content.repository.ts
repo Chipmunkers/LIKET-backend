@@ -7,6 +7,9 @@ import { CultureContent } from '@prisma/client';
 export class CultureContentRepository {
   constructor(private readonly prisma: PrismaProvider) {}
 
+  /**
+   * @author jochongs
+   */
   public async insertCultureContent(
     tempContent: TempContentEntity,
   ): Promise<CultureContent> {
