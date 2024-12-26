@@ -19,6 +19,9 @@ export class ContentCronService {
     };
   }
 
+  /**
+   * @author jochongs
+   */
   public async saveContentFromExternalAPI() {
     const externalApiKeyList = this.extractKeysFromMap(this.externalApiMap);
 
@@ -29,6 +32,11 @@ export class ContentCronService {
     }
   }
 
+  /**
+   * 맵에서 키 목록을 추출하는 메서드
+   *
+   * @author jochongs
+   */
   private extractKeysFromMap<T extends Record<any, any>>(map: T): (keyof T)[] {
     return Object.keys(map);
   }
