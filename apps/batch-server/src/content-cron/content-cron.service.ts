@@ -1,11 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import {
+  EXTERNAL_APIs,
+  ExternalAPIs,
+} from 'apps/batch-server/src/content-cron/external-api.enum';
 import { KopisPerformApiService } from 'apps/batch-server/src/content-cron/external-apis/kopis/kopis-perform-api.service';
+import { IExternalApiService } from 'apps/batch-server/src/content-cron/interface/external-api.service';
 
 @Injectable()
 export class ContentCronService {
-  constructor(
-    private readonly kopisPerformApiService: KopisPerformApiService,
-  ) {}
+  private readonly externalApiMap: Record<ExternalAPIs, IExternalApiService>;
 
-  public async saveContentFromExternalAPI() {}
+  constructor(
+    private readonly logger: Logger,
+    private readonly kopisPerformApiService: KopisPerformApiService,
+  ) {
+    this.externalApiMap = {
+      [EXTERNAL_APIs.KOPIS_PERFORM]: this.kopisPerformApiService,
+    };
+  }
+
+  public async saveContentFromExternalAPI() {
+    const externalApiKeyList = this.extractKeysFromMap(this.externalApiMap);
+
+    for (const externalApiKey of externalApiKeyList) {
+      const externalApiService = this.externalApiMap[externalApiKey];
+
+      const summaryPerform = await externalApiService.getSummaryAll();
+    }
+  }
+
+  private extractKeysFromMap<T extends Record<any, any>>(map: T): (keyof T)[] {
+    return Object.keys(map);
+  }
 }
