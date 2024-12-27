@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { KeyLimitExceedException } from './exception/KeyLimitExceedException';
+import { KeyLimitExceedException } from '../exception/KeyLimitExceedException';
 
 @Injectable()
-export class KopisKeyService {
+export class KopisKeyProvider {
   /**
    * Service key 리스트
    */

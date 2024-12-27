@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { FacilityEntity } from './entity/facility.entity';
+import { FacilityEntity } from '../entity/facility.entity';
 import { HttpService } from '@nestjs/axios';
 import { parseStringPromise } from 'xml2js';
-import { GetFacilityByIdDto } from './dto/response/get-facility-by-id.dto';
-import { PerformEntity } from './entity/perform.entity';
-import { KopisKeyService } from './kopis-key.service';
+import { GetFacilityByIdDto } from '../dto/response/get-facility-by-id.dto';
+import { PerformEntity } from '../entity/perform.entity';
+import { KopisKeyProvider } from './kopis-key.provider';
 
 @Injectable()
-export class KopisFacilityService {
+export class KopisFacilityProvider {
   private readonly facilityCacheStore: Record<string, FacilityEntity> = {};
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly kopisKeyService: KopisKeyService,
+    private readonly kopisProvider: KopisKeyProvider,
   ) {}
 
   /**
@@ -46,7 +46,7 @@ export class KopisFacilityService {
       `http://www.kopis.or.kr/openApi/restful/prfplc/${id}`,
       {
         params: {
-          service: this.kopisKeyService.getKey(),
+          service: this.kopisProvider.getKey(),
         },
       },
     );

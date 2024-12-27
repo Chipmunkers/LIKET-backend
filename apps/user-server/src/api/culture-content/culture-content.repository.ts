@@ -16,6 +16,35 @@ export class CultureContentRepository {
   ) {}
 
   /**
+   * 오픈된 컨텐츠 조건 식을 가져오는 메서드
+   *
+   * @author jochongs
+   */
+  private getOpenContentWhereClause(open?: boolean) {
+    if (open === undefined) return {};
+
+    if (open)
+      return {
+        startDate: {
+          lte: new Date(),
+        },
+        OR: [
+          {
+            endDate: null,
+          },
+          {
+            endDate: {
+              gte: new Date(),
+            },
+          },
+        ],
+      };
+
+    // TODO: 오픈되지 않은 컨텐츠만을 가져오는 조건식이 필요할 수도 있음
+    return {};
+  }
+
+  /**
    * 컨텐츠 자세히보는 메서드.
    * 삭제된 컨텐츠는 절대 가져오지 않음.
    *
@@ -85,6 +114,7 @@ export class CultureContentRepository {
     userIdx?: number,
   ) {
     const where: Prisma.CultureContentWhereInput = {
+      ...this.getOpenContentWhereClause(pagerble.open),
       genreIdx: pagerble.genre || undefined,
       ageIdx: pagerble.age || undefined,
       title: pagerble.search && {
@@ -104,16 +134,7 @@ export class CultureContentRepository {
             sidoCode: pagerble.region,
           }
         : undefined,
-      startDate: pagerble.open
-        ? {
-            lte: new Date(),
-          }
-        : undefined,
-      endDate: pagerble.open
-        ? {
-            gte: new Date(),
-          }
-        : undefined,
+
       acceptedAt:
         pagerble.accept !== undefined
           ? pagerble.accept
@@ -235,9 +256,16 @@ export class CultureContentRepository {
         startDate: {
           gte: new Date(),
         },
-        endDate: {
-          gte: new Date(),
-        },
+        OR: [
+          {
+            endDate: null,
+          },
+          {
+            endDate: {
+              gte: new Date(),
+            },
+          },
+        ],
         deletedAt: null,
         acceptedAt: {
           not: null,
@@ -344,6 +372,7 @@ export class CultureContentRepository {
             },
           },
           where: {
+            ...this.getOpenContentWhereClause(true),
             deletedAt: null,
             acceptedAt: {
               not: null,
@@ -354,12 +383,6 @@ export class CultureContentRepository {
             },
             likeCount: {
               not: 0,
-            },
-            startDate: {
-              lte: new Date(),
-            },
-            endDate: {
-              gte: new Date(),
             },
           },
           take: 4,
@@ -428,12 +451,7 @@ export class CultureContentRepository {
           blockedAt: null,
         },
         ageIdx,
-        startDate: {
-          lte: new Date(),
-        },
-        endDate: {
-          gte: new Date(),
-        },
+        ...this.getOpenContentWhereClause(true),
       },
       orderBy: {
         likeCount: 'desc',
@@ -484,6 +502,7 @@ export class CultureContentRepository {
         },
       },
       where: {
+        ...this.getOpenContentWhereClause(true),
         deletedAt: null,
         acceptedAt: {
           not: null,
@@ -491,12 +510,6 @@ export class CultureContentRepository {
         User: {
           deletedAt: null,
           blockedAt: null,
-        },
-        startDate: {
-          lte: new Date(),
-        },
-        endDate: {
-          gte: new Date(),
         },
         Style: {
           some: {
@@ -564,8 +577,8 @@ export class CultureContentRepository {
           title: createDto.title,
           description: createDto.description,
           websiteLink: createDto.websiteLink,
-          startDate: new Date(createDto.startDate),
-          endDate: new Date(createDto.endDate),
+          startDate: new Date(),
+          endDate: createDto.endDate,
           openTime: createDto.openTime,
           isFee: createDto.isFee,
           isReservation: createDto.isReservation,
@@ -628,8 +641,8 @@ export class CultureContentRepository {
               data: updateDto.styleIdxList.map((styleIdx) => ({ styleIdx })),
             },
           },
-          startDate: new Date(updateDto.startDate),
-          endDate: new Date(updateDto.endDate),
+          startDate: updateDto.startDate,
+          endDate: updateDto.endDate,
           openTime: updateDto.openTime,
           isFee: updateDto.isFee,
           isParking: updateDto.isParking,

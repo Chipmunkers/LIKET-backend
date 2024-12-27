@@ -1,13 +1,16 @@
 import { INestApplication } from '@nestjs/common';
-import { AuthService } from '../../../src/api/auth/auth.service';
+import { AuthService } from 'apps/user-server/src/api/auth/auth.service';
+import { LoginJwtService } from 'apps/user-server/src/common/module/login-jwt/login-jwt.service';
 
 export class TestLoginUser {
   private readonly _accessToken: string;
   private readonly _refreshToken: string;
+  private readonly _idx: number;
 
-  constructor(accessToken: string, refreshToken: string) {
+  constructor(accessToken: string, refreshToken: string, idx: number) {
     this._accessToken = accessToken;
     this._refreshToken = refreshToken;
+    this._idx = idx;
   }
 
   get accessToken(): string {
@@ -17,15 +20,23 @@ export class TestLoginUser {
   get refreshToken(): string {
     return this._refreshToken;
   }
+
+  get idx(): number {
+    return this._idx;
+  }
 }
 
 export class TestLoginUsers {
+  private readonly userList: TestLoginUser[] = [];
+
   private readonly _user1: TestLoginUser;
   private readonly _user2: TestLoginUser;
 
   constructor(user1: TestLoginUser, user2: TestLoginUser) {
     this._user1 = user1;
     this._user2 = user2;
+    this.userList.push(user1);
+    this.userList.push(user2);
   }
 
   get user1(): TestLoginUser {
@@ -34,6 +45,36 @@ export class TestLoginUsers {
 
   get user2(): TestLoginUser {
     return this._user2;
+  }
+
+  /**
+   * 첫 번째 파라미터의 유저 idx값이 아닌 사용자를 가져오는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 인덱스
+   */
+  public not(idx: number): TestLoginUser {
+    for (const user of this.userList) {
+      if (user.idx !== idx) return user;
+    }
+
+    throw new Error('Login users did not setup');
+  }
+
+  /**
+   * 첫 번째 파라미터 유저 idx값인 사용자를 가져오는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 인덱스
+   */
+  public of(idx: number): TestLoginUser {
+    for (const user of this.userList) {
+      if (user.idx === idx) return user;
+    }
+
+    throw new Error('Cannot find user in login user list, idx = ' + idx);
   }
 }
 
@@ -66,30 +107,47 @@ export class LoginSetting {
     app: INestApplication,
   ): Promise<TestLoginUsers> {
     const authService = app.get(AuthService);
+    const jwtService = app.get(LoginJwtService);
 
-    const authorUser = this.createLoginUser(
-      await authService.login({
-        email: 'user1@gmail.com',
-        pw: 'aa12341234**',
-      }),
-    );
-    const otherUser = this.createLoginUser(
-      await authService.login({
-        email: 'user2@gmail.com',
-        pw: 'aa12341234**',
-      }),
+    const user1TokenSet = await authService.login({
+      email: 'user1@gmail.com',
+      pw: 'aa12341234**',
+    });
+
+    const user1TokenPayload = await jwtService.verify(
+      user1TokenSet.accessToken,
     );
 
-    return new TestLoginUsers(authorUser, otherUser);
+    const user2TokenSet = await authService.login({
+      email: 'user2@gmail.com',
+      pw: 'aa12341234**',
+    });
+
+    const user2TokenPayload = await jwtService.verify(
+      user2TokenSet.accessToken,
+    );
+
+    const user1 = this.createLoginUser({
+      ...user1TokenSet,
+      idx: user1TokenPayload.idx,
+    });
+    const user2 = this.createLoginUser({
+      ...user2TokenSet,
+      idx: user2TokenPayload.idx,
+    });
+
+    return new TestLoginUsers(user1, user2);
   }
 
   private static createLoginUser({
     accessToken,
     refreshToken,
+    idx,
   }: {
     accessToken: string;
     refreshToken: string;
+    idx: number;
   }): TestLoginUser {
-    return new TestLoginUser(accessToken, refreshToken);
+    return new TestLoginUser(accessToken, refreshToken, idx);
   }
 }

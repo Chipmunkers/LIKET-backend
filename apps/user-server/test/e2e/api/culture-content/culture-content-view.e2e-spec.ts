@@ -1,10 +1,13 @@
 import * as request from 'supertest';
-import { ContentViewService } from '../../../../src/api/culture-content/content-view.service';
-import { TestHelper } from '../../setup/test.helper';
-import { PrismaProvider } from '../../../../../../libs/modules/src';
+import { PrismaProvider } from 'libs/modules';
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { ContentViewService } from 'apps/user-server/src/api/culture-content/content-view.service';
+import { CultureContentSeedHelper } from 'libs/testing';
 
 describe('Culture Content View (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
+  const contentSeedHelper = test.seedHelper(CultureContentSeedHelper);
 
   beforeEach(async () => {
     await test.init();
@@ -32,12 +35,17 @@ describe('Culture Content View (e2e)', () => {
 
   describe('GET /culture-content/:idx', () => {
     it('Success with no token', async () => {
+      const content = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().user1.idx,
+        acceptedAt: new Date(),
+      });
+
       const response = await request(test.getServer())
-        .get('/culture-content/1')
+        .get(`/culture-content/${content.idx}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(1);
+      expect(response.body.idx).toBe(content.idx);
     });
 
     it('Non-existent content', async () => {
@@ -47,33 +55,43 @@ describe('Culture Content View (e2e)', () => {
     });
 
     it('Not accepted content - author', async () => {
-      const idx = 2;
+      const notAcceptedContent = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().user1.idx,
+        acceptedAt: null,
+      });
       const loginUser = test.getLoginUsers().user1;
 
       const response = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${notAcceptedContent.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(idx);
+      expect(response.body.idx).toBe(notAcceptedContent.idx);
     });
 
     it('Not accepted content - no author', async () => {
-      const idx = 2;
       const loginUser = test.getLoginUsers().user2;
 
+      const notAcceptedContent = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+        acceptedAt: null,
+      });
+
       await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${notAcceptedContent.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
     });
 
     it('Not accepted content - no token', async () => {
-      const idx = 2;
+      const notAcceptedContent = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().user1.idx,
+        acceptedAt: null,
+      });
 
       await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${notAcceptedContent.idx}`)
         .expect(403);
     });
 
@@ -98,200 +116,188 @@ describe('Culture Content View (e2e)', () => {
     });
 
     it('Increase view count - no login', async () => {
-      const idx = 1;
-
-      const content = await test
-        .get(PrismaProvider)
-        .cultureContent.findUniqueOrThrow({
-          where: {
-            idx,
-          },
-        });
+      const content = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().user1.idx,
+        acceptedAt: new Date(),
+      });
 
       const response = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(1);
+      expect(response.body.idx).toBe(content.idx);
       expect(response.body.viewCount).toBe(content.viewCount);
 
       jest.advanceTimersByTime(ContentViewService.UPDATE_TIME);
 
       const secondResponse = await request(test.getServer())
-        .get('/culture-content/1')
+        .get(`/culture-content/${content.idx}`)
         .expect(200);
 
       expect(secondResponse.body).toBeDefined();
-      expect(secondResponse.body.idx).toBe(1);
+      expect(secondResponse.body.idx).toBe(content.idx);
       expect(secondResponse.body.viewCount).toBe(content.viewCount);
     });
 
     it('Increase view count - login', async () => {
       const loginUser = test.getLoginUsers().user2;
-      const idx = 1;
-
-      const content = await test
-        .get(PrismaProvider)
-        .cultureContent.findUniqueOrThrow({
-          where: {
-            idx,
-          },
-        });
+      const content = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().user1.idx,
+        acceptedAt: new Date(),
+      });
 
       const response = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(1);
+      expect(response.body.idx).toBe(content.idx);
       expect(response.body.viewCount).toBe(content.viewCount);
 
       jest.advanceTimersByTime(ContentViewService.UPDATE_TIME);
 
       const secondResponse = await request(test.getServer())
-        .get('/culture-content/1')
+        .get(`/culture-content/${content.idx}`)
         .expect(200);
 
       expect(secondResponse.body).toBeDefined();
-      expect(secondResponse.body.idx).toBe(1);
+      expect(secondResponse.body.idx).toBe(content.idx);
       expect(secondResponse.body.viewCount).toBe(content.viewCount + 1);
     });
 
     it('Increase view count - multiple users', async () => {
       const loginUser = test.getLoginUsers().user2;
-      const idx = 1;
 
-      const content = await test
-        .get(PrismaProvider)
-        .cultureContent.findUniqueOrThrow({
-          where: { idx },
-        });
+      const content = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().user1.idx,
+        acceptedAt: new Date(),
+      });
 
       const response = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(1);
+      expect(response.body.idx).toBe(content.idx);
       expect(response.body.viewCount).toBe(content.viewCount);
 
       const loginUser2 = test.getLoginUsers().user1;
       const secondResponse = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser2.accessToken}`)
         .expect(200);
 
       expect(secondResponse.body).toBeDefined();
-      expect(secondResponse.body.idx).toBe(1);
+      expect(secondResponse.body.idx).toBe(content.idx);
       expect(secondResponse.body.viewCount).toBe(content.viewCount);
 
       jest.advanceTimersByTime(ContentViewService.UPDATE_TIME);
 
       const lastResponse = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .expect(200);
 
       expect(lastResponse.body).toBeDefined();
-      expect(lastResponse.body.idx).toBe(1);
+      expect(lastResponse.body.idx).toBe(content.idx);
       expect(lastResponse.body.viewCount).toBe(content.viewCount + 2);
     });
 
     it('Increase view count - one user', async () => {
       const loginUser = test.getLoginUsers().user2;
-      const idx = 1;
 
-      const content = await test
-        .get(PrismaProvider)
-        .cultureContent.findUniqueOrThrow({ where: { idx } });
+      const content = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().user1.idx,
+        acceptedAt: new Date(),
+      });
 
       const response = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(1);
+      expect(response.body.idx).toBe(content.idx);
       expect(response.body.viewCount).toBe(content.viewCount);
 
       const secondResponse = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(secondResponse.body).toBeDefined();
-      expect(secondResponse.body.idx).toBe(1);
+      expect(secondResponse.body.idx).toBe(content.idx);
       expect(secondResponse.body.viewCount).toBe(content.viewCount);
 
       jest.advanceTimersByTime(ContentViewService.UPDATE_TIME);
 
       const lastResponse = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .expect(200);
 
       expect(lastResponse.body).toBeDefined();
-      expect(lastResponse.body.idx).toBe(1);
+      expect(lastResponse.body.idx).toBe(content.idx);
       expect(lastResponse.body.viewCount).toBe(content.viewCount + 1);
     });
 
     it('Increase view count - after cool down', async () => {
       const loginUser = test.getLoginUsers().user2;
-      const idx = 1;
 
-      const content = await test
-        .get(PrismaProvider)
-        .cultureContent.findUniqueOrThrow({ where: { idx } });
+      const content = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().user1.idx,
+        acceptedAt: new Date(),
+      });
 
       const response = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(1);
+      expect(response.body.idx).toBe(content.idx);
       expect(response.body.viewCount).toBe(content.viewCount);
 
       const secondResponse = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(secondResponse.body).toBeDefined();
-      expect(secondResponse.body.idx).toBe(1);
+      expect(secondResponse.body.idx).toBe(content.idx);
       expect(secondResponse.body.viewCount).toBe(content.viewCount);
 
       jest.advanceTimersByTime(ContentViewService.UPDATE_TIME);
 
       const thirdResponse = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .expect(200);
 
       expect(thirdResponse.body).toBeDefined();
-      expect(thirdResponse.body.idx).toBe(1);
+      expect(thirdResponse.body.idx).toBe(content.idx);
       expect(thirdResponse.body.viewCount).toBe(content.viewCount + 1);
 
       jest.advanceTimersByTime(ContentViewService.VIEW_COOL_DOWN);
 
       const fourthResponse = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(fourthResponse.body).toBeDefined();
-      expect(fourthResponse.body.idx).toBe(1);
+      expect(fourthResponse.body.idx).toBe(content.idx);
       expect(fourthResponse.body.viewCount).toBe(content.viewCount + 1);
 
       jest.advanceTimersByTime(ContentViewService.UPDATE_TIME);
 
       const lastResponse = await request(test.getServer())
-        .get(`/culture-content/${idx}`)
+        .get(`/culture-content/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(lastResponse.body).toBeDefined();
-      expect(lastResponse.body.idx).toBe(1);
+      expect(lastResponse.body.idx).toBe(content.idx);
       expect(lastResponse.body.viewCount).toBe(content.viewCount + 2);
     });
   });

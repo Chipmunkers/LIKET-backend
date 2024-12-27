@@ -3,26 +3,30 @@ import { UserEntity } from '../../user/entity/user.entity';
 import { TagEntity } from './tag.entity';
 import { LocationEntity } from './location.entity';
 
-const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()({
-  include: {
-    User: {
-      include: {
-        BlockReason: true,
+const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()(
+  {
+    include: {
+      User: {
+        include: {
+          BlockReason: true,
+        },
       },
-    },
-    ContentImg: true,
-    Genre: true,
-    Style: {
-      include: {
-        Style: true,
+      ContentImg: true,
+      Genre: true,
+      Style: {
+        include: {
+          Style: true,
+        },
       },
+      Age: true,
+      Location: true,
     },
-    Age: true,
-    Location: true,
   },
-});
+);
 
-type CotnentWithInclude = Prisma.CultureContentGetPayload<typeof ContentWithInclude>;
+type CotnentWithInclude = Prisma.CultureContentGetPayload<
+  typeof ContentWithInclude
+>;
 
 export class SummaryContentEntity {
   /**
@@ -63,7 +67,7 @@ export class SummaryContentEntity {
    *
    * @exmaple 2024-02-28T12:00:00.000Z
    */
-  public endDate: Date;
+  public endDate: Date | null;
 
   /**
    * 등록한 사용자
@@ -141,7 +145,9 @@ export class SummaryContentEntity {
       endDate: content.endDate,
       user: UserEntity.createEntity(content.User),
       age: TagEntity.createEntity(content.Age),
-      styleList: content.Style.map((style) => TagEntity.createEntity(style.Style)),
+      styleList: content.Style.map((style) =>
+        TagEntity.createEntity(style.Style),
+      ),
       location: LocationEntity.createEntity(content.Location),
       createdAt: content.createdAt,
       acceptedAt: content.acceptedAt,

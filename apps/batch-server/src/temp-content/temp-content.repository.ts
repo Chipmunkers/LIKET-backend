@@ -200,7 +200,7 @@ export class TempContentRepository {
   public async selectContentByPerformId(id: string) {
     return await this.prisma.cultureContent.findFirst({
       where: {
-        performId: id,
+        id,
         deletedAt: null,
       },
     });

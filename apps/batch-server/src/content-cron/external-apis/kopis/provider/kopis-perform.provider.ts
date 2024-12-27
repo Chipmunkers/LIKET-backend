@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { GetPerformAllDto } from './dto/request/get-perform-all.dto';
+import { GetPerformAllDto } from '../dto/request/get-perform-all.dto';
 import { HttpService } from '@nestjs/axios';
 import { parseStringPromise } from 'xml2js';
-import { GetPerformAllResponseDto } from './dto/response/get-perform-all.dto';
-import { GetPerformByIdResponseDto } from './dto/response/get-perform-by-id.dto';
-import { KopisKeyService } from './kopis-key.service';
-import { KopisErrorResponseDto } from './dto/response/kopis-error-response.dto';
-import { KopisAPIException } from './exception/KopisAPIException';
+import { GetPerformAllResponseDto } from '../dto/response/get-perform-all.dto';
+import { GetPerformByIdResponseDto } from '../dto/response/get-perform-by-id.dto';
+import { KopisKeyProvider } from './kopis-key.provider';
+import { KopisErrorResponseDto } from '../dto/response/kopis-error-response.dto';
+import { KopisAPIException } from '../exception/KopisAPIException';
 
 @Injectable()
-export class KopisPerformService {
+export class KopisPerformProvider {
   constructor(
     private readonly httpService: HttpService,
-    private readonly KopisKeyService: KopisKeyService,
+    private readonly kopisKeyProvider: KopisKeyProvider,
   ) {}
 
   /**
@@ -27,7 +27,7 @@ export class KopisPerformService {
       'http://www.kopis.or.kr/openApi/restful/pblprfr',
       {
         params: {
-          service: this.KopisKeyService.getKey(),
+          service: this.kopisKeyProvider.getKey(),
           ...dto,
         },
       },
@@ -52,7 +52,7 @@ export class KopisPerformService {
    * @author jochongs
    */
   public async getPerformById(id: string) {
-    const SERVICE_KEY = this.KopisKeyService.getKey();
+    const SERVICE_KEY = this.kopisKeyProvider.getKey();
     const result = await this.httpService.axiosRef.get(
       `http://www.kopis.or.kr/openApi/restful/pblprfr/${id}`,
       {

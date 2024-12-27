@@ -1,6 +1,6 @@
 import { Logger, Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
-import { KopisModule } from '../kopis-perform/kopis.module';
+import { KopisModule } from '../content-cron/external-apis/kopis/kopis.module';
 import { KakaoAddressModule } from '../kakao-address/kakao-address.module';
 import { TempContentSchedule } from './temp-content.schedule';
 import { TempContentService } from './temp-content.service';

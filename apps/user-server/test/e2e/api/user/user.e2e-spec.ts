@@ -1,11 +1,8 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../../../../src/app.module';
 import { SignUpDto } from '../../../../src/api/user/dto/sign-up.dto';
 import { Gender } from '../../../../src/api/user/model/Gender';
 import { EmailJwtService } from '../../../../src/api/email-cert/email-jwt.service';
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import { SocialSignUpDto } from '../../../../src/api/user/dto/social-sign-up.dto';
 import { SocialLoginJwtService } from '../../../../src/common/module/social-login-jwt/social-login-jwt.service';
 import { SocialLoginUser } from '../../../../src/api/auth/model/social-login-user';
@@ -14,15 +11,12 @@ import { UpdateProfileDto } from '../../../../src/api/user/dto/update-profile.dt
 import { EmailDuplicateCheckDto } from '../../../../src/api/user/dto/email-duplicate-check.dto';
 import { FindPwDto } from '../../../../src/api/user/dto/find-pw.dto';
 import spyOn = jest.spyOn;
-import { PrismaSetting } from '../../setup/prisma.setup';
-import { AppGlobalSetting } from '../../setup/app-global.setup';
-import { LoginSetting, TestLoginUsers } from '../../setup/login-user.setup';
 import { ResetPwDto } from '../../../../src/api/user/dto/reset-pw.dto';
 import { LoginDto } from '../../../../src/api/auth/dto/local-login.dto';
-import { TestHelper } from '../../setup/test.helper';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 
 describe('User (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
 
   beforeEach(async () => {
     await test.init();

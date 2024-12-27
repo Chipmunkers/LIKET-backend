@@ -1,109 +1,35 @@
 import * as request from 'supertest';
-import { TestHelper } from '../../setup/test.helper';
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import {
+  CultureContentSeedHelper,
+  LiketSeedHelper,
+  ReviewSeedHelper,
+} from 'libs/testing';
+import { CultureContentOutput } from 'libs/testing/seed/culture-content/type/culture-content.output';
+import { ReviewOutput } from 'libs/testing/seed/review/type/review.output';
 
 describe('Liket (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
+  const contentSeedHelper = test.seedHelper(CultureContentSeedHelper);
+  const reviewSeedHelper = test.seedHelper(ReviewSeedHelper);
+  const liketSeedHelper = test.seedHelper(LiketSeedHelper);
 
-  const liketSeeds = [
-    {
-      idx: 1,
-      reviewIdx: 1,
-      bgImgPath: '/liket/bg/img_000001.png',
-      bgImgInfo: {
-        rotation: -304.2448570172177,
-        width: 109.52810264879164,
-        height: 109.52810264879164,
-        offsetX: 82.44220158804448,
-        offsetY: 54.75638762191013,
-        x: 108,
-        y: 209,
-      },
-      cardImgPath: '/liket/bg/img_000001.png',
-      textShape: {
-        fill: '#f5d949',
-        text: '별이 빛나는 밤에',
-        x: 444,
-        y: 555,
-      },
-      size: 2,
-      description: '42글자로 표현하기 어려운 팝업 스토어',
-    },
-  ] as const;
-
-  const liketImgShapeSeeds = [
-    {
-      idx: 1,
-      liketIdx: 1,
-      imgShape: {
-        code: 1,
-        stickerNumber: 1,
-        width: 164.9074803925627,
-        height: 109.5281026487916,
-        x: 108,
-        y: 209,
-        rotation: 24,
-      },
-    },
-    {
-      idx: 2,
-      liketIdx: 1,
-      imgShape: {
-        code: 9,
-        stickerNumber: 1,
-        width: 164.9074803925627,
-        height: 109.5281026487916,
-        x: 108,
-        y: 209,
-        rotation: 34,
-      },
-    },
-  ] as const;
-
-  beforeAll(async () => {
-    for (const liket of liketSeeds) {
-      await test.getPrisma().liket.upsert({
-        where: {
-          idx: liket.idx,
-        },
-        create: {
-          reviewIdx: liket.reviewIdx,
-          bgImgPath: liket.bgImgPath,
-          bgImgInfo: liket.bgImgInfo,
-          cardImgPath: liket.cardImgPath,
-          textShape: liket.textShape,
-          size: liket.size,
-          description: liket.description,
-        },
-        update: {
-          reviewIdx: liket.reviewIdx,
-          bgImgPath: liket.bgImgPath,
-          bgImgInfo: liket.bgImgInfo,
-          cardImgPath: liket.cardImgPath,
-          textShape: liket.textShape,
-          size: liket.size,
-          description: liket.description,
-        },
-      });
-    }
-
-    for (const imgShape of liketImgShapeSeeds) {
-      await test.getPrisma().liketImgShape.upsert({
-        where: {
-          idx: imgShape.liketIdx,
-        },
-        create: {
-          liketIdx: imgShape.liketIdx,
-          imgShape: imgShape.imgShape,
-        },
-        update: {
-          imgShape: imgShape.imgShape,
-        },
-      });
-    }
-  });
+  let content: CultureContentOutput;
+  let review: ReviewOutput;
 
   beforeEach(async () => {
     await test.init();
+
+    content = await contentSeedHelper.seed({
+      userIdx: test.getLoginUsers().user1.idx,
+      acceptedAt: new Date(),
+    });
+
+    review = await reviewSeedHelper.seed({
+      userIdx: test.getLoginUsers().user2.idx,
+      contentIdx: content.idx,
+    });
   });
 
   afterEach(async () => {
@@ -112,31 +38,35 @@ describe('Liket (e2e)', () => {
 
   describe('GET /liket/:idx', () => {
     it('Success - no token', async () => {
-      const liketIdx = 1;
+      const liket = await liketSeedHelper.seed({
+        reviewIdx: review.idx,
+      });
 
       const response = await request(test.getServer())
-        .get(`/liket/${liketIdx}`)
+        .get(`/liket/${liket.idx}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(1);
+      expect(response.body.idx).toBe(liket.idx);
     });
 
     it('Success - login', async () => {
-      const liketIdx = 1;
+      const liket = await liketSeedHelper.seed({
+        reviewIdx: review.idx,
+      });
       const loginUser = test.getLoginUsers().user1;
 
       const response = await request(test.getServer())
-        .get(`/liket/${liketIdx}`)
+        .get(`/liket/${liket.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body).toBeDefined();
-      expect(response.body.idx).toBe(1);
+      expect(response.body.idx).toBe(liket.idx);
     });
 
     it('Non-existent liket', async () => {
-      const liketIdx = 999999;
+      const liketIdx = -999999;
       await request(test.getServer()).get(`/liket/${liketIdx}`).expect(404);
     });
 
@@ -148,8 +78,8 @@ describe('Liket (e2e)', () => {
 
   describe('POST /review/:idx/liket', () => {
     it('Success', async () => {
-      const reviewIdx = 2;
-      const loginUser = test.getLoginUsers().user1;
+      const reviewIdx = review.idx;
+      const loginUser = test.getLoginUsers().of(review.userIdx);
 
       await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
@@ -159,8 +89,8 @@ describe('Liket (e2e)', () => {
     });
 
     it('Success - without textShape', async () => {
-      const reviewIdx = 2;
-      const loginUser = test.getLoginUsers().user1;
+      const reviewIdx = review.idx;
+      const loginUser = test.getLoginUsers().of(review.userIdx);
 
       const { textShape, ...liketDataWithoutTextShape } = successLiketData;
 
@@ -172,7 +102,7 @@ describe('Liket (e2e)', () => {
     });
 
     it('No token', async () => {
-      const reviewIdx = 2;
+      const reviewIdx = review.idx;
 
       await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
@@ -182,8 +112,8 @@ describe('Liket (e2e)', () => {
     });
 
     it('Invalid dto - ImgShapes', async () => {
-      const reviewIdx = 2;
-      const loginUser = test.getLoginUsers().user1;
+      const reviewIdx = review.idx;
+      const loginUser = test.getLoginUsers().of(review.userIdx);
       const { imgShapes, ...liketDataWithoutImgShapes } = successLiketData;
 
       await request(test.getServer())
@@ -214,8 +144,8 @@ describe('Liket (e2e)', () => {
     });
 
     it('Invalid dto - textShape', async () => {
-      const reviewIdx = 2;
-      const loginUser = test.getLoginUsers().user1;
+      const reviewIdx = review.idx;
+      const loginUser = test.getLoginUsers().of(review.userIdx);
 
       await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
@@ -242,8 +172,8 @@ describe('Liket (e2e)', () => {
     });
 
     it('Invalid dto - bgImgInfo', async () => {
-      const reviewIdx = 2;
-      const loginUser = test.getLoginUsers().user1;
+      const reviewIdx = review.idx;
+      const loginUser = test.getLoginUsers().of(review.userIdx);
 
       const { bgImgInfo, ...liketDataWithoutBgImgInfo } = successLiketData;
       await request(test.getServer())
@@ -283,8 +213,8 @@ describe('Liket (e2e)', () => {
     });
 
     it('Invalid dto - size', async () => {
-      const reviewIdx = 2;
-      const loginUser = test.getLoginUsers().user1;
+      const reviewIdx = review.idx;
+      const loginUser = test.getLoginUsers().of(review.userIdx);
 
       await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
@@ -297,8 +227,8 @@ describe('Liket (e2e)', () => {
     });
 
     it('Invalid dto - description', async () => {
-      const reviewIdx = 2;
-      const loginUser = test.getLoginUsers().user1;
+      const reviewIdx = review.idx;
+      const loginUser = test.getLoginUsers().of(review.userIdx);
 
       await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
@@ -311,7 +241,7 @@ describe('Liket (e2e)', () => {
     });
 
     it('Non-existent review', async () => {
-      const reviewIdx = 99999;
+      const reviewIdx = -99999;
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
@@ -322,19 +252,19 @@ describe('Liket (e2e)', () => {
     });
 
     it('Invalid path parameter', async () => {
-      const reivewIdx = 'invalid';
+      const reviewIdx = 'invalid';
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
-        .post(`/review/${reivewIdx}/liket`)
+        .post(`/review/${reviewIdx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(successLiketData)
         .expect(400);
     });
 
     it('Attempt to create liket for review written by other user', async () => {
-      const reviewIdx = 2;
-      const loginUser = test.getLoginUsers().user2;
+      const reviewIdx = review.idx;
+      const loginUser = test.getLoginUsers().not(review.userIdx);
 
       await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
@@ -344,8 +274,8 @@ describe('Liket (e2e)', () => {
     });
 
     it('Attempt to create liket in a situation that a liket for review already exist', async () => {
-      const reviewIdx = 2;
-      const loginUser = test.getLoginUsers().user1;
+      const reviewIdx = review.idx;
+      const loginUser = test.getLoginUsers().of(review.userIdx);
 
       await request(test.getServer())
         .post(`/review/${reviewIdx}/liket`)
@@ -361,16 +291,21 @@ describe('Liket (e2e)', () => {
     });
 
     it('Attempt to create liket for deleted review', async () => {
-      const reviewIdx = 1;
       const loginUser = test.getLoginUsers().user1;
 
-      await request(test.getServer())
-        .delete(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUser.accessToken}`)
-        .expect(201);
+      const deletedReview = await reviewSeedHelper.seed({
+        contentIdx: content.idx,
+        userIdx: loginUser.idx,
+        deletedAt: new Date(), // deleted review
+      });
 
       await request(test.getServer())
-        .post(`/review/${reviewIdx}/liket`)
+        .delete(`/review/${deletedReview.idx}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(404);
+
+      await request(test.getServer())
+        .post(`/review/${deletedReview.idx}/liket`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(successLiketData)
         .expect(404);
@@ -379,13 +314,17 @@ describe('Liket (e2e)', () => {
 
   describe('GET /liket/all', () => {
     it('Success', async () => {
-      const loginUser = test.getLoginUsers().user1;
+      const loginUser = test.getLoginUsers().of(review.userIdx);
+
+      await liketSeedHelper.seed({
+        reviewIdx: review.idx,
+      });
 
       const response = await request(test.getServer())
         .get('/liket/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
-          user: 1,
+          user: loginUser.idx,
         })
         .expect(200);
 
@@ -410,27 +349,31 @@ describe('Liket (e2e)', () => {
 
   describe('DELETE /liket/:idx', () => {
     it('Success', async () => {
-      const liketIdx = 1;
-      const loginUser = test.getLoginUsers().user1;
+      const loginUser = test.getLoginUsers().of(review.userIdx);
+      const liket = await liketSeedHelper.seed({
+        reviewIdx: review.idx,
+      });
 
       await request(test.getServer())
-        .delete(`/liket/${liketIdx}`)
+        .delete(`/liket/${liket.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Attempt to delete liket created by other user', async () => {
-      const liketIdx = 1;
-      const loginUser = test.getLoginUsers().user2;
+      const loginUser = test.getLoginUsers().not(review.userIdx);
+      const liket = await liketSeedHelper.seed({
+        reviewIdx: review.idx,
+      });
 
       await request(test.getServer())
-        .delete(`/liket/${liketIdx}`)
+        .delete(`/liket/${liket.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
     });
 
     it('Non-existent liket', async () => {
-      const liketIdx = 9999999;
+      const liketIdx = -9999999;
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())

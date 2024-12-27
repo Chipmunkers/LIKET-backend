@@ -16,14 +16,14 @@ export class TempContentSchedule {
    */
   @Cron('1 0 0 * * *')
   async savePerformListCronJob() {
-    const date = new Date();
-    this.logger.log(`Start: ${date.toLocaleString()}`, 'kopis-cron');
-    try {
-      await this.tempContentService.saveAllPerformFromKopisAPI();
-    } catch (err) {
-      this.logger.error('Fail to save perform list', 'kopis-cron');
-      console.log(err);
-    }
-    this.logger.log(`End: ${date.toLocaleString()}`, 'kopis-cron');
+    // const date = new Date();
+    // this.logger.log(`Start: ${date.toLocaleString()}`, 'kopis-cron');
+    // try {
+    //   await this.tempContentService.saveAllPerformFromKopisAPI();
+    // } catch (err) {
+    //   this.logger.error('Fail to save perform list', 'kopis-cron');
+    //   console.log(err);
+    // }
+    // this.logger.log(`End: ${date.toLocaleString()}`, 'kopis-cron');
   }
 }

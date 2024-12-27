@@ -191,6 +191,7 @@
           "7ed01ecc-c041-4043-872f-64a53e1ce19a",
           "75fd3418-40e3-44b1-84c0-ebfbdce25e3f",
           "yMr-STdjoyF28cMZ-VV3T",
+          "-WyaIojuRILYVLxJ8gzRa",
           "561bcbfb-f1bc-4d28-a1a9-4391c557b83a",
           "848bcf2b-22ff-4ee4-b449-d78b2aeff19f",
           "e013996d-4e86-4cf2-8766-e4f737d809e9",
@@ -217,7 +218,7 @@
           "color": "#E91E63"
         },
         "meta": {
-          "updateAt": 1733558506574,
+          "updateAt": 1735197058374,
           "createAt": 1721292572697
         }
       },
@@ -384,15 +385,15 @@
           "aa6c9934-5391-475a-b92a-3977c9427b76"
         ],
         "ui": {
-          "x": 165.5156,
-          "y": 1498.8493,
+          "x": 129.5156,
+          "y": 1515.8493,
           "zIndex": 12,
           "widthName": 77,
           "widthComment": 81,
           "color": "#FFEB3B"
         },
         "meta": {
-          "updateAt": 1721292572697,
+          "updateAt": 1733993028764,
           "createAt": 1721292572697
         }
       },
@@ -1706,7 +1707,7 @@
         "comment": "종료 날짜",
         "dataType": "timestamp with time zone",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 60,
@@ -1715,7 +1716,7 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1721292572697,
+          "updateAt": 1733806486999,
           "createAt": 1721292572697
         }
       },
@@ -2886,7 +2887,7 @@
         "comment": "주소 상세",
         "dataType": "varchar",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 85,
@@ -2895,7 +2896,7 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1721292572697,
+          "updateAt": 1735024953574,
           "createAt": 1721292572697
         }
       },
@@ -6126,7 +6127,7 @@
         "comment": "",
         "dataType": "varchar",
         "default": "",
-        "options": 8,
+        "options": 4,
         "ui": {
           "keys": 0,
           "widthName": 65,
@@ -6135,8 +6136,28 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1733559600776,
+          "updateAt": 1735196513485,
           "createAt": 1733558498957
+        }
+      },
+      "-WyaIojuRILYVLxJ8gzRa": {
+        "id": "-WyaIojuRILYVLxJ8gzRa",
+        "tableId": "215f934c-f4e3-474f-b6d6-302ed6e9694b",
+        "name": "",
+        "comment": "",
+        "dataType": "",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1735197056763,
+          "createAt": 1735197046556
         }
       }
     },
@@ -6300,8 +6321,8 @@
           "columnIds": [
             "ef6667ba-03e3-47b1-b830-32c82450cc6c"
           ],
-          "x": 677.5156,
-          "y": 1598.8493,
+          "x": 641.5156,
+          "y": 1615.8493,
           "direction": 2
         },
         "meta": {
@@ -6328,8 +6349,8 @@
           "columnIds": [
             "abbe76dc-22f3-4d02-9ea1-7b13fde7ee4b"
           ],
-          "x": 421.5156,
-          "y": 1498.8493,
+          "x": 385.5156,
+          "y": 1515.8493,
           "direction": 4
         },
         "meta": {
@@ -8556,8 +8577,32 @@
       {
         "name": 1733558502061,
         "dataType": 1733558503602,
-        "options(notNull)": 1733558503892,
-        "options(unique)": 1733559600772
+        "options(notNull)": 1735196174333,
+        "options(unique)": 1735196513484
+      }
+    ],
+    "c9fb6850-7813-42d6-82a7-d637ee1c46c7": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "options(notNull)": 1733806486998
+      }
+    ],
+    "fa2e8384-8d9c-48d3-b99d-ec58d4aad91b": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "options(notNull)": 1735024953572
+      }
+    ],
+    "-WyaIojuRILYVLxJ8gzRa": [
+      "tableColumnEntities",
+      1735197046556,
+      1735197058373,
+      {
+        "name": 1735197056762
       }
     ]
   }
