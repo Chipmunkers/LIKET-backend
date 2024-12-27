@@ -36,7 +36,7 @@ model CultureContent {
   genreIdx      Int            @default(autoincrement()) @map("genre_idx")
   userIdx       Int            @default(autoincrement()) @map("user_idx")
   locationIdx   Int            @default(autoincrement()) @map("location_idx")
-  performId     String?        @map("perform_id") @db.VarChar
+  id            String?        @db.VarChar
   title         String         @map("title") @db.VarChar
   description   String?        @map("description") @db.VarChar
   openTime      String         @map("open_time") @db.VarChar

@@ -14,7 +14,7 @@ export class CultureContentRepository {
   public async selectCultureContentById(id: `${ExternalAPIs}-${string}`) {
     return await this.prisma.cultureContent.findFirst({
       where: {
-        performId: id,
+        id,
         deletedAt: null,
       },
     });
@@ -55,7 +55,7 @@ export class CultureContentRepository {
           locationIdx: location.idx,
           genreIdx: tempContent.genreIdx,
           ageIdx: tempContent.ageIdx,
-          performId: contentId,
+          id: contentId,
           title: tempContent.title,
           userIdx: 1, // TODO: 관리자 인덱스인 점을 명시해야함
           description: tempContent.description,
