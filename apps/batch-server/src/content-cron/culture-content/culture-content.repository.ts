@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaProvider } from 'libs/modules';
 import { TempContentEntity } from './entity/temp-content.entity';
 import { CultureContent } from '@prisma/client';
+import { ExternalAPIs } from 'apps/batch-server/src/content-cron/external-api.enum';
 
 @Injectable()
 export class CultureContentRepository {
@@ -10,7 +11,7 @@ export class CultureContentRepository {
   /**
    * @author jochongs
    */
-  public async selectCultureContentById(id: string) {
+  public async selectCultureContentById(id: `${ExternalAPIs}-${string}`) {
     return await this.prisma.cultureContent.findFirst({
       where: {
         performId: id,
@@ -20,10 +21,16 @@ export class CultureContentRepository {
   }
 
   /**
+   * 활성화된 채로 들어감.
+   *
    * @author jochongs
+   *
+   * @param tempContent 임시 컨텐츠
+   * @param contentId 컨텐츠 아이디. 현재 db 컬럼은 perform_id로 잘못 명시되어있음.
    */
-  public async insertCultureContent(
+  public async insertCultureContentWithContentId(
     tempContent: TempContentEntity,
+    contentId: `${ExternalAPIs}-${string}`,
   ): Promise<CultureContent> {
     return await this.prisma.$transaction(async (tx) => {
       const location = await tx.location.create({
@@ -48,8 +55,9 @@ export class CultureContentRepository {
           locationIdx: location.idx,
           genreIdx: tempContent.genreIdx,
           ageIdx: tempContent.ageIdx,
-          performId: tempContent.id,
+          performId: contentId,
           title: tempContent.title,
+          userIdx: 1, // TODO: 관리자 인덱스인 점을 명시해야함
           description: tempContent.description,
           websiteLink: tempContent.websiteLink,
           startDate: tempContent.startDate,
@@ -59,6 +67,7 @@ export class CultureContentRepository {
           isReservation: tempContent.isReservation,
           isPet: tempContent.isPet,
           isParking: tempContent.isParking,
+          acceptedAt: new Date(),
           Style: {
             createMany: {
               data: tempContent.styleIdxList.map((styleIdx) => ({ styleIdx })),

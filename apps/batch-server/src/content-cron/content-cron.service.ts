@@ -25,42 +25,73 @@ export class ContentCronService {
   /**
    * @author jochongs
    */
-  public async saveContentFromExternalAPI() {
+  public async saveContentFromExternalAPI(): Promise<void> {
     const externalApiKeyList = this.extractKeysFromMap(this.externalApiMap);
 
     for (const externalApiKey of externalApiKeyList) {
-      const externalApiService = this.externalApiMap[externalApiKey];
-
-      const summaryPerformList = await externalApiService.getSummaryAll();
-
-      for (const summaryPerform of summaryPerformList) {
-        const performId = externalApiService.getId(summaryPerform);
-
-        const contentId = this.getContentId(performId, externalApiKey);
-
-        const alreadyExistContent =
-          await this.cultureContentRepository.selectCultureContentById(
-            contentId,
-          );
-
-        if (alreadyExistContent) {
-          this.logger.log(
-            `already exist content | id = ${contentId}`,
-            this.LOG_CONTEXT,
-          );
-
-          continue;
-        }
-
-        const detailPerform = await externalApiService.getDetail(
-          summaryPerform,
+      try {
+        this.logger.log(
+          `External API execute: ${externalApiKey}`,
+          this.LOG_CONTEXT,
         );
+        const externalApiService = this.externalApiMap[externalApiKey];
 
-        const externalApiAdapter = externalApiService.getAdapter();
+        const summaryPerformList = await externalApiService.getSummaryAll();
 
-        const tempContent = await externalApiAdapter.transform(detailPerform);
+        for (const summaryPerform of summaryPerformList) {
+          const performId = externalApiService.getId(summaryPerform);
+          try {
+            this.logger.log(`Getting Perform: ${performId}`, this.LOG_CONTEXT);
 
-        await this.cultureContentRepository.insertCultureContent(tempContent);
+            const contentId = this.getContentId(performId, externalApiKey);
+
+            const alreadyExistContent =
+              await this.cultureContentRepository.selectCultureContentById(
+                contentId,
+              );
+
+            if (alreadyExistContent) {
+              this.logger.log(
+                `already exist content | id = ${contentId}`,
+                this.LOG_CONTEXT,
+              );
+
+              continue;
+            }
+
+            const detailPerform = await externalApiService.getDetail(
+              summaryPerform,
+            );
+
+            const externalApiAdapter = externalApiService.getAdapter();
+
+            const tempContent = await externalApiAdapter.transform(
+              detailPerform,
+            );
+
+            // TODO: TempContent의 id필드가 매우 모호한 상태.
+            // DB에는 perform_id라고 되어있는 컬럼 명을 그냥 id로 바꾸어야함.
+            // 그러나 변경 시 schema.prisma와 동시에 변경되어야해서 아직 바꾸지 못함.
+            // perform id와 content id를 명확하게 해야함
+            await this.cultureContentRepository.insertCultureContentWithContentId(
+              tempContent,
+              contentId,
+            );
+          } catch (err) {
+            this.logger.error(
+              `Fail to Getting perform | ${performId}`,
+              err?.stack || '',
+              this.LOG_CONTEXT,
+            );
+          }
+        }
+      } catch (err) {
+        this.logger.error(
+          `Fail to Request External | API: ${externalApiKey}`,
+          err?.stack || '',
+          this.LOG_CONTEXT,
+        );
+        console.log(err);
       }
     }
   }

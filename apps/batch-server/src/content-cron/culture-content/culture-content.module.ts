@@ -5,5 +5,6 @@ import { CultureContentRepository } from './culture-content.repository';
 @Module({
   imports: [PrismaModule],
   providers: [CultureContentRepository],
+  exports: [CultureContentRepository],
 })
 export class CultureContentModule {}
