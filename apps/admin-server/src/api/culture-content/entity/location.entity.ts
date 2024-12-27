@@ -20,7 +20,7 @@ export class LocationEntity {
    *
    * @example "LH아파트 1205호"
    */
-  public detailAddress: string;
+  public detailAddress: string | null;
 
   /**
    * 주소
