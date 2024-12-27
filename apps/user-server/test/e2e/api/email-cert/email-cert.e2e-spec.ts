@@ -1,17 +1,12 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../../../src/app.module';
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import * as request from 'supertest';
-import { EmailCertType } from '../../../../src/api/email-cert/model/email-cert-type';
 import { MailerService } from '@nestjs-modules/mailer';
-import { PrismaSetting } from '../../setup/prisma.setup';
-import { AppGlobalSetting } from '../../setup/app-global.setup';
-import { TestHelper } from '../../setup/test.helper';
-import { PrismaProvider } from '../../../../../../libs/modules/src';
+import { PrismaProvider } from 'libs/modules';
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { EmailCertType } from 'apps/user-server/src/api/email-cert/model/email-cert-type';
 
 describe('Email Cert (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
 
   beforeEach(async () => {
     await test.init();

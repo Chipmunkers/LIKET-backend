@@ -1,10 +1,14 @@
+import { CreateContentRequestDto } from 'apps/user-server/src/api/culture-content/dto/create-content-request.dto';
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { GENRE } from 'libs/common';
+import { CultureContentSeedHelper } from 'libs/testing';
 import * as request from 'supertest';
-import { CreateContentRequestDto } from '../../../../src/api/culture-content/dto/create-content-request.dto';
 import invalidCreateContentRequest from './invalid-create-content-request';
-import { TestHelper } from '../../setup/test.helper';
 
 describe('Culture Content (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
+  const contentSeedHelper = test.seedHelper(CultureContentSeedHelper);
 
   beforeEach(async () => {
     await test.init();
@@ -31,34 +35,173 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Success: get my contents', async () => {
-      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().user1;
+      const loginUser = test.getLoginUsers().user2;
+
+      await contentSeedHelper.seedAll([
+        { userIdx: otherUser.idx, acceptedAt: new Date() },
+        { userIdx: loginUser.idx, acceptedAt: new Date() },
+        { userIdx: loginUser.idx },
+        { userIdx: loginUser.idx, deletedAt: new Date() },
+      ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
-          user: 1,
+          user: loginUser.idx,
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
       expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      expect(Array.isArray(response.body.contentList)).toBeTruthy();
+      expect(response.body.contentList.length).toBe(2);
     });
 
-    it('Success: get my not accepted contents', async () => {
-      const loginUser = test.getLoginUsers().user1;
+    it('Success: Get Open contents test with end date null', async () => {
+      const oneMothAfter = new Date();
+      oneMothAfter.setMonth(oneMothAfter.getMonth() + 1);
+
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      const [endDateNullContents, endDateNotNullContents] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: test.getLoginUsers().user1.idx,
+            startDate: oneMonthAgo,
+            endDate: null,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: test.getLoginUsers().user1.idx,
+            startDate: oneMonthAgo,
+            endDate: oneMothAfter,
+            acceptedAt: new Date(),
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          open: true,
+        });
+
+      const contentList = response.body.contentList;
+
+      expect(contentList.length).toBe(2);
+    });
+
+    it('Success: Get Open contents with not open content', async () => {
+      const oneMothAfter = new Date();
+      oneMothAfter.setMonth(oneMothAfter.getMonth() + 1);
+
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      const [firstContent, secondContent] = await contentSeedHelper.seedAll([
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMothAfter,
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo,
+          endDate: oneMothAfter,
+          acceptedAt: new Date(),
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          open: true,
+        });
+
+      const contentList = response.body.contentList;
+
+      expect(contentList.length).toBe(1);
+      expect(contentList[0].idx).toBe(secondContent.idx);
+    });
+
+    it('Success: Get Open contents with not open content - 2', async () => {
+      const oneMothAfter = new Date();
+      oneMothAfter.setMonth(oneMothAfter.getMonth() + 1);
+
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      const [firstContent, secondContent] = await contentSeedHelper.seedAll([
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo,
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMothAfter,
+          endDate: oneMothAfter,
+          acceptedAt: new Date(),
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          open: true,
+        });
+
+      const contentList = response.body.contentList;
+
+      expect(contentList.length).toBe(1);
+      expect(contentList[0].idx).toBe(firstContent.idx);
+    });
+
+    it('Get not accepted contents', async () => {
+      const loginUser = test.getLoginUsers().user2;
+
+      await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: false,
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(403);
+    });
+
+    it('Get not accepted contents that were created by login user', async () => {
+      const otherUser = test.getLoginUsers().user1;
+      const loginUser = test.getLoginUsers().user2;
+
+      const [content1, content2] = await contentSeedHelper.seedAll([
+        { userIdx: loginUser.idx, acceptedAt: null },
+        { userIdx: loginUser.idx, acceptedAt: null },
+        { userIdx: otherUser.idx, acceptedAt: null },
+        { userIdx: loginUser.idx, acceptedAt: null, deletedAt: new Date() },
+      ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: false,
-          user: 1,
+          user: loginUser.idx,
+          order: 'asc',
+          orderby: 'create',
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      const { contentList } = response.body;
+
+      expect(contentList.length).toBe(2);
+      expect(contentList[0].idx).toBe(content1.idx);
+      expect(contentList[1].idx).toBe(content2.idx);
     });
 
     it('Success: genre filter', async () => {
@@ -75,6 +218,58 @@ describe('Culture Content (e2e)', () => {
 
       expect(response.body?.contentList).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
+    });
+
+    it('Success: genre filter without login token', async () => {
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          genre: 1,
+        })
+        .expect(200);
+
+      expect(response.body?.contentList).toBeDefined();
+      expect(Array.isArray(response.body?.contentList)).toBe(true);
+    });
+
+    it('Genre filtering test', async () => {
+      const randomUser = test.getLoginUsers().user2;
+
+      const [acceptedConcertContent] = await contentSeedHelper.seedAll([
+        {
+          userIdx: randomUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.CONCERT,
+        },
+        {
+          userIdx: randomUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.FESTIVAL,
+        },
+        {
+          userIdx: randomUser.idx,
+          genreIdx: GENRE.CONCERT,
+        },
+        {
+          userIdx: randomUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.CONCERT,
+          deletedAt: new Date(0),
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          genre: GENRE.CONCERT,
+        });
+
+      const contentList = response.body.contentList;
+
+      expect(contentList.length).toBe(1);
+      expect(contentList[0].idx).toBe(acceptedConcertContent.idx);
     });
 
     it('Success: age filter', async () => {
@@ -522,6 +717,41 @@ describe('Culture Content (e2e)', () => {
       expect(response.body?.contentList).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
+
+    it('Success with contents', async () => {
+      const oneMonthAfter = new Date();
+      oneMonthAfter.setMonth(oneMonthAfter.getMonth() + 1);
+
+      await contentSeedHelper.seedAll([
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAfter,
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAfter,
+          endDate: oneMonthAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          // open state content
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: new Date(),
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+      ]);
+
+      const response = await request(test.getServer()).get(
+        '/culture-content/soon-open/all',
+      );
+
+      const { contentList } = response.body;
+
+      expect(contentList.length).toBe(2);
+    });
   });
 
   describe('GET /culture-content/soon-end/all', () => {
@@ -544,6 +774,44 @@ describe('Culture Content (e2e)', () => {
 
       expect(response.body?.contentList).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
+    });
+
+    it('Success with contents', async () => {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      const oneDateAfter = new Date();
+      oneDateAfter.setDate(oneDateAfter.getDate() + 1);
+
+      await contentSeedHelper.seedAll([
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneDateAfter,
+          endDate: oneDateAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: new Date(),
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+        {
+          // open state content
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: new Date(),
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+      ]);
+
+      const response = await request(test.getServer()).get(
+        '/culture-content/soon-open/all',
+      );
+
+      const { contentList } = response.body;
+
+      expect(contentList.length).toBe(1);
     });
   });
 
@@ -624,67 +892,83 @@ describe('Culture Content (e2e)', () => {
 
   describe('POST /culture-content/:idx/like', () => {
     it("Success - like author's content", async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
 
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
+
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Success - like for content user do not own', async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Success - like not accepted content', async () => {
-      const idx = 2;
       const loginUser = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: null,
+      });
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Duplicate like', async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+      });
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });
 
     it('Duplicate like, like the other user', async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
       const otherLoginUserToken = test.getLoginUsers().user2;
 
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
+
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
 
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${otherLoginUserToken.accessToken}`)
         .expect(201);
     });
@@ -701,69 +985,82 @@ describe('Culture Content (e2e)', () => {
 
   describe('DELETE /culture-content/:idx/like', () => {
     it("Success - author's content", async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
 
       // 좋아요 누르기
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 취소하기
       await request(test.getServer())
-        .delete(`/culture-content/${idx}/like`)
+        .delete(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Success - Non-author cancels like', async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
 
       // 좋아요 누르기
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 취소하기
       await request(test.getServer())
-        .delete(`/culture-content/${idx}/like`)
+        .delete(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
-    it('Cancel like (already unliked)', async () => {
-      const idx = 1;
+    it('Cancel like (already disliked)', async () => {
+      const content = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().user2.idx,
+        acceptedAt: new Date(),
+      });
       const loginUser = test.getLoginUsers().user1;
 
       // 좋아요 취소하기
       await request(test.getServer())
-        .delete(`/culture-content/${idx}/like`)
+        .delete(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });
 
     it('Success - like again', async () => {
-      const idx = 1;
       const loginUser = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
 
       // 좋아요 누르기
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 취소하기
       await request(test.getServer())
-        .delete(`/culture-content/${idx}/like`)
+        .delete(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       // 좋아요 누르기
       await request(test.getServer())
-        .post(`/culture-content/${idx}/like`)
+        .post(`/culture-content/${content.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
@@ -916,10 +1213,14 @@ describe('Culture Content (e2e)', () => {
         isPet: true,
       };
       const loginUser = test.getLoginUsers().user1;
-      const idx = 2;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: null,
+      });
 
       await request(test.getServer())
-        .put(`/culture-content/request/${idx}`)
+        .put(`/culture-content/request/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
         .expect(201);
@@ -952,11 +1253,15 @@ describe('Culture Content (e2e)', () => {
         isParking: true,
         isPet: true,
       };
-      const loginUser = test.getLoginUsers().user2; // Non author
-      const idx = 2;
+      const loginUser = test.getLoginUsers().user2;
+
+      const contentOfOtherUser = await contentSeedHelper.seed({
+        userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .put(`/culture-content/request/${idx}`)
+        .put(`/culture-content/request/${contentOfOtherUser.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
         .expect(403);
@@ -1027,10 +1332,14 @@ describe('Culture Content (e2e)', () => {
         isPet: true,
       };
       const loginUser = test.getLoginUsers().user1;
-      const idx = 1; // Accepted content
+
+      const acceptedContent = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .put(`/culture-content/request/${idx}`)
+        .put(`/culture-content/request/${acceptedContent.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
         .expect(409);
@@ -1040,20 +1349,29 @@ describe('Culture Content (e2e)', () => {
   describe('DELETE /culture-content/request/:idx', () => {
     it('Success', async () => {
       const loginUser = test.getLoginUsers().user1;
-      const idx = 2;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        deletedAt: null,
+      });
 
       await request(test.getServer())
-        .delete(`/culture-content/request/${idx}`)
+        .delete(`/culture-content/request/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Non author delete content', async () => {
       const loginUser = test.getLoginUsers().user2; // Non author
-      const idx = 2;
+      const otherUser = test.getLoginUsers().not(loginUser.idx);
+
+      const content = await contentSeedHelper.seed({
+        userIdx: otherUser.idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .delete(`/culture-content/request/${idx}`)
+        .delete(`/culture-content/request/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
     });
@@ -1079,10 +1397,13 @@ describe('Culture Content (e2e)', () => {
 
     it('Accepted content', async () => {
       const loginUser = test.getLoginUsers().user1;
-      const idx = 1; // Accepted content
+      const notAcceptedContent = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .delete(`/culture-content/request/${idx}`)
+        .delete(`/culture-content/request/${notAcceptedContent.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });

@@ -1,8 +1,13 @@
+import { ReviewEntity } from 'apps/admin-server/src/api/review/entity/review.entity';
+import { AppModule } from 'apps/user-server/src/app.module';
+import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { CultureContentSeedHelper, ReviewSeedHelper } from 'libs/testing';
 import * as request from 'supertest';
-import { TestHelper } from '../../setup/test.helper';
 
 describe('Review (e2e)', () => {
-  const test = TestHelper.create();
+  const test = TestHelper.create(AppModule);
+  const contentSeedHelper = test.seedHelper(CultureContentSeedHelper);
+  const reviewSeedHelper = test.seedHelper(ReviewSeedHelper);
 
   beforeEach(async () => {
     await test.init();
@@ -14,10 +19,16 @@ describe('Review (e2e)', () => {
 
   describe('GET /review/all', () => {
     it('Success', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
       const response = await request(test.getServer())
         .get('/review/all')
         .query({
-          content: 1,
+          content: content.idx,
           orderby: 'time',
           page: 1,
           order: 'desc',
@@ -41,43 +52,71 @@ describe('Review (e2e)', () => {
     });
 
     it('Non-existent content', async () => {
-      const loginUser = test.getLoginUsers().user1;
-      const contentIdx = 99999; // Non-existent content
+      const loginUser = test.getLoginUsers().user2;
+      const notExistContentIdx = -9999;
 
       await request(test.getServer())
         .get('/review/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
-          content: contentIdx,
+          content: notExistContentIdx,
         })
         .expect(404);
     });
 
     it('Non-accepted content | author', async () => {
-      const loginUser = test.getLoginUsers().user1;
-      const contentIdx = 2;
+      const loginUser = test.getLoginUsers().user2;
+      const reviewCreateUser = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: null,
+      });
+
+      const [firstReview, secondReview] = await reviewSeedHelper.seedAll([
+        {
+          userIdx: reviewCreateUser.idx,
+          contentIdx: content.idx,
+        },
+        {
+          userIdx: loginUser.idx,
+          contentIdx: content.idx,
+        },
+        {
+          userIdx: loginUser.idx,
+          contentIdx: content.idx,
+          deletedAt: new Date(),
+        },
+      ]);
 
       const response = await request(test.getServer())
         .get('/review/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
-          content: contentIdx,
+          content: content.idx,
         })
         .expect(200);
 
-      expect(response.body?.reviewList).toBeDefined();
-      expect(Array.isArray(response.body.reviewList)).toBe(true);
+      const reviewList: ReviewEntity[] = response.body.reviewList;
+
+      expect(reviewList[0].idx).toBe(secondReview.idx);
+      expect(reviewList[1].idx).toBe(firstReview.idx);
     });
 
-    it('Non-accepted content | author', async () => {
+    it('Non-accepted content | not author', async () => {
       const loginUser = test.getLoginUsers().user2;
-      const contentIdx = 2;
+      const otherUser = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: otherUser.idx,
+        acceptedAt: null,
+      });
 
       await request(test.getServer())
         .get('/review/all')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .query({
-          content: contentIdx,
+          content: content.idx,
         })
         .expect(403);
     });
@@ -122,29 +161,50 @@ describe('Review (e2e)', () => {
 
   describe('GET /review/:idx', () => {
     it('Success - no token', async () => {
-      const reviewIdx = 1;
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().user2;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
 
       const response = await request(test.getServer())
-        .get(`/review/${reviewIdx}`)
+        .get(`/review/${review.idx}`)
         .expect(200);
 
-      expect(response.body?.idx).toBe(1);
+      expect(response.body?.idx).toBe(review.idx);
     });
 
-    it('Success - login', async () => {
-      const reviewIdx = 1;
-      const loginUser = test.getLoginUsers().user1;
+    it('Success - with login token', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().user2;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
 
       const response = await request(test.getServer())
-        .get(`/review/${reviewIdx}`)
-        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .get(`/review/${review.idx}`)
+        .set('Authorization', `Bearer ${reviewAuthor.accessToken}`)
         .expect(200);
 
-      expect(response.body?.idx).toBe(1);
+      expect(response.body.idx).toBe(review.idx);
     });
 
     it('Non-existent review', async () => {
-      const reviewIdx = 999999; // Non-existent review
+      const reviewIdx = -999999;
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
@@ -179,11 +239,16 @@ describe('Review (e2e)', () => {
 
   describe('POST /culture-content/:idx/review', () => {
     it('Success', async () => {
-      const contentIdx = 1;
       const loginUser = test.getLoginUsers().user1;
 
+      const contentAuthor = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
       await request(test.getServer())
-        .post(`/culture-content/${contentIdx}/review`)
+        .post(`/culture-content/${content.idx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
@@ -195,10 +260,14 @@ describe('Review (e2e)', () => {
     });
 
     it('No token', async () => {
-      const contentIdx = 1;
+      const contentAuthor = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
 
       await request(test.getServer())
-        .post(`/culture-content/${contentIdx}/review`)
+        .post(`/culture-content/${content.idx}/review`)
         .set('Authorization', `Bearer ${null}`)
         .send({
           title: 'review title',
@@ -210,7 +279,7 @@ describe('Review (e2e)', () => {
     });
 
     it('Non-existent content', async () => {
-      const contentIdx = 99999; // Non-existent content
+      const contentIdx = -99999; // Non-existent content
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
@@ -226,11 +295,16 @@ describe('Review (e2e)', () => {
     });
 
     it('Non-accepted content', async () => {
-      const contentIdx = 2; // Non-existent content
       const loginUser = test.getLoginUsers().user1;
 
+      const contentAuthor = test.getLoginUsers().user2;
+      const notAccepetedContent = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: null,
+      });
+
       await request(test.getServer())
-        .post(`/culture-content/${contentIdx}/review`)
+        .post(`/culture-content/${notAccepetedContent.idx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
@@ -258,11 +332,16 @@ describe('Review (e2e)', () => {
     });
 
     it('Invalid DTO - starRating', async () => {
-      const contentIdx = 1;
+      const contentAuthor = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
-        .post(`/culture-content/${contentIdx}/review`)
+        .post(`/culture-content/${content.idx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 'invalid', // Invalid star rating
@@ -274,11 +353,16 @@ describe('Review (e2e)', () => {
     });
 
     it('Invalid DTO - description', async () => {
-      const contentIdx = 1;
+      const contentAuthor = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
-        .post(`/culture-content/${contentIdx}/review`)
+        .post(`/culture-content/${content.idx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
@@ -290,11 +374,16 @@ describe('Review (e2e)', () => {
     });
 
     it('Invalid DTO - visit time', async () => {
-      const contentIdx = 1;
+      const contentAuthor = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
-        .post(`/culture-content/${contentIdx}/review`)
+        .post(`/culture-content/${content.idx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
@@ -306,11 +395,16 @@ describe('Review (e2e)', () => {
     });
 
     it('Invalid DTO - img list', async () => {
-      const contentIdx = 1;
+      const contentAuthor = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
-        .post(`/culture-content/${contentIdx}/review`)
+        .post(`/culture-content/${content.idx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
@@ -324,23 +418,55 @@ describe('Review (e2e)', () => {
 
   describe('PUT /review/:idx', () => {
     it('Success', async () => {
-      const reviewIdx = 1;
       const loginUser = test.getLoginUsers().user1;
 
+      const contentAuthor = test.getLoginUsers().user2;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: loginUser.idx,
+        contentIdx: content.idx,
+        description: 'description before modifying',
+        imgList: ['/review/img1.png', '/review/img2.png'],
+        visitTime: new Date('2024-07-11'),
+        starRating: 3,
+      });
+
+      const descriptionAfterModifying = 'description after modifying';
+      const starRatingAfterModifying = 5;
+      const visitTimeAfterModifying = new Date();
+
       await request(test.getServer())
-        .put(`/review/${reviewIdx}`)
+        .put(`/review/${review.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
-          starRating: 4,
-          description: 'review description',
-          visitTime: '2024-07-11',
+          starRating: starRatingAfterModifying,
+          description: descriptionAfterModifying,
+          visitTime: visitTimeAfterModifying,
           imgList: ['/review/review.img'],
         })
         .expect(201);
+
+      const afterModifyingReveiw = await test
+        .getPrisma()
+        .review.findUniqueOrThrow({
+          where: {
+            idx: review.idx,
+          },
+        });
+
+      expect(afterModifyingReveiw.description).toBe(descriptionAfterModifying);
+      expect(afterModifyingReveiw.starRating).toBe(starRatingAfterModifying);
+      expect(afterModifyingReveiw.visitTime).toStrictEqual(
+        visitTimeAfterModifying,
+      );
     });
 
     it('Non-existent review', async () => {
-      const reviewIdx = 9999; // Non-existent review
+      const reviewIdx = -9999; // Non-existent review
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
@@ -356,11 +482,22 @@ describe('Review (e2e)', () => {
     });
 
     it('Attempt to update review of other user', async () => {
-      const reviewIdx = 1; // Non-existent review
       const loginUser = test.getLoginUsers().user2;
+      const reviewAuthor = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().user2;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
 
       await request(test.getServer())
-        .put(`/review/${reviewIdx}`)
+        .put(`/review/${review.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
@@ -454,11 +591,21 @@ describe('Review (e2e)', () => {
 
   describe('DELETE /review/:idx', () => {
     it('Success', async () => {
-      const reviewIdx = 1;
-      const loginUser = test.getLoginUsers().user1;
+      const loginUser = test.getLoginUsers().user2;
+      const contentAuthor = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: loginUser.idx,
+        contentIdx: content.idx,
+      });
 
       await request(test.getServer())
-        .delete(`/review/${reviewIdx}`)
+        .delete(`/review/${review.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
@@ -473,7 +620,7 @@ describe('Review (e2e)', () => {
     });
 
     it('Non-existent review', async () => {
-      const reviewIdx = 9999; // Non-existent review
+      const reviewIdx = -9999; // Non-existent review
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
@@ -483,11 +630,22 @@ describe('Review (e2e)', () => {
     });
 
     it('Attempt to delete review of other user', async () => {
-      const reviewIdx = 1;
       const loginUser = test.getLoginUsers().user2;
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
 
       await request(test.getServer())
-        .delete(`/review/${reviewIdx}`)
+        .delete(`/review/${review.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(403);
     });
@@ -505,41 +663,74 @@ describe('Review (e2e)', () => {
 
   describe('POST /review/:idx/like', () => {
     it('Success', async () => {
-      const reviewIdx = 1;
-      const loginUser = test.getLoginUsers().user1;
+      const loginUser = test.getLoginUsers().user2;
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
 
       await request(test.getServer())
-        .post(`/review/${reviewIdx}/like`)
+        .post(`/review/${review.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Duplicate like', async () => {
-      const reviewIdx = 1;
-      const loginUser = test.getLoginUsers().user1;
+      const loginUser = test.getLoginUsers().user2;
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
 
       await request(test.getServer())
-        .post(`/review/${reviewIdx}/like`)
+        .post(`/review/${review.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       await request(test.getServer())
-        .post(`/review/${reviewIdx}/like`)
+        .post(`/review/${review.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });
 
     it('No token', async () => {
-      const reviewIdx = 1;
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
 
       await request(test.getServer())
-        .post(`/review/${reviewIdx}/like`)
+        .post(`/review/${review.idx}/like`)
         .set('Authorization', `Bearer ${null}`)
         .expect(401);
     });
 
     it('Like non-existent review', async () => {
-      const reviewIdx = 9999; // Non-existent review
+      const reviewIdx = -9999; // Non-existent review
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
@@ -551,32 +742,54 @@ describe('Review (e2e)', () => {
 
   describe('DELETE /review/:idx/like', () => {
     it('Success', async () => {
-      const reviewIdx = 1;
       const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
 
       await request(test.getServer())
-        .post(`/review/${reviewIdx}/like`)
+        .post(`/review/${review.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
 
       await request(test.getServer())
-        .delete(`/review/${reviewIdx}/like`)
+        .delete(`/review/${review.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
     });
 
     it('Cancel like (already unliked)', async () => {
-      const reviewIdx = 1;
       const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
 
       await request(test.getServer())
-        .delete(`/review/${reviewIdx}/like`)
+        .delete(`/review/${review.idx}/like`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(409);
     });
 
     it('Non-existent review', async () => {
-      const reviewIdx = 999999; // Non-existent
+      const reviewIdx = -999999; // Non-existent
       const loginUser = test.getLoginUsers().user1;
 
       await request(test.getServer())
@@ -586,10 +799,21 @@ describe('Review (e2e)', () => {
     });
 
     it('No token', async () => {
-      const reviewIdx = 1;
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
 
       await request(test.getServer())
-        .delete(`/review/${reviewIdx}/like`)
+        .delete(`/review/${review.idx}/like`)
         .set('Authorization', `Bearer ${null}`)
         .expect(401);
     });

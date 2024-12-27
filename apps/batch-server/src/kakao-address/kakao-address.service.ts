@@ -24,7 +24,9 @@ export class KakaoAddressService {
    *
    * @param address 검색할 주소
    */
-  public async searchAddress(address: string) {
+  public async searchAddress(
+    address: string,
+  ): Promise<SearchAddressResponseDto> {
     try {
       const result =
         await this.httpService.axiosRef.get<SearchAddressResponseDto>(

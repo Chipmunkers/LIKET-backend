@@ -10,6 +10,7 @@ on:
       - .github/workflows/admin-server.dev.deploy.yml
       - '!apps/admin-server/test/**'
       - '!apps/admin-server/README.md'
+      - '!apps/admin-server/package.json'
 
 jobs:
   build:

@@ -89,7 +89,11 @@ export class MapRepository {
         AND
           content.start_date <= NOW()
         AND
-          content.end_date >= NOW()
+          (
+              content.end_date >= NOW()
+            OR
+              content.end_date IS NULL   
+          )
         AND
           lng <= $1::numeric -- bottom x
         AND
@@ -154,9 +158,16 @@ export class MapRepository {
         startDate: {
           lte: new Date(),
         },
-        endDate: {
-          gte: new Date(),
-        },
+        OR: [
+          {
+            endDate: {
+              gte: new Date(),
+            },
+          },
+          {
+            endDate: null,
+          },
+        ],
         Location: {
           positionX: {
             gte: pagerbleDto['top-x'],

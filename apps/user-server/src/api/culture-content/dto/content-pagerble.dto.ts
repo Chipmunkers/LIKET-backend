@@ -86,7 +86,7 @@ export class ContentPagerbleDto extends PickType(PagerbleDto, [
   style?: number[];
 
   /**
-   * 오픈 여부
+   * 오픈 여부. false는 현재 작동하지 않음
    *
    * @example true
    */

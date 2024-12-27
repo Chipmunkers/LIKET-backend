@@ -23,6 +23,18 @@
       ],
       "libs/modules/*": [
         "libs/modules/src/*"
+      ],
+      "libs/common": [
+        "libs/common/src"
+      ],
+      "libs/common/*": [
+        "libs/common/src/*"
+      ],
+      "libs/testing": [
+        "libs/testing/src"
+      ],
+      "libs/testing/*": [
+        "libs/testing/src/*"
       ]
     }
   }
