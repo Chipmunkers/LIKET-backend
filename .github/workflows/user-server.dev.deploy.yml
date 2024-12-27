@@ -10,6 +10,7 @@ on:
       - .github/workflows/user-server.dev.deploy.yml
       - '!apps/user-server/test/**'
       - '!apps/user-server/README.md'
+      - '!apps/user-server/package.json'
 
 jobs:
   build:
