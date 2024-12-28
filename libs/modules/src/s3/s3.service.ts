@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
+import { S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -61,6 +61,15 @@ export class S3Service {
     } catch (err) {
       throw new S3UploadException('Fail to Upload file on S3', err);
     }
+  }
+
+  /**
+   * 버킷 명 가져오는 메서드
+   *
+   * @author jochongs
+   */
+  public getBucketName(): string {
+    return this.BUCKET_NAME;
   }
 
   /**
