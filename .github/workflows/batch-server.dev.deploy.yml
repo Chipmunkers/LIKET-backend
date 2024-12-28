@@ -10,7 +10,7 @@ on:
       - .github/workflows/batch-server.dev.deploy.yml
       - '!apps/batch-server/test/**'
       - '!apps/batch-server/README.md'
-      - '!app/batch-server/package.json'
+      - '!apps/batch-server/package.json'
 
 jobs:
   build:
