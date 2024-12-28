@@ -9,7 +9,7 @@ export type CultureContentInput = {
   imgList?: string[];
   location?: {
     address?: string;
-    detailAddress?: string;
+    detailAddress?: string | null;
     region1Depth?: string;
     region2Depth?: string;
     hCode?: string;
