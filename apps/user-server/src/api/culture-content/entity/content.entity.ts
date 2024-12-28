@@ -79,6 +79,7 @@ export class ContentEntity {
    * @example 2024-05-07T00:00:00.000Z
    */
   @IsDateString()
+  @Type(() => Date)
   public startDate: Date;
 
   /**
@@ -88,6 +89,7 @@ export class ContentEntity {
    */
   @IsDateString()
   @IsOptional()
+  @Type(() => Date)
   public endDate: Date | null;
 
   /**

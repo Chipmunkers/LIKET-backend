@@ -577,7 +577,7 @@ export class CultureContentRepository {
           title: createDto.title,
           description: createDto.description,
           websiteLink: createDto.websiteLink,
-          startDate: new Date(),
+          startDate: createDto.startDate,
           endDate: createDto.endDate,
           openTime: createDto.openTime,
           isFee: createDto.isFee,
