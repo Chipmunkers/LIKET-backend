@@ -305,10 +305,10 @@ export class KopisPerformApiAdapter
    * @param kstDate 2025.10.12
    */
   private transformKSTtoUTC(kstDate: string): Date {
-    const date = new Date(kstDate.replace('.', '-'));
+    const [year, month, day] = kstDate.split('.').map(Number);
+    const utcDate = new Date(Date.UTC(year, month - 1, day));
+    utcDate.setMinutes(utcDate.getMinutes() + utcDate.getTimezoneOffset());
 
-    date.setHours(date.getHours() + date.getTimezoneOffset());
-
-    return date;
+    return utcDate;
   }
 }
