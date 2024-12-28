@@ -36,13 +36,23 @@ export class KopisPerformApiAdapter
       documents: [{ address, road_address }],
     } = await this.kakaoAddressService.searchAddress(facilityEntity.adres);
 
+    const imgPathList = (await this.extractImgList(perform)).map(
+      (img) => img.path,
+    );
+
     const { styleIdxList, ageIdx } =
-      await this.openAIService.extractStyleAndAge({
-        perform,
-        facilityEntity,
-        address,
-        road_address,
-      });
+      await this.openAIService.extractStyleAndAge(
+        {
+          perform,
+          facilityEntity,
+          address,
+          road_address,
+        },
+        imgPathList.map(
+          (imgPath) =>
+            `https://${this.s3Service.getBucketName()}.s3.ap-northeast-2.amazonaws.com${imgPath}`,
+        ),
+      );
 
     return await this.createTempContentEntity(
       perform,
@@ -51,6 +61,7 @@ export class KopisPerformApiAdapter
       road_address,
       ageIdx,
       styleIdxList,
+      imgPathList,
     );
   }
 
@@ -66,6 +77,7 @@ export class KopisPerformApiAdapter
     roadAddress: KakaoRoadAddressEntity,
     ageIdx: number,
     styleIdxList: number[],
+    uploadedS3ImgPathList: string[],
   ): Promise<TempContentEntity> {
     return TempContentEntity.create({
       id: perform.mt20id,
@@ -74,7 +86,7 @@ export class KopisPerformApiAdapter
       ageIdx: ageIdx,
       styleIdxList: styleIdxList,
       title: await this.extractTitle(perform),
-      imgList: (await this.extractImgList(perform)).map((img) => img.path),
+      imgList: uploadedS3ImgPathList,
       description: await this.extractDescription(perform), // TODO: AI 필요
       websiteLink: await this.extractWebsiteLink(perform),
       startDate: await this.extractStartDate(perform),

@@ -37,11 +37,21 @@ export class ContentCronService {
         const externalApiService = this.externalApiMap[externalApiKey];
 
         const summaryPerformList = await externalApiService.getSummaryAll();
+        this.logger.log(
+          `total content count: ${summaryPerformList.length}`,
+          this.LOG_CONTEXT,
+        );
 
-        for (const summaryPerform of summaryPerformList) {
+        for (const i in summaryPerformList) {
+          const summaryPerform = summaryPerformList[i];
           const performId = externalApiService.getId(summaryPerform);
           try {
-            this.logger.log(`Getting Perform: ${performId}`, this.LOG_CONTEXT);
+            this.logger.log(
+              `Getting Perform: ${performId} | ${Number(i) + 1}/${
+                summaryPerformList.length
+              }`,
+              this.LOG_CONTEXT,
+            );
 
             const contentId = this.getContentId(performId, externalApiKey);
 
