@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
-import { Age, AGE, Style, STYLE } from 'libs/common';
+import { Age, AGE, GET_MODE, MODE, Mode, Style, STYLE } from 'libs/common';
 import OpenAI from 'openai';
 
 @Injectable()
 export class OpenAIService {
   private readonly openai: OpenAI;
+  private readonly MODE: Mode;
 
   constructor(private readonly configService: ConfigService) {
-    this.openai = new OpenAI({ apiKey: configService.get('openAI').key });
+    this.openai = new OpenAI({ apiKey: this.configService.get('openAI').key });
+
+    this.MODE = GET_MODE();
   }
 
   /**
@@ -71,7 +74,14 @@ export class OpenAIService {
    */
   public async extractStyleAndAge(
     data: object,
-  ): Promise<{ styleIdxList: number[]; ageIdx: number }> {
+  ): Promise<{ styleIdxList: Style[]; ageIdx: Age }> {
+    if (this.MODE !== MODE.PRODUCT) {
+      return {
+        styleIdxList: [STYLE.ALONE, STYLE.ARTISTIC],
+        ageIdx: AGE.ALL,
+      };
+    }
+
     const completion = await this.openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
