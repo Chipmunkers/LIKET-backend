@@ -75,7 +75,7 @@ CREATE TABLE culture_content_tb
   user_idx       int                      NOT NULL,
   location_idx   int                      NOT NULL,
   age_idx        int                      NOT NULL,
-  perform_id     varchar                 ,
+  id             varchar                 ,
   title          varchar                  NOT NULL,
   description    varchar                 ,
   website_link   varchar                  NOT NULL,
