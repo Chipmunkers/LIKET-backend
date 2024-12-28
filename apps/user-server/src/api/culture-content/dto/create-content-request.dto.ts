@@ -2,8 +2,10 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsDateString,
   IsInt,
   IsObject,
+  IsOptional,
   IsString,
   Length,
   ValidateNested,
@@ -20,8 +22,6 @@ export class CreateContentRequestDto extends PickType(ContentEntity, [
   'title',
   'description',
   'websiteLink',
-  'startDate',
-  'endDate',
   'openTime',
   'isFee',
   'isReservation',
@@ -70,4 +70,21 @@ export class CreateContentRequestDto extends PickType(ContentEntity, [
   @IsObject()
   @Type(() => LocationEntity)
   location: LocationEntity;
+
+  /**
+   * 시작 날짜
+   *
+   * @example 2024-05-07T00:00:00.000Z
+   */
+  @IsDateString()
+  public startDate: string;
+
+  /**
+   * 끝나는 날짜
+   *
+   * @example 2024-05-07T00:00:00.000Z
+   */
+  @IsDateString()
+  @IsOptional()
+  public endDate: string | null;
 }

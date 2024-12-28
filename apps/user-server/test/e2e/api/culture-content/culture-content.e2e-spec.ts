@@ -1100,7 +1100,7 @@ describe('Culture Content (e2e)', () => {
 
   describe('POST /culture-content/request', () => {
     it('Success', async () => {
-      const createDto: CreateContentRequestDto = {
+      const createDto = {
         title: '도라에몽 팝업 스토어',
         description: '도라에몽 팝업 스토어 입니다.',
         websiteLink: 'liket.site',
@@ -1138,7 +1138,7 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('No token', async () => {
-      const createDto: CreateContentRequestDto = {
+      const createDto = {
         title: '도라에몽 팝업 스토어',
         description: '도라에몽 팝업 스토어 입니다.',
         websiteLink: 'liket.site',
@@ -1186,7 +1186,7 @@ describe('Culture Content (e2e)', () => {
 
   describe('PUT /culture-content/request/:idx', () => {
     it('Success', async () => {
-      const createDto: CreateContentRequestDto = {
+      const createDto = {
         title: '도라에몽 팝업 스토어',
         description: '도라에몽 팝업 스토어 입니다.',
         websiteLink: 'liket.site',
@@ -1227,7 +1227,7 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Non author update content', async () => {
-      const createDto: CreateContentRequestDto = {
+      const createDto = {
         title: '도라에몽 팝업 스토어',
         description: '도라에몽 팝업 스토어 입니다.',
         websiteLink: 'liket.site',
@@ -1268,7 +1268,7 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Update non-existent content', async () => {
-      const createDto: CreateContentRequestDto = {
+      const createDto = {
         title: '도라에몽 팝업 스토어',
         description: '도라에몽 팝업 스토어 입니다.',
         websiteLink: 'liket.site',
@@ -1305,7 +1305,7 @@ describe('Culture Content (e2e)', () => {
     });
 
     it('Update accepted content', async () => {
-      const createDto: CreateContentRequestDto = {
+      const createDto = {
         title: '도라에몽 팝업 스토어',
         description: '도라에몽 팝업 스토어 입니다.',
         websiteLink: 'liket.site',
