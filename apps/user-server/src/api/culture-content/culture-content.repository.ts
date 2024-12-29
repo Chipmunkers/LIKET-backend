@@ -599,16 +599,11 @@ export class CultureContentRepository {
       this.updateCultureContentByIdx,
       `UPDATE culture content WHERE idx = ${idx}`,
     );
-    return this.prisma.$transaction([
-      this.prisma.location.update({
-        where: {
-          idx,
+    return this.prisma.$transaction(async (tx) => {
+      const content = await tx.cultureContent.update({
+        select: {
+          locationIdx: true,
         },
-        data: {
-          ...updateDto.location,
-        },
-      }),
-      this.prisma.cultureContent.update({
         where: {
           idx,
         },
@@ -649,8 +644,16 @@ export class CultureContentRepository {
           isReservation: updateDto.isReservation,
           isPet: updateDto.isPet,
         },
-      }),
-    ]);
+      });
+      await tx.location.update({
+        where: {
+          idx: content.locationIdx,
+        },
+        data: {
+          ...updateDto.location,
+        },
+      });
+    });
   }
 
   /**
