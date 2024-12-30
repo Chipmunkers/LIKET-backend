@@ -44,6 +44,8 @@ export class TourApiProvider {
 
     console.log(typeof result.data);
 
+    // TODO: Response DTO 만들어서 붙여야함
+
     return result.data;
   }
 }
