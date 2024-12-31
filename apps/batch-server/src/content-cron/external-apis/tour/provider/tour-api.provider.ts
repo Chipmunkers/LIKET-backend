@@ -42,8 +42,6 @@ export class TourApiProvider {
     // ! 주의: Error 발생 시 데이터를 JSON형식으로 주지 않음
     if (typeof result.data !== 'object') throw new Error(result.data);
 
-    console.log(typeof result.data);
-
     // TODO: Response DTO 만들어서 붙여야함
 
     return result.data;
