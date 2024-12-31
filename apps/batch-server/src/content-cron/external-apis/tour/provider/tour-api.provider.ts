@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GetSummaryFestivalAllDto } from 'apps/batch-server/src/content-cron/external-apis/tour/dto/request/get-summary-festival-all.dto';
+import { GetFestivalAllResponseDto } from 'apps/batch-server/src/content-cron/external-apis/tour/dto/response/get-festival-all-response.dto';
 import { SummaryFestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/summary-festival.entity';
 
 @Injectable()
@@ -20,30 +21,33 @@ export class TourApiProvider {
    */
   public async getSummaryFestivalAll(
     dto: GetSummaryFestivalAllDto,
-  ): Promise<SummaryFestivalEntity> {
-    const result = await this.httpService.axiosRef.get(
-      `https://apis.data.go.kr/B551011/KorService1/areaBasedSyncList1`,
-      {
-        params: {
-          numOfRows: dto.numOfRows,
-          pageNo: dto.pageNo,
-          MobileOS: dto.MobileOS ?? 'ETC',
-          MobileApp: dto.MobileApp ?? 'LIKET',
-          modifiedtime: dto.modifiedtime,
-          listYN: dto.listYN,
-          arrange: dto.arrange,
-          serviceKey: this.TOUR_API_KEY,
-          _type: 'json',
-          contentTypeId: 15,
-        },
+  ): Promise<SummaryFestivalEntity[]> {
+    const result = await this.httpService.axiosRef.get<
+      GetFestivalAllResponseDto | string
+    >(`https://apis.data.go.kr/B551011/KorService1/areaBasedSyncList1`, {
+      params: {
+        numOfRows: dto.numOfRows,
+        pageNo: dto.pageNo,
+        MobileOS: dto.MobileOS ?? 'ETC',
+        MobileApp: dto.MobileApp ?? 'LIKET',
+        modifiedtime: dto.modifiedtime,
+        listYN: dto.listYN,
+        arrange: dto.arrange,
+        serviceKey: this.TOUR_API_KEY,
+        _type: 'json',
+        contentTypeId: 15,
       },
-    );
+    });
+
+    const data = result.data;
 
     // ! 주의: Error 발생 시 데이터를 JSON형식으로 주지 않음
-    if (typeof result.data !== 'object') throw new Error(result.data);
+    if (typeof data !== 'object') throw new Error(data);
 
-    // TODO: Response DTO 만들어서 붙여야함
+    if (data.response.body.items === '') {
+      return [];
+    }
 
-    return result.data;
+    return data.response.body.items.item;
   }
 }

@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConsoleLogger } from '@nestjs/common';
-import { ContentCronService } from 'apps/batch-server/src/content-cron/content-cron.service';
 import { TourApiProvider } from 'apps/batch-server/src/content-cron/external-apis/tour/provider/tour-api.provider';
 import * as fs from 'fs';
 import { AxiosError } from 'axios';
@@ -15,9 +14,11 @@ async function bootstrap() {
   await app.listen(3000);
 
   try {
-    const result = await app.get(TourApiProvider).getSummaryFestivalAll();
-
-    console.log(result);
+    const result = await app.get(TourApiProvider).getSummaryFestivalAll({
+      numOfRows: 10000,
+      pageNo: 1,
+      modifiedtime: '20240103',
+    });
 
     fs.writeFileSync('test-data/festival-result.json', JSON.stringify(result));
 
