@@ -11,13 +11,7 @@ export class GetFestivalImgsResponseDto {
             item: {
               contentid: string;
               imgname: string;
-              /**
-               * 원본 이미지
-               */
               originimgurl: string;
-              /**
-               * 압축된 이미지
-               */
               smallimageurl: string;
               cpyrhtDivCd: string;
               serialnum: string;

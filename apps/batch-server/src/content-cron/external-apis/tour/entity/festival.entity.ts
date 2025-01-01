@@ -1,3 +1,8 @@
+import { FestivalImgEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival-img.entity';
+import { FestivalInfoEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival-info.entity';
+import { FestivalIntroEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival-intro.entity';
+import { SummaryFestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/summary-festival.entity';
+
 /**
  * @author jochongs
  */
@@ -5,37 +10,39 @@ export class FestivalEntity {
   /**
    * GPS X좌표(WGS84 경도좌표)
    */
-  mapx: string;
+  mapX: string;
 
   /**
    * GPS Y좌표(WGS84 위도좌표)
    */
-  mapy: string;
+  mapY: string;
 
   /**
    * Map Level
    */
-  mlevel: string;
+  mapLevel: string | null;
 
   /**
    * 콘텐츠 수정일
+   *
+   * @example 20241231135236
    */
-  modifiedtime: string;
+  modifiedTime: string;
 
   /**
    * 표출 여부
    */
-  showflag: string;
+  showFlag: '1' | '0';
 
   /**
    * 시군구 코드
    */
-  sigungucode: string;
+  siGunGuCode: string;
 
   /**
    * 전화번호
    */
-  tel: string;
+  tel: string | null;
 
   /**
    * 콘텐츠 제목
@@ -50,83 +57,95 @@ export class FestivalEntity {
   /**
    * 상세 주소
    */
-  addr2: string;
+  addr2: string | null;
 
   /**
    * 지역 코드
    */
-  areacode: string;
+  areaCode: string;
 
   /**
    * 교과서속여행지여부(1=여행지, 0=해당없음)
    */
-  booktour: string;
+  bookTour: '0' | '1' | null;
 
   /**
    * 대분류 코드
    */
-  cat1: string;
+  cat1: string | null;
 
   /**
    * 중분류 코드
    */
-  cat2: string;
+  cat2: string | null;
 
   /**
    * 소분류 코드
    */
-  cat3: string;
+  cat3: string | null;
 
   /**
    * 콘텐츠 ID
    */
-  contentid: string;
+  contentId: string;
 
   /**
    * 관광 타입 ID
    */
-  contenttypeid: string;
+  contentTypeId: string;
 
   /**
    * 콘텐츠 최초 등록일
+   *
+   * @example 20241231135236
    */
-  createdtime: string;
-
-  /**
-   * 필수 요청 파라미터가 없음
-   */
-  cpyrhtDivCd: string;
+  createdTime: string;
 
   /**
    * 원본 대표 이미지
    */
-  firstimage: string;
+  posterOrigin: string;
 
   /**
    * 썸네일 대표 이미지
    */
-  firstimage2: string;
+  posterSmall: string;
 
   /**
    * 우편 번호
    */
-  zipcode: string;
+  zipCode: string;
 
   /**
-   * 행사 소개
+   * 축제 정보
    */
-  intro: string | null;
-
-  /**
-   * 행사 설명
-   */
-  description: string | null;
+  info: FestivalInfoEntity;
 
   /**
    * 이미지 배열
    */
-  imgList: {
-    origin: string;
-    small: string;
-  }[];
+  imgList: FestivalImgEntity[];
+
+  /**
+   * 컨텐츠 소개 데이터
+   */
+  intro: FestivalIntroEntity;
+
+  constructor(data: FestivalEntity) {
+    Object.assign(this, data);
+  }
+
+  static createEntity(
+    festival: SummaryFestivalEntity,
+    infoEntity: FestivalInfoEntity,
+    imgList: FestivalImgEntity[],
+    festivalIntro: FestivalIntroEntity,
+  ): FestivalEntity {
+    return new FestivalEntity({
+      ...festival,
+      info: infoEntity,
+      imgList,
+      intro: festivalIntro,
+    });
+  }
 }

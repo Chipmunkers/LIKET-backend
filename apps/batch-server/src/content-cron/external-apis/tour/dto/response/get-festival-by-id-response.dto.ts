@@ -1,4 +1,5 @@
 import { FestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival.entity';
+import { FestivalInfoFromApi } from 'apps/batch-server/src/content-cron/external-apis/tour/type/festival-info-from-api';
 
 export class GetFestivalByIdResponseDto {
   response: {
@@ -10,12 +11,7 @@ export class GetFestivalByIdResponseDto {
       items:
         | ''
         | {
-            item: (Pick<FestivalEntity, 'contentid' | 'contenttypeid'> & {
-              serialnum: string;
-              infoname: string;
-              infotext: string;
-              fldgubun: string;
-            })[];
+            item: FestivalInfoFromApi[];
           };
     };
   };

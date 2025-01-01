@@ -26,24 +26,23 @@ export class TourApiService
    * @author jochongs
    */
   public async getDetail(data: SummaryFestivalEntity): Promise<FestivalEntity> {
-    const imgList = await this.tourApiProvider.getFestivalImgs(
-      this.getId(data),
+    const festivalId = this.getId(data);
+    const imgList = await this.tourApiProvider.getFestivalImgs(festivalId);
+
+    const festivalInfo = await this.tourApiProvider.getFestivalInfoById(
+      festivalId,
     );
 
-    console.log(imgList);
+    const festivalIntro = await this.tourApiProvider.getFestivalIntroById(
+      festivalId,
+    );
 
-    const { intro, description } =
-      await this.tourApiProvider.getFestivalInfoById(this.getId(data));
-
-    return {
-      ...data,
-      intro,
-      description,
-      imgList: imgList.map((imgInfo) => ({
-        origin: imgInfo.originimgurl,
-        small: imgInfo.smallimageurl,
-      })),
-    };
+    return FestivalEntity.createEntity(
+      data,
+      festivalInfo,
+      imgList,
+      festivalIntro,
+    );
   }
 
   /**
@@ -57,7 +56,7 @@ export class TourApiService
    * @author jochongs
    */
   public getId(data: SummaryFestivalEntity): string {
-    return data.contentid;
+    return data.contentId;
   }
 
   /**

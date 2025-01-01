@@ -5,6 +5,10 @@ import { GetSummaryFestivalAllDto } from 'apps/batch-server/src/content-cron/ext
 import { GetFestivalAllResponseDto } from 'apps/batch-server/src/content-cron/external-apis/tour/dto/response/get-festival-all-response.dto';
 import { GetFestivalByIdResponseDto } from 'apps/batch-server/src/content-cron/external-apis/tour/dto/response/get-festival-by-id-response.dto';
 import { GetFestivalImgsResponseDto } from 'apps/batch-server/src/content-cron/external-apis/tour/dto/response/get-festival-imgs-response.dto';
+import { GetFestivalIntroByIdResponseDto } from 'apps/batch-server/src/content-cron/external-apis/tour/dto/response/get-fetival-intro-by-id-response.dto';
+import { FestivalImgEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival-img.entity';
+import { FestivalInfoEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival-info.entity';
+import { FestivalIntroEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival-intro.entity';
 import { FestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival.entity';
 import { SummaryFestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/summary-festival.entity';
 import { FestivalNotFoundException } from 'apps/batch-server/src/content-cron/external-apis/tour/exception/FestivalNotFoundException';
@@ -52,7 +56,9 @@ export class TourApiProvider {
       return [];
     }
 
-    return data.response.body.items.item;
+    return data.response.body.items.item.map((item) =>
+      SummaryFestivalEntity.createEntity(item),
+    );
   }
 
   /**
@@ -60,10 +66,7 @@ export class TourApiProvider {
    *
    * @author jochongs
    */
-  public async getFestivalInfoById(id: string): Promise<{
-    intro: string | null;
-    description: string | null;
-  }> {
+  public async getFestivalInfoById(id: string): Promise<FestivalInfoEntity> {
     const result =
       await this.httpService.axiosRef.get<GetFestivalByIdResponseDto>(
         `https://apis.data.go.kr/B551011/KorService1/detailInfo1`,
@@ -82,20 +85,12 @@ export class TourApiProvider {
     const { data } = result;
 
     if (data.response.body.items === '') {
-      return {
-        intro: null,
-        description: null,
-      };
+      return FestivalInfoEntity.createEntityWithNull();
     }
 
     const dataList = data.response.body.items.item;
 
-    return {
-      intro:
-        dataList.find((data) => data.infoname === '행사소개')?.infotext ?? null,
-      description:
-        dataList.find((data) => data.infoname === '행사내용')?.infotext ?? null,
-    };
+    return FestivalInfoEntity.createEntity(dataList);
   }
 
   /**
@@ -104,16 +99,7 @@ export class TourApiProvider {
    *
    * @author jochongs
    */
-  public async getFestivalImgs(id: string): Promise<
-    {
-      contentid: string;
-      imgname: string;
-      originimgurl: string;
-      smallimageurl: string;
-      cpyrhtDivCd: string;
-      serialnum: string;
-    }[]
-  > {
+  public async getFestivalImgs(id: string): Promise<FestivalImgEntity[]> {
     const result =
       await this.httpService.axiosRef.get<GetFestivalImgsResponseDto>(
         `https://apis.data.go.kr/B551011/KorService1/detailImage1`,
@@ -134,6 +120,40 @@ export class TourApiProvider {
 
     if (data.items === '') return [];
 
-    return data.items.item;
+    return data.items.item.map((item) =>
+      FestivalImgEntity.createEntityFromApi(item),
+    );
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async getFestivalIntroById(id: string) {
+    const result =
+      await this.httpService.axiosRef.get<GetFestivalIntroByIdResponseDto>(
+        `https://apis.data.go.kr/B551011/KorService1/detailIntro1`,
+        {
+          params: {
+            MobileOS: 'ETC',
+            MobileApp: 'LIKET',
+            serviceKey: this.TOUR_API_KEY,
+            _type: 'json',
+            contentId: id,
+            contentTypeId: '15',
+          },
+        },
+      );
+
+    const { data } = result;
+
+    if (typeof data !== 'object') {
+      throw new Error(data);
+    }
+
+    if (data.response.body.items === '') {
+      throw new FestivalNotFoundException(id, 'Cannot find festival');
+    }
+
+    return FestivalIntroEntity.createEntity(data.response.body.items.item[0]);
   }
 }

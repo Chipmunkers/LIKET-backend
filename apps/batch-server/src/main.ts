@@ -18,19 +18,13 @@ async function bootstrap() {
 
   const dataList: any[] = [];
 
-  for (const summaryFestival of result) {
-    try {
-      const festival = await app.get(TourApiService).getDetail(summaryFestival);
-
-      dataList.push(festival);
-    } catch (err) {
-      console.log(summaryFestival.contentid);
-      console.log(err);
-    }
-  }
+  const festivalIntro = await app
+    .get(TourApiProvider)
+    .getFestivalIntroById('3026969');
+  console.dir(festivalIntro, { depth: null });
 
   fs.writeFileSync(
-    'test-data/detail-festival-list.json',
+    'test-data/festival/detail-festival-intro-list.json',
     JSON.stringify(dataList),
   );
 
