@@ -37,6 +37,7 @@ export class ContentEntity {
    */
   @IsString()
   @Length(1, 2000)
+  @IsOptional()
   public description: string | null;
 
   /**
@@ -111,7 +112,8 @@ export class ContentEntity {
    */
   @IsString()
   @Length(1, 100)
-  public openTime: string;
+  @IsOptional()
+  public openTime: string | null;
 
   /**
    * 컨텐츠 웹사이트 링크
@@ -120,7 +122,8 @@ export class ContentEntity {
    */
   @IsString()
   @Length(1, 2000)
-  public websiteLink: string;
+  @IsOptional()
+  public websiteLink: string | null;
 
   /**
    * 요금 여부
