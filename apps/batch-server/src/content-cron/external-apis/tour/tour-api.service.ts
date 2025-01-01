@@ -11,6 +11,9 @@ export class TourApiService
 {
   constructor(private readonly tourApiProvider: TourApiProvider) {}
 
+  /**
+   * @author jochongs
+   */
   public async getSummaryAll(): Promise<SummaryFestivalEntity[]> {
     return await this.tourApiProvider.getSummaryFestivalAll({
       numOfRows: 500,
@@ -19,6 +22,9 @@ export class TourApiService
     });
   }
 
+  /**
+   * @author jochongs
+   */
   public async getDetail(data: SummaryFestivalEntity): Promise<FestivalEntity> {
     const imgList = await this.tourApiProvider.getFestivalImgs(
       this.getId(data),
@@ -40,10 +46,16 @@ export class TourApiService
     };
   }
 
+  /**
+   * @author jochongs
+   */
   public getAdapter(): IExternalApiAdapterService<FestivalEntity> {
     throw new Error('Method not implemented.');
   }
 
+  /**
+   * @author jochongs
+   */
   public getId(data: SummaryFestivalEntity): string {
     return data.contentid;
   }
