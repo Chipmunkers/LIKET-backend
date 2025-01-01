@@ -121,4 +121,9 @@ export class FestivalEntity {
    * 행사 설명
    */
   description: string;
+
+  /**
+   * 이미지 배열
+   */
+  imgList: string;
 }
