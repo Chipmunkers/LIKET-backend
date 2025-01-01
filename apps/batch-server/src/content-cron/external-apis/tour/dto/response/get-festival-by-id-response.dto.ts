@@ -9,13 +9,14 @@ export class GetFestivalByIdResponseDto {
     body: {
       items:
         | ''
-        | (Pick<FestivalEntity, 'contentid' | 'contenttypeid'> &
-            {
+        | {
+            item: (Pick<FestivalEntity, 'contentid' | 'contenttypeid'> & {
               serialnum: string;
               infoname: string;
               infotext: string;
               fldgubun: string;
-            }[]);
+            })[];
+          };
     };
   };
 }

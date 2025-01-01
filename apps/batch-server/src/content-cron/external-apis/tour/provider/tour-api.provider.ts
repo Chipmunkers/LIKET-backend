@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { GetSummaryFestivalAllDto } from 'apps/batch-server/src/content-cron/external-apis/tour/dto/request/get-summary-festival-all.dto';
 import { GetFestivalAllResponseDto } from 'apps/batch-server/src/content-cron/external-apis/tour/dto/response/get-festival-all-response.dto';
 import { GetFestivalByIdResponseDto } from 'apps/batch-server/src/content-cron/external-apis/tour/dto/response/get-festival-by-id-response.dto';
+import { GetFestivalImgsResponseDto } from 'apps/batch-server/src/content-cron/external-apis/tour/dto/response/get-festival-imgs-response.dto';
 import { FestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival.entity';
 import { SummaryFestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/summary-festival.entity';
 import { FestivalNotFoundException } from 'apps/batch-server/src/content-cron/external-apis/tour/exception/FestivalNotFoundException';
@@ -85,8 +86,53 @@ export class TourApiProvider {
     }
 
     return {
-      intro: data.response.body.items[0].infotext ?? null,
-      description: data.response.body.items[1].infotext ?? null,
+      intro: data.response.body.items.item[0].infotext ?? null,
+      description: data.response.body.items.item[1].infotext ?? null,
     };
+  }
+
+  /**
+   * 축제 이미지 가져오기
+   * !주의: 없는 축제더라도 에러를 뱉지 않음
+   *
+   * @author jochongs
+   */
+  public async getFestivalImgs(id: string): Promise<
+    {
+      contentid: string;
+      imgname: string;
+      /**
+       * 원본 이미지
+       */
+      originimgurl: string;
+      /**
+       * 압축된 이미지
+       */
+      smallimgurl: string;
+      cpyrhtDivCd: string;
+      serialnum: string;
+    }[]
+  > {
+    const result =
+      await this.httpService.axiosRef.get<GetFestivalImgsResponseDto>(
+        `https://apis.data.go.kr/B551011/KorService1/detailImage1`,
+        {
+          params: {
+            MobileOS: 'ETC',
+            MobileApp: 'LIKET',
+            serviceKey: this.TOUR_API_KEY,
+            _type: 'json',
+            contentId: id,
+            imageYN: 'Y',
+            subImageYN: 'Y',
+          },
+        },
+      );
+
+    const data = result.data.response.body;
+
+    if (data.items === '') return [];
+
+    return data.items.item;
   }
 }
