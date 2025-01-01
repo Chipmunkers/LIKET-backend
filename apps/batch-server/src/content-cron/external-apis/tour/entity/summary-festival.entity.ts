@@ -26,4 +26,5 @@ export class SummaryFestivalEntity extends PickType(FestivalEntity, [
   'cpyrhtDivCd',
   'firstimage',
   'firstimage2',
+  'zipcode',
 ]) {}

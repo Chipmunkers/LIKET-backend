@@ -13,20 +13,6 @@ async function bootstrap() {
 
   await app.listen(3000);
 
-  try {
-    const result = await app.get(TourApiProvider).getSummaryFestivalAll({
-      numOfRows: 10000,
-      pageNo: 1,
-      modifiedtime: '20240103',
-    });
-
-    fs.writeFileSync('test-data/festival-result.json', JSON.stringify(result));
-
-    logger.log('complete', 'FESTIVAL');
-  } catch (err) {
-    console.log((err as AxiosError).response);
-  }
-
   // TODO: 배포 할 때 마다 실행하도록. 그러나 낭비라고 생각되면 삭제해야함.
   //await app.get(ContentCronService).saveContentFromExternalAPI();
 }

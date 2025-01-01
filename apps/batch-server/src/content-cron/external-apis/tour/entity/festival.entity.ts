@@ -111,4 +111,14 @@ export class FestivalEntity {
    * 우편 번호
    */
   zipcode: string;
+
+  /**
+   * 행사 소개
+   */
+  intro: string;
+
+  /**
+   * 행사 설명
+   */
+  description: string;
 }
