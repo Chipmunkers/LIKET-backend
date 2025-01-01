@@ -14,7 +14,7 @@ export class LocationEntity {
    *
    * @example 건물 2층
    */
-  detailAddress?: string;
+  detailAddress: string | null;
 
   /**
    * 지역 1 Depth, 시도 단위

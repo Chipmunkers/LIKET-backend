@@ -108,7 +108,7 @@ export class KopisPerformApiAdapter
   ): Promise<LocationEntity> {
     return LocationEntity.create({
       address: address.address_name,
-      detailAddress: roadAddress.building_name,
+      detailAddress: roadAddress.building_name ?? null,
       region1Depth: address.region_1depth_name,
       region2Depth: address.region_2depth_name,
       hCode: address.h_code,

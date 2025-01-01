@@ -39,7 +39,7 @@ model CultureContent {
   id            String?        @db.VarChar
   title         String         @map("title") @db.VarChar
   description   String?        @map("description") @db.VarChar
-  openTime      String         @map("open_time") @db.VarChar
+  openTime      String?        @map("open_time") @db.VarChar
   isFee         Boolean        @default(false) @map("is_fee")
   isReservation Boolean        @default(false) @map("is_reservation")
   isPet         Boolean        @default(false) @map("is_pet")
@@ -53,7 +53,7 @@ model CultureContent {
   endDate       DateTime?      @map("end_date") @db.Timestamptz(6)
   viewCount     Int            @default(0) @map("view_count")
   startDate     DateTime       @map("start_date") @db.Timestamptz(6)
-  websiteLink   String         @map("website_link") @db.VarChar
+  websiteLink   String?        @map("website_link") @db.VarChar
   ContentImg    ContentImg[]
   ContentLike   ContentLike[]
   Age           Age            @relation(fields: [ageIdx], references: [idx])
