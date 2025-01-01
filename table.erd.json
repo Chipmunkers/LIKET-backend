@@ -6123,20 +6123,20 @@
       "yMr-STdjoyF28cMZ-VV3T": {
         "id": "yMr-STdjoyF28cMZ-VV3T",
         "tableId": "215f934c-f4e3-474f-b6d6-302ed6e9694b",
-        "name": "perform_id",
+        "name": "id",
         "comment": "",
         "dataType": "varchar",
         "default": "",
         "options": 4,
         "ui": {
           "keys": 0,
-          "widthName": 65,
+          "widthName": 60,
           "widthComment": 60,
           "widthDataType": 60,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1735196513485,
+          "updateAt": 1735723163218,
           "createAt": 1733558498957
         }
       },
@@ -8575,7 +8575,7 @@
       1733558498940,
       -1,
       {
-        "name": 1733558502061,
+        "name": 1735723163218,
         "dataType": 1733558503602,
         "options(notNull)": 1735196174333,
         "options(unique)": 1735196513484
