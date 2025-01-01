@@ -20,11 +20,13 @@ export class CreateCultureContentDto {
 
   @IsString()
   @Length(1, 2000)
-  description: string;
+  @IsOptional()
+  description: string | null = null;
 
   @IsString()
   @Length(1, 2000)
-  websiteLink: string;
+  @IsOptional()
+  websiteLink: string | null = null;
 
   @ValidateNested({ each: true })
   @ArrayMaxSize(10)
@@ -50,11 +52,13 @@ export class CreateCultureContentDto {
   startDate: string;
 
   @IsDateString()
-  endDate: string;
+  @IsOptional()
+  endDate: string | null = null;
 
   @IsString()
   @Length(1, 100)
-  openTime: string;
+  @IsOptional()
+  openTime: string | null = null;
 
   @IsBoolean()
   isFee: boolean;
