@@ -115,15 +115,18 @@ export class FestivalEntity {
   /**
    * 행사 소개
    */
-  intro: string;
+  intro: string | null;
 
   /**
    * 행사 설명
    */
-  description: string;
+  description: string | null;
 
   /**
    * 이미지 배열
    */
-  imgList: string;
+  imgList: {
+    origin: string;
+    small: string;
+  }[];
 }

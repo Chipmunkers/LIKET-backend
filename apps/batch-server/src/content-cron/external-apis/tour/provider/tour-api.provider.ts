@@ -82,12 +82,19 @@ export class TourApiProvider {
     const { data } = result;
 
     if (data.response.body.items === '') {
-      throw new FestivalNotFoundException(id, 'Cannot found festival');
+      return {
+        intro: null,
+        description: null,
+      };
     }
 
+    const dataList = data.response.body.items.item;
+
     return {
-      intro: data.response.body.items.item[0].infotext ?? null,
-      description: data.response.body.items.item[1].infotext ?? null,
+      intro:
+        dataList.find((data) => data.infoname === '행사소개')?.infotext ?? null,
+      description:
+        dataList.find((data) => data.infoname === '행사내용')?.infotext ?? null,
     };
   }
 
@@ -108,7 +115,7 @@ export class TourApiProvider {
       /**
        * 압축된 이미지
        */
-      smallimgurl: string;
+      smallimageurl: string;
       cpyrhtDivCd: string;
       serialnum: string;
     }[]

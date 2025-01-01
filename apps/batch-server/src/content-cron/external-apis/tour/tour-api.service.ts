@@ -19,8 +19,25 @@ export class TourApiService
     });
   }
 
-  public getDetail(data: SummaryFestivalEntity): Promise<FestivalEntity> {
-    throw new Error('Method not implemented.');
+  public async getDetail(data: SummaryFestivalEntity): Promise<FestivalEntity> {
+    const imgList = await this.tourApiProvider.getFestivalImgs(
+      this.getId(data),
+    );
+
+    console.log(imgList);
+
+    const { intro, description } =
+      await this.tourApiProvider.getFestivalInfoById(this.getId(data));
+
+    return {
+      ...data,
+      intro,
+      description,
+      imgList: imgList.map((imgInfo) => ({
+        origin: imgInfo.originimgurl,
+        small: imgInfo.smallimageurl,
+      })),
+    };
   }
 
   public getAdapter(): IExternalApiAdapterService<FestivalEntity> {

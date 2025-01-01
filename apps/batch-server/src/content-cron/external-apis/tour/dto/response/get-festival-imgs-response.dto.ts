@@ -18,7 +18,7 @@ export class GetFestivalImgsResponseDto {
               /**
                * 압축된 이미지
                */
-              smallimgurl: string;
+              smallimageurl: string;
               cpyrhtDivCd: string;
               serialnum: string;
             }[];
