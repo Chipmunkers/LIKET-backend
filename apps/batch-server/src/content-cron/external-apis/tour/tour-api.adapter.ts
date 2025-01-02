@@ -7,7 +7,8 @@ import { KakaoAddressEntity } from 'apps/batch-server/src/kakao-address/entity/a
 import { KakaoRoadAddressEntity } from 'apps/batch-server/src/kakao-address/entity/road-address.entity';
 import { KakaoAddressService } from 'apps/batch-server/src/kakao-address/kakao-address.service';
 import { GENRE } from 'libs/common';
-import { OpenAIService, S3Service } from 'libs/modules';
+import { OpenAIService, S3Service, UploadedFileEntity } from 'libs/modules';
+import * as uuid from 'uuid';
 
 @Injectable()
 export class TourApiAdapter
@@ -28,9 +29,33 @@ export class TourApiAdapter
       documents: [{ address, road_address: roadAddress }],
     } = await this.kakaoAddressService.searchAddress(data.addr1);
 
-    throw new Error('hi');
+    const imgUrlList = await this.extractImgList(data);
 
-    //return await this.createTempContentEntity(data, address, roadAddress);
+    const uploadedImgList = await this.uploadImg(imgUrlList);
+
+    const { styleIdxList, ageIdx } =
+      await this.openAIService.extractStyleAndAge(
+        {
+          data,
+          address,
+          roadAddress,
+        },
+        uploadedImgList.map(
+          (file) =>
+            `https://${this.s3Service.getBucketName()}.s3.ap-northeast-2.amazonaws.com${
+              file.path
+            }`,
+        ),
+      );
+
+    return await this.createTempContentEntity(
+      data,
+      address,
+      roadAddress,
+      uploadedImgList.map((img) => img.path),
+      styleIdxList,
+      ageIdx,
+    );
   }
 
   /**
@@ -54,14 +79,41 @@ export class TourApiAdapter
       imgList: uploadedS3ImgPathList,
       description: await this.extractDescription(data),
       websiteLink: await this.extractWebsiteLink(data),
-      startDate: await this.extractStartDate(perform),
-      endDate: await this.extractEndDate(perform),
-      openTime: await this.extractOpenTime(perform),
-      isFee: await this.extractIsFee(perform),
-      isReservation: await this.extractIsReservation(perform),
-      isPet: await this.extractIsPet(perform),
-      isParking: await this.extractIsParking(facility),
+      startDate: await this.extractStartDate(data),
+      endDate: await this.extractEndDate(data),
+      openTime: await this.extractOpenTime(data),
+      isFee: await this.extractIsFee(data),
+      isReservation: await this.extractIsReservation(data),
+      isPet: false,
+      isParking: false,
     });
+  }
+
+  /**
+   * @author jochongs
+   */
+  private async uploadImg(imgUrlList: string[]): Promise<UploadedFileEntity[]> {
+    return Promise.all(
+      imgUrlList.map((url) =>
+        this.s3Service.uploadFileToS3ByUrl(url, {
+          filename: uuid.v4(),
+          path: 'culture-content',
+        }),
+      ),
+    );
+  }
+
+  /**
+   * @author jochongs
+   */
+  private async extractImgList(data: FestivalEntity): Promise<string[]> {
+    const imgUrlList: string[] = [];
+
+    imgUrlList.push(data.posterOrigin);
+
+    imgUrlList.push(...data.imgList.map((img) => img.origin));
+
+    return imgUrlList;
   }
 
   /**
@@ -109,6 +161,29 @@ export class TourApiAdapter
   /**
    * @author jochongs
    */
+  private async extractIsFee(festival: FestivalEntity): Promise<boolean> {
+    return festival.intro.useTimeFestival !== '무료';
+  }
+
+  /**
+   * @author jochongs
+   */
+  private async extractIsReservation(
+    festival: FestivalEntity,
+  ): Promise<boolean> {
+    return festival.intro.useTimeFestival !== '무료';
+  }
+
+  /**
+   * @author jochongs
+   */
+  private async extractOpenTime(data: FestivalEntity): Promise<string | null> {
+    return data.intro.playtime;
+  }
+
+  /**
+   * @author jochongs
+   */
   private async extractWebsiteLink(
     data: FestivalEntity,
   ): Promise<string | null> {
@@ -117,14 +192,48 @@ export class TourApiAdapter
 
   /**
    * @author jochongs
+   */
+  private async extractStartDate(festival: FestivalEntity): Promise<Date> {
+    return this.transformKSTtoUTC(
+      this.transformDateStringToIso8601(festival.intro.eventStartDate),
+    );
+  }
+
+  /**
+   * @author jochongs
+   */
+  private async extractEndDate(festival: FestivalEntity): Promise<Date | null> {
+    const endDate = festival.intro.eventEndDate;
+
+    if (!endDate) return null;
+
+    return this.transformKSTtoUTC(this.transformDateStringToIso8601(endDate));
+  }
+
+  /**
+   * @author jochongs
    *
-   * @param kstDate 2025.10.12
+   * @param kstDate 2025-10-12
    */
   private transformKSTtoUTC(kstDate: string): Date {
-    const [year, month, day] = kstDate.split('.').map(Number);
-    const utcDate = new Date(Date.UTC(year, month - 1, day));
+    const utcDate = new Date(kstDate);
     utcDate.setMinutes(utcDate.getMinutes() + utcDate.getTimezoneOffset());
 
     return utcDate;
+  }
+
+  /**
+   * @author jochongs
+   *
+   * @param dateString 20240123
+   */
+  private transformDateStringToIso8601(
+    dateStr: string,
+  ): `${string}-${string}-${string}` {
+    const year = dateStr.substring(0, 4);
+    const month = dateStr.substring(4, 6);
+    const date = dateStr.substring(6, 8);
+
+    return `${year}-${month}-${date}`;
   }
 }

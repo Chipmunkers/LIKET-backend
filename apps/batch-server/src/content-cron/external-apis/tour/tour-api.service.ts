@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { FestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival.entity';
 import { SummaryFestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/summary-festival.entity';
 import { TourApiProvider } from 'apps/batch-server/src/content-cron/external-apis/tour/provider/tour-api.provider';
+import { TourApiAdapter } from 'apps/batch-server/src/content-cron/external-apis/tour/tour-api.adapter';
 import { IExternalApiAdapterService } from 'apps/batch-server/src/content-cron/interface/external-api-adapter.service';
 import { IExternalApiService } from 'apps/batch-server/src/content-cron/interface/external-api.service';
 
@@ -9,7 +10,10 @@ import { IExternalApiService } from 'apps/batch-server/src/content-cron/interfac
 export class TourApiService
   implements IExternalApiService<SummaryFestivalEntity, FestivalEntity>
 {
-  constructor(private readonly tourApiProvider: TourApiProvider) {}
+  constructor(
+    private readonly tourApiProvider: TourApiProvider,
+    private readonly tourApiAdapter: TourApiAdapter,
+  ) {}
 
   /**
    * @author jochongs
@@ -49,7 +53,7 @@ export class TourApiService
    * @author jochongs
    */
   public getAdapter(): IExternalApiAdapterService<FestivalEntity> {
-    throw new Error('Method not implemented.');
+    return this.tourApiAdapter;
   }
 
   /**

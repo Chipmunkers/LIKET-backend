@@ -46,6 +46,13 @@ export class FestivalIntroEntity {
   eventEndDate: string | null;
 
   /**
+   * 행사 시작일
+   *
+   * @example 20211231
+   */
+  eventStartDate: string;
+
+  /**
    * 공연시간
    *
    * @example 연중(밤10시이후제한)
@@ -79,7 +86,7 @@ export class FestivalIntroEntity {
   bookingPlace: string | null;
 
   /**
-   * 공연시간
+   * 행사장 위치 안내
    */
   placeInfo: string | null;
 
@@ -92,11 +99,6 @@ export class FestivalIntroEntity {
    * 행사프로그램
    */
   program: string | null;
-
-  /**
-   * 행사종료일
-   */
-  eventStartDate: string | null;
 
   /**
    * 이용요금
@@ -140,8 +142,7 @@ export class FestivalIntroEntity {
       placeInfo: festival.placeinfo === '' ? null : festival.placeinfo,
       subEvent: festival.subevent === '' ? null : festival.subevent,
       program: festival.program === '' ? null : festival.program,
-      eventStartDate:
-        festival.eventstartdate === '' ? null : festival.eventstartdate,
+      eventStartDate: festival.eventstartdate,
       useTimeFestival:
         festival.usetimefestival === '' ? null : festival.usetimefestival,
       discountInfoFestival:
