@@ -33,6 +33,9 @@ export class TourApiAdapter
     //return await this.createTempContentEntity(data, address, roadAddress);
   }
 
+  /**
+   * @author jochongs
+   */
   private async createTempContentEntity(
     data: FestivalEntity,
     address: KakaoAddressEntity,
