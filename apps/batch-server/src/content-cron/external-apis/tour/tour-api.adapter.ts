@@ -53,7 +53,7 @@ export class TourApiAdapter
       title: await this.extractTitle(data),
       imgList: uploadedS3ImgPathList,
       description: await this.extractDescription(data),
-      websiteLink: await this.extractWebsiteLink(perform),
+      websiteLink: await this.extractWebsiteLink(data),
       startDate: await this.extractStartDate(perform),
       endDate: await this.extractEndDate(perform),
       openTime: await this.extractOpenTime(perform),
@@ -87,14 +87,14 @@ export class TourApiAdapter
   /**
    * @author jochongs
    */
-  public async extractTitle(data: FestivalEntity): Promise<string> {
+  private async extractTitle(data: FestivalEntity): Promise<string> {
     return data.title;
   }
 
   /**
    * @author jochongs
    */
-  public async extractDescription(
+  private async extractDescription(
     data: FestivalEntity,
   ): Promise<string | null> {
     if (!data.info.introduce && !data.info.description) {
@@ -109,7 +109,7 @@ export class TourApiAdapter
   /**
    * @author jochongs
    */
-  public async extractWebsiteLink(
+  private async extractWebsiteLink(
     data: FestivalEntity,
   ): Promise<string | null> {
     return data.intro.eventHomepage;
