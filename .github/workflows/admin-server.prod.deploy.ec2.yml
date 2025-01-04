@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - apps/admin-server/**
+      - prisma/schema.prisma
       - libs/**
       - .github/workflows/admin-server.prod.deploy.ec2.yml
       - '!apps/admin-server/test/**'

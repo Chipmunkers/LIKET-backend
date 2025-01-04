@@ -6,6 +6,7 @@ on:
       - develop
     paths:
       - apps/admin-server/**
+      - prisma/schema.prisma
       - libs/**
       - .github/workflows/admin-server.dev.deploy.yml
       - '!apps/admin-server/test/**'
