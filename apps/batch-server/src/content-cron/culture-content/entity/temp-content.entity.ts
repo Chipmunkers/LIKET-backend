@@ -32,7 +32,7 @@ export class TempContentEntity {
   description: string | null;
 
   /** 웹사이트 링크 */
-  websiteLink: string;
+  websiteLink: string | null;
 
   /** 시작일 */
   startDate: Date;
@@ -41,7 +41,7 @@ export class TempContentEntity {
   endDate: Date | null;
 
   /** 오픈 시간 */
-  openTime: string;
+  openTime: string | null;
 
   /** 요금 여부 */
   isFee: boolean;

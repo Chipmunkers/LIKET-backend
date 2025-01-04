@@ -5,6 +5,7 @@ import {
   ExternalAPIs,
 } from 'apps/batch-server/src/content-cron/external-api.enum';
 import { KopisPerformApiService } from 'apps/batch-server/src/content-cron/external-apis/kopis/kopis-perform-api.service';
+import { TourApiService } from 'apps/batch-server/src/content-cron/external-apis/tour/tour-api.service';
 import { IExternalApiService } from 'apps/batch-server/src/content-cron/interface/external-api.service';
 
 @Injectable()
@@ -16,9 +17,11 @@ export class ContentCronService {
     private readonly logger: Logger,
     private readonly kopisPerformApiService: KopisPerformApiService,
     private readonly cultureContentRepository: CultureContentRepository,
+    private readonly tourApiService: TourApiService,
   ) {
     this.externalApiMap = {
       [EXTERNAL_APIs.KOPIS_PERFORM]: this.kopisPerformApiService,
+      [EXTERNAL_APIs.TOUR_FESTIVAL]: this.tourApiService,
     };
   }
 
@@ -95,6 +98,7 @@ export class ContentCronService {
             );
           }
         }
+        this.logger.log(`Complete ${externalApiKey}`, this.LOG_CONTEXT);
       } catch (err) {
         this.logger.error(
           `Fail to Request External | API: ${externalApiKey}`,
