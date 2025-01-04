@@ -1,4 +1,4 @@
-import { IsDecimal, IsString, Length } from 'class-validator';
+import { IsDecimal, IsOptional, IsString, Length } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateLocationDto {
@@ -36,7 +36,8 @@ export class CreateLocationDto {
    */
   @IsString()
   @Length(1, 200)
-  detailAddress: string;
+  @IsOptional()
+  detailAddress: string | null;
 
   /**
    * 행정동 코드

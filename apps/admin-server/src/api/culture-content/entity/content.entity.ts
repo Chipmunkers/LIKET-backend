@@ -35,7 +35,7 @@ export class ContentEntity extends SummaryContentEntity {
    *
    * @example "월-금 12:00-20:00 토-일 11:00-20:00"
    */
-  public openTime: string;
+  public openTime: string | null;
 
   /**
    * 컨텐츠 설명
@@ -49,7 +49,7 @@ export class ContentEntity extends SummaryContentEntity {
    *
    * @example https://www.dior.com/ko_kr/fashion
    */
-  public websiteLink: string;
+  public websiteLink: string | null;
 
   constructor(data: ContentEntity) {
     super(data);

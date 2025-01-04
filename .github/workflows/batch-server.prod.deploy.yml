@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - apps/batch-server/**
+      - prisma/schema.prisma
       - libs/**
       - .github/workflows/batch-server.prod.deploy.ec2.yml
       - '!apps/batch-server/test/**'

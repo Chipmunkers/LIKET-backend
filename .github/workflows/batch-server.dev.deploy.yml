@@ -6,6 +6,7 @@ on:
       - develop
     paths:
       - apps/batch-server/**
+      - prisma/schema.prisma
       - libs/**
       - .github/workflows/batch-server.dev.deploy.yml
       - '!apps/batch-server/test/**'
