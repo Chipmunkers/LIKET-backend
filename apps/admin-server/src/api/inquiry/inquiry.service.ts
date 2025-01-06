@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../common/prisma/prisma.service';
 import { InquiryTypeEntity } from './entity/inquiry-type.entity';
 import { InquiryPagerbleDto } from './dto/request/inquiry-pagerble.dto';
 import { InquiryEntity } from './entity/inquiry.entity';
@@ -10,10 +9,11 @@ import { AnswerEntity } from './entity/answer.entity';
 import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
 import { DuplicateAnswerException } from './exception/DuplicateAnswerException';
 import { AnswerNotFoundException } from './exception/AnswerNotFoundException';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class InquiryService {
-  constructor(private readonly prisma: Prisma) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   getInquiryTypeAll: () => Promise<{
     typeList: InquiryTypeEntity[];
@@ -24,7 +24,9 @@ export class InquiryService {
       },
     });
 
-    return { typeList: typeList.map((type) => InquiryTypeEntity.createEntity(type)) };
+    return {
+      typeList: typeList.map((type) => InquiryTypeEntity.createEntity(type)),
+    };
   };
 
   getInquiryAll: (pagerble: InquiryPagerbleDto) => Promise<{
@@ -111,7 +113,9 @@ export class InquiryService {
     ]);
 
     return {
-      inquiryList: inquiryList.map((inquiry) => InquiryEntity.createEntity(inquiry)),
+      inquiryList: inquiryList.map((inquiry) =>
+        InquiryEntity.createEntity(inquiry),
+      ),
       count,
     };
   };
@@ -151,10 +155,10 @@ export class InquiryService {
     return InquiryEntity.createEntity(inquiry);
   };
 
-  createAnswerByInquiryIdx: (idx: number, createDto: CreateAnswerDto) => Promise<void> = async (
-    idx,
-    createDto,
-  ) => {
+  createAnswerByInquiryIdx: (
+    idx: number,
+    createDto: CreateAnswerDto,
+  ) => Promise<void> = async (idx, createDto) => {
     await this.prisma.$transaction(async (tx) => {
       const answer = await tx.answer.findFirst({
         where: {
@@ -193,10 +197,10 @@ export class InquiryService {
     return AnswerEntity.createEntity(answer);
   };
 
-  updateAnswerByIdx: (idx: number, updateDto: UpdateAnswerDto) => Promise<void> = async (
-    idx,
-    updateDto,
-  ) => {
+  updateAnswerByIdx: (
+    idx: number,
+    updateDto: UpdateAnswerDto,
+  ) => Promise<void> = async (idx, updateDto) => {
     await this.prisma.answer.update({
       where: {
         idx,

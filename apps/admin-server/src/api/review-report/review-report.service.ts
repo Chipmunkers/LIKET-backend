@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../common/prisma/prisma.service';
 import { Prisma as PrismaType } from '@prisma/client';
-
 import { ReportedReviewNotFoundException } from './exception/ReportedReviewNotFoundException';
 import { ReportedReviewEntity } from './entity/reported-review.entity';
 import { ReportedReviewPageableDto } from './dto/request/reported-review-pageable.dto';
-import { ReviewEntity } from '../review/entity/review.entity';
 import { SummaryReportedReviewEntity } from './entity/summary-reported-review.entity';
 import { ReviewNotFoundException } from '../review/exception/ReviewNotFoundException';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ReviewReportService {
-  constructor(private readonly prisma: Prisma) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   /**
    * 신고된 리뷰 목록 보기
@@ -48,8 +46,8 @@ export class ReviewReportService {
               not: null,
             }
           : pageable.state === 'wait'
-            ? null
-            : undefined,
+          ? null
+          : undefined,
     };
     const reviewList = await this.prisma.review.findMany({
       include: {
@@ -74,7 +72,9 @@ export class ReviewReportService {
     });
 
     return {
-      reviewList: reviewList.map((review) => SummaryReportedReviewEntity.createEntity(review)),
+      reviewList: reviewList.map((review) =>
+        SummaryReportedReviewEntity.createEntity(review),
+      ),
       count,
     };
   }

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { HashService } from '../../common/hash/hash.service';
-import { Prisma } from '../../common/prisma/prisma.service';
 import { TokenService } from '../../common/token/token.service';
 import { LoginDto } from './dto/request/login.dto';
 import { AdminPermissionRequiredException } from './exception/AdminPermissionRequiredException';

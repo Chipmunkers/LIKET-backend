@@ -13,7 +13,7 @@ import {
 import { CultureContentService } from './culture-content.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginAuth } from '../auth/login-auth.decorator';
-import { GetContentPagerbleDto } from './dto/request/get-contnet-all-pagerble.dto';
+import { GetContentPagerbleDto } from './dto/request/get-content-all-pagerble.dto';
 import { GetContentAllResponseDto } from './dto/response/get-content-all-response.dto';
 import { GetContentResponseDto } from './dto/response/get-content-response.dto';
 import { LoginUser } from '../auth/login-user.decorator';
@@ -104,7 +104,9 @@ export class CultureContentController {
   @ApiResponse({ status: 400, description: 'Invalid path parameter' })
   @ApiResponse({ status: 404, description: 'Cannot find culture content' })
   @LoginAuth()
-  async deleteCultureContent(@Param('idx', ParseIntPipe) idx: number): Promise<void> {
+  async deleteCultureContent(
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<void> {
     await this.cultureContentService.deleteContentByIdx(idx);
   }
 
@@ -118,7 +120,9 @@ export class CultureContentController {
   @ApiResponse({ status: 404, description: 'Cannot find culture content' })
   @ApiResponse({ status: 409, description: 'Already active culture content' })
   @LoginAuth()
-  async activateContentByIdx(@Param('idx', ParseIntPipe) idx: number): Promise<void> {
+  async activateContentByIdx(
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<void> {
     await this.cultureContentService.activateContentByIdx(idx);
 
     return;
@@ -134,7 +138,9 @@ export class CultureContentController {
   @ApiResponse({ status: 404, description: 'Cannot find culture content' })
   @ApiResponse({ status: 409, description: 'Already active culture content' })
   @LoginAuth()
-  async deactivateContentByIdx(@Param('idx', ParseIntPipe) idx: number): Promise<void> {
+  async deactivateContentByIdx(
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<void> {
     await this.cultureContentService.deactivateContentByIdx(idx);
 
     return;

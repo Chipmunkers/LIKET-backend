@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../common/prisma/prisma.service';
-import { GetContentPagerbleDto } from './dto/request/get-contnet-all-pagerble.dto';
+import { GetContentPagerbleDto } from './dto/request/get-content-all-pagerble.dto';
 import { ContentEntity } from './entity/content.entity';
 import { CreateCultureContentDto } from './dto/request/create-culture-content.dto';
 import { UpdateCultureContentDto } from './dto/request/update-culture-content.dto';
@@ -8,10 +7,11 @@ import { SummaryContentEntity } from './entity/summary-content.entity';
 import { ContentNotFoundException } from './exception/ContentNotFoundException';
 import { AlreadyActiveContentException } from './exception/AlreadyActiveContentException';
 import { AlreadyDeactiveContentException } from './exception/AlreadyDeactiveContentException';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class CultureContentService {
-  constructor(private readonly prisma: Prisma) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   getContentAll: (pagerble: GetContentPagerbleDto) => Promise<{
     contentList: SummaryContentEntity[];

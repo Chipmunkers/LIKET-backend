@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../common/prisma/prisma.service';
 import { GetReviewAllPagerbleDto } from './dto/request/get-review-all-pagerble.dto';
-import { SummaryReviewEntity } from './entity/summary-review.entity';
 import { ReviewEntity } from './entity/review.entity';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class ReviewService {
-  constructor(private readonly prisma: Prisma) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   getReviewAll: (pagerble: GetReviewAllPagerbleDto) => Promise<{
     reviewList: ReviewEntity[];
@@ -26,7 +25,8 @@ export class ReviewService {
         },
         where: {
           deletedAt: null,
-          description: pagerble.searchby === 'description' ? pagerble.search : undefined,
+          description:
+            pagerble.searchby === 'description' ? pagerble.search : undefined,
           CultureContent: {
             title:
               pagerble.searchby === 'content'
@@ -58,7 +58,8 @@ export class ReviewService {
       this.prisma.review.count({
         where: {
           deletedAt: null,
-          description: pagerble.searchby === 'description' ? pagerble.search : undefined,
+          description:
+            pagerble.searchby === 'description' ? pagerble.search : undefined,
           CultureContent: {
             title:
               pagerble.searchby === 'content'
