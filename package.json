@@ -31,7 +31,8 @@
     "admin-server:dev:infra:up": "docker compose -p liket-admin-server -f scripts/admin-server/dev/docker-compose.yml up -d",
     "admin-server:dev:infra:down": "docker compose -p liket-admin-server -f scripts/admin-server/dev/docker-compose.yml down -v",
     "admin-server:test:infra:up": "docker compose -p liket-admin-test -f scripts/admin-server/e2e-test/docker-compose.yml up -d",
-    "admin-server:test:infra:down": "docker compose -p liket-admin-test -f scripts/admin-server/e2e-test/docker-compose.yml down -v"
+    "admin-server:test:infra:down": "docker compose -p liket-admin-test -f scripts/admin-server/e2e-test/docker-compose.yml down -v",
+    "admin-server:test:e2e": "dotenv -e scripts/admin-server/e2e-test/.env.test -- jest --config ./apps/admin-server/test/jest-e2e.json --verbose apps/admin-server/test/e2e"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.529.1",

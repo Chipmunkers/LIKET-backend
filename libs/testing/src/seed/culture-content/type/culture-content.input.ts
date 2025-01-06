@@ -24,11 +24,11 @@ export type CultureContentInput = {
   performId?: string | null;
   title?: string;
   description?: string | null;
-  websiteLink?: string;
+  websiteLink?: string | null;
   startDate?: Date;
   endDate?: Date | null;
   viewCount?: number;
-  openTime?: string;
+  openTime?: string | null;
   isFee?: boolean;
   isReservation?: boolean;
   isPet?: boolean;
