@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../common/prisma/prisma.service';
 import { NoticeEntity } from './entity/notice.entity';
 import { NoticeNotFoundException } from './exception/NoticeNotFoundException';
 import { SummaryNoticeEntity } from './entity/summary-notice.entity';
-import { Notice, Prisma as PrismaType } from '@prisma/client';
+import { Prisma as PrismaType } from '@prisma/client';
 import { NoticePageableDto } from './dto/request/notice-pageable.dto';
 import { CreateNoticeDto } from './dto/request/create-notice.dto';
 import { UpdateNoticeDto } from './dto/request/update-notice.dto';
@@ -11,10 +10,11 @@ import { AlreadyActivatedNoticeException } from './exception/AlreadyActivatedNot
 import { AlreadyDeactivatedNoticeException } from './exception/AlreadyDeactivatedNoticeException';
 import { AlreadyPinnedNoticeException } from './exception/AlreadyPinnedNoticeException';
 import { AlreadyNotPinnedNoticeException } from './exception/AlreadyNotPinnedNoticeException';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class NoticeService {
-  constructor(private readonly prisma: Prisma) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   /**
    * 공지사항 하나를 가져오는 메서드
@@ -84,7 +84,9 @@ export class NoticeService {
     ]);
 
     return {
-      noticeList: noticeList.map((notice) => SummaryNoticeEntity.createEntity(notice)),
+      noticeList: noticeList.map((notice) =>
+        SummaryNoticeEntity.createEntity(notice),
+      ),
       count,
     };
   }
@@ -115,7 +117,10 @@ export class NoticeService {
    * @parma idx 공지사항 인덱스
    * @param updateDto 공지사항 수정 DTO
    */
-  public async updateNoticeByIdx(idx: number, updateDto: UpdateNoticeDto): Promise<NoticeEntity> {
+  public async updateNoticeByIdx(
+    idx: number,
+    updateDto: UpdateNoticeDto,
+  ): Promise<NoticeEntity> {
     await this.getNoticeByIdx(idx);
 
     const notice = await this.prisma.notice.update({

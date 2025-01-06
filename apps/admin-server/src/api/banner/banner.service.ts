@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../common/prisma/prisma.service';
 import { BannerEntity } from './entity/banner.entity';
 import { GetBannerAllPagerbleDto } from './dto/request/get-banner-all-pagerble.dto';
 import { BannerNotFoundException } from './exception/BannerNotFoundException';
@@ -11,10 +10,11 @@ import { UpdateBannerOrderDto } from './dto/request/update-banner-order.dto';
 import { SameBannerOrderException } from './exception/SameBannerOrderException';
 import { BannerOrderOutOfRangeException } from './exception/BannerOrderOutOfRangeException';
 import { ActiveBannerEntity } from './entity/active-banner.entity';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class BannerService {
-  constructor(private readonly prisma: Prisma) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   public getActiveBannerAll: () => Promise<{
     bannerList: ActiveBannerEntity[];
@@ -40,7 +40,9 @@ export class BannerService {
     ]);
 
     return {
-      bannerList: bannerList.map((banner) => ActiveBannerEntity.createEntity(banner)),
+      bannerList: bannerList.map((banner) =>
+        ActiveBannerEntity.createEntity(banner),
+      ),
     };
   };
 
@@ -85,7 +87,9 @@ export class BannerService {
     };
   };
 
-  public getBannerByIdx: (bannerIdx: number) => Promise<BannerEntity> = async (bannerIdx) => {
+  public getBannerByIdx: (bannerIdx: number) => Promise<BannerEntity> = async (
+    bannerIdx,
+  ) => {
     const banner = await this.prisma.banner.findUnique({
       include: {
         ActiveBanner: true,
@@ -103,7 +107,9 @@ export class BannerService {
     return BannerEntity.createEntity(banner);
   };
 
-  public createBanner: (createDto: CreateBannerDto) => Promise<number> = async (createDto) => {
+  public createBanner: (createDto: CreateBannerDto) => Promise<number> = async (
+    createDto,
+  ) => {
     const createdBanner = await this.prisma.banner.create({
       data: {
         name: createDto.name,
@@ -115,10 +121,10 @@ export class BannerService {
     return createdBanner.idx;
   };
 
-  public updateBanner: (bannerIdx: number, updateDto: UpadteBannerDto) => Promise<void> = async (
-    bannerIdx,
-    updateDto,
-  ) => {
+  public updateBanner: (
+    bannerIdx: number,
+    updateDto: UpadteBannerDto,
+  ) => Promise<void> = async (bannerIdx, updateDto) => {
     await this.prisma.banner.update({
       where: {
         idx: bannerIdx,
@@ -133,7 +139,9 @@ export class BannerService {
     return;
   };
 
-  public deleteBanner: (bannerIdx: number) => Promise<void> = async (bannerIdx) => {
+  public deleteBanner: (bannerIdx: number) => Promise<void> = async (
+    bannerIdx,
+  ) => {
     await this.prisma.$transaction(
       async (tx) => {
         const banner = await tx.banner.findUnique({
@@ -190,7 +198,9 @@ export class BannerService {
     return;
   };
 
-  public activateBanner: (bannerIdx: number) => Promise<void> = async (bannerIdx) => {
+  public activateBanner: (bannerIdx: number) => Promise<void> = async (
+    bannerIdx,
+  ) => {
     await this.prisma.$transaction(
       async (tx) => {
         const banner = await tx.banner.findUnique({
@@ -237,7 +247,9 @@ export class BannerService {
     return;
   };
 
-  public deactivateBanner: (bannerIdx: number) => Promise<void> = async (bannerIdx) => {
+  public deactivateBanner: (bannerIdx: number) => Promise<void> = async (
+    bannerIdx,
+  ) => {
     await this.prisma.$transaction(
       async (tx) => {
         const banner = await tx.banner.findUnique({
@@ -255,7 +267,9 @@ export class BannerService {
         }
 
         if (!banner.ActiveBanner) {
-          throw new AlreadyDeactiveBannerException('Already deactivated banner');
+          throw new AlreadyDeactiveBannerException(
+            'Already deactivated banner',
+          );
         }
 
         await tx.activeBanner.delete({
@@ -304,7 +318,9 @@ export class BannerService {
         }
 
         if (banner.order === updateOrderDto.order) {
-          throw new SameBannerOrderException('Cannot change order to same order');
+          throw new SameBannerOrderException(
+            'Cannot change order to same order',
+          );
         }
 
         const lastActiveBanner = await tx.activeBanner.findFirst({
@@ -314,11 +330,15 @@ export class BannerService {
         });
 
         if (!lastActiveBanner) {
-          throw new BannerOrderOutOfRangeException('Cannot be exceeded the maximum order');
+          throw new BannerOrderOutOfRangeException(
+            'Cannot be exceeded the maximum order',
+          );
         }
 
         if (updateOrderDto.order > lastActiveBanner.order) {
-          throw new BannerOrderOutOfRangeException('Cannot be exeeded the maximum order');
+          throw new BannerOrderOutOfRangeException(
+            'Cannot be exeeded the maximum order',
+          );
         }
 
         // 3 -> 1

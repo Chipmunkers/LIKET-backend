@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../common/prisma/prisma.service';
 import { GetUserAllPagerbleDto } from './dto/request/get-user-all-pagerble.dto';
 import { UserEntity } from './entity/user.entity';
 import { BlockUserDto } from './dto/request/block-user.dto';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { AlreadyBlockUserException } from './exception/AlreadyBlockUserException';
 import { AlreadyNotBlockUserException } from './exception/AlreadyNotBlockUserException';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: Prisma) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   getUserAll: (pagerble: GetUserAllPagerbleDto) => Promise<{
     userList: UserEntity[];
