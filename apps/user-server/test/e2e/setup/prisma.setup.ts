@@ -1,6 +1,9 @@
 import { PrismaTestingHelper } from '@chax-at/transactional-prisma-testing';
 import { PrismaProvider } from 'libs/modules';
 
+/**
+ * @deprecated
+ */
 export class PrismaSetting {
   private readonly prisma: PrismaProvider;
   private readonly prismaTestingHelper: PrismaTestingHelper<PrismaProvider>;
