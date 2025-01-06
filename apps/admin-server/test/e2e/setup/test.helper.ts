@@ -1,4 +1,5 @@
 import { ValidationPipe } from '@nestjs/common';
+import { TestLoginHelper } from 'apps/admin-server/test/e2e/setup/login-user.setup';
 import cookieParser from 'cookie-parser';
 import { Type } from 'libs/common';
 import { ITestHelper } from 'libs/testing';
@@ -9,6 +10,8 @@ import { ITestHelper } from 'libs/testing';
  * @author jochongs
  */
 export class TestHelper extends ITestHelper {
+  private readonly testLoginHelper: TestLoginHelper;
+
   public static create(RootModule: Type) {
     return new TestHelper(RootModule);
   }
@@ -22,5 +25,7 @@ export class TestHelper extends ITestHelper {
     );
   }
 
-  public getAdminUser() {}
+  public getLoginHelper() {
+    return this.testLoginHelper;
+  }
 }
