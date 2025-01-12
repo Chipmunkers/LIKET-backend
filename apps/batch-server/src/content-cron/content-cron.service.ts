@@ -7,6 +7,8 @@ import {
 import { KopisPerformApiService } from 'apps/batch-server/src/content-cron/external-apis/kopis/kopis-perform-api.service';
 import { TourApiService } from 'apps/batch-server/src/content-cron/external-apis/tour/tour-api.service';
 import { IExternalApiService } from 'apps/batch-server/src/content-cron/interface/external-api.service';
+import { SERVER_TYPE } from 'libs/common/constants/server-type';
+import { DiscordService } from 'libs/modules/discord/discord.service';
 
 @Injectable()
 export class ContentCronService {
@@ -18,6 +20,7 @@ export class ContentCronService {
     private readonly kopisPerformApiService: KopisPerformApiService,
     private readonly cultureContentRepository: CultureContentRepository,
     private readonly tourApiService: TourApiService,
+    private readonly discordService: DiscordService,
   ) {
     this.externalApiMap = {
       [EXTERNAL_APIs.KOPIS_PERFORM]: this.kopisPerformApiService,
@@ -45,9 +48,10 @@ export class ContentCronService {
           this.LOG_CONTEXT,
         );
 
+        let performId: string;
         for (const i in summaryPerformList) {
           const summaryPerform = summaryPerformList[i];
-          const performId = externalApiService.getId(summaryPerform);
+          performId = externalApiService.getId(summaryPerform);
           try {
             this.logger.log(
               `Getting Perform: ${performId} | ${Number(i) + 1}/${
@@ -82,30 +86,27 @@ export class ContentCronService {
               detailPerform,
             );
 
-            // TODO: TempContent의 id필드가 매우 모호한 상태.
-            // DB에는 perform_id라고 되어있는 컬럼 명을 그냥 id로 바꾸어야함.
-            // 그러나 변경 시 schema.prisma와 동시에 변경되어야해서 아직 바꾸지 못함.
-            // perform id와 content id를 명확하게 해야함
             await this.cultureContentRepository.insertCultureContentWithContentId(
               tempContent,
               contentId,
             );
           } catch (err) {
-            this.logger.error(
-              `Fail to Getting perform | ${performId}`,
-              err?.stack || '',
-              this.LOG_CONTEXT,
+            await this.discordService.createErrorLog(
+              SERVER_TYPE.BATCH_SERVER,
+              `${externalApiKey}-${performId}: GET detail 에러 발생`,
+              err.message || '',
+              err,
             );
           }
         }
         this.logger.log(`Complete ${externalApiKey}`, this.LOG_CONTEXT);
       } catch (err) {
-        this.logger.error(
-          `Fail to Request External | API: ${externalApiKey}`,
-          err?.stack || '',
-          this.LOG_CONTEXT,
+        await this.discordService.createErrorLog(
+          SERVER_TYPE.BATCH_SERVER,
+          `${externalApiKey}: GET summary 에러 발생`,
+          err.message || '',
+          err,
         );
-        console.log(err);
       }
     }
   }
