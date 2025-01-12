@@ -6,13 +6,16 @@ import { inspect } from 'util';
 
 @Injectable()
 export class DiscordService {
-  private readonly WEBHOOK_URL: string;
+  private readonly ERROR_WEBHOOK_URL: string;
+  private readonly CONTENTS_WEBHOOK_URL: string;
 
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
-    this.WEBHOOK_URL = configService.get('discord').webhookUrl;
+    this.ERROR_WEBHOOK_URL = this.configService.get('discord').errorWebhookUrl;
+    this.CONTENTS_WEBHOOK_URL =
+      this.configService.get('discord').contentsWebhookUrl;
   }
 
   /**
@@ -27,7 +30,7 @@ export class DiscordService {
     error?: any,
   ): Promise<void> {
     await this.httpService.axiosRef.post(
-      this.WEBHOOK_URL,
+      this.ERROR_WEBHOOK_URL,
       {
         content: `# **🚨 에러 로그 알림**`,
         embeds: [
@@ -43,6 +46,35 @@ ${this.getErrorStr(error)}
             author: {
               name: context,
             },
+            footer: {
+              text: `시간: ${new Date().toLocaleString()}`,
+            },
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+  }
+
+  /**
+   * 디스코드에 컨텐츠 cron job 결과를 남기는 메서드
+   *
+   * @author jochongs
+   */
+  public async createContentsLog(message: string): Promise<void> {
+    await this.httpService.axiosRef.post(
+      this.CONTENTS_WEBHOOK_URL,
+      {
+        content: `# ** 💡 컨텐츠 수집 결과 **`,
+        embeds: [
+          {
+            description: message,
+            color: 48895, // 빨간색 (16진수)
             footer: {
               text: `시간: ${new Date().toLocaleString()}`,
             },

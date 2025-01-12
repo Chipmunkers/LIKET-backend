@@ -3,6 +3,7 @@
  */
 export default () => ({
   discord: {
-    webhookUrl: process.env.DISCORD_WEBHOOK_URL,
+    errorWebhookUrl: process.env.DISCORD_ERROR_BOT_WEBHOOK_URL,
+    contentsWebhookUrl: process.env.DISCORD_CONTENTS_BOT_WEBHOOK_URL,
   },
 });
