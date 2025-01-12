@@ -91,9 +91,8 @@ export class ContentCronService {
               contentId,
             );
           } catch (err) {
-            await this.discordService.createErrorLog(
-              SERVER_TYPE.BATCH_SERVER,
-              `${externalApiKey}-${performId}: GET detail 에러 발생`,
+            await this.handlingError(
+              `${externalApiKey}-${performId}: 컨텐츠 상세 정보 불러오는 중 에러 발생`,
               err.message || '',
               err,
             );
@@ -101,14 +100,31 @@ export class ContentCronService {
         }
         this.logger.log(`Complete ${externalApiKey}`, this.LOG_CONTEXT);
       } catch (err) {
-        await this.discordService.createErrorLog(
-          SERVER_TYPE.BATCH_SERVER,
-          `${externalApiKey}: GET summary 에러 발생`,
+        await this.handlingError(
+          `${externalApiKey}: 컨텐츠 목록 불러오는 중 에러 발생`,
           err.message || '',
           err,
         );
       }
     }
+  }
+
+  /**
+   * 에러 핸들링 메서드
+   *
+   * @author jochongs
+   */
+  private async handlingError(
+    title: string,
+    message: string,
+    err: any,
+  ): Promise<void> {
+    await this.discordService.createErrorLog(
+      SERVER_TYPE.BATCH_SERVER,
+      title,
+      message,
+      err,
+    );
   }
 
   /**
