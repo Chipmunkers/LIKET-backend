@@ -36,8 +36,9 @@ export class DiscordService {
         embeds: [
           {
             title,
-            description: `
-${message}
+            description: `${message}
+
+Error Object
 \`\`\`
 ${this.getErrorStr(error)}
 \`\`\`

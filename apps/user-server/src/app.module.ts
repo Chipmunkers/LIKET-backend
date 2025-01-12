@@ -20,12 +20,14 @@ import {
   ThrottlerModule,
   ThrottlerModuleOptions,
 } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { MetricModule } from './api/metric/metric.module';
 import { MapModule } from './api/map/map.module';
 import { AppController } from './app.controller';
 import { ReviewReportModule } from './api/review-report/review-report.module';
 import { NoticeModule } from './api/notice/notice.module';
+import { UnknownExceptionFilter } from 'apps/user-server/src/common/filter/unknown-exception.filter';
+import { DiscordModule } from 'libs/modules/discord/discord.module';
 
 @Module({
   imports: [
@@ -66,11 +68,16 @@ import { NoticeModule } from './api/notice/notice.module';
     MetricModule,
     ReviewReportModule,
     NoticeModule,
+    DiscordModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: UnknownExceptionFilter,
     },
   ],
   controllers: [AppController],
