@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { GetReviewAllPagerbleDto } from './dto/request/get-review-all-pagerble.dto';
-import { Prisma } from '../../common/prisma/prisma.service';
 import { ReviewEntity } from '../review/entity/review.entity';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class UserHistoryService {
-  constructor(private readonly prisma: Prisma) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   getReviewByUserIdx: (
     userIdx: number,

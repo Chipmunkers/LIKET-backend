@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { HashService } from '../../common/hash/hash.service';
-import { Prisma } from '../../common/prisma/prisma.service';
 import { TokenService } from '../../common/token/token.service';
 import { LoginDto } from './dto/request/login.dto';
 import { AdminPermissionRequiredException } from './exception/AdminPermissionRequiredException';
 import { InvalidEmailOrPwException } from './exception/InvalidEmailOrPwException';
+import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly tokenService: TokenService,
-    private readonly prisma: Prisma,
+    private readonly prisma: PrismaProvider,
     private readonly hashService: HashService,
   ) {}
 

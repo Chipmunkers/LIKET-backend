@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { UtilService } from '../util/util.service';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -11,7 +10,6 @@ export class UploadService {
   private s3Client: S3Client;
 
   constructor(
-    private readonly prisma: Prisma,
     private readonly configService: ConfigService,
     private readonly utilService: UtilService,
   ) {

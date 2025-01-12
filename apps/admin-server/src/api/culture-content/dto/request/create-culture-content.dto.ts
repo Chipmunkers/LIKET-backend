@@ -56,7 +56,7 @@ export class CreateCultureContentDto {
   endDate: string | null = null;
 
   @IsString()
-  @Length(1, 100)
+  @Length(1, 1000)
   @IsOptional()
   openTime: string | null = null;
 

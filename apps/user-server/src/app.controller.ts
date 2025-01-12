@@ -12,8 +12,9 @@ export class AppController {
     return;
   }
 
-  @Get('/test')
+  @Get('/test-1234')
   test() {
+    throw new Error('test error');
     return 'success';
   }
 }

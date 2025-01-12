@@ -5,6 +5,7 @@ import { ContentCronService } from 'apps/batch-server/src/content-cron/content-c
 import { CultureContentModule } from 'apps/batch-server/src/content-cron/culture-content/culture-content.module';
 import { KopisModule } from 'apps/batch-server/src/content-cron/external-apis/kopis/kopis.module';
 import { TourModule } from 'apps/batch-server/src/content-cron/external-apis/tour/tour.module';
+import { DiscordModule } from 'libs/modules/discord/discord.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { TourModule } from 'apps/batch-server/src/content-cron/external-apis/tou
     CultureContentModule,
     ScheduleModule.forRoot(),
     TourModule,
+    DiscordModule,
   ],
   providers: [ContentCronService, ContentCronSchedule, Logger],
 })

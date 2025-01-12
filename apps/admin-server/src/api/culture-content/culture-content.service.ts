@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../common/prisma/prisma.service';
-import { GetContentPagerbleDto } from './dto/request/get-contnet-all-pagerble.dto';
+import { GetContentPagerbleDto } from './dto/request/get-content-all-pagerble.dto';
 import { ContentEntity } from './entity/content.entity';
 import { CreateCultureContentDto } from './dto/request/create-culture-content.dto';
 import { UpdateCultureContentDto } from './dto/request/update-culture-content.dto';
@@ -8,15 +7,39 @@ import { SummaryContentEntity } from './entity/summary-content.entity';
 import { ContentNotFoundException } from './exception/ContentNotFoundException';
 import { AlreadyActiveContentException } from './exception/AlreadyActiveContentException';
 import { AlreadyDeactiveContentException } from './exception/AlreadyDeactiveContentException';
+import { PrismaProvider } from 'libs/modules';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CultureContentService {
-  constructor(private readonly prisma: Prisma) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   getContentAll: (pagerble: GetContentPagerbleDto) => Promise<{
     contentList: SummaryContentEntity[];
     count: number;
   }> = async (pagerble) => {
+    const where: Prisma.CultureContentWhereInput = {
+      genreIdx: pagerble.genre,
+      acceptedAt: this.generateAccept(pagerble.accept),
+      ...this.generateOpenState(pagerble.state),
+      title:
+        pagerble.searchby === 'title'
+          ? {
+              contains: pagerble.search || '',
+            }
+          : undefined,
+      User: {
+        nickname:
+          pagerble.searchby === 'user'
+            ? {
+                contains: pagerble.search || '',
+              }
+            : undefined,
+        deletedAt: null,
+      },
+      deletedAt: null,
+    };
+
     const [contentList, count] = await this.prisma.$transaction([
       this.prisma.cultureContent.findMany({
         include: {
@@ -51,56 +74,14 @@ export class CultureContentService {
           Age: true,
           Location: true,
         },
-        where: {
-          genreIdx: pagerble.genre,
-          acceptedAt: this.generateAccept(pagerble.accept),
-          ...this.generateOpenState(pagerble.state),
-          title:
-            pagerble.searchby === 'title'
-              ? {
-                  contains: pagerble.search || '',
-                }
-              : undefined,
-          User: {
-            nickname:
-              pagerble.searchby === 'user'
-                ? {
-                    contains: pagerble.search || '',
-                  }
-                : undefined,
-            deletedAt: null,
-          },
-          deletedAt: null,
-        },
+        where,
         orderBy: {
           idx: pagerble.order,
         },
         take: 10,
         skip: (pagerble.page - 1) * 10,
       }),
-      this.prisma.cultureContent.count({
-        where: {
-          genreIdx: pagerble.genre,
-          acceptedAt: this.generateAccept(pagerble.accept),
-          ...this.generateOpenState(pagerble.state),
-          title:
-            pagerble.searchby === 'title'
-              ? {
-                  contains: pagerble.search || '',
-                }
-              : undefined,
-          User: {
-            nickname:
-              pagerble.searchby === 'user'
-                ? {
-                    contains: pagerble.search || '',
-                  }
-                : undefined,
-            deletedAt: null,
-          },
-          deletedAt: null,
-        },
-      }),
+      this.prisma.cultureContent.count({ where }),
     ]);
 
     return {
@@ -111,12 +92,9 @@ export class CultureContentService {
     };
   };
 
-  private generateOpenState(state?: GetContentPagerbleDto.OpenState):
-    | {
-        startDate: { [Key in 'gt' | 'gte' | 'lt' | 'lte']?: Date };
-        endDate: { [Key in 'gt' | 'gte' | 'lt' | 'lte']?: Date };
-      }
-    | {} {
+  private generateOpenState(
+    state?: GetContentPagerbleDto.OpenState,
+  ): Prisma.CultureContentWhereInput {
     if (!state) {
       return {};
     }
@@ -126,9 +104,16 @@ export class CultureContentService {
         startDate: {
           gt: new Date(),
         },
-        endDate: {
-          gt: new Date(),
-        },
+        OR: [
+          {
+            endDate: {
+              gt: new Date(),
+            },
+          },
+          {
+            endDate: null,
+          },
+        ],
       };
     }
 
@@ -137,9 +122,16 @@ export class CultureContentService {
         startDate: {
           lte: new Date(),
         },
-        endDate: {
-          gte: new Date(),
-        },
+        OR: [
+          {
+            endDate: {
+              gte: new Date(),
+            },
+          },
+          {
+            endDate: null,
+          },
+        ],
       };
     }
 

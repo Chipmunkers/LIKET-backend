@@ -7,22 +7,29 @@ import {
 import { KopisPerformApiService } from 'apps/batch-server/src/content-cron/external-apis/kopis/kopis-perform-api.service';
 import { TourApiService } from 'apps/batch-server/src/content-cron/external-apis/tour/tour-api.service';
 import { IExternalApiService } from 'apps/batch-server/src/content-cron/interface/external-api.service';
+import { CronStatistical } from 'apps/batch-server/src/content-cron/type/cron-statistical';
+import { GET_MODE, MODE, Mode } from 'libs/common';
+import { SERVER_TYPE } from 'libs/common/constants/server-type';
+import { DiscordService } from 'libs/modules/discord/discord.service';
 
 @Injectable()
 export class ContentCronService {
   private readonly externalApiMap: Record<ExternalAPIs, IExternalApiService>;
   private readonly LOG_CONTEXT = 'CONTENT_CRON';
+  private readonly MODE: Mode;
 
   constructor(
     private readonly logger: Logger,
     private readonly kopisPerformApiService: KopisPerformApiService,
     private readonly cultureContentRepository: CultureContentRepository,
     private readonly tourApiService: TourApiService,
+    private readonly discordService: DiscordService,
   ) {
     this.externalApiMap = {
       [EXTERNAL_APIs.KOPIS_PERFORM]: this.kopisPerformApiService,
       [EXTERNAL_APIs.TOUR_FESTIVAL]: this.tourApiService,
     };
+    this.MODE = GET_MODE();
   }
 
   /**
@@ -31,31 +38,21 @@ export class ContentCronService {
   public async saveContentFromExternalAPI(): Promise<void> {
     const externalApiKeyList = this.extractKeysFromMap(this.externalApiMap);
 
+    const data = this.getStatisticalInit();
+
     for (const externalApiKey of externalApiKeyList) {
       try {
-        this.logger.log(
-          `External API execute: ${externalApiKey}`,
-          this.LOG_CONTEXT,
-        );
         const externalApiService = this.externalApiMap[externalApiKey];
 
         const summaryPerformList = await externalApiService.getSummaryAll();
-        this.logger.log(
-          `total content count: ${summaryPerformList.length}`,
-          this.LOG_CONTEXT,
-        );
+        data.count[externalApiKey].totalCount += summaryPerformList.length;
 
+        let performId: string;
         for (const i in summaryPerformList) {
           const summaryPerform = summaryPerformList[i];
-          const performId = externalApiService.getId(summaryPerform);
-          try {
-            this.logger.log(
-              `Getting Perform: ${performId} | ${Number(i) + 1}/${
-                summaryPerformList.length
-              }`,
-              this.LOG_CONTEXT,
-            );
+          performId = externalApiService.getId(summaryPerform);
 
+          try {
             const contentId = this.getContentId(performId, externalApiKey);
 
             const alreadyExistContent =
@@ -64,11 +61,7 @@ export class ContentCronService {
               );
 
             if (alreadyExistContent) {
-              this.logger.log(
-                `already exist content | id = ${contentId}`,
-                this.LOG_CONTEXT,
-              );
-
+              data.count[externalApiKey].updateCount += 1;
               continue;
             }
 
@@ -82,32 +75,118 @@ export class ContentCronService {
               detailPerform,
             );
 
-            // TODO: TempContent의 id필드가 매우 모호한 상태.
-            // DB에는 perform_id라고 되어있는 컬럼 명을 그냥 id로 바꾸어야함.
-            // 그러나 변경 시 schema.prisma와 동시에 변경되어야해서 아직 바꾸지 못함.
-            // perform id와 content id를 명확하게 해야함
             await this.cultureContentRepository.insertCultureContentWithContentId(
               tempContent,
               contentId,
             );
+
+            data.count[externalApiKey].insertCount += 1;
           } catch (err) {
-            this.logger.error(
-              `Fail to Getting perform | ${performId}`,
-              err?.stack || '',
-              this.LOG_CONTEXT,
+            data.count[externalApiKey].detailErrorCount += 1;
+            await this.handlingError(
+              `${externalApiKey}-${performId}: 컨텐츠 상세 정보 불러오는 중 에러 발생`,
+              err.message || '',
+              err,
             );
           }
         }
         this.logger.log(`Complete ${externalApiKey}`, this.LOG_CONTEXT);
       } catch (err) {
-        this.logger.error(
-          `Fail to Request External | API: ${externalApiKey}`,
-          err?.stack || '',
-          this.LOG_CONTEXT,
+        data.count[externalApiKey].summaryError += 1;
+        await this.handlingError(
+          `${externalApiKey}: 컨텐츠 목록 불러오는 중 에러 발생`,
+          err.message || '',
+          err,
         );
-        console.log(err);
       }
     }
+
+    await this.handlingStatistical(data);
+  }
+
+  /**
+   * 통계 초기값 가져오기
+   */
+  private getStatisticalInit(): CronStatistical {
+    return {
+      count: {
+        [EXTERNAL_APIs.KOPIS_PERFORM]: {
+          summaryError: 0,
+          totalCount: 0,
+          detailErrorCount: 0,
+          insertCount: 0,
+          updateCount: 0,
+        },
+        [EXTERNAL_APIs.TOUR_FESTIVAL]: {
+          summaryError: 0,
+          totalCount: 0,
+          detailErrorCount: 0,
+          insertCount: 0,
+          updateCount: 0,
+        },
+      },
+    };
+  }
+
+  /**
+   * 통계 핸들링
+   */
+  private async handlingStatistical(data: CronStatistical): Promise<void> {
+    if (this.MODE !== MODE.PRODUCT) {
+      return;
+    }
+
+    const kopisData = data.count[EXTERNAL_APIs.KOPIS_PERFORM];
+    const tourData = data.count[EXTERNAL_APIs.TOUR_FESTIVAL];
+
+    await this.discordService.createContentsLog(
+      `
+### KOPIS API 호출 결과
+  (**${
+    kopisData.summaryError + kopisData.detailErrorCount === 0
+      ? '에러 없음'
+      : '에러 있음'
+  }**)
+* 목록 보기 에러: ${kopisData.summaryError}
+* 총 데이터 수집 개수: ${kopisData.totalCount}
+      ㄴ 성공 개수: ${kopisData.insertCount}
+      ㄴ 중복 개수: ${kopisData.updateCount}
+      ㄴ 에러 개수: ${kopisData.detailErrorCount}
+### TOUR API 호출 결과
+  (**${
+    tourData.summaryError + tourData.detailErrorCount === 0
+      ? '에러 없음'
+      : '에러 있음'
+  }**)
+* 목록 보기 에러: ${kopisData.summaryError}
+* 총 데이터 수집 개수: ${tourData.totalCount}
+      ㄴ 성공 개수: ${tourData.insertCount}
+      ㄴ 중복 개수: ${tourData.updateCount}
+      ㄴ 에러 개수: ${tourData.detailErrorCount}
+      `,
+    );
+  }
+
+  /**
+   * 에러 핸들링 메서드
+   *
+   * @author jochongs
+   */
+  private async handlingError(
+    title: string,
+    message: string,
+    err: any,
+  ): Promise<void> {
+    if (this.MODE !== MODE.PRODUCT) {
+      return;
+    }
+
+    await this.discordService.createErrorLog(
+      SERVER_TYPE.BATCH_SERVER,
+      title,
+      message,
+      err,
+    );
   }
 
   /**
