@@ -28,6 +28,8 @@ import { ReviewReportModule } from './api/review-report/review-report.module';
 import { NoticeModule } from './api/notice/notice.module';
 import { UnknownExceptionFilter } from 'apps/user-server/src/common/filter/unknown-exception.filter';
 import { DiscordModule } from 'libs/modules/discord/discord.module';
+import { AddressModule } from 'apps/user-server/src/api/address/address.module';
+import { PrismaProvider } from 'libs/modules';
 
 @Module({
   imports: [
@@ -69,6 +71,7 @@ import { DiscordModule } from 'libs/modules/discord/discord.module';
     ReviewReportModule,
     NoticeModule,
     DiscordModule,
+    AddressModule,
   ],
   providers: [
     {

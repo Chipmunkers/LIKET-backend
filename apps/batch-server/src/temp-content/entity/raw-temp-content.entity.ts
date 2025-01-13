@@ -1,5 +1,5 @@
-import { KakaoAddressEntity } from '../../kakao-address/entity/address.entity';
-import { KakaoRoadAddressEntity } from '../../kakao-address/entity/road-address.entity';
+import { KakaoAddressEntity } from '../../../../../libs/modules/src/kakao-address/entity/kakao-address.entity';
+import { KakaoRoadAddressEntity } from '../../../../../libs/modules/src/kakao-address/entity/kakao-road-address.entity';
 import { FacilityEntity } from '../../content-cron/external-apis/kopis/entity/facility.entity';
 import { PerformEntity } from '../../content-cron/external-apis/kopis/entity/perform.entity';
 

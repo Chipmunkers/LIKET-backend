@@ -47,6 +47,8 @@ export class UnknownExceptionFilter implements ExceptionFilter {
 
     if (this.MODE === MODE.PRODUCT) {
       this.handleUnknownError(exception, req);
+    } else {
+      console.log(exception);
     }
     res.status(500).send({
       message: 'internal server error',

@@ -2,8 +2,9 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SearchAddressResponseDto } from './dto/response/serach-address.dto';
-import { AxiosError } from 'axios';
 import { KakaoAddressAPIException } from './exception/KakaoAddressAPIException';
+import { KeywordSearchResultEntity } from 'libs/modules/kakao-address/entity/keyword-search-result.entity';
+import { KeywordSearchResponseDto } from 'libs/modules/kakao-address/dto/response/keyword-search.dto';
 
 @Injectable()
 export class KakaoAddressService {
@@ -37,6 +38,7 @@ export class KakaoAddressService {
             },
             params: {
               query: address,
+              size: 10,
             },
           },
         );
@@ -52,6 +54,42 @@ export class KakaoAddressService {
       return result.data;
     } catch (err: any) {
       throw new KakaoAddressAPIException('Fail to GET kakao address', err);
+    }
+  }
+
+  /**
+   * 키워드로 장소를 검색하는 메서드
+   *
+   * @author jochongs
+   *
+   * @param keyword 검색할 주소
+   */
+  public async searchKeyword(
+    keyword: string,
+    page: number = 1,
+  ): Promise<KeywordSearchResultEntity> {
+    try {
+      const result =
+        await this.httpService.axiosRef.get<KeywordSearchResponseDto>(
+          'https://dapi.kakao.com/v2/local/search/keyword.json',
+          {
+            headers: {
+              Authorization: `KakaoAK ${this.KAKAO_APPLICATION_REST_API_KEY}`,
+            },
+            params: {
+              query: keyword,
+              size: 10,
+              page,
+            },
+          },
+        );
+
+      return KeywordSearchResultEntity.createEntity(result.data);
+    } catch (err: any) {
+      throw new KakaoAddressAPIException(
+        'Fail to GET kakao keyword search',
+        err,
+      );
     }
   }
 }
