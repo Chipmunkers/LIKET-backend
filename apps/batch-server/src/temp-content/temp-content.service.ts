@@ -3,7 +3,7 @@ import { SummaryPerformEntity } from '../content-cron/external-apis/kopis/entity
 import { KopisPerformProvider } from '../content-cron/external-apis/kopis/provider/kopis-perform.provider';
 import { KopisFacilityProvider } from '../content-cron/external-apis/kopis/provider/kopis.facility.provider';
 import { RawTempContentEntity } from './entity/raw-temp-content.entity';
-import { KakaoAddressService } from '../kakao-address/kakao-address.service';
+import { KakaoAddressService } from '../../../../libs/modules/src/kakao-address/kakao-address.service';
 import { GetRawContentException } from './exception/GetRawContentException';
 import { TempContentPipeService } from './temp-content-pipe.service';
 import { TempContentRepository } from './temp-content.repository';

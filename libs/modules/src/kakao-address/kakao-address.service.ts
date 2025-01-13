@@ -2,7 +2,6 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SearchAddressResponseDto } from './dto/response/serach-address.dto';
-import { AxiosError } from 'axios';
 import { KakaoAddressAPIException } from './exception/KakaoAddressAPIException';
 
 @Injectable()
@@ -37,6 +36,7 @@ export class KakaoAddressService {
             },
             params: {
               query: address,
+              size: 10,
             },
           },
         );

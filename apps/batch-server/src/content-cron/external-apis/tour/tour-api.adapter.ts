@@ -3,9 +3,9 @@ import { LocationEntity } from 'apps/batch-server/src/content-cron/culture-conte
 import { TempContentEntity } from 'apps/batch-server/src/content-cron/culture-content/entity/temp-content.entity';
 import { FestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival.entity';
 import { IExternalApiAdapterService } from 'apps/batch-server/src/content-cron/interface/external-api-adapter.service';
-import { KakaoAddressEntity } from 'apps/batch-server/src/kakao-address/entity/address.entity';
-import { KakaoRoadAddressEntity } from 'apps/batch-server/src/kakao-address/entity/road-address.entity';
-import { KakaoAddressService } from 'apps/batch-server/src/kakao-address/kakao-address.service';
+import { KakaoAddressEntity } from 'libs/modules/kakao-address/entity/kakao-address.entity';
+import { KakaoRoadAddressEntity } from 'libs/modules/kakao-address/entity/kakao-road-address.entity';
+import { KakaoAddressService } from 'libs/modules/kakao-address/kakao-address.service';
 import { GENRE } from 'libs/common';
 import { OpenAIService, S3Service, UploadedFileEntity } from 'libs/modules';
 import * as uuid from 'uuid';
