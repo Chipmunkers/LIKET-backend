@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { KakaoAddressService } from 'libs/modules/kakao-address/kakao-address.service';
 import { SearchAddressDto } from 'apps/user-server/src/api/address/dto/request/search-address.dto';
-import { AddressEntity } from 'apps/user-server/src/api/address/entity/address.entity';
+import { KeywordSearchResultEntity } from 'libs/modules/kakao-address/entity/keyword-search-result.entity';
 
 @Injectable()
 export class AddressService {
@@ -10,11 +10,9 @@ export class AddressService {
   /**
    * @author jochongs
    */
-  public async searchAddress(dto: SearchAddressDto): Promise<AddressEntity[]> {
-    const result = await this.kakaoAddressService.searchAddress(dto.search);
-
-    return result.documents.map((doc) =>
-      AddressEntity.createEntity(doc.address, doc.road_address),
-    );
+  public async searchKeyword(
+    dto: SearchAddressDto,
+  ): Promise<KeywordSearchResultEntity> {
+    return await this.kakaoAddressService.searchKeyword(dto.search);
   }
 }

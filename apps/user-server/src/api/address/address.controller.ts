@@ -1,25 +1,25 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { AddressService } from 'apps/user-server/src/api/address/address.service';
 import { SearchAddressDto } from 'apps/user-server/src/api/address/dto/request/search-address.dto';
-import { SearchAddressResponseDto } from 'apps/user-server/src/api/address/dto/response/search-address-response.dto';
 import { LoginAuth } from 'apps/user-server/src/api/auth/login-auth.decorator';
+import { KeywordSearchResultEntity } from 'libs/modules/kakao-address/entity/keyword-search-result.entity';
 
 @Controller('/address')
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
   /**
-   * 주소 검색 API
+   * 키워드를 통해 검색 API
    *
    * 카카오를 통해 검색
+   *
+   * @author jochongs
    */
   @LoginAuth()
-  @Get('/all')
+  @Get('/keyword-search/all')
   async searchAddress(
     @Query() dto: SearchAddressDto,
-  ): Promise<SearchAddressResponseDto> {
-    const addressList = await this.addressService.searchAddress(dto);
-
-    return { addressList };
+  ): Promise<KeywordSearchResultEntity> {
+    return await this.addressService.searchKeyword(dto);
   }
 }
