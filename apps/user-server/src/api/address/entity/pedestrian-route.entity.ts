@@ -18,6 +18,13 @@ export class PedestrianRouteEntity {
    */
   coordinates: PedestrianRouteCoordinateEntity[];
 
+  /**
+   * 사용하지 마십시오. 아직 정의되지 않았습니다.
+   *
+   * TODO: 필요한 경우 타입을 정의하여 사용
+   */
+  properties: any;
+
   constructor(data: PedestrianRouteEntity) {
     Object.assign(this, data);
   }
@@ -25,6 +32,7 @@ export class PedestrianRouteEntity {
   static createEntity(data: PedestrianFeature) {
     return new PedestrianRouteEntity({
       type: data.geometry.type,
+      properties: data.properties,
       coordinates: PedestrianRouteEntity.isTupleArray(data.geometry.coordinates)
         ? data.geometry.coordinates.map((coordinate) =>
             PedestrianRouteCoordinateEntity.createEntity(coordinate),
