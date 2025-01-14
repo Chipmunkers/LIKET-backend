@@ -5,8 +5,10 @@ import { AxiosError } from 'axios';
 import {
   GetPedestrianDto,
   Stopover,
-} from 'libs/modules/sk-open-api/dto/get-pedestrian.dto';
+} from 'libs/modules/sk-open-api/dto/request/get-pedestrian.dto';
+import { GetPedestrianResponseDto } from 'libs/modules/sk-open-api/dto/response/get-pedestrian-response.dto';
 import { FailToGetPedestrianRoutes } from 'libs/modules/sk-open-api/exception/FailToGetPedestrianRoutes';
+import { NotSupportArea } from 'libs/modules/sk-open-api/exception/NotSupportArea';
 
 @Injectable()
 export class SkOpenApiProvider {
@@ -26,7 +28,9 @@ export class SkOpenApiProvider {
    *
    * @link https://openapi.sk.com/products/detail?svcSeq=4&menuSeq=45
    */
-  public async getPedestrianRoutes(dto: GetPedestrianDto) {
+  public async getPedestrianRoutes(
+    dto: GetPedestrianDto,
+  ): Promise<GetPedestrianResponseDto | ''> {
     try {
       const result = await this.httpService.axiosRef.post(
         'https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1',
@@ -51,6 +55,13 @@ export class SkOpenApiProvider {
       return result.data;
     } catch (err) {
       if (err instanceof AxiosError) {
+        if (
+          err.response?.data.error.id === '400' &&
+          err.response.data.error.code === '3102'
+        ) {
+          throw new NotSupportArea('not support area');
+        }
+
         throw new FailToGetPedestrianRoutes(
           'fail to get pedestrian',
           err.response?.data.error.id || 500,
