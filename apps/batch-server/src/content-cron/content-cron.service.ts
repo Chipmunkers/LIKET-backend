@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CultureContentRepository } from 'apps/batch-server/src/content-cron/culture-content/culture-content.repository';
 import { InsertContentDto } from 'apps/batch-server/src/content-cron/dto/insert-content.dto';
+import { SignContentTokenDto } from 'apps/batch-server/src/content-cron/dto/sign-content-token.dto';
 import { AlreadyExistContentException } from 'apps/batch-server/src/content-cron/exception/AlreadyExistContentException';
 import {
   EXTERNAL_APIs,
@@ -176,6 +177,13 @@ export class ContentCronService {
     const payload = await this.contentTokenService.verifyToken(dto.token);
 
     await this.upsertContentById(payload.key, payload.id);
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async signContentToken(dto: SignContentTokenDto): Promise<string> {
+    return await this.contentTokenService.signToken(dto);
   }
 
   /**
