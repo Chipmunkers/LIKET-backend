@@ -4,8 +4,8 @@
  * @author jochongs
  */
 export const EXTERNAL_APIs = {
-  TOUR_FESTIVAL: 'TF',
   KOPIS_PERFORM: 'KP',
+  TOUR_FESTIVAL: 'TF',
 } as const;
 
 export type ExternalAPIs = (typeof EXTERNAL_APIs)[keyof typeof EXTERNAL_APIs];
