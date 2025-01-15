@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InvalidContentToken } from 'apps/batch-server/src/content-token/exception/InvalidContentToken';
 import { ContentTokenPayload } from 'apps/batch-server/src/content-token/type/content-token-payload';
 
 @Injectable()
@@ -12,9 +13,14 @@ export class ContentTokenService {
    * @author jochongs
    */
   public async signToken(payload: ContentTokenPayload): Promise<string> {
-    return await this.jwtService.signAsync(payload, {
-      expiresIn: '7d',
-    });
+    return await this.jwtService.signAsync(
+      {
+        ...payload,
+      },
+      {
+        expiresIn: '7d',
+      },
+    );
   }
 
   /**
@@ -23,6 +29,10 @@ export class ContentTokenService {
    * @author jochongs
    */
   public async verifyToken(token: string): Promise<ContentTokenPayload> {
-    return await this.jwtService.verifyAsync<ContentTokenPayload>(token);
+    try {
+      return await this.jwtService.verifyAsync<ContentTokenPayload>(token);
+    } catch (err) {
+      throw new InvalidContentToken(err.message || '');
+    }
   }
 }

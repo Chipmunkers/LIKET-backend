@@ -158,7 +158,7 @@ export class ContentCronService {
       );
     }
 
-    const detailPerform = await externalApiService.getDetail(performId);
+    const detailPerform = await externalApiService.getDetailById(performId);
 
     const externalApiAdapter = externalApiService.getAdapter();
 
