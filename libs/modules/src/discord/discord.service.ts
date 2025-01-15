@@ -30,37 +30,44 @@ export class DiscordService {
     message: string,
     error?: any,
   ): Promise<void> {
-    await this.httpService.axiosRef.post(
-      this.ERROR_WEBHOOK_URL,
-      {
-        content: `# **🚨 에러 로그 알림**`,
-        embeds: [
-          {
-            title,
-            description: `${message}
-
-Error Object
-\`\`\`
-${this.getErrorStr(error)}
-\`\`\`
-              `, // Description 추가
-            color: 16711680, // 빨간색 (16진수)
-            author: {
-              name: context,
+    try {
+      await this.httpService.axiosRef.post(
+        this.ERROR_WEBHOOK_URL,
+        {
+          content: `# **🚨 에러 로그 알림**`,
+          embeds: [
+            {
+              title,
+              description: `${message}
+  
+  Error Object
+  \`\`\`
+  ${this.getErrorStr(error)}
+  \`\`\`
+                `, // Description 추가
+              color: 16711680, // 빨간색 (16진수)
+              author: {
+                name: context,
+              },
+              footer: {
+                text: `시간: ${new Date().toLocaleString()}`,
+              },
+              timestamp: new Date().toISOString(),
             },
-            footer: {
-              text: `시간: ${new Date().toLocaleString()}`,
-            },
-            timestamp: new Date().toISOString(),
-          },
-        ],
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
+          ],
         },
-      },
-    );
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+    } catch (err) {
+      console.log(this.getErrorStr(error));
+      console.log(context);
+      console.log(title);
+      console.log(message);
+    }
   }
 
   /**
@@ -111,9 +118,9 @@ ${this.getErrorStr(error)}
     }
 
     if (err instanceof AxiosError) {
-      return inspect(err.response);
+      return inspect(err.response, { depth: 1 });
     }
 
-    return inspect(err, { depth: null });
+    return inspect(err, { depth: 2 });
   }
 }

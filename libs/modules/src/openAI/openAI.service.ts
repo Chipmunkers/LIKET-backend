@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Axios, AxiosError } from 'axios';
 import * as fs from 'fs';
 import { Age, AGE, GET_MODE, MODE, Mode, Style, STYLE } from 'libs/common';
-import { ExtractStyleAndAgeError } from 'libs/modules/openAI/exception/ExtractStyleAndAgeError';
 import OpenAI from 'openai';
 
 @Injectable()
@@ -222,14 +220,6 @@ export class OpenAIService {
 
       return JSON.parse(completion.choices[0].message.content || '');
     } catch (err) {
-      if (err instanceof AxiosError) {
-        throw new ExtractStyleAndAgeError(
-          'fail to request open api',
-          err.response,
-          imgList,
-        );
-      }
-
       throw err;
     }
   }

@@ -93,7 +93,7 @@ export class TourApiAdapter
    * @author jochongs
    */
   private async uploadImg(imgUrlList: string[]): Promise<UploadedFileEntity[]> {
-    return Promise.all(
+    const resultList = await Promise.allSettled(
       imgUrlList.map((url) =>
         this.s3Service.uploadFileToS3ByUrl(url, {
           filename: uuid.v4(),
@@ -101,6 +101,13 @@ export class TourApiAdapter
         }),
       ),
     );
+
+    return resultList
+      .filter(
+        (result): result is PromiseFulfilledResult<UploadedFileEntity> =>
+          result.status === 'fulfilled',
+      )
+      .map((result) => result.value);
   }
 
   /**

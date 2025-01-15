@@ -40,6 +40,12 @@ export class S3Service {
     });
 
     try {
+      const contentType: string = response.headers['content-type'] || '';
+
+      if (!contentType.includes('image')) {
+        throw new Error('fail to download image');
+      }
+
       const upload = new Upload({
         client: this.s3Client,
         params: {
@@ -59,7 +65,7 @@ export class S3Service {
         path: `/${result.Key}`,
       });
     } catch (err) {
-      throw new S3UploadException('Fail to Upload file on S3', err);
+      throw new S3UploadException(err.message);
     }
   }
 
