@@ -111,7 +111,7 @@ ${this.getErrorStr(error)}
     }
 
     if (err instanceof AxiosError) {
-      return inspect(err.response?.data);
+      return inspect(err.response);
     }
 
     return inspect(err, { depth: null });
