@@ -16,9 +16,5 @@ async function bootstrap() {
   );
 
   await app.listen(3000);
-
-  const discordService = app.get(DiscordService);
-
-  await discordService.createErrorLog('batch-server', 'title', 'test');
 }
 bootstrap();
