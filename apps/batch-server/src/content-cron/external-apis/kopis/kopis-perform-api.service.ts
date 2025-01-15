@@ -57,8 +57,15 @@ export class KopisPerformApiService
   /**
    * @author jochongs
    */
-  getId(data: SummaryPerformEntity): string {
+  public getId(data: SummaryPerformEntity): string {
     return data.mt20id;
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async getDetailById(performId: string): Promise<PerformEntity> {
+    return await this.kopisPerformProvider.getPerformById(performId);
   }
 
   /**
