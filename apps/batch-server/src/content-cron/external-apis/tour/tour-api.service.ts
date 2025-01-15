@@ -64,6 +64,31 @@ export class TourApiService
   }
 
   /**
+   * @author jochongs
+   */
+  public async getDetailById(festivalId: string): Promise<FestivalEntity> {
+    throw new Error('not implement');
+
+    // TODO: id로 festival을 가져올 때 summaryData를 가져올 수 없음.
+    const imgList = await this.tourApiProvider.getFestivalImgs(festivalId);
+
+    const festivalInfo = await this.tourApiProvider.getFestivalInfoById(
+      festivalId,
+    );
+
+    const festivalIntro = await this.tourApiProvider.getFestivalIntroById(
+      festivalId,
+    );
+
+    // return FestivalEntity.createEntity(
+    //   data,
+    //   festivalInfo,
+    //   imgList,
+    //   festivalIntro,
+    // );
+  }
+
+  /**
    * 어제 날짜를 가져오는 메서드.
    *
    * @author jochongs

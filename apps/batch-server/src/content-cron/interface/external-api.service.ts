@@ -25,7 +25,14 @@ export interface IExternalApiService<Summary = any, Detail = any> {
   getAdapter(): IExternalApiAdapterService<Detail>;
 
   /**
-   *
+   * 공연 아이디를 뽑아오는 메서드
    */
   getId(data: Summary): string;
+
+  /**
+   * 공연 아이디를 통해 자세히보는 메서드
+   *
+   * controller에서 사용함.
+   */
+  getDetailById(performId: string): Promise<Detail>;
 }

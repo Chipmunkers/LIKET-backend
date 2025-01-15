@@ -7,6 +7,7 @@ import { GetPerformByIdResponseDto } from '../dto/response/get-perform-by-id.dto
 import { KopisKeyProvider } from './kopis-key.provider';
 import { KopisErrorResponseDto } from '../dto/response/kopis-error-response.dto';
 import { KopisAPIException } from '../exception/KopisAPIException';
+import { KopisPerformNotFoundException } from 'apps/batch-server/src/content-cron/external-apis/kopis/exception/KopisPerformNotFoundException';
 
 @Injectable()
 export class KopisPerformProvider {
@@ -70,6 +71,10 @@ export class KopisPerformProvider {
       throw new KopisAPIException('Fail to GET detail perform', data);
     }
 
+    if (!data.dbs) {
+      throw new KopisPerformNotFoundException(`Cannot find perform id = ${id}`);
+    }
+
     return data.dbs.db;
   }
 
@@ -94,7 +99,7 @@ export class KopisPerformProvider {
       | KopisErrorResponseDto
       | GetPerformByIdResponseDto,
   ): value is KopisErrorResponseDto {
-    const obj = value.dbs?.db;
+    const obj = value?.dbs?.db;
 
     if (!obj) return false;
 

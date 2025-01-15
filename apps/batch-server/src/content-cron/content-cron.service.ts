@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CultureContentRepository } from 'apps/batch-server/src/content-cron/culture-content/culture-content.repository';
+import { InsertContentDto } from 'apps/batch-server/src/content-cron/dto/insert-content.dto';
+import { SignContentTokenDto } from 'apps/batch-server/src/content-cron/dto/sign-content-token.dto';
+import { AlreadyExistContentException } from 'apps/batch-server/src/content-cron/exception/AlreadyExistContentException';
 import {
   EXTERNAL_APIs,
   ExternalAPIs,
@@ -8,6 +11,7 @@ import { KopisPerformApiService } from 'apps/batch-server/src/content-cron/exter
 import { TourApiService } from 'apps/batch-server/src/content-cron/external-apis/tour/tour-api.service';
 import { IExternalApiService } from 'apps/batch-server/src/content-cron/interface/external-api.service';
 import { CronStatistical } from 'apps/batch-server/src/content-cron/type/cron-statistical';
+import { ContentTokenService } from 'apps/batch-server/src/content-token/content-token.service';
 import { GET_MODE, MODE, Mode } from 'libs/common';
 import { SERVER_TYPE } from 'libs/common/constants/server-type';
 import { DiscordService } from 'libs/modules/discord/discord.service';
@@ -24,6 +28,7 @@ export class ContentCronService {
     private readonly cultureContentRepository: CultureContentRepository,
     private readonly tourApiService: TourApiService,
     private readonly discordService: DiscordService,
+    private readonly contentTokenService: ContentTokenService,
   ) {
     this.externalApiMap = {
       [EXTERNAL_APIs.KOPIS_PERFORM]: this.kopisPerformApiService,
@@ -106,6 +111,8 @@ export class ContentCronService {
 
   /**
    * 통계 초기값 가져오기
+   *
+   * @author jochongs
    */
   private getStatisticalInit(): CronStatistical {
     return {
@@ -129,7 +136,60 @@ export class ContentCronService {
   }
 
   /**
+   * 컨텐츠 아이디를 통해 컨텐츠를 upsert하는 메서드
+   * Controller를 통해 사용하기 위함.
+   *
+   * @author jochongs
+   */
+  private async upsertContentById(
+    externalApiKey: ExternalAPIs,
+    performId: string,
+  ): Promise<void> {
+    const externalApiService = this.externalApiMap[externalApiKey];
+
+    const contentId = this.getContentId(performId, externalApiKey);
+
+    const alreadyExistContent =
+      await this.cultureContentRepository.selectCultureContentById(contentId);
+
+    if (alreadyExistContent) {
+      throw new AlreadyExistContentException(
+        'already exist content | content id = ' + contentId,
+      );
+    }
+
+    const detailPerform = await externalApiService.getDetailById(performId);
+
+    const externalApiAdapter = externalApiService.getAdapter();
+
+    const tempContent = await externalApiAdapter.transform(detailPerform);
+
+    await this.cultureContentRepository.insertCultureContentWithContentId(
+      tempContent,
+      contentId,
+    );
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async insertContentByToken(dto: InsertContentDto): Promise<void> {
+    const payload = await this.contentTokenService.verifyToken(dto.token);
+
+    await this.upsertContentById(payload.key, payload.id);
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async signContentToken(dto: SignContentTokenDto): Promise<string> {
+    return await this.contentTokenService.signToken(dto);
+  }
+
+  /**
    * 통계 핸들링
+   *
+   * @author jochongs
    */
   private async handlingStatistical(data: CronStatistical): Promise<void> {
     if (this.MODE !== MODE.PRODUCT) {
