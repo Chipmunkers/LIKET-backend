@@ -46,6 +46,7 @@ export class ContentCronService {
     const data = this.getStatisticalInit();
 
     for (const externalApiKey of externalApiKeyList) {
+      if (externalApiKey === 'KP') continue;
       try {
         const externalApiService = this.externalApiMap[externalApiKey];
 
