@@ -106,6 +106,8 @@ export class ContentCronService {
 
   /**
    * 통계 초기값 가져오기
+   *
+   * @author jochongs
    */
   private getStatisticalInit(): CronStatistical {
     return {
@@ -130,6 +132,8 @@ export class ContentCronService {
 
   /**
    * 통계 핸들링
+   *
+   * @author jochongs
    */
   private async handlingStatistical(data: CronStatistical): Promise<void> {
     if (this.MODE !== MODE.PRODUCT) {
