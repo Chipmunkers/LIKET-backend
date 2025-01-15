@@ -18,6 +18,6 @@ async function bootstrap() {
   await app.listen(3000);
 
   // TODO: 배포 할 때 마다 실행하도록. 그러나 낭비라고 생각되면 삭제해야함.
-  //await app.get(ContentCronService).saveContentFromExternalAPI();
+  await app.get(ContentCronService).saveContentFromExternalAPI();
 }
 bootstrap();
