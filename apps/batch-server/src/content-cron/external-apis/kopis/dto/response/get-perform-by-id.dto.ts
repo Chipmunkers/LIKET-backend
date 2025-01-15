@@ -1,7 +1,7 @@
 import { PerformEntity } from '../../entity/perform.entity';
 
 export class GetPerformByIdResponseDto {
-  dbs: {
+  dbs: null | {
     db: PerformEntity;
   };
 }

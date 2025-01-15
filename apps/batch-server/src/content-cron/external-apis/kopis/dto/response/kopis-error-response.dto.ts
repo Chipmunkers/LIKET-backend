@@ -1,5 +1,5 @@
 export class KopisErrorResponseDto {
-  dbs: {
+  dbs: null | {
     db: {
       returncode: string;
       errmsg: string;
