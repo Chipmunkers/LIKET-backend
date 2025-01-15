@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AxiosError } from 'axios';
 import { ServerType } from 'libs/common/constants/server-type';
 import { inspect } from 'util';
 
@@ -107,6 +108,10 @@ ${this.getErrorStr(error)}
 
     if (err === null || err === undefined) {
       return '';
+    }
+
+    if (err instanceof AxiosError) {
+      return inspect(err.response?.data);
     }
 
     return inspect(err, { depth: null });

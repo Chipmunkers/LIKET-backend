@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
+import { DiscordService } from 'libs/modules/discord/discord.service';
 
 async function bootstrap() {
   const logger = new ConsoleLogger();
