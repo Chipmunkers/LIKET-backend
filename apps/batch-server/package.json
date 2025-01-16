@@ -1,6 +1,6 @@
 {
   "name": "batch-server",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Liket batch server",
   "dependencies": {
     "@nestjs/axios": "^3.1.2",
