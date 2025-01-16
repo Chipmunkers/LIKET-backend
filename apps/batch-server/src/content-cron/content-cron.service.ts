@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CultureContentRepository } from 'apps/batch-server/src/content-cron/culture-content/culture-content.repository';
 import { InsertContentDto } from 'apps/batch-server/src/content-cron/dto/insert-content.dto';
 import { SignContentTokenDto } from 'apps/batch-server/src/content-cron/dto/sign-content-token.dto';
@@ -21,6 +22,7 @@ export class ContentCronService {
   private readonly externalApiMap: Record<ExternalAPIs, IExternalApiService>;
   private readonly LOG_CONTEXT = 'CONTENT_CRON';
   private readonly MODE: Mode;
+  private readonly BATCH_SERVER_DOMAIN: string;
 
   constructor(
     private readonly logger: Logger,
@@ -29,12 +31,14 @@ export class ContentCronService {
     private readonly tourApiService: TourApiService,
     private readonly discordService: DiscordService,
     private readonly contentTokenService: ContentTokenService,
+    private readonly configService: ConfigService,
   ) {
     this.externalApiMap = {
       [EXTERNAL_APIs.KOPIS_PERFORM]: this.kopisPerformApiService,
       [EXTERNAL_APIs.TOUR_FESTIVAL]: this.tourApiService,
     };
     this.MODE = GET_MODE();
+    this.BATCH_SERVER_DOMAIN = this.configService.get('domain').batchServer;
   }
 
   /**
@@ -98,15 +102,30 @@ export class ContentCronService {
         this.logger.log(`Complete ${externalApiKey}`, this.LOG_CONTEXT);
       } catch (err) {
         data.count[externalApiKey].summaryError += 1;
-        await this.handlingError(
-          `${externalApiKey}: 컨텐츠 목록 불러오는 중 에러 발생`,
-          err.message || '',
-          err,
-        );
+        await this.handlingSummaryPerformError(externalApiKey, err);
       }
     }
 
     await this.handlingStatistical(data);
+  }
+
+  /**
+   * 공연 목록 보기 핸들링 메서드.
+   * 공연 목록을 불러오는 중 발생한 에러를 핸들링하는 메서드
+   *
+   * @author jochongs
+   */
+  private async handlingSummaryPerformError(
+    externalApiKey: ExternalAPIs,
+    err: any,
+  ) {
+    const curl = `curl -X POST "${this.BATCH_SERVER_DOMAIN}/content/cron/all" -H "Content-Type: application/json" -d '{ "pw": "" }'`;
+
+    await this.handlingError(
+      `${externalApiKey}: 컨텐츠 목록 불러오는 중 에러 발생`,
+      `${err.message || ''}\n\`\`\`\n${curl}\`\`\``,
+      err,
+    );
   }
 
   /**
