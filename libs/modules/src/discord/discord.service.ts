@@ -21,6 +21,7 @@ export class DiscordService {
 
   /**
    * 디스코드에 에러 로그를 남기는 메서드
+   * 해당 메서드는 절대로 에러를 뱉지 않습니다.
    *
    * @author jochongs
    */
