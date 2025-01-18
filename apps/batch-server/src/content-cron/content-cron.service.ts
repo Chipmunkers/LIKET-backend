@@ -171,7 +171,7 @@ export class ContentCronService {
   private async upsertContentById(
     externalApiKey: ExternalAPIs,
     performId: string,
-  ): Promise<void> {
+  ): Promise<'update' | 'insert'> {
     const externalApiService = this.externalApiMap[externalApiKey];
 
     const contentId = this.getContentId(performId, externalApiKey);
@@ -179,15 +179,22 @@ export class ContentCronService {
     const alreadyExistContent =
       await this.cultureContentRepository.selectCultureContentById(contentId);
 
-    if (alreadyExistContent) {
-      throw new AlreadyExistContentException(
-        'already exist content | content id = ' + contentId,
-      );
-    }
-
     const detailPerform = await externalApiService.getDetailById(performId);
 
     const externalApiAdapter = externalApiService.getAdapter();
+
+    if (alreadyExistContent) {
+      const updateInfo = await externalApiAdapter.extractUpdateData(
+        detailPerform,
+      );
+
+      await this.cultureContentRepository.updateContentById(
+        updateInfo,
+        contentId,
+      );
+
+      return 'update';
+    }
 
     const tempContent = await externalApiAdapter.transform(detailPerform);
 
@@ -195,15 +202,21 @@ export class ContentCronService {
       tempContent,
       contentId,
     );
+
+    return 'insert';
   }
 
   /**
    * @author jochongs
    */
-  public async insertContentByToken(dto: InsertContentDto): Promise<void> {
+  public async insertContentByToken(
+    dto: InsertContentDto,
+  ): Promise<'update' | 'insert'> {
     const payload = await this.contentTokenService.verifyToken(dto.token);
 
-    await this.upsertContentById(payload.key, payload.id);
+    const result = await this.upsertContentById(payload.key, payload.id);
+
+    return result;
   }
 
   /**
