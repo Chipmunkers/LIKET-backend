@@ -3,6 +3,7 @@ import { PrismaProvider } from 'libs/modules';
 import { TempContentEntity } from './entity/temp-content.entity';
 import { CultureContent } from '@prisma/client';
 import { ExternalAPIs } from 'apps/batch-server/src/content-cron/external-api.enum';
+import { UpdateContentInfo } from 'apps/batch-server/src/content-cron/external-apis/kopis/type/UpdateContentInfo';
 
 @Injectable()
 export class CultureContentRepository {
@@ -21,7 +22,9 @@ export class CultureContentRepository {
   }
 
   /**
-   * 활성화된 채로 들어감.
+   * 컨텐츠 아이디를 식별 값을 통해 컨텐츠를 삽입하는 메서드
+   * !주의: 해당 메서드에서 content id 중복 여부를 확인하지 않습니다.
+   * !주의: 컨텐츠는 항상 활성화된 채로 들어감
    *
    * @author jochongs
    *
@@ -82,6 +85,26 @@ export class CultureContentRepository {
           },
         },
       });
+    });
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async updateContentById(
+    updateContentInfo: UpdateContentInfo,
+    contentId: `${ExternalAPIs}-${string}`,
+  ) {
+    return await this.prisma.cultureContent.updateMany({
+      where: {
+        id: contentId,
+      },
+      data: {
+        startDate: updateContentInfo.startDate,
+        endDate: updateContentInfo.endDate,
+        openTime: updateContentInfo.openTime,
+        description: updateContentInfo.description,
+      },
     });
   }
 }

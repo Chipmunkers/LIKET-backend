@@ -11,6 +11,7 @@ import { KakaoAddressService } from 'libs/modules/kakao-address/kakao-address.se
 import { AGE, GENRE } from 'libs/common';
 import { OpenAIService, S3Service, UploadedFileEntity } from 'libs/modules';
 import * as uuid from 'uuid';
+import { UpdateContentInfo } from 'apps/batch-server/src/content-cron/external-apis/kopis/type/UpdateContentInfo';
 
 @Injectable()
 export class KopisPerformApiAdapter
@@ -63,6 +64,20 @@ export class KopisPerformApiAdapter
       styleIdxList,
       imgPathList,
     );
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async extractUpdateData(
+    data: PerformEntity,
+  ): Promise<UpdateContentInfo> {
+    return {
+      description: await this.extractDescription(data),
+      endDate: await this.extractEndDate(data),
+      openTime: await this.extractOpenTime(data),
+      startDate: await this.extractStartDate(data),
+    };
   }
 
   /**

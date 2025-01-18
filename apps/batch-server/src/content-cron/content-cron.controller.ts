@@ -21,8 +21,10 @@ export class ContentCronController {
    * @author jochongs
    */
   @Post('/')
-  public async upsertContentById(@Body() dto: InsertContentDto): Promise<void> {
-    await this.contentCronService.insertContentByToken(dto);
+  public async upsertContentById(
+    @Body() dto: InsertContentDto,
+  ): Promise<'insert' | 'update'> {
+    return await this.contentCronService.insertContentByToken(dto);
   }
 
   /**
