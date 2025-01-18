@@ -69,16 +69,24 @@ export class ContentCronService {
                 contentId,
               );
 
-            if (alreadyExistContent) {
-              data.count[externalApiKey].updateCount += 1;
-              continue;
-            }
+            const externalApiAdapter = externalApiService.getAdapter();
 
             const detailPerform = await externalApiService.getDetail(
               summaryPerform,
             );
 
-            const externalApiAdapter = externalApiService.getAdapter();
+            if (alreadyExistContent) {
+              data.count[externalApiKey].updateCount += 1;
+              const updateInfo = await externalApiAdapter.extractUpdateData(
+                detailPerform,
+              );
+
+              await this.cultureContentRepository.updateContentById(
+                updateInfo,
+                contentId,
+              );
+              continue;
+            }
 
             const tempContent = await externalApiAdapter.transform(
               detailPerform,

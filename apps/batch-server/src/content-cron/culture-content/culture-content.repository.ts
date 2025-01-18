@@ -3,6 +3,7 @@ import { PrismaProvider } from 'libs/modules';
 import { TempContentEntity } from './entity/temp-content.entity';
 import { CultureContent } from '@prisma/client';
 import { ExternalAPIs } from 'apps/batch-server/src/content-cron/external-api.enum';
+import { UpdateContentInfo } from 'apps/batch-server/src/content-cron/external-apis/kopis/type/UpdateContentInfo';
 
 @Injectable()
 export class CultureContentRepository {
@@ -84,6 +85,26 @@ export class CultureContentRepository {
           },
         },
       });
+    });
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async updateContentById(
+    updateContentInfo: UpdateContentInfo,
+    contentId: `${ExternalAPIs}-${string}`,
+  ) {
+    return await this.prisma.cultureContent.updateMany({
+      where: {
+        id: contentId,
+      },
+      data: {
+        startDate: updateContentInfo.startDate,
+        endDate: updateContentInfo.endDate,
+        openTime: updateContentInfo.openTime,
+        description: updateContentInfo.description,
+      },
     });
   }
 }
