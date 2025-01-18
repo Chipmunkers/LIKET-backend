@@ -21,7 +21,9 @@ export class CultureContentRepository {
   }
 
   /**
-   * 활성화된 채로 들어감.
+   * 컨텐츠 아이디를 식별 값을 통해 컨텐츠를 삽입하는 메서드
+   * !주의: 해당 메서드에서 content id 중복 여부를 확인하지 않습니다.
+   * !주의: 컨텐츠는 항상 활성화된 채로 들어감
    *
    * @author jochongs
    *
