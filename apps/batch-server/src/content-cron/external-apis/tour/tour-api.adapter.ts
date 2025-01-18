@@ -9,6 +9,7 @@ import { KakaoAddressService } from 'libs/modules/kakao-address/kakao-address.se
 import { GENRE } from 'libs/common';
 import { OpenAIService, S3Service, UploadedFileEntity } from 'libs/modules';
 import * as uuid from 'uuid';
+import { UpdateContentInfo } from 'apps/batch-server/src/content-cron/external-apis/kopis/type/UpdateContentInfo';
 
 @Injectable()
 export class TourApiAdapter
@@ -56,6 +57,20 @@ export class TourApiAdapter
       styleIdxList,
       ageIdx,
     );
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async extractUpdateData(
+    data: FestivalEntity,
+  ): Promise<UpdateContentInfo> {
+    return {
+      description: await this.extractDescription(data),
+      endDate: await this.extractEndDate(data),
+      openTime: await this.extractOpenTime(data),
+      startDate: await this.extractStartDate(data),
+    };
   }
 
   /**
