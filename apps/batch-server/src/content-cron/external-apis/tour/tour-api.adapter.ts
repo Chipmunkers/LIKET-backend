@@ -65,11 +65,16 @@ export class TourApiAdapter
   public async extractUpdateData(
     data: FestivalEntity,
   ): Promise<UpdateContentInfo> {
+    const {
+      documents: [{ address, road_address: roadAddress }],
+    } = await this.kakaoAddressService.searchAddress(data.addr1);
+
     return {
       description: await this.extractDescription(data),
       endDate: await this.extractEndDate(data),
       openTime: await this.extractOpenTime(data),
       startDate: await this.extractStartDate(data),
+      location: await this.extractLocation(address, roadAddress, data.addr2),
     };
   }
 
