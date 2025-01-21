@@ -268,7 +268,7 @@ export class KopisPerformApiAdapter
    * @author jochongs
    */
   private async extractEndDate(perform: PerformEntity): Promise<Date | null> {
-    if (perform.openrun === 'N' || perform.prfpdto === ' ') {
+    if (perform.prfpdto === ' ') {
       return null;
     }
 
