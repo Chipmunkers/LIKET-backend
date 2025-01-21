@@ -2,5 +2,5 @@ import { TempContentEntity } from 'apps/batch-server/src/content-cron/culture-co
 
 export type UpdateContentInfo = Pick<
   TempContentEntity,
-  'description' | 'openTime' | 'startDate' | 'endDate'
+  'description' | 'openTime' | 'startDate' | 'endDate' | 'location'
 >;

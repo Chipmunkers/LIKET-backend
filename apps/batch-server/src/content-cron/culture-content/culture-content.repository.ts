@@ -95,16 +95,42 @@ export class CultureContentRepository {
     updateContentInfo: UpdateContentInfo,
     contentId: `${ExternalAPIs}-${string}`,
   ) {
-    return await this.prisma.cultureContent.updateMany({
-      where: {
-        id: contentId,
-      },
-      data: {
-        startDate: updateContentInfo.startDate,
-        endDate: updateContentInfo.endDate,
-        openTime: updateContentInfo.openTime,
-        description: updateContentInfo.description,
-      },
+    return await this.prisma.$transaction(async (tx) => {
+      const content = await tx.cultureContent.findFirstOrThrow({
+        where: { id: contentId },
+      });
+
+      await tx.cultureContent.update({
+        where: {
+          idx: content.idx,
+        },
+        data: {
+          startDate: updateContentInfo.startDate,
+          endDate: updateContentInfo.endDate,
+          openTime: updateContentInfo.openTime,
+          description: updateContentInfo.description,
+        },
+      });
+
+      await tx.location.update({
+        where: {
+          idx: content.idx,
+        },
+        data: {
+          address: updateContentInfo.location.address,
+          detailAddress: updateContentInfo.location.detailAddress,
+          region1Depth: updateContentInfo.location.region1Depth,
+          region2Depth: updateContentInfo.location.region2Depth,
+          hCode: updateContentInfo.location.hCode,
+          bCode: updateContentInfo.location.bCode,
+          positionX: updateContentInfo.location.positionX,
+          positionY: updateContentInfo.location.positionY,
+          sidoCode: updateContentInfo.location.bCode.substring(0, 2),
+          sggCode: updateContentInfo.location.bCode.substring(2, 5),
+          legCode: updateContentInfo.location.bCode.substring(5, 8),
+          riCode: updateContentInfo.location.bCode.substring(8, 10),
+        },
+      });
     });
   }
 }

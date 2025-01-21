@@ -72,11 +72,20 @@ export class KopisPerformApiAdapter
   public async extractUpdateData(
     data: PerformEntity,
   ): Promise<UpdateContentInfo> {
+    const facilityEntity = await this.facilityProvider.getFacilityByPerform(
+      data,
+    );
+
+    const {
+      documents: [{ address, road_address }],
+    } = await this.kakaoAddressService.searchAddress(facilityEntity.adres);
+
     return {
       description: await this.extractDescription(data),
       endDate: await this.extractEndDate(data),
       openTime: await this.extractOpenTime(data),
       startDate: await this.extractStartDate(data),
+      location: await this.extractLocation(address, road_address),
     };
   }
 
