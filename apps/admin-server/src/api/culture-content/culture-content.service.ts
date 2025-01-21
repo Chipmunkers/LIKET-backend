@@ -310,27 +310,11 @@ export class CultureContentService {
     idx: number,
     updateDto: UpdateCultureContentDto,
   ) => Promise<void> = async (idx, updateDto) => {
-    await this.prisma.$transaction([
-      this.prisma.location.update({
-        where: {
-          idx,
+    await this.prisma.$transaction(async (tx) => {
+      const content = await tx.cultureContent.update({
+        select: {
+          locationIdx: true,
         },
-        data: {
-          address: updateDto.location.address,
-          detailAddress: updateDto.location.detailAddress,
-          region1Depth: updateDto.location.region1Depth,
-          region2Depth: updateDto.location.region2Depth,
-          hCode: updateDto.location.hCode,
-          bCode: updateDto.location.bCode,
-          positionX: updateDto.location.positionX,
-          positionY: updateDto.location.positionY,
-          sidoCode: updateDto.location.bCode.substring(0, 2),
-          sggCode: updateDto.location.bCode.substring(2, 5),
-          legCode: updateDto.location.bCode.substring(5, 8),
-          riCode: updateDto.location.bCode.substring(8, 10),
-        },
-      }),
-      this.prisma.cultureContent.update({
         where: {
           idx,
         },
@@ -371,8 +355,28 @@ export class CultureContentService {
           isReservation: updateDto.isReservation,
           isPet: updateDto.isPet,
         },
-      }),
-    ]);
+      });
+
+      await tx.location.update({
+        where: {
+          idx: content.locationIdx,
+        },
+        data: {
+          address: updateDto.location.address,
+          detailAddress: updateDto.location.detailAddress,
+          region1Depth: updateDto.location.region1Depth,
+          region2Depth: updateDto.location.region2Depth,
+          hCode: updateDto.location.hCode,
+          bCode: updateDto.location.bCode,
+          positionX: updateDto.location.positionX,
+          positionY: updateDto.location.positionY,
+          sidoCode: updateDto.location.bCode.substring(0, 2),
+          sggCode: updateDto.location.bCode.substring(2, 5),
+          legCode: updateDto.location.bCode.substring(5, 8),
+          riCode: updateDto.location.bCode.substring(8, 10),
+        },
+      });
+    });
 
     return;
   };
