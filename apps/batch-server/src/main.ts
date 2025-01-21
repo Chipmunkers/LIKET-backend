@@ -14,6 +14,11 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    origin: ['https://admin.liket.site', 'http://localhost:3000'],
+    credentials: true,
+  });
+
   await app.listen(3000);
 }
 bootstrap();
