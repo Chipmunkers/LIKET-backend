@@ -131,6 +131,13 @@ export class SummaryContentEntity {
    */
   public isParking: boolean;
 
+  /**
+   * Id
+   *
+   * @example KP-PF123123
+   */
+  public id: string | null;
+
   constructor(data: SummaryContentEntity) {
     Object.assign(this, data);
   }
@@ -155,6 +162,7 @@ export class SummaryContentEntity {
       isReservation: content.isReservation,
       isPet: content.isPet,
       isParking: content.isParking,
+      id: content.id,
     });
   }
 }
