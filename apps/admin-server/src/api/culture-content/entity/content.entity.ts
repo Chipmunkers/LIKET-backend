@@ -79,6 +79,7 @@ export class ContentEntity extends SummaryContentEntity {
       isReservation: content.isReservation,
       isPet: content.isPet,
       isParking: content.isParking,
+      id: content.id,
     });
   }
 }
