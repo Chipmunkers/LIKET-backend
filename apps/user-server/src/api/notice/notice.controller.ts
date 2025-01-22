@@ -2,10 +2,11 @@ import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { NoticeService } from './notice.service';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { NoticePageableDto } from './dto/notice-pageable.dto';
-import { SummaryNoticeEntity } from './entity/summary-notice.entity';
 import { GetNoticeAllResponseDto } from './dto/response/get-notice-all-response.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('notice')
+@ApiTags('Notice')
 export class NoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
