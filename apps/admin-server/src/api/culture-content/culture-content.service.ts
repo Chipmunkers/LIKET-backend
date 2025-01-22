@@ -146,7 +146,9 @@ export class CultureContentService {
     };
   }
 
-  private generateAccept(state?: boolean): undefined | Object {
+  private generateAccept(
+    state?: boolean,
+  ): Prisma.CultureContentWhereInput['acceptedAt'] {
     if (state === undefined) {
       return undefined;
     }
@@ -157,7 +159,7 @@ export class CultureContentService {
       };
     }
 
-    return undefined;
+    return null;
   }
 
   getContentByIdx: (idx: number) => Promise<ContentEntity> = async (idx) => {

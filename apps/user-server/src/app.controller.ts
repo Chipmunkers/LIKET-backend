@@ -11,10 +11,4 @@ export class AppController {
   healthCheck() {
     return;
   }
-
-  @Get('/test-1234')
-  test() {
-    throw new Error('test error');
-    return 'success';
-  }
 }
