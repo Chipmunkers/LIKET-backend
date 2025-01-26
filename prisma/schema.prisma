@@ -552,7 +552,7 @@ model InterestGenre {
 
 model InterestStyle {
   userIdx  Int @map("user_idx")
-  styleIdx Int @map("genre_idx")
+  styleIdx Int @map("style_idx")
 
   Style Style @relation(fields: [styleIdx], references: [idx])
   User  User  @relation(fields: [userIdx], references: [idx])

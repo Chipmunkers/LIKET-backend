@@ -313,7 +313,7 @@ CREATE TABLE interest_genre_tb
 CREATE TABLE interest_location_tb
 (
   user_idx int      NOT NULL,
-  b_code   char(10) NOT NULL,
+  b_code   varchar  NOT NULL,
   PRIMARY KEY (user_idx, b_code)
 );
 

@@ -6479,7 +6479,7 @@
         "tableId": "i2Jj7jVeiwaWNQtSnP1cZ",
         "name": "b_code",
         "comment": "",
-        "dataType": "char(10)",
+        "dataType": "varchar",
         "default": "",
         "options": 10,
         "ui": {
@@ -6490,7 +6490,7 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1737880776939,
+          "updateAt": 1737884645787,
           "createAt": 1737880710155
         }
       }
@@ -9348,7 +9348,7 @@
       -1,
       {
         "name": 1737880720836,
-        "dataType": 1737880747267,
+        "dataType": 1737884645787,
         "options(notNull)": 1737880722087,
         "options(primaryKey)": 1737880776938
       }
