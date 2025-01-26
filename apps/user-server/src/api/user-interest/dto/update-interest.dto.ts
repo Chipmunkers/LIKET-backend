@@ -36,7 +36,7 @@ export class UpdateUserInterestDto {
    *
    * 서울일 경우 11
    *
-   * @example [11]
+   * @example ['11']
    */
   @IsArray()
   @IsString({ each: true })
