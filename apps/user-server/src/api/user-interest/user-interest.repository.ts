@@ -10,6 +10,21 @@ export class UserInterestRepository {
   /**
    * @author jochongs
    */
+  public async selectUserInterestByIdx(idx: number) {
+    return await this.prisma.user.findUniqueOrThrow({
+      select: {
+        InterestGenre: true,
+        InterestAge: true,
+        InterestLocation: true,
+        InterestStyle: true,
+      },
+      where: { idx },
+    });
+  }
+
+  /**
+   * @author jochongs
+   */
   public async updateUserInterest(
     updateInterestDto: UpdateUserInterestDto,
     loginUser: LoginUser,
