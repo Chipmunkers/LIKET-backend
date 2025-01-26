@@ -7,7 +7,7 @@ export class InterestGenreEntity {
   /**
    * 장르 인덱스
    */
-  genreIdx: number;
+  idx: number;
 
   constructor(data: InterestGenreEntity) {
     Object.assign(this, data);
@@ -15,7 +15,7 @@ export class InterestGenreEntity {
 
   static createEntity(interestGenre: InterestGenre): InterestGenreEntity {
     return new InterestGenreEntity({
-      genreIdx: interestGenre.genreIdx,
+      idx: interestGenre.genreIdx,
     });
   }
 }

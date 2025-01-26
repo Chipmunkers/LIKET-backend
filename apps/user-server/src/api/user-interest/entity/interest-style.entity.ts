@@ -7,7 +7,7 @@ export class InterestStyleEntity {
   /**
    * 스타일 인덱스
    */
-  styleIdx: number;
+  idx: number;
 
   constructor(data: InterestStyleEntity) {
     Object.assign(this, data);
@@ -15,7 +15,7 @@ export class InterestStyleEntity {
 
   static createEntity(interestStyle: InterestStyle): InterestStyleEntity {
     return new InterestStyleEntity({
-      styleIdx: interestStyle.styleIdx,
+      idx: interestStyle.styleIdx,
     });
   }
 }

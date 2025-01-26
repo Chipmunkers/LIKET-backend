@@ -7,7 +7,7 @@ export class InterestAgeEntity {
   /**
    * 연령대 인덱스
    */
-  ageIdx: number;
+  idx: number;
 
   constructor(data: InterestAgeEntity) {
     Object.assign(this, data);
@@ -15,7 +15,7 @@ export class InterestAgeEntity {
 
   static createEntity(interestAge: InterestAge): InterestAgeEntity {
     return new InterestAgeEntity({
-      ageIdx: interestAge.ageIdx,
+      idx: interestAge.ageIdx,
     });
   }
 }

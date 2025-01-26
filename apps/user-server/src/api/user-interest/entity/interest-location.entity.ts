@@ -6,6 +6,8 @@ import { InterestLocation } from '@prisma/client';
 export class InterestLocationEntity {
   /**
    * 법정동 코드
+   *
+   * @example "11"
    */
   bCode: string;
 
