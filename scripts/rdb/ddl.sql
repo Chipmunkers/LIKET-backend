@@ -296,6 +296,34 @@ CREATE TABLE delete_user_reason_tb
   PRIMARY KEY (idx)
 );
 
+CREATE TABLE interest_age_tb
+(
+  user_idx int NOT NULL,
+  age_idx  int NOT NULL,
+  PRIMARY KEY (user_idx, age_idx)
+);
+
+CREATE TABLE interest_genre_tb
+(
+  user_idx  int NOT NULL,
+  genre_idx int NOT NULL,
+  PRIMARY KEY (user_idx, genre_idx)
+);
+
+CREATE TABLE interest_location_tb
+(
+  user_idx int      NOT NULL,
+  b_code   varchar  NOT NULL,
+  PRIMARY KEY (user_idx, b_code)
+);
+
+CREATE TABLE interest_style_tb
+(
+  user_idx  int NOT NULL,
+  style_idx int NOT NULL,
+  PRIMARY KEY (user_idx, style_idx)
+);
+
 CREATE TABLE user_tb
 (
   idx              int                      NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -630,3 +658,38 @@ ALTER TABLE temp_content_img_tb
   ADD CONSTRAINT FK_temp_culture_content_tb_TO_temp_content_img_tb
     FOREIGN KEY (content_idx)
     REFERENCES temp_culture_content_tb (idx);
+
+ALTER TABLE interest_genre_tb
+  ADD CONSTRAINT FK_user_tb_TO_interest_genre_tb
+    FOREIGN KEY (user_idx)
+    REFERENCES user_tb (idx);
+
+ALTER TABLE interest_genre_tb
+  ADD CONSTRAINT FK_genre_tb_TO_interest_genre_tb
+    FOREIGN KEY (genre_idx)
+    REFERENCES genre_tb (idx);
+
+ALTER TABLE interest_style_tb
+  ADD CONSTRAINT FK_user_tb_TO_interest_style_tb
+    FOREIGN KEY (user_idx)
+    REFERENCES user_tb (idx);
+
+ALTER TABLE interest_style_tb
+  ADD CONSTRAINT FK_style_tb_TO_interest_style_tb
+    FOREIGN KEY (style_idx)
+    REFERENCES style_tb (idx);
+
+ALTER TABLE interest_age_tb
+  ADD CONSTRAINT FK_user_tb_TO_interest_age_tb
+    FOREIGN KEY (user_idx)
+    REFERENCES user_tb (idx);
+
+ALTER TABLE interest_age_tb
+  ADD CONSTRAINT FK_age_tb_TO_interest_age_tb
+    FOREIGN KEY (age_idx)
+    REFERENCES age_tb (idx);
+
+ALTER TABLE interest_location_tb
+  ADD CONSTRAINT FK_user_tb_TO_interest_location_tb
+    FOREIGN KEY (user_idx)
+    REFERENCES user_tb (idx);
