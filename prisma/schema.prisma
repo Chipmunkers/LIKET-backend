@@ -80,6 +80,7 @@ model Age {
   deletedAt          DateTime?            @map("deleted_at") @db.Timestamptz(6)
   CultureContent     CultureContent[]
   TempCultureContent TempCultureContent[]
+  InterestAge        InterestAge[]
 
   @@map("age_tb")
 }
@@ -102,6 +103,7 @@ model Style {
   deletedAt        DateTime?          @map("deleted_at") @db.Timestamptz(6)
   Style            StyleMapping[]
   TempStyleMapping TempStyleMapping[]
+  InterestStyle    InterestStyle[]
 
   @@map("style_tb")
 }
@@ -114,6 +116,7 @@ model Genre {
   deletedAt          DateTime?            @map("deleted_at") @db.Timestamptz(6)
   CultureContent     CultureContent[]
   TempCultureContent TempCultureContent[]
+  InterestGenre      InterestGenre[]
 
   @@map("genre_tb")
 }
@@ -390,6 +393,10 @@ model User {
   DeleteUserReason DeleteUserReason[]
   RefreshToken     RefreshToken[]
   ReviewReport     ReviewReport[]
+  InterestGenre    InterestGenre[]
+  InterestStyle    InterestStyle[]
+  InterestAge      InterestAge[]
+  InterestLocation InterestLocation[]
 
   @@index([email], type: BTree)
   @@index([reportCount], type: BTree)
@@ -530,6 +537,49 @@ model Notice {
   @@index([pinnedAt], type: BTree)
   @@index([activatedAt], type: BTree)
   @@map("notice_tb")
+}
+
+model InterestGenre {
+  userIdx  Int @map("user_idx")
+  genreIdx Int @map("genre_idx")
+
+  Genre Genre @relation(fields: [genreIdx], references: [idx])
+  User  User  @relation(fields: [userIdx], references: [idx])
+
+  @@id([userIdx, genreIdx])
+  @@map("interest_genre_tb")
+}
+
+model InterestStyle {
+  userIdx  Int @map("user_idx")
+  styleIdx Int @map("style_idx")
+
+  Style Style @relation(fields: [styleIdx], references: [idx])
+  User  User  @relation(fields: [userIdx], references: [idx])
+
+  @@id([userIdx, styleIdx])
+  @@map("interest_style_tb")
+}
+
+model InterestAge {
+  userIdx Int @map("user_idx")
+  ageIdx  Int @map("age_idx")
+
+  Age  Age  @relation(fields: [ageIdx], references: [idx])
+  User User @relation(fields: [userIdx], references: [idx])
+
+  @@id([userIdx, ageIdx])
+  @@map("interest_age_tb")
+}
+
+model InterestLocation {
+  userIdx Int    @map("user_idx")
+  bCode   String @map("b_code")
+
+  User User @relation(fields: [userIdx], references: [idx])
+
+  @@id([userIdx, bCode])
+  @@map("interest_location_tb")
 }
 
 model TempCultureContent {
