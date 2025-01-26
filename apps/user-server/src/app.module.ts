@@ -30,6 +30,7 @@ import { UnknownExceptionFilter } from 'apps/user-server/src/common/filter/unkno
 import { DiscordModule } from 'libs/modules/discord/discord.module';
 import { AddressModule } from 'apps/user-server/src/api/address/address.module';
 import { PrismaProvider } from 'libs/modules';
+import { UserInterestModule } from 'apps/user-server/src/api/user-interest/user-interest.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { PrismaProvider } from 'libs/modules';
     NoticeModule,
     DiscordModule,
     AddressModule,
+    UserInterestModule,
   ],
   providers: [
     {
