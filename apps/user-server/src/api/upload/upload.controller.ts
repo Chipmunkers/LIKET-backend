@@ -131,7 +131,7 @@ export class UploadController {
   @Post('/liket/bg-img')
   @HttpCode(200)
   @LoginAuth()
-  @UploadFile('file', 'img')
+  @UploadFile('file', 'img', 5 * 1024 * 1024)
   public async uploadLiketBgImg(@UploadedFile() file?: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Cannot find uploaded file');
@@ -151,7 +151,7 @@ export class UploadController {
   @Post('/liket')
   @HttpCode(200)
   @LoginAuth()
-  @UploadFile('file', 'img')
+  @UploadFile('file', 'img', 10 * 1024 * 1024)
   public async uploadLiketImg(@UploadedFile() file?: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Cannot find uploaded file');
