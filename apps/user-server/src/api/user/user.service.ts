@@ -161,9 +161,7 @@ export class UserService {
 
     const reviewList = (
       await this.reviewRepository.selectReviewForMyInfo(userIdx)
-    ).map((review) => {
-      return MyReviewEntity.createEntity(review);
-    });
+    ).map((review) => MyReviewEntity.createEntity(review));
 
     return MyInfoEntity.createEntity(user, liketList, liketCount, reviewList);
   }
