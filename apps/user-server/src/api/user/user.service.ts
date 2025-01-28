@@ -153,9 +153,7 @@ export class UserService {
         order: 'desc',
         page: 1,
       })
-    ).map((liket) => {
-      return SummaryLiketEntity.createEntity(liket);
-    });
+    ).map((liket) => SummaryLiketEntity.createEntity(liket));
 
     const liketCount = await this.liketRepository.selectLiketCountByUserIdx(
       userIdx,
