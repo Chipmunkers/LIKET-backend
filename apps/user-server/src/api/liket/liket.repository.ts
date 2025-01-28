@@ -188,12 +188,6 @@ export class LiketRepository {
         Review: {
           userIdx,
           deletedAt: null,
-          CultureContent: {
-            acceptedAt: {
-              not: null,
-            },
-            deletedAt: null,
-          },
         },
       },
     });

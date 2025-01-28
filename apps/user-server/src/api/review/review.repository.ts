@@ -133,12 +133,6 @@ export class ReviewRepository {
         User: {
           deletedAt: null,
         },
-        CultureContent: {
-          acceptedAt: {
-            not: null,
-          },
-          deletedAt: null,
-        },
         ReviewReport: userIdx
           ? {
               none: {
