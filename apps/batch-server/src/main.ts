@@ -24,7 +24,11 @@ async function bootstrap() {
 
   await app.listen(3000);
 
-  // const result = await app.get(CulturePortalProvider).getPerformanceDisplay();
+  const result = await app
+    .get(CulturePortalProvider)
+    .getPerformanceDisplayAll();
+
+  console.log(result);
 
   // fs.writeFileSync(
   //   './test-data/culture-portal/get-list.json',
@@ -33,14 +37,14 @@ async function bootstrap() {
 
   // console.log(result);
 
-  const result2 = await app
-    .get(CulturePortalProvider)
-    .getPerformanceDisplayBySeq('306530');
+  // const result2 = await app
+  //   .get(CulturePortalProvider)
+  //   .getPerformanceDisplayBySeq('306530');
 
   // await app
   //   .get(CulturePortalProvider)
   //   .getFacilityAll('대전시립박물관 여민관');
 
-  console.dir(result2, { depth: null });
+  //console.dir(result2, { depth: null });
 }
 bootstrap();

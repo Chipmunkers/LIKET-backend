@@ -22,8 +22,8 @@ export class CulturePortalProvider {
    * @link https://www.culture.go.kr/industry/apiGuideA.do
    * @link https://www.data.go.kr/data/15138937/openapi.do#/API%20%EB%AA%A9%EB%A1%9D/realm
    */
-  public async getPerformanceDisplay() {
-    const result = await this.httpService.axiosRef.get(
+  public async getPerformanceDisplayAll() {
+    const response = await this.httpService.axiosRef.get(
       `http://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays/realm`,
       {
         params: {
@@ -37,7 +37,9 @@ export class CulturePortalProvider {
       },
     );
 
-    return this.parseXMLtoJSON(result.data);
+    const result = await this.parseXMLtoJSON(response.data);
+
+    return result;
   }
 
   /**
