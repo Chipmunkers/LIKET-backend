@@ -1,6 +1,10 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { FailToRequestCulturePortalException } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/exception/FailToRequestCulturePortal';
+import { SummaryCulturePortalDisplay } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/type/summary-culture-portal-display';
+import { GetDisplayAllErrorResponseDto } from 'apps/batch-server/src/content-cron/external-apis/dto/response/get-display-all-error-response.dto';
+import { GetDisplayAllResponseDto } from 'apps/batch-server/src/content-cron/external-apis/dto/response/get-display-all-response.dto';
 import { parseStringPromise } from 'xml2js';
 
 @Injectable()
@@ -22,24 +26,48 @@ export class CulturePortalProvider {
    * @link https://www.culture.go.kr/industry/apiGuideA.do
    * @link https://www.data.go.kr/data/15138937/openapi.do#/API%20%EB%AA%A9%EB%A1%9D/realm
    */
-  public async getPerformanceDisplayAll() {
-    const response = await this.httpService.axiosRef.get(
+  public async getPerformanceDisplayAll(
+    from: string,
+    to: string,
+  ): Promise<SummaryCulturePortalDisplay[]> {
+    const response = await this.httpService.axiosRef.get<string>(
       `http://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays/realm`,
       {
         params: {
           serviceKey: this.CULTURE_PORTAL_KEY,
           realmCode: 'D000',
-          from: '20250101',
-          to: '20250129',
+          from,
+          to,
           PageNo: 1,
           numOfrows: 100000,
         },
       },
     );
 
-    const result = await this.parseXMLtoJSON(response.data);
+    const result = await this.parseXMLtoJSON<
+      GetDisplayAllErrorResponseDto | GetDisplayAllResponseDto
+    >(response.data);
 
-    return result;
+    if (this.getDisplayAllResponseIsError(result)) {
+      throw new FailToRequestCulturePortalException(
+        'open api error',
+        '99',
+        result,
+      );
+    }
+
+    const resultCode =
+      result.response.header.reseultCode || result.response.header.resultCode;
+
+    if (resultCode !== '00') {
+      throw new FailToRequestCulturePortalException(
+        'culture portal api error',
+        resultCode,
+        result,
+      );
+    }
+
+    return result.response.body.items?.item || [];
   }
 
   /**
@@ -96,5 +124,18 @@ export class CulturePortalProvider {
       explicitArray: false,
       emptyTag: () => null,
     });
+  }
+
+  private getDisplayAllResponseIsError(
+    data: GetDisplayAllErrorResponseDto | GetDisplayAllResponseDto,
+  ): data is GetDisplayAllErrorResponseDto {
+    if (
+      (data as GetDisplayAllErrorResponseDto).OpenAPI_ServiceResponse !==
+      undefined
+    ) {
+      return true;
+    }
+
+    return false;
   }
 }

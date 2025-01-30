@@ -26,14 +26,14 @@ async function bootstrap() {
 
   const result = await app
     .get(CulturePortalProvider)
-    .getPerformanceDisplayAll();
+    .getPerformanceDisplayAll('20250130', '20250330');
 
   console.log(result);
 
-  // fs.writeFileSync(
-  //   './test-data/culture-portal/get-list.json',
-  //   JSON.stringify(result),
-  // );
+  fs.writeFileSync(
+    './test-data/culture-portal/get-list.json',
+    JSON.stringify(result),
+  );
 
   // console.log(result);
 

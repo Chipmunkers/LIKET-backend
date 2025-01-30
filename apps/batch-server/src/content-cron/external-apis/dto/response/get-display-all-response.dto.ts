@@ -5,6 +5,10 @@ export class GetDisplayAllResponseDto {
   response: {
     header: {
       resultCode: CulturePortalErrorCode;
+      /**
+       * !주의: 현재 응답 코드 field에 오타가 있습니다. 문화포털에 문의해야합니다.
+       */
+      reseultCode: CulturePortalErrorCode;
       resultMsg: string;
     };
     body: {

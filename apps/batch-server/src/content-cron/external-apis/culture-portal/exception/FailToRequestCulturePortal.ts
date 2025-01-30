@@ -22,9 +22,11 @@
  */
 export class FailToRequestCulturePortalException extends Error {
   public code: string;
+  public err: any;
 
-  constructor(message: string, code: string) {
+  constructor(message: string, code: string, err?: any) {
     super(message);
     this.code = code;
+    this.err = err;
   }
 }
