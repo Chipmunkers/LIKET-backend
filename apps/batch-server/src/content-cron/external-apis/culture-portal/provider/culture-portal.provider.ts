@@ -101,6 +101,7 @@ export class CulturePortalProvider {
         'open api error',
         '99',
         result,
+        seq,
       );
     }
 
