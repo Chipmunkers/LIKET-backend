@@ -42,7 +42,6 @@ export class CulturePortalProvider {
 
   /**
    * 공연 정보 자세히보기 API
-   * 가장 low한 메서드
    *
    * @author jochongs
    *
