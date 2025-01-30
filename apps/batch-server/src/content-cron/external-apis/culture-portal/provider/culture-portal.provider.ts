@@ -8,6 +8,8 @@ import { GetDisplayAllResponseDto } from 'apps/batch-server/src/content-cron/ext
 import { parseStringPromise } from 'xml2js';
 import { GetDisplayBySeqResponseDto } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/dto/response/get-display-by-seq-response.dto';
 import { CulturePortalDisplay } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/type/culture-portal-display';
+import { DisplayFacility } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/type/display-facility';
+import { GetDisplayFacilityBySeqResponseDto } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/dto/response/get-facility-by-seq-response.dto';
 
 @Injectable()
 export class CulturePortalProvider {
@@ -20,8 +22,7 @@ export class CulturePortalProvider {
   }
 
   /**
-   * 기간 검색 조건으로 공연/전시 정보 목록을 조회하는 메서드.
-   * 가장 low한 메서드
+   * 기간 검색 조건으로 공연/전시 정보 목록 조회 API
    *
    * @author jochongs
    *
@@ -109,13 +110,58 @@ export class CulturePortalProvider {
   }
 
   /**
-   * 공연 시설 검색 메서드.
+   * 공연 시설 자세히보기 API
+   */
+  public async getDisplayPerformBySeq(
+    seq: string,
+  ): Promise<DisplayFacility | null> {
+    const response = await this.httpService.axiosRef.get<string>(
+      `https://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays/detail`,
+      {
+        params: {
+          serviceKey: this.CULTURE_PORTAL_KEY,
+          seq,
+        },
+      },
+    );
+
+    const result = await this.parseXMLtoJSON<
+      GetDisplayFacilityBySeqResponseDto | OpenApiErrorResponseDto
+    >(response.data);
+
+    if (this.isOpenApiError(result)) {
+      throw new FailToRequestCulturePortalException(
+        `open api error | facility seq  = ${seq}`,
+        '99',
+        result,
+        seq,
+      );
+    }
+
+    if (result.response.header.resultCode !== '00') {
+      throw new FailToRequestCulturePortalException(
+        `fail to get facility information | facility seq  = ${seq}`,
+        result.response.header.resultCode,
+        result,
+        seq,
+      );
+    }
+
+    return result.response.body.items?.item || null;
+  }
+
+  /**
+   * 공연 시설 검색 API
+   * !주의: 완성되지 않았으니 사용하지 마십시오.
+   *
+   * @deprecated 아직 미구현되었습니다.
    *
    * @author jochongs
    *
    * @link https://www.data.go.kr/iim/api/selectAPIAcountView.do
    */
   public async getFacilityAll(search: string) {
+    throw new Error('not implement');
     const result = await this.httpService.axiosRef.get(
       `http://apis.data.go.kr/B553457/nopenapi/rest/cultureartspaces`,
       {
@@ -143,6 +189,11 @@ export class CulturePortalProvider {
     });
   }
 
+  /**
+   * 응답 결과가 open api에서 발생한 에러인지 확인하는 메서드
+   *
+   * @author jochongs
+   */
   private isOpenApiError(
     data: OpenApiErrorResponseDto | any,
   ): data is OpenApiErrorResponseDto {

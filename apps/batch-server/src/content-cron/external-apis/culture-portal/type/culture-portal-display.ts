@@ -1,6 +1,3 @@
-import { PickType } from '@nestjs/swagger';
-import { SummaryCulturePortalDisplay } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/type/summary-culture-portal-display';
-
 /**
  * @author jochongs
  */
