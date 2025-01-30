@@ -1,5 +1,5 @@
 import { CulturePortalErrorCode } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/type/CULTURE_PORTAL_ERROR_CODE';
-import { SummaryCulturePortalDisplay } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/type/summary-cutlure-portal-display';
+import { SummaryCulturePortalDisplay } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/type/summary-culture-portal-display';
 
 export class GetDisplayAllResponseDto {
   response: {
