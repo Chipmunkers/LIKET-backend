@@ -3,9 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FailToRequestCulturePortalException } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/exception/FailToRequestCulturePortal';
 import { SummaryCulturePortalDisplay } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/type/summary-culture-portal-display';
-import { GetDisplayAllErrorResponseDto } from 'apps/batch-server/src/content-cron/external-apis/dto/response/get-display-all-error-response.dto';
-import { GetDisplayAllResponseDto } from 'apps/batch-server/src/content-cron/external-apis/dto/response/get-display-all-response.dto';
+import { OpenApiErrorResponseDto } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/dto/response/open-api-error-response.dto';
+import { GetDisplayAllResponseDto } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/dto/response/get-display-all-response.dto';
 import { parseStringPromise } from 'xml2js';
+import { GetDisplayBySeqResponseDto } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/dto/response/get-display-by-seq-response.dto';
+import { CulturePortalDisplay } from 'apps/batch-server/src/content-cron/external-apis/culture-portal/type/culture-portal-display';
 
 @Injectable()
 export class CulturePortalProvider {
@@ -45,10 +47,10 @@ export class CulturePortalProvider {
     );
 
     const result = await this.parseXMLtoJSON<
-      GetDisplayAllErrorResponseDto | GetDisplayAllResponseDto
+      OpenApiErrorResponseDto | GetDisplayAllResponseDto
     >(response.data);
 
-    if (this.getDisplayAllResponseIsError(result)) {
+    if (this.isOpenApiError(result)) {
       throw new FailToRequestCulturePortalException(
         'open api error',
         '99',
@@ -77,8 +79,10 @@ export class CulturePortalProvider {
    *
    * @link https://www.culture.go.kr/industry/apiGuideA.do
    */
-  public async getPerformanceDisplayBySeq(seq: string) {
-    const result = await this.httpService.axiosRef.get(
+  public async getPerformanceDisplayBySeq(
+    seq: string,
+  ): Promise<CulturePortalDisplay | null> {
+    const response = await this.httpService.axiosRef.get<string>(
       `https://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays/detail`,
       {
         params: {
@@ -88,7 +92,19 @@ export class CulturePortalProvider {
       },
     );
 
-    return this.parseXMLtoJSON(result.data);
+    const result = await this.parseXMLtoJSON<
+      OpenApiErrorResponseDto | GetDisplayBySeqResponseDto
+    >(response.data);
+
+    if (this.isOpenApiError(result)) {
+      throw new FailToRequestCulturePortalException(
+        'open api error',
+        '99',
+        result,
+      );
+    }
+
+    return result.response.body.items?.item || null;
   }
 
   /**
@@ -126,12 +142,11 @@ export class CulturePortalProvider {
     });
   }
 
-  private getDisplayAllResponseIsError(
-    data: GetDisplayAllErrorResponseDto | GetDisplayAllResponseDto,
-  ): data is GetDisplayAllErrorResponseDto {
+  private isOpenApiError(
+    data: OpenApiErrorResponseDto | any,
+  ): data is OpenApiErrorResponseDto {
     if (
-      (data as GetDisplayAllErrorResponseDto).OpenAPI_ServiceResponse !==
-      undefined
+      (data as OpenApiErrorResponseDto).OpenAPI_ServiceResponse !== undefined
     ) {
       return true;
     }

@@ -22,29 +22,27 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(3000);
+  //await app.listen(3000);
 
-  const result = await app
-    .get(CulturePortalProvider)
-    .getPerformanceDisplayAll('20250130', '20250330');
-
-  console.log(result);
-
-  fs.writeFileSync(
-    './test-data/culture-portal/get-list.json',
-    JSON.stringify(result),
-  );
+  // const result = await app
+  //   .get(CulturePortalProvider)
+  //   .getPerformanceDisplayAll('20250130', '20250330');
 
   // console.log(result);
 
-  // const result2 = await app
-  //   .get(CulturePortalProvider)
-  //   .getPerformanceDisplayBySeq('306530');
+  // fs.writeFileSync(
+  //   './test-data/culture-portal/get-list.json',
+  //   JSON.stringify(result),
+  // );
 
-  // await app
-  //   .get(CulturePortalProvider)
-  //   .getFacilityAll('대전시립박물관 여민관');
+  // console.log(result);
 
-  //console.dir(result2, { depth: null });
+  const result2 = await app
+    .get(CulturePortalProvider)
+    .getPerformanceDisplayBySeq('306530');
+
+  //await app.get(CulturePortalProvider).getFacilityAll('대전시립박물관 여민관');
+
+  console.dir(result2, { depth: null });
 }
 bootstrap();

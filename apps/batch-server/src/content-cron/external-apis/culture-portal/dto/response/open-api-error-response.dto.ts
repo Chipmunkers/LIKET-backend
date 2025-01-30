@@ -3,7 +3,7 @@
  *
  * @author jochongs
  */
-export class GetDisplayAllErrorResponseDto {
+export class OpenApiErrorResponseDto {
   OpenAPI_ServiceResponse: {
     cmmMsgHeader: {
       errMsg: string;
