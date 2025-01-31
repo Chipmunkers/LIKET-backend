@@ -29,6 +29,9 @@ export class EmailCertRepository {
         },
         type: dao.type,
       },
+      orderBy: {
+        idx: 'desc',
+      },
     });
   }
 

@@ -1,5 +1,5 @@
 import { Location } from '@prisma/client';
-import { IsNumber, IsString, Length } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Length } from 'class-validator';
 
 /**
  * @author jochongs
@@ -12,6 +12,7 @@ export class LocationEntity {
    */
   @IsString()
   @Length(1, 200)
+  @IsOptional()
   public detailAddress: string | null;
 
   /**

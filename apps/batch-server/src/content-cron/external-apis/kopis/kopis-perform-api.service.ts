@@ -22,7 +22,9 @@ export class KopisPerformApiService
   public async getSummaryAll(): Promise<SummaryPerformEntity[]> {
     const result: SummaryPerformEntity[] = [];
 
-    for (const monthInfo of this.getThreeMonthSequence()) {
+    const monthSequence = this.getMonthSequence(20);
+
+    for (const monthInfo of monthSequence) {
       const summaryPerformList = await this.getSummaryPerformWithMonthInfo(
         monthInfo,
       );
@@ -105,25 +107,25 @@ export class KopisPerformApiService
   }
 
   /**
-   * 오늘 부터 3달을 31일을 기준으로 쪼개어 시작일과 마지막일을 가져오는 메서드
+   * 오늘 부터 {month}달을 31일을 기준으로 쪼개어 시작일과 마지막일을 가져오는 메서드
    *
    * @author jochongs
    */
-  private getThreeMonthSequence(): MonthInfo[] {
-    const threeMonthSequence: MonthInfo[] = [];
+  private getMonthSequence(month: number): MonthInfo[] {
+    const monthSequence: MonthInfo[] = [];
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < month; i++) {
       if (i === 0) {
-        threeMonthSequence.push(this.getNextMonth());
+        monthSequence.push(this.getNextMonth());
         continue;
       }
 
-      const beforeMonthInfo = threeMonthSequence[i - 1];
+      const beforeMonthInfo = monthSequence[i - 1];
 
-      threeMonthSequence.push(this.getNextMonth(beforeMonthInfo.endDate));
+      monthSequence.push(this.getNextMonth(beforeMonthInfo.endDate));
     }
 
-    return threeMonthSequence;
+    return monthSequence;
   }
 
   /**
@@ -146,7 +148,7 @@ export class KopisPerformApiService
    * @author jochongs
    */
   private getNextMonth(today: Date = new Date()): MonthInfo {
-    const endDate = new Date();
+    const endDate = new Date(today);
     endDate.setDate(endDate.getDate() + 31);
 
     return {
