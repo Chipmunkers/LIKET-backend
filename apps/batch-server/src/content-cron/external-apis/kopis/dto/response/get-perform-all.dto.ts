@@ -5,6 +5,6 @@ import { SummaryPerformEntity } from '../../entity/summary-perform.entity';
  */
 export class GetPerformAllResponseDto {
   dbs: {
-    db: SummaryPerformEntity[];
+    db: SummaryPerformEntity[] | SummaryPerformEntity;
   } | null;
 }

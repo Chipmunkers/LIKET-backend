@@ -8,6 +8,7 @@ import { KopisKeyProvider } from './kopis-key.provider';
 import { KopisErrorResponseDto } from '../dto/response/kopis-error-response.dto';
 import { KopisAPIException } from '../exception/KopisAPIException';
 import { KopisPerformNotFoundException } from 'apps/batch-server/src/content-cron/external-apis/kopis/exception/KopisPerformNotFoundException';
+import { SummaryPerformEntity } from 'apps/batch-server/src/content-cron/external-apis/kopis/entity/summary-perform.entity';
 
 @Injectable()
 export class KopisPerformProvider {
@@ -23,7 +24,9 @@ export class KopisPerformProvider {
    *
    * @author jochongs
    */
-  public async getPerformAll(dto: GetPerformAllDto) {
+  public async getPerformAll(
+    dto: GetPerformAllDto,
+  ): Promise<SummaryPerformEntity[]> {
     const result = await this.httpService.axiosRef.get(
       'http://www.kopis.or.kr/openApi/restful/pblprfr',
       {
@@ -42,7 +45,15 @@ export class KopisPerformProvider {
       throw new KopisAPIException('Fail to GET perform list', data);
     }
 
-    return data.dbs?.db || [];
+    if (!data.dbs?.db) {
+      return [];
+    }
+
+    if (Array.isArray(data.dbs.db)) {
+      return data.dbs.db;
+    }
+
+    return [data.dbs.db];
   }
 
   /**
