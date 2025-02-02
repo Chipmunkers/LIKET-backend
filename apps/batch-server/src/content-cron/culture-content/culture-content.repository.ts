@@ -114,7 +114,7 @@ export class CultureContentRepository {
 
       await tx.location.update({
         where: {
-          idx: content.idx,
+          idx: content.locationIdx,
         },
         data: {
           address: updateContentInfo.location.address,
