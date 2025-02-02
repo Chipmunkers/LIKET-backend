@@ -232,22 +232,26 @@ export class ContentCronService {
    * @author jochongs
    */
   public async recronKPContentsAll() {
-    const KopisContents =
+    const kopisContents =
       await this.cultureContentRepository.selectCultureContentByExternalApiKey(
         EXTERNAL_APIs.KOPIS_PERFORM,
       );
 
-    for (let i = 0; i < KopisContents.length; i++) {
-      const kopisContent = KopisContents[i];
+    for (let i = 0; i < kopisContents.length; i++) {
+      const kopisContent = kopisContents[i];
       try {
         if (!kopisContent.id) {
           this.logger.error('Cannot find kopis content');
           continue;
         }
 
-        await this.upsertContentById(
+        const result = await this.upsertContentById(
           EXTERNAL_APIs.KOPIS_PERFORM,
           kopisContent.id.split('-')[1],
+        );
+
+        console.log(
+          `(${i + 1} / ${kopisContents.length}) ${result}: ${kopisContent.id}`,
         );
       } catch (err) {
         await this.handlingError(
