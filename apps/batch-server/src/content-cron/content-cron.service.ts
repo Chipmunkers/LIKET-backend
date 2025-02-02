@@ -227,6 +227,43 @@ export class ContentCronService {
   }
 
   /**
+   * DB에 저장된 컨텐츠를 다시 cron 하는 메서드
+   *
+   * @author jochongs
+   */
+  public async recronKPContentsAll() {
+    const kopisContents =
+      await this.cultureContentRepository.selectCultureContentByExternalApiKey(
+        EXTERNAL_APIs.KOPIS_PERFORM,
+      );
+
+    for (let i = 0; i < kopisContents.length; i++) {
+      const kopisContent = kopisContents[i];
+      try {
+        if (!kopisContent.id) {
+          this.logger.error('Cannot find kopis content');
+          continue;
+        }
+
+        const result = await this.upsertContentById(
+          EXTERNAL_APIs.KOPIS_PERFORM,
+          kopisContent.id.split('-')[1],
+        );
+
+        console.log(
+          `(${i + 1} / ${kopisContents.length}) ${result}: ${kopisContent.id}`,
+        );
+      } catch (err) {
+        await this.handlingError(
+          'content recron error',
+          `ID: ${kopisContent.id}`,
+          err,
+        );
+      }
+    }
+  }
+
+  /**
    * 통계 핸들링
    *
    * @author jochongs

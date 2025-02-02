@@ -133,4 +133,29 @@ export class CultureContentRepository {
       });
     });
   }
+
+  /**
+   * 모든 컨텐츠를 가져오는 메서드
+   *
+   * !주의: 개수 제한이 없습니다.
+   *
+   * @author jochongs
+   */
+  public async selectCultureContentByExternalApiKey(key: ExternalAPIs) {
+    return await this.prisma.cultureContent.findMany({
+      select: {
+        idx: true,
+        id: true,
+      },
+      where: {
+        deletedAt: null,
+        id: {
+          startsWith: key,
+        },
+      },
+      orderBy: {
+        idx: 'desc',
+      },
+    });
+  }
 }
