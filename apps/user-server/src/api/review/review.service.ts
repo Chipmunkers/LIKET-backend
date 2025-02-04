@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
+import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { AlreadyLikeReviewException } from './exception/AlreadyLikeReviewException';
-import { AlreadyNotLikeReviewExcpetion } from './exception/AlreadyNotLikeReviewException';
+import { AlreadyNotLikeReviewException } from './exception/AlreadyNotLikeReviewException';
 import { ReviewEntity } from './entity/review.entity';
 import { LoginUser } from '../auth/model/login-user';
 import { Logger } from '../../common/module/logger/logger.decorator';
@@ -30,7 +30,7 @@ export class ReviewService {
    * @author jochongs
    */
   public async getReviewAll(
-    pagerble: ReviewPagerbleDto,
+    pagerble: ReviewPageableDto,
     userIdx?: number,
   ): Promise<{
     reviewList: ReviewEntity[];
@@ -177,7 +177,7 @@ export class ReviewService {
         this.cancelToLikeReview,
         `Attempt to cancel to like non liked review ${reviewIdx}`,
       );
-      throw new AlreadyNotLikeReviewExcpetion('Already do not like review');
+      throw new AlreadyNotLikeReviewException('Already do not like review');
     }
 
     await this.reviewLikeRepository.decreaseReviewLike(userIdx, reviewIdx);

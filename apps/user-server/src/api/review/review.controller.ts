@@ -17,7 +17,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
+import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { GetReviewAllResponseDto } from './dto/response/get-review-all-response.dto';
 import { ReviewAuthService } from './review-auth.service';
 import { LoginUser } from '../auth/model/login-user';
@@ -41,10 +41,10 @@ export class ReviewController {
   @Exception(400, 'Invalid querystring')
   @Exception(404, 'Cannot find culture-content')
   public async getReviewAll(
-    @Query() pagerble: ReviewPagerbleDto,
+    @Query() pagerble: ReviewPageableDto,
     @User() loginUser?: LoginUser,
   ): Promise<GetReviewAllResponseDto> {
-    await this.reviewAuthService.checkReadAllPermisison(pagerble, loginUser);
+    await this.reviewAuthService.checkReadAllPermission(pagerble, loginUser);
 
     return await this.reviewService.getReviewAll(pagerble, loginUser?.idx);
   }
