@@ -3,7 +3,7 @@ import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { PermissionDeniedException } from '../../common/exception/PermissionDeniedException';
-import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
+import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { LoginUser } from '../auth/model/login-user';
 import { PrismaProvider } from 'libs/modules';
@@ -16,7 +16,7 @@ export class ReviewAuthService {
    * @author jochongs
    */
   public checkReadAllPermission: (
-    pagerlbe: ReviewPagerbleDto,
+    pagerlbe: ReviewPageableDto,
     loginUser?: LoginUser,
   ) => Promise<void> = async (pagerble, loginUser) => {
     if (!pagerble.user && !pagerble.content) {

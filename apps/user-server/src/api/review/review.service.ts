@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
+import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
@@ -30,7 +30,7 @@ export class ReviewService {
    * @author jochongs
    */
   public async getReviewAll(
-    pagerble: ReviewPagerbleDto,
+    pagerble: ReviewPageableDto,
     userIdx?: number,
   ): Promise<{
     reviewList: ReviewEntity[];

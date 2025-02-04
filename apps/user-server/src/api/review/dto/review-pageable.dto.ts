@@ -6,7 +6,7 @@ import { Type } from 'class-transformer';
 /**
  * @author jochongs
  */
-export class ReviewPagerbleDto extends PickType(PagerbleDto, [
+export class ReviewPageableDto extends PickType(PagerbleDto, [
   'page',
   'order',
 ]) {
