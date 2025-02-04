@@ -2,6 +2,7 @@ import { PickType } from '@nestjs/swagger';
 import { PagerbleDto } from '../../../common/dto/pagerble.dto';
 import { IsIn, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ToBoolean } from 'apps/user-server/src/common/decorator/to-boolean.decorator';
 
 /**
  * @author jochongs
@@ -44,4 +45,13 @@ export class ReviewPageableDto extends PickType(PagerbleDto, [
   @IsInt()
   @IsOptional()
   review?: number;
+
+  /**
+   * 라이켓 작성 여부
+   *
+   * @example true
+   */
+  @ToBoolean()
+  @IsOptional()
+  liket?: boolean;
 }

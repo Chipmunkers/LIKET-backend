@@ -18,16 +18,16 @@ export class ReviewAuthService {
   public checkReadAllPermission: (
     pageable: ReviewPageableDto,
     loginUser?: LoginUser,
-  ) => Promise<void> = async (pagerble, loginUser) => {
-    if (!pagerble.user && !pagerble.content) {
+  ) => Promise<void> = async (pageable, loginUser) => {
+    if (!pageable.user && !pageable.content) {
       throw new PermissionDeniedException();
     }
 
-    if (pagerble.user && pagerble.user !== loginUser?.idx) {
+    if (pageable.user && pageable.user !== loginUser?.idx) {
       throw new PermissionDeniedException();
     }
 
-    if (pagerble.content) {
+    if (pageable.content) {
       const content = await this.prisma.cultureContent.findUnique({
         select: {
           idx: true,
@@ -35,7 +35,7 @@ export class ReviewAuthService {
           acceptedAt: true,
         },
         where: {
-          idx: pagerble.content,
+          idx: pageable.content,
           deletedAt: null,
           User: {
             deletedAt: null,

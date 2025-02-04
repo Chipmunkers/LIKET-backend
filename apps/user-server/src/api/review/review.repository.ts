@@ -44,6 +44,22 @@ export class ReviewRepository {
             },
           }
         : undefined,
+      Liket:
+        pagerble.liket === undefined
+          ? undefined
+          : pagerble.liket
+          ? {
+              // 라이켓이 존재하는 리뷰만 가져오기
+              some: {
+                deletedAt: null,
+              },
+            }
+          : {
+              // 라이켓이 존재하지 않는 리뷰만 가져오기
+              none: {
+                deletedAt: null,
+              },
+            },
     };
 
     this.logger.log(this.selectReviewAll, 'SELECT review');
