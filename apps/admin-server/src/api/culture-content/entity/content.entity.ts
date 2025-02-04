@@ -1,34 +1,12 @@
-import { Prisma } from '@prisma/client';
 import { UserEntity } from '../../user/entity/user.entity';
 import { LocationEntity } from './location.entity';
 import { TagEntity } from './tag.entity';
 import { SummaryContentEntity } from './summary-content.entity';
+import { SummaryContentSelectPrisma } from 'apps/admin-server/src/api/culture-content/entity/prisma/summary-content-select-result';
 
-const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()(
-  {
-    include: {
-      User: {
-        include: {
-          BlockReason: true,
-        },
-      },
-      ContentImg: true,
-      Genre: true,
-      Style: {
-        include: {
-          Style: true,
-        },
-      },
-      Age: true,
-      Location: true,
-    },
-  },
-);
-
-type ContentWithInclude = Prisma.CultureContentGetPayload<
-  typeof ContentWithInclude
->;
-
+/**
+ * @author jochongs
+ */
 export class ContentEntity extends SummaryContentEntity {
   /**
    * 오픈 시간
@@ -56,7 +34,7 @@ export class ContentEntity extends SummaryContentEntity {
     Object.assign(this, data);
   }
 
-  static createEntity(content: ContentWithInclude) {
+  static createEntity(content: SummaryContentSelectPrisma) {
     return new ContentEntity({
       idx: content.idx,
       title: content.title,
