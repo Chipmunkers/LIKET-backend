@@ -16,7 +16,7 @@ export class ReviewAuthService {
    * @author jochongs
    */
   public checkReadAllPermission: (
-    pagerlbe: ReviewPageableDto,
+    pageable: ReviewPageableDto,
     loginUser?: LoginUser,
   ) => Promise<void> = async (pagerble, loginUser) => {
     if (!pagerble.user && !pagerble.content) {
