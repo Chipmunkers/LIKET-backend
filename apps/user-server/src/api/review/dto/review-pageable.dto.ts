@@ -37,7 +37,10 @@ export class ReviewPageableDto extends PickType(PagerbleDto, [
   orderby: 'time' | 'like' = 'time';
 
   /**
-   * 미리볼 review idx
+   * 미리 볼 review idx
+   * 해당 필터링이 들어갈 경우 최상단에 해당 idx를 가진 리뷰가 올라옴.
+   * 만약, page가 1이 아닌 경우에는 해당 리뷰가 최상단에 올라가지 않음.
+   * 또한, content 필터와 무관하게 돌아가기 때문에 review가 content에 속하지 않더라도 가져와짐.
    *
    * @example 12
    */
