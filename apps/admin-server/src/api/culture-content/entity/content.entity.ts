@@ -25,7 +25,7 @@ const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()(
   },
 );
 
-type CotnentWithInclude = Prisma.CultureContentGetPayload<
+type ContentWithInclude = Prisma.CultureContentGetPayload<
   typeof ContentWithInclude
 >;
 
@@ -56,7 +56,7 @@ export class ContentEntity extends SummaryContentEntity {
     Object.assign(this, data);
   }
 
-  static createEntity(content: CotnentWithInclude) {
+  static createEntity(content: ContentWithInclude) {
     return new ContentEntity({
       idx: content.idx,
       title: content.title,
