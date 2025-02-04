@@ -44,7 +44,7 @@ export class ReviewController {
     @Query() pagerble: ReviewPagerbleDto,
     @User() loginUser?: LoginUser,
   ): Promise<GetReviewAllResponseDto> {
-    await this.reviewAuthService.checkReadAllPermisison(pagerble, loginUser);
+    await this.reviewAuthService.checkReadAllPermission(pagerble, loginUser);
 
     return await this.reviewService.getReviewAll(pagerble, loginUser?.idx);
   }
