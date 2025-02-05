@@ -43,7 +43,7 @@ export class S3Service {
       const contentType: string = response.headers['content-type'] || '';
 
       if (!contentType.includes('image')) {
-        throw new Error('fail to download image');
+        throw new Error('fail to download image | url = ' + url);
       }
 
       const upload = new Upload({

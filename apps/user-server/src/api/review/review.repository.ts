@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
-import { ReviewPagerbleDto } from './dto/review-pagerble.dto';
+import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { Prisma, Review } from '@prisma/client';
 import { ReviewWithInclude } from './entity/prisma-type/review-with-include';
 import { InsertReviewDao } from './dao/insert-review.dao';
@@ -24,7 +24,7 @@ export class ReviewRepository {
    * @param userIdx 로그인 사용자 인덱스
    */
   public selectReviewAll(
-    pagerble: ReviewPagerbleDto,
+    pagerble: ReviewPageableDto,
     userIdx?: number,
   ): Promise<ReviewWithInclude[]> {
     const where: Prisma.ReviewWhereInput = {
@@ -44,6 +44,22 @@ export class ReviewRepository {
             },
           }
         : undefined,
+      Liket:
+        pagerble.liket === undefined
+          ? undefined
+          : pagerble.liket
+          ? {
+              // 라이켓이 존재하는 리뷰만 가져오기
+              some: {
+                deletedAt: null,
+              },
+            }
+          : {
+              // 라이켓이 존재하지 않는 리뷰만 가져오기
+              none: {
+                deletedAt: null,
+              },
+            },
     };
 
     this.logger.log(this.selectReviewAll, 'SELECT review');

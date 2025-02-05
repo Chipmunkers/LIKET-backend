@@ -1,4 +1,5 @@
 import { ReviewEntity } from 'apps/admin-server/src/api/review/entity/review.entity';
+import { LiketService } from 'apps/user-server/src/api/liket/liket.service';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { CultureContentSeedHelper, ReviewSeedHelper } from 'libs/testing';
@@ -49,6 +50,78 @@ describe('Review (e2e)', () => {
           user: 2,
         })
         .expect(403);
+    });
+
+    it('Attempt to get review without liket', async () => {
+      const loginUser = test.getLoginUsers().user2;
+
+      const [firstContent, secondContent, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+            acceptedAt: new Date(),
+          },
+        ]);
+
+      const [reviewWithLiket] = await reviewSeedHelper.seedAll([
+        {
+          contentIdx: firstContent.idx,
+          userIdx: loginUser.idx,
+        },
+        {
+          contentIdx: secondContent.idx,
+          userIdx: loginUser.idx,
+        },
+        {
+          contentIdx: thirdContent.idx,
+          userIdx: loginUser.idx,
+        },
+      ]);
+
+      const createdLiket = await test
+        .get(LiketService)
+        .createLiket(reviewWithLiket.idx, {
+          bgImgInfo: {} as any,
+          bgImgPath: '/path/image.png',
+          cardImgPath: '/path2/image.png',
+          description: 'hi',
+          imgShapes: [],
+          size: 1,
+          textShape: {} as any,
+        });
+
+      const { body } = await request(test.getServer())
+        .get('/review/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({
+          user: loginUser.idx,
+          liket: true,
+        })
+        .expect(200);
+
+      const responseReviewList: ReviewEntity[] = body.reviewList;
+      expect(responseReviewList.length).toBe(1);
+      expect(responseReviewList[0].idx).toBe(reviewWithLiket.idx);
+
+      const { body: secondBody } = await request(test.getServer())
+        .get('/review/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({
+          user: loginUser.idx,
+          liket: false,
+        })
+        .expect(200);
+
+      const secondResponseReviewList: ReviewEntity[] = secondBody.reviewList;
+      expect(secondResponseReviewList.length).toBe(2);
     });
 
     it('Non-existent content', async () => {

@@ -72,7 +72,7 @@ export abstract class ITestHelper {
     return this.prismaSetup.getPrisma();
   }
 
-  public get<T = any>(typeOrToken: Type<T>) {
+  public get<T = any>(typeOrToken: Type<T>): T {
     return this.app.get(typeOrToken);
   }
 
