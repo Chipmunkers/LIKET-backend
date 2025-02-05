@@ -15,5 +15,5 @@ export type ExecuteWithRetryOption = {
    *
    * @default 0
    */
-  delay: number;
+  delay?: number;
 };

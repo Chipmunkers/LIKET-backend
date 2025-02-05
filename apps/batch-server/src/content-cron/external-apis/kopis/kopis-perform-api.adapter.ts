@@ -12,6 +12,9 @@ import { AGE, GENRE } from 'libs/common';
 import { OpenAIService, S3Service, UploadedFileEntity } from 'libs/modules';
 import * as uuid from 'uuid';
 import { UpdateContentInfo } from 'apps/batch-server/src/content-cron/external-apis/kopis/type/UpdateContentInfo';
+import { RetryUtilService } from 'libs/modules/retry-util/retry-util.service';
+import { DiscordService } from 'libs/modules/discord/discord.service';
+import { SERVER_TYPE } from 'libs/common/constants/server-type';
 
 @Injectable()
 export class KopisPerformApiAdapter
@@ -23,6 +26,8 @@ export class KopisPerformApiAdapter
     private readonly kakaoAddressService: KakaoAddressService,
     private readonly facilityProvider: KopisFacilityProvider,
     private readonly openAIService: OpenAIService,
+    private readonly retryUtilService: RetryUtilService,
+    private readonly discordService: DiscordService,
   ) {}
 
   /**
@@ -37,9 +42,9 @@ export class KopisPerformApiAdapter
       documents: [{ address, road_address }],
     } = await this.kakaoAddressService.searchAddress(facilityEntity.adres);
 
-    const imgPathList = (await this.extractImgList(perform)).map(
-      (img) => img.path,
-    );
+    const imgPathList = (
+      await this.extractImgList(perform, perform.mt20id)
+    ).map((img) => img.path);
 
     const { styleIdxList, ageIdx } =
       await this.openAIService.extractStyleAndAge(
@@ -203,15 +208,62 @@ export class KopisPerformApiAdapter
    */
   private async extractImgList(
     perform: PerformEntity,
+    id: string,
   ): Promise<UploadedFileEntity[]> {
-    return Promise.all(
+    const result = Promise.allSettled(
       (await this.extractRawImgList(perform)).map((rawImgUrl) =>
-        this.s3Service.uploadFileToS3ByUrl(rawImgUrl, {
-          filename: uuid.v4(),
-          path: 'culture-content',
-        }),
+        this.retryUtilService.executeWithRetry(
+          () =>
+            this.s3Service.uploadFileToS3ByUrl(rawImgUrl, {
+              filename: uuid.v4(),
+              path: 'culture-content',
+            }),
+          {
+            retry: 3,
+            delay: 300,
+          },
+        ),
       ),
     );
+
+    this.handlingImageUploadErrors(
+      (await result)
+        .filter(
+          (promise): promise is PromiseRejectedResult =>
+            promise.status === 'rejected',
+        )
+        .map((entity) => entity.reason),
+      id,
+    );
+
+    return (await result)
+      .filter(
+        (promise): promise is PromiseFulfilledResult<UploadedFileEntity> =>
+          promise.status === 'fulfilled',
+      )
+      .map((entity) => entity.value);
+  }
+
+  /**
+   * 이미지 업로드 에러 핸들링 메서드
+   *
+   * !주의: 절대로 에러를 뱉어서는 안 됩니다.
+   *
+   * @author jochongs
+   */
+  async handlingImageUploadErrors(errList: any[], id: string) {
+    for (const err of errList) {
+      try {
+        await this.discordService.createErrorLog(
+          SERVER_TYPE.BATCH_SERVER,
+          'Image Upload Error but ignore',
+          err?.message || 'Image upload error: id = ' + id,
+          err,
+        );
+      } catch {
+        console.log(err);
+      }
+    }
   }
 
   /**

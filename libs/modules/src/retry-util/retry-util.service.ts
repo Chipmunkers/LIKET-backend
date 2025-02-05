@@ -1,17 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { wait } from 'libs/common/utils/wait';
 import { ExecuteWithRetryOption } from 'libs/modules/retry-util/type/execute-with-retry-option';
 
 @Injectable()
 export class RetryUtilService {
   /**
    * 실패할 경우 다시 시도할 메서드.
+   * retry 횟수를 넘어서 에러가 날 경우 마지막 에러를 throw 합니다.
    *
    * @author jochongs
    */
-  public async executeWithRetry(
-    retriedFunc: (...args: any[]) => any | Promise<any>,
-    { retry = 1 }: ExecuteWithRetryOption,
-  ) {
+  public async executeWithRetry<T = any>(
+    retriedFunc: (...args: any[]) => T,
+    option: ExecuteWithRetryOption = {},
+  ): Promise<T> {
+    const { retry = 1, delay = 0 } = option;
     let currentRetryCount = 0;
     let error = null;
 
@@ -21,7 +24,7 @@ export class RetryUtilService {
 
     while (true) {
       if (currentRetryCount >= retry) {
-        return error;
+        throw error;
       }
 
       try {
@@ -31,6 +34,7 @@ export class RetryUtilService {
       }
 
       currentRetryCount++;
+      await wait(delay);
     }
   }
 }

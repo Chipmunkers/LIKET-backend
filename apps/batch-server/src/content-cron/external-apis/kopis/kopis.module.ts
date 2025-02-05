@@ -10,6 +10,8 @@ import { KopisPerformApiAdapter } from 'apps/batch-server/src/content-cron/exter
 import { S3Module } from 'libs/modules';
 import { KakaoAddressModule } from 'libs/modules/kakao-address/kakao-address.module';
 import { OpenAIModule } from 'libs/modules/openAI/openAI.module';
+import { RetryUtilModule } from 'libs/modules/retry-util/retry-util.module';
+import { DiscordModule } from 'libs/modules/discord/discord.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { OpenAIModule } from 'libs/modules/openAI/openAI.module';
     S3Module,
     KakaoAddressModule,
     OpenAIModule,
+    RetryUtilModule,
+    DiscordModule,
   ],
   providers: [
     KopisPerformProvider,
