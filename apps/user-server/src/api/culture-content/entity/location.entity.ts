@@ -1,4 +1,5 @@
 import { Location } from '@prisma/client';
+import { SelectLocationFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-location-field';
 import { IsNumber, IsOptional, IsString, Length } from 'class-validator';
 
 /**
@@ -80,7 +81,7 @@ export class LocationEntity {
     Object.assign(this, data);
   }
 
-  static createEntity(location: Location) {
+  static createEntity(location: SelectLocationFieldPrisma) {
     return new LocationEntity({
       region1Depth: location.region1Depth,
       region2Depth: location.region2Depth,

@@ -4,6 +4,7 @@ import { PickType } from '@nestjs/swagger';
 import { ContentEntity } from './content.entity';
 import { SummaryCotnentWithInclude } from './prisma-type/summary-content-with-include';
 import { LikeContentWithInclude } from './prisma-type/like-content-with-include';
+import { SelectSummaryContentFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-summary-content-field';
 
 /**
  * @author jochongs
@@ -27,7 +28,7 @@ export class SummaryContentEntity extends PickType(ContentEntity, [
     Object.assign(this, content);
   }
 
-  static createEntity(data: SummaryCotnentWithInclude) {
+  static createEntity(data: SelectSummaryContentFieldPrisma) {
     return new SummaryContentEntity({
       idx: data.idx,
       title: data.title,
