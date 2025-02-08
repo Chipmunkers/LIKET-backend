@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { PrismaProvider } from 'libs/modules';
 import { SelectLikedContentFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-liked-content-field';
+import { ContentLike } from '@prisma/client';
 
 @Injectable()
 export class CultureContentLikeRepository {
@@ -16,12 +17,15 @@ export class CultureContentLikeRepository {
   /**
    * @author jochongs
    */
-  public selectCultureContentLike(userIdx: number, contentIdx: number) {
+  public async selectCultureContentLike(
+    userIdx: number,
+    contentIdx: number,
+  ): Promise<ContentLike | null> {
     this.logger.log(
       this.selectCultureContentLike,
       'SELECT culture content like',
     );
-    return this.prisma.contentLike.findUnique({
+    return await this.prisma.contentLike.findUnique({
       where: {
         contentIdx_userIdx: {
           userIdx,
