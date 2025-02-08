@@ -64,12 +64,15 @@ export class CultureContentLikeRepository {
   /**
    * @author jochongs
    */
-  public decreaseCultureContentLike(userIdx: number, contentIdx: number) {
+  public async decreaseCultureContentLike(
+    userIdx: number,
+    contentIdx: number,
+  ): Promise<void> {
     this.logger.log(
       this.decreaseCultureContentLike,
       'UPDATE content like count, DELETE culture content like',
     );
-    return this.prisma.$transaction([
+    await this.prisma.$transaction([
       this.prisma.cultureContent.update({
         where: {
           idx: contentIdx,
