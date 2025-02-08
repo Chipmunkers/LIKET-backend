@@ -3,6 +3,7 @@ import { LoggerService } from '../../common/module/logger/logger.service';
 import { Injectable } from '@nestjs/common';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { PrismaProvider } from 'libs/modules';
+import { SelectLikedContentFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-liked-content-field';
 
 @Injectable()
 export class CultureContentLikeRepository {
@@ -100,7 +101,7 @@ export class CultureContentLikeRepository {
   public selectLikeContentAll(
     userIdx: number,
     pagerble: LikeContentPagerbleDto,
-  ) {
+  ): Promise<SelectLikedContentFieldPrisma[]> {
     return this.prisma.contentLike.findMany({
       include: {
         CultureContent: {
