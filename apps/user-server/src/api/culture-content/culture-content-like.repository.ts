@@ -102,16 +102,29 @@ export class CultureContentLikeRepository {
   /**
    * @author jochongs
    */
-  public selectLikeContentAll(
+  public async selectLikeContentAll(
     userIdx: number,
     pagerble: LikeContentPagerbleDto,
   ): Promise<SelectLikedContentFieldPrisma[]> {
-    return this.prisma.contentLike.findMany({
-      include: {
+    return await this.prisma.contentLike.findMany({
+      select: {
         CultureContent: {
-          include: {
-            User: true,
+          select: {
+            idx: true,
+            title: true,
+            startDate: true,
+            endDate: true,
+            createdAt: true,
+            acceptedAt: true,
+            User: {
+              select: {
+                idx: true,
+              },
+            },
             ContentImg: {
+              select: {
+                imgPath: true,
+              },
               where: {
                 deletedAt: null,
               },
@@ -119,10 +132,20 @@ export class CultureContentLikeRepository {
                 idx: 'asc',
               },
             },
-            Genre: true,
+            Genre: {
+              select: {
+                idx: true,
+                name: true,
+              },
+            },
             Style: {
-              include: {
-                Style: true,
+              select: {
+                Style: {
+                  select: {
+                    idx: true,
+                    name: true,
+                  },
+                },
               },
               where: {
                 Style: {
@@ -130,8 +153,24 @@ export class CultureContentLikeRepository {
                 },
               },
             },
-            Age: true,
-            Location: true,
+            Age: {
+              select: {
+                idx: true,
+                name: true,
+              },
+            },
+            Location: {
+              select: {
+                region1Depth: true,
+                region2Depth: true,
+                detailAddress: true,
+                address: true,
+                positionX: true,
+                positionY: true,
+                hCode: true,
+                bCode: true,
+              },
+            },
           },
         },
       },

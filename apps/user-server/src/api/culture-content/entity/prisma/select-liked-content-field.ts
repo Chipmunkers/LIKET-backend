@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 /**
+ * TODO: validator 때문인지 Genre.name 이 select field에 존재하지 않더라도 에러가 나지 않는 버그가 존재함.
  * @author jochongs
  */
 const SELECT_LIKED_CONTENT_FIELD_PRISMA =
