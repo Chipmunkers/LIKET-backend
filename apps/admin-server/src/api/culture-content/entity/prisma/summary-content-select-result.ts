@@ -1,12 +1,13 @@
 import { Prisma } from '@prisma/client';
 
-/**
- * @author jochongs
- */
-const SummaryContentWithInclude =
+const SUMMARY_CONTENT_SELECT_PRISMA =
   Prisma.validator<Prisma.CultureContentDefaultArgs>()({
     include: {
-      User: true,
+      User: {
+        include: {
+          BlockReason: true,
+        },
+      },
       ContentImg: true,
       Genre: true,
       Style: {
@@ -16,13 +17,9 @@ const SummaryContentWithInclude =
       },
       Age: true,
       Location: true,
-      ContentLike: true,
     },
   });
 
-/**
- * @author jochongs
- */
-export type SummaryCotnentWithInclude = Prisma.CultureContentGetPayload<
-  typeof SummaryContentWithInclude
+export type SummaryContentSelectPrisma = Prisma.CultureContentGetPayload<
+  typeof SUMMARY_CONTENT_SELECT_PRISMA
 >;

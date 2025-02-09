@@ -30,6 +30,7 @@ import { GetHotAgeContentResponseDto } from './dto/response/get-hot-age-content.
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { GetLikeContentAllResponseDto } from './dto/response/get-like-content-all.dto';
 import { ContentViewService } from './content-view.service';
+import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
 
 @Controller('culture-content')
 @ApiTags('Culture-Content')
@@ -106,7 +107,7 @@ export class CultureContentController {
    * @author jochongs
    */
   @Get('/hot/all')
-  public async getHotCultureContentAll(): Promise<HotCultureContentEntity[]> {
+  public async getHotCultureContentAll(): Promise<GenreWithHotContentEntity[]> {
     return await this.cultureContentService.getHotContentAll();
   }
 

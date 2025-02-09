@@ -18,6 +18,7 @@ import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { UserRepository } from '../user/user.repository';
 import { TagEntity } from '../content-tag/entity/tag.entity';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
+import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
 
 @Injectable()
 export class CultureContentService {
@@ -126,7 +127,7 @@ export class CultureContentService {
       await this.cultureContentRepository.selectHotCultureContentAll();
 
     return genreList.map((genre) =>
-      HotCultureContentEntity.createHotContent(genre),
+      GenreWithHotContentEntity.createEntity(genre),
     );
   }
 
