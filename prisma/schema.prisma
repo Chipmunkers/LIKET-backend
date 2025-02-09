@@ -73,14 +73,13 @@ model CultureContent {
 }
 
 model Age {
-  idx                Int                  @id @default(autoincrement())
-  name               String               @db.VarChar
-  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt          DateTime             @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt          DateTime?            @map("deleted_at") @db.Timestamptz(6)
-  CultureContent     CultureContent[]
-  TempCultureContent TempCultureContent[]
-  InterestAge        InterestAge[]
+  idx            Int              @id @default(autoincrement())
+  name           String           @db.VarChar
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?        @map("deleted_at") @db.Timestamptz(6)
+  CultureContent CultureContent[]
+  InterestAge    InterestAge[]
 
   @@map("age_tb")
 }
@@ -96,27 +95,25 @@ model StyleMapping {
 }
 
 model Style {
-  idx              Int                @id @default(autoincrement())
-  name             String             @db.VarChar
-  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt        DateTime?          @map("deleted_at") @db.Timestamptz(6)
-  Style            StyleMapping[]
-  TempStyleMapping TempStyleMapping[]
-  InterestStyle    InterestStyle[]
+  idx           Int             @id @default(autoincrement())
+  name          String          @db.VarChar
+  createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt     DateTime?       @map("deleted_at") @db.Timestamptz(6)
+  Style         StyleMapping[]
+  InterestStyle InterestStyle[]
 
   @@map("style_tb")
 }
 
 model Genre {
-  idx                Int                  @id @default(autoincrement())
-  name               String               @db.VarChar
-  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt          DateTime             @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt          DateTime?            @map("deleted_at") @db.Timestamptz(6)
-  CultureContent     CultureContent[]
-  TempCultureContent TempCultureContent[]
-  InterestGenre      InterestGenre[]
+  idx            Int              @id @default(autoincrement())
+  name           String           @db.VarChar
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?        @map("deleted_at") @db.Timestamptz(6)
+  CultureContent CultureContent[]
+  InterestGenre  InterestGenre[]
 
   @@map("genre_tb")
 }
@@ -580,68 +577,4 @@ model InterestLocation {
 
   @@id([userIdx, bCode])
   @@map("interest_location_tb")
-}
-
-model TempCultureContent {
-  idx              Int                 @id @default(autoincrement())
-  locationIdx      Int                 @map("location_idx")
-  genreIdx         Int                 @map("genre_idx")
-  ageIdx           Int?                @map("age_idx")
-  performId        String              @map("perform_id") @db.VarChar
-  title            String              @db.VarChar
-  description      String?             @db.VarChar
-  websiteLink      String              @map("website_link") @db.VarChar
-  startDate        DateTime            @map("start_date") @db.Timestamptz(6)
-  endDate          DateTime?           @map("end_date") @db.Timestamptz(6)
-  openTime         String              @map("open_time") @db.VarChar
-  isFee            Boolean             @default(false) @map("is_fee")
-  isReservation    Boolean             @default(false) @map("is_reservation")
-  isPet            Boolean             @default(false) @map("is_pet")
-  isParking        Boolean             @default(false) @map("is_parking")
-  updatedAt        DateTime?           @map("updated_at") @db.Timestamptz(6)
-  registeredAt     DateTime?           @map("registered_at") @db.Timestamptz(6)
-  createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
-  Genre            Genre               @relation(fields: [genreIdx], references: [idx], onDelete: Cascade, map: "fk_genre_tb_to_temp_culture_content_tb")
-  Age              Age?                @relation(fields: [ageIdx], references: [idx], onDelete: Cascade, map: "fk_age_tb_to_temp_culture_content_tb")
-  Location         TempContentLocation @relation(fields: [locationIdx], references: [idx], onDelete: Cascade, map: "fk_temp_content_location_tb_to_temp_culture_content_tb")
-  TempContentImg   TempContentImg[]
-  TempStyleMapping TempStyleMapping[]
-
-  @@unique([performId])
-  @@map("temp_culture_content_tb")
-}
-
-model TempContentLocation {
-  idx                Int                  @id @default(autoincrement())
-  address            String               @db.VarChar
-  detailAddress      String?              @map("detail_address") @db.VarChar
-  region1Depth       String               @map("region_1_depth") @db.VarChar
-  region2Depth       String               @map("region_2_depth") @db.VarChar
-  hCode              String               @map("h_code") @db.VarChar
-  bCode              String               @map("b_code") @db.VarChar
-  positionX          Float                @map("position_x")
-  positionY          Float                @map("position_y")
-  TempCultureContent TempCultureContent[]
-
-  @@map("temp_content_location_tb")
-}
-
-model TempStyleMapping {
-  contentIdx Int                @map("content_idx")
-  styleIdx   Int                @map("style_idx")
-  Content    TempCultureContent @relation(fields: [contentIdx], references: [idx], onDelete: Cascade, map: "fk_temp_culture_content_tb_to_temp_style_mapping_tb")
-  Style      Style              @relation(fields: [styleIdx], references: [idx], onDelete: Cascade, map: "fk_style_tb_to_temp_style_mapping_tb")
-
-  @@id([styleIdx, contentIdx])
-  @@map("temp_style_mapping_tb")
-}
-
-model TempContentImg {
-  idx                Int                @id @default(autoincrement())
-  contentIdx         Int                @default(autoincrement()) @map("content_idx")
-  imgPath            String             @map("img_path") @db.VarChar
-  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  TempCultureContent TempCultureContent @relation(fields: [contentIdx], references: [idx], onDelete: Cascade, map: "fk_temp_culture_content_tb_to_temp_content_img_tb")
-
-  @@map("temp_content_img_tb")
 }
