@@ -2,12 +2,13 @@ import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { AlreadyExistEmailException } from 'libs/core/user/exception/AlreadyExistEmailException';
 import { InvalidPwError } from 'libs/core/user/exception/InvalidPwError';
-import { UserNotFoundException } from 'libs/core/user/exception/UserNotFoundException';
 import { CreateUserInput } from 'libs/core/user/input/create-user.input';
 import { UpdateUserInput } from 'libs/core/user/input/update-user.input';
 import { UserModel } from 'libs/core/user/model/user.model';
 import { UserCoreRepository } from 'libs/core/user/user-core.repository';
 import { HashService } from 'libs/modules/hash/hash.service';
+import { Prisma } from '@prisma/client';
+import { UserNotFoundError } from 'libs/core/user/exception/UserNotFoundException';
 
 @Injectable()
 export class UserCoreService {
@@ -66,26 +67,31 @@ export class UserCoreService {
    * @param idx 업데이트할 사용자 식별자
    * @returns 업데이트 후, 사용자 정보
    *
-   * @throws {UserNotFoundException} 404 - idx에 해당하는 사용자를 찾을 수 없는 경우
+   * @throws {UserNotFoundException} Error - idx에 해당하는 사용자를 찾을 수 없는 경우
    */
   @Transactional()
   public async updateUserByIdx(
     idx: number,
     updateInput: UpdateUserInput,
   ): Promise<UserModel> {
-    const user = await this.userCoreRepository.selectUserByIdx(idx);
+    try {
+      const updatedUser = await this.userCoreRepository.updateUserByIdx(idx, {
+        ...updateInput,
+        encryptedPw: updateInput.pw
+          ? await this.hashService.hashPw(updateInput.pw)
+          : undefined,
+      });
 
-    if (!user) {
-      throw new UserNotFoundException(idx, 'Cannot found user');
+      return UserModel.fromPrisma(updatedUser);
+    } catch (err) {
+      console.log(err);
+      if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        if (err.code === 'P2025') {
+          throw new UserNotFoundError(idx, 'Cannot found user');
+        }
+      }
+
+      throw err;
     }
-
-    const updatedUser = await this.userCoreRepository.updateUserByIdx(idx, {
-      ...updateInput,
-      encryptedPw: updateInput.pw
-        ? await this.hashService.hashPw(updateInput.pw)
-        : undefined,
-    });
-
-    return UserModel.fromPrisma(updatedUser);
   }
 }
