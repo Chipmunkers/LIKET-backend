@@ -37,6 +37,8 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.744.0",
     "@aws-sdk/lib-storage": "^3.744.0",
+    "@nestjs-cls/transactional": "^2.4.9",
+    "@nestjs-cls/transactional-adapter-prisma": "^1.2.12",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/cache-manager": "^3.0.0",
@@ -55,6 +57,7 @@
     "cookie-parser": "^1.4.7",
     "helmet": "^8.0.0",
     "multer": "^1.4.5-lts.1",
+    "nestjs-cls": "^5.1.2",
     "openai": "^4.83.0",
     "prisma": "^6.3.1",
     "reflect-metadata": "^0.2.2",

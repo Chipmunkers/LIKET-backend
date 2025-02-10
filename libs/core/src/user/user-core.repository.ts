@@ -1,3 +1,5 @@
+import { TransactionHost } from '@nestjs-cls/transactional';
+import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Injectable } from '@nestjs/common';
 import { CreateUserInput } from 'libs/core/user/inputs/create-user.input';
 import { UserSelectField } from 'libs/core/user/model/prisma/user-select-field';
@@ -6,7 +8,11 @@ import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class UserCoreRepository {
-  constructor(private readonly prisma: PrismaProvider) {}
+  constructor(
+    private readonly txHost: TransactionHost<
+      TransactionalAdapterPrisma<PrismaProvider>
+    >,
+  ) {}
 
   /**
    * SELECT user WHERE sns_id = $1
@@ -20,7 +26,7 @@ export class UserCoreRepository {
     id: string,
     provider: UserProvider,
   ): Promise<UserSelectField | null> {
-    return await this.prisma.user.findFirst({
+    return await this.txHost.tx.user.findFirst({
       select: {
         idx: true,
         email: true,
@@ -51,7 +57,7 @@ export class UserCoreRepository {
    * @author jochongs
    */
   public async selectUserByIdx(idx: number): Promise<UserSelectField | null> {
-    return await this.prisma.user.findUnique({
+    return await this.txHost.tx.user.findUnique({
       select: {
         idx: true,
         email: true,
@@ -85,7 +91,7 @@ export class UserCoreRepository {
       encryptedPw: string | null;
     },
   ): Promise<UserSelectField> {
-    return await this.prisma.user.create({
+    return await this.txHost.tx.user.create({
       select: {
         idx: true,
         email: true,
