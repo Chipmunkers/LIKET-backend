@@ -85,51 +85,6 @@ export class UserService {
   }
 
   /**
-   * 소셜 회원가입 하기
-   *
-   * 원터치 회원가입으로 변경됨에따라 deprecated 되었습니다.
-   *
-   * @deprecated
-   */
-  public async socialUserSignUp(
-    signUpDto: SocialSignUpDto,
-    profileImg?: UploadedFileEntity,
-  ): Promise<LoginToken> {
-    const socialUser = await this.socialLoginJwtService.verify(signUpDto.token);
-
-    this.logger.log(
-      this.socialUserSignUp,
-      `duplicate check | email = ${socialUser.email}`,
-    );
-    await this.checkEmailDuplicate({ email: socialUser.email });
-
-    const signUpUser = await this.userRepository.insertUser({
-      email: socialUser.email,
-      pw: 'social',
-      nickname: signUpDto.nickname,
-      snsId: socialUser.id,
-      birth: signUpDto.birth || null,
-      gender: signUpDto.gender || null,
-      profileImgPath: profileImg?.filePath || null,
-      provider: socialUser.provider,
-    });
-
-    const accessToken = this.loginJwtService.sign(
-      signUpUser.idx,
-      signUpUser.isAdmin,
-    );
-    const refreshToken = await this.loginJwtService.signRefreshToken(
-      signUpUser.idx,
-      signUpUser.isAdmin,
-    );
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  /**
    * 내 정보 가져오기
    *
    * @author wherehows
