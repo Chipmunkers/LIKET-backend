@@ -84,7 +84,6 @@ export class UserCoreService {
 
       return UserModel.fromPrisma(updatedUser);
     } catch (err) {
-      console.log(err);
       if (err instanceof Prisma.PrismaClientKnownRequestError) {
         if (err.code === 'P2025') {
           throw new UserNotFoundError(idx, 'Cannot found user');
