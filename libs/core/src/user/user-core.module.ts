@@ -8,20 +8,7 @@ import { ClsPluginTransactional } from '@nestjs-cls/transactional';
 import { HashModule } from 'libs/modules/hash/hash.module';
 
 @Module({
-  imports: [
-    PrismaModule,
-    ClsModule.forRoot({
-      plugins: [
-        new ClsPluginTransactional({
-          imports: [PrismaModule],
-          adapter: new TransactionalAdapterPrisma({
-            prismaInjectionToken: PrismaProvider,
-          }),
-        }),
-      ],
-    }),
-    HashModule,
-  ],
+  imports: [PrismaModule, HashModule],
   providers: [UserCoreService, UserCoreRepository],
   exports: [UserCoreService],
 })
