@@ -14,4 +14,5 @@ export class UpdateUserInput {
   public readonly birth?: number | null;
   public readonly profileImgPath?: string | null;
   public readonly isAdmin?: boolean;
+  public readonly blockedAt?: Date | null;
 }

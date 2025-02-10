@@ -177,6 +177,7 @@ export class UserCoreRepository {
         birth: updateInput.birth,
         profileImgPath: updateInput.profileImgPath,
         isAdmin: updateInput.isAdmin,
+        blockedAt: updateInput.blockedAt,
       },
     });
   }
