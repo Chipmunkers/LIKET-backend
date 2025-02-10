@@ -429,11 +429,35 @@ describe('User (e2e)', () => {
         birth: 2001,
       };
 
+      const userBeforeUpdate = await test.getPrisma().user.findUniqueOrThrow({
+        where: { idx: loginUser.idx },
+      });
+
+      expect(userBeforeUpdate.nickname).not.toBe(updateDto.nickname);
+      expect(userBeforeUpdate.gender).not.toBe(updateDto.gender);
+      expect(userBeforeUpdate.birth).not.toBe(updateDto.birth);
+
       await request(test.getServer())
         .put('/user/my/profile')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(updateDto)
         .expect(201);
+
+      const userAfterUpdate = await test.getPrisma().user.findUniqueOrThrow({
+        where: { idx: loginUser.idx },
+      });
+
+      expect(userAfterUpdate.idx).toBe(userBeforeUpdate.idx);
+      expect(userAfterUpdate.nickname).toBe(updateDto.nickname);
+      expect(userAfterUpdate.email).toBe(userBeforeUpdate.email);
+      expect(userAfterUpdate.gender).toBe(updateDto.gender);
+      expect(userAfterUpdate.birth).toBe(updateDto.birth);
+      expect(userAfterUpdate.isAdmin).toBe(userBeforeUpdate.isAdmin);
+      expect(userAfterUpdate.provider).toBe(userBeforeUpdate.provider);
+      expect(userAfterUpdate.pw).toBe(userBeforeUpdate.pw);
+      expect(userAfterUpdate.profileImgPath).toBe(
+        userBeforeUpdate.profileImgPath,
+      );
     });
 
     it('No token', async () => {

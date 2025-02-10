@@ -208,10 +208,10 @@ export class UserService {
     idx: number,
     updateDto: UpdateProfileDto,
   ): Promise<void> {
-    await this.userRepository.updateUserByIdx(idx, {
+    await this.userCoreService.updateUserByIdx(idx, {
       nickname: updateDto.nickname,
-      gender: updateDto.gender || null,
-      birth: updateDto.birth || null,
+      gender: updateDto.gender,
+      birth: updateDto.birth,
       profileImgPath: updateDto.profileImg || null,
     });
   }

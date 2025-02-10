@@ -174,7 +174,7 @@ export class UserCoreRepository {
         nickname: updateInput.nickname,
         email: updateInput.email,
         gender: updateInput.gender,
-        birth: updateInput.gender,
+        birth: updateInput.birth,
         profileImgPath: updateInput.profileImgPath,
         isAdmin: updateInput.isAdmin,
       },

@@ -2,7 +2,7 @@
  * 사용자의 수정할 정보
  *
  * null - 빈 값으로 변경
- * undefined - 변경하지 않음ㄴ
+ * undefined - 변경하지 않음
  *
  * @author jochongs
  */
