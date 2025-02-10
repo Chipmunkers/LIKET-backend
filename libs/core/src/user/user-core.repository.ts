@@ -1,7 +1,7 @@
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Injectable } from '@nestjs/common';
-import { CreateUserInput } from 'libs/core/user/inputs/create-user.input';
+import { CreateUserInput } from 'libs/core/user/input/create-user.input';
 import { UserSelectField } from 'libs/core/user/model/prisma/user-select-field';
 import { UserProvider } from 'libs/core/user/model/provider.model';
 import { PrismaProvider } from 'libs/modules';
@@ -79,6 +79,40 @@ export class UserCoreRepository {
       where: {
         idx,
         deletedAt: null,
+      },
+    });
+  }
+
+  /**
+   * SELECT user WHERE email = $1
+   *
+   * @author jochongs
+   *
+   * @param email 사용자 이메일
+   */
+  public async selectUserByEmail(
+    email: string,
+  ): Promise<UserSelectField | null> {
+    return await this.txHost.tx.user.findFirst({
+      select: {
+        idx: true,
+        email: true,
+        isAdmin: true,
+        profileImgPath: true,
+        pw: true,
+        nickname: true,
+        provider: true,
+        reportCount: true,
+        gender: true,
+        birth: true,
+        snsId: true,
+        loginAt: true,
+        createdAt: true,
+        blockedAt: true,
+      },
+      where: {
+        deletedAt: null,
+        email,
       },
     });
   }

@@ -12,6 +12,7 @@ import { UserRepository } from './user.repository';
 import { LiketRepository } from '../liket/liket.repository';
 import { ReviewRepository } from '../review/review.repository';
 import { PrismaModule } from 'libs/modules';
+import { UserCoreModule } from 'libs/core/user/user-core.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { PrismaModule } from 'libs/modules';
     EmailCertModule,
     LoginJwtModule,
     SocialLoginJwtModule,
+    UserCoreModule,
   ],
   controllers: [UserController],
   providers: [

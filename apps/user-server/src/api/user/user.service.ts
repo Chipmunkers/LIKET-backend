@@ -24,6 +24,7 @@ import { ReviewRepository } from '../review/review.repository';
 import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
 import { MyReviewEntity } from '../review/entity/my-review.entity';
 import { PrismaProvider } from 'libs/modules';
+import { UserCoreService } from 'libs/core/user/user-core.service';
 
 @Injectable()
 export class UserService {
@@ -36,6 +37,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly liketRepository: LiketRepository,
     private readonly reviewRepository: ReviewRepository,
+    private readonly userCoreService: UserCoreService,
     @Logger(UserService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -53,17 +55,16 @@ export class UserService {
       EmailCertType.SIGN_UP,
     );
 
-    await this.checkEmailDuplicate({ email });
-
-    const signUpUser = await this.userRepository.insertUser({
+    const signUpUser = await this.userCoreService.createUser({
       email,
-      pw: this.hashService.hashPw(signUpDto.pw),
+      pw: signUpDto.pw,
       nickname: signUpDto.nickname,
       birth: signUpDto.birth || null,
       profileImgPath: profileImg?.filePath || null,
       gender: signUpDto.gender || null,
       snsId: null,
       provider: 'local',
+      isAdmin: false,
     });
 
     const accessToken = this.loginJwtService.sign(
@@ -155,9 +156,8 @@ export class UserService {
       })
     ).map((liket) => SummaryLiketEntity.createEntity(liket));
 
-    const liketCount = await this.liketRepository.selectLiketCountByUserIdx(
-      userIdx,
-    );
+    const liketCount =
+      await this.liketRepository.selectLiketCountByUserIdx(userIdx);
 
     const reviewList = (
       await this.reviewRepository.selectReviewForMyInfo(userIdx)

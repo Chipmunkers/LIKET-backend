@@ -5,6 +5,7 @@ import { PrismaModule, PrismaProvider } from 'libs/modules';
 import { ClsModule } from 'nestjs-cls';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { ClsPluginTransactional } from '@nestjs-cls/transactional';
+import { HashModule } from 'libs/modules/hash/hash.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ClsPluginTransactional } from '@nestjs-cls/transactional';
         }),
       ],
     }),
+    HashModule,
   ],
   providers: [UserCoreService, UserCoreRepository],
   exports: [UserCoreService],
