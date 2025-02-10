@@ -2,7 +2,9 @@ import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { AlreadyExistEmailException } from 'libs/core/user/exception/AlreadyExistEmailException';
 import { InvalidPwError } from 'libs/core/user/exception/InvalidPwError';
+import { UserNotFoundException } from 'libs/core/user/exception/UserNotFoundException';
 import { CreateUserInput } from 'libs/core/user/input/create-user.input';
+import { UpdateUserInput } from 'libs/core/user/input/update-user.input';
 import { UserModel } from 'libs/core/user/model/user.model';
 import { UserCoreRepository } from 'libs/core/user/user-core.repository';
 import { HashService } from 'libs/modules/hash/hash.service';
@@ -54,5 +56,36 @@ export class UserCoreService {
     });
 
     return UserModel.fromPrisma(createdUser);
+  }
+
+  /**
+   * 사용자 정보를 업데이트하는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 업데이트할 사용자 식별자
+   * @returns 업데이트 후, 사용자 정보
+   *
+   * @throws {UserNotFoundException} 404 - idx에 해당하는 사용자를 찾을 수 없는 경우
+   */
+  @Transactional()
+  public async updateUserByIdx(
+    idx: number,
+    updateInput: UpdateUserInput,
+  ): Promise<UserModel> {
+    const user = await this.userCoreRepository.selectUserByIdx(idx);
+
+    if (!user) {
+      throw new UserNotFoundException(idx, 'Cannot found user');
+    }
+
+    const updatedUser = await this.userCoreRepository.updateUserByIdx(idx, {
+      ...updateInput,
+      encryptedPw: updateInput.pw
+        ? await this.hashService.hashPw(updateInput.pw)
+        : undefined,
+    });
+
+    return UserModel.fromPrisma(updatedUser);
   }
 }

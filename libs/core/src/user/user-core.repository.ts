@@ -2,6 +2,7 @@ import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Injectable } from '@nestjs/common';
 import { CreateUserInput } from 'libs/core/user/input/create-user.input';
+import { UpdateUserInput } from 'libs/core/user/input/update-user.input';
 import { UserSelectField } from 'libs/core/user/model/prisma/user-select-field';
 import { UserProvider } from 'libs/core/user/model/provider.model';
 import { PrismaProvider } from 'libs/modules';
@@ -153,6 +154,29 @@ export class UserCoreRepository {
         profileImgPath: createUserInput.profileImgPath,
         provider: createUserInput.provider,
         snsId: createUserInput.snsId,
+      },
+    });
+  }
+
+  /**
+   * @author jochongs
+   */
+  public async updateUserByIdx(
+    idx: number,
+    updateInput: Omit<UpdateUserInput, 'pw'> & { encryptedPw?: string },
+  ): Promise<UserSelectField> {
+    return await this.txHost.tx.user.update({
+      where: {
+        idx,
+      },
+      data: {
+        pw: updateInput.encryptedPw,
+        nickname: updateInput.nickname,
+        email: updateInput.email,
+        gender: updateInput.gender,
+        birth: updateInput.gender,
+        profileImgPath: updateInput.profileImgPath,
+        isAdmin: updateInput.isAdmin,
       },
     });
   }

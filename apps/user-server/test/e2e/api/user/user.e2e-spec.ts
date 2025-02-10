@@ -314,6 +314,112 @@ describe('User (e2e)', () => {
     });
   });
 
+  describe('PUT /user/my/profile-img', () => {
+    it('Success - change new profile img', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const beforeUpdateUser = await test.getPrisma().user.findUniqueOrThrow({
+        where: {
+          idx: loginUser.idx,
+        },
+      });
+
+      const newProfileImgPath = '/new-path/new-img.0001.png';
+      expect(beforeUpdateUser.profileImgPath).not.toBe(newProfileImgPath);
+
+      await request(test.getServer())
+        .put('/user/my/profile-img')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send({
+          profileImg: newProfileImgPath,
+        });
+
+      const afterUpdateUser = await test.getPrisma().user.findUniqueOrThrow({
+        where: {
+          idx: loginUser.idx,
+        },
+      });
+
+      expect(beforeUpdateUser.idx).toBe(afterUpdateUser.idx);
+      expect(beforeUpdateUser.nickname).toBe(afterUpdateUser.nickname);
+      expect(beforeUpdateUser.email).toBe(afterUpdateUser.email);
+      expect(beforeUpdateUser.gender).toBe(afterUpdateUser.gender);
+      expect(beforeUpdateUser.birth).toBe(afterUpdateUser.birth);
+      expect(beforeUpdateUser.isAdmin).toBe(afterUpdateUser.isAdmin);
+      expect(beforeUpdateUser.provider).toBe(afterUpdateUser.provider);
+      expect(beforeUpdateUser.pw).toBe(afterUpdateUser.pw);
+      expect(afterUpdateUser.profileImgPath).toBe(newProfileImgPath);
+    });
+
+    it('Success - change null img', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const beforeUpdateUser = await test.getPrisma().user.findUniqueOrThrow({
+        where: {
+          idx: loginUser.idx,
+        },
+      });
+
+      const newProfileImgPath = '/new-path/new-img.0001.png';
+      expect(beforeUpdateUser.profileImgPath).not.toBe(newProfileImgPath);
+
+      await request(test.getServer())
+        .put('/user/my/profile-img')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send({
+          profileImg: newProfileImgPath,
+        });
+
+      const afterUpdateUser = await test.getPrisma().user.findUniqueOrThrow({
+        where: {
+          idx: loginUser.idx,
+        },
+      });
+
+      expect(beforeUpdateUser.idx).toBe(afterUpdateUser.idx);
+      expect(beforeUpdateUser.nickname).toBe(afterUpdateUser.nickname);
+      expect(beforeUpdateUser.email).toBe(afterUpdateUser.email);
+      expect(beforeUpdateUser.gender).toBe(afterUpdateUser.gender);
+      expect(beforeUpdateUser.birth).toBe(afterUpdateUser.birth);
+      expect(beforeUpdateUser.isAdmin).toBe(afterUpdateUser.isAdmin);
+      expect(beforeUpdateUser.provider).toBe(afterUpdateUser.provider);
+      expect(beforeUpdateUser.pw).toBe(afterUpdateUser.pw);
+      expect(afterUpdateUser.profileImgPath).toBe(newProfileImgPath);
+
+      // 다시 프로필 이미지 삭제
+      await request(test.getServer())
+        .put('/user/my/profile-img')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send({});
+
+      const afterUpdateProfileImgToNullUser = await test
+        .getPrisma()
+        .user.findUniqueOrThrow({
+          where: {
+            idx: loginUser.idx,
+          },
+        });
+
+      expect(afterUpdateProfileImgToNullUser.idx).toBe(afterUpdateUser.idx);
+      expect(afterUpdateProfileImgToNullUser.nickname).toBe(
+        afterUpdateUser.nickname,
+      );
+      expect(afterUpdateProfileImgToNullUser.email).toBe(afterUpdateUser.email);
+      expect(afterUpdateProfileImgToNullUser.gender).toBe(
+        afterUpdateUser.gender,
+      );
+      expect(afterUpdateProfileImgToNullUser.birth).toBe(afterUpdateUser.birth);
+      expect(afterUpdateProfileImgToNullUser.isAdmin).toBe(
+        afterUpdateUser.isAdmin,
+      );
+      expect(afterUpdateProfileImgToNullUser.provider).toBe(
+        afterUpdateUser.provider,
+      );
+      expect(afterUpdateProfileImgToNullUser.pw).toBe(afterUpdateUser.pw);
+      expect(afterUpdateProfileImgToNullUser.profileImgPath).toBeNull();
+    });
+  });
+
   describe('PUT /my/profile', () => {
     it('Success', async () => {
       const loginUser = test.getLoginUsers().user1;

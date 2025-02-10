@@ -189,7 +189,10 @@ export class UserController {
     @User() loginUser: LoginUser,
     @Body() updateDto: UpdateProfileImgDto,
   ): Promise<void> {
-    await this.userService.updateProfileImg(loginUser, updateDto.profileImg);
+    await this.userService.updateProfileImg(
+      loginUser,
+      updateDto.profileImg || null,
+    );
   }
 
   /**

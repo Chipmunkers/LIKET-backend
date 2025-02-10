@@ -171,11 +171,13 @@ export class UserService {
    *
    * @author jochongs
    */
-  public async updateProfileImg(loginUser: LoginUser, profileImgPath?: string) {
-    await this.userRepository.updateProfileImgByUserIdx(
-      loginUser.idx,
-      profileImgPath,
-    );
+  public async updateProfileImg(
+    loginUser: LoginUser,
+    profileImgPath: string | null,
+  ) {
+    await this.userCoreService.updateUserByIdx(loginUser.idx, {
+      profileImgPath: profileImgPath,
+    });
   }
 
   /**
