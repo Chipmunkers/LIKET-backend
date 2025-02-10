@@ -1,16 +1,5 @@
 {
   "name": "batch-server",
   "version": "0.0.11",
-  "description": "Liket batch server",
-  "dependencies": {
-    "@nestjs/axios": "^3.1.2",
-    "@nestjs/schedule": "^4.1.1",
-    "axios": "^1.7.8",
-    "i": "^0.3.7",
-    "npm": "^10.9.1",
-    "xml2js": "^0.6.2"
-  },
-  "devDependencies": {
-    "@types/xml2js": "^0.4.14"
-  }
+  "description": "Liket batch server"
 }
