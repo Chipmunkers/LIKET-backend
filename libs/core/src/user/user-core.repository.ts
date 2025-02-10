@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserInput } from 'libs/core/user/input/create-user.input';
 import { UpdateUserInput } from 'libs/core/user/input/update-user.input';
 import { UserSelectField } from 'libs/core/user/model/prisma/user-select-field';
-import { UserProvider } from 'libs/core/user/model/provider.model';
+import { UserProvider } from 'libs/core/user/constant/user-provider.constant';
 import { PrismaProvider } from 'libs/modules';
 
 @Injectable()

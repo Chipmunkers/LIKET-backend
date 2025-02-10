@@ -9,6 +9,7 @@ import { UserCoreRepository } from 'libs/core/user/user-core.repository';
 import { HashService } from 'libs/modules/hash/hash.service';
 import { Prisma } from '@prisma/client';
 import { UserNotFoundError } from 'libs/core/user/exception/UserNotFoundException';
+import { UserProvider } from 'libs/core/user/constant/user-provider.constant';
 
 @Injectable()
 export class UserCoreService {
@@ -16,6 +17,52 @@ export class UserCoreService {
     private readonly userCoreRepository: UserCoreRepository,
     private readonly hashService: HashService,
   ) {}
+
+  /**
+   * idx를 통해 user를 찾는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  @Transactional()
+  public async findUserByIdx(idx: number): Promise<UserModel | null> {
+    const user = await this.userCoreRepository.selectUserByIdx(idx);
+
+    return user ? UserModel.fromPrisma(user) : null;
+  }
+
+  /**
+   * id와 provider를 통해 user를 찾는 메서드
+   *
+   * @author jochongs
+   *
+   * @param snsId 소셜사 제공 식별자
+   * @param provider 소셜사
+   */
+  @Transactional()
+  public async findUserBySnsId(
+    snsId: string,
+    provider: UserProvider,
+  ): Promise<UserModel | null> {
+    const user = await this.userCoreRepository.selectUserById(snsId, provider);
+
+    return user ? UserModel.fromPrisma(user) : null;
+  }
+
+  /**
+   * email을 통해 user를 찾는 메서드
+   *
+   * @author jochongs
+   *
+   * @param email 사용자 이메일
+   */
+  @Transactional()
+  public async findUserByEmail(email: string): Promise<UserModel | null> {
+    const user = await this.userCoreRepository.selectUserByEmail(email);
+
+    return user ? UserModel.fromPrisma(user) : null;
+  }
 
   /**
    * 사용자를 생성하는 메서드
