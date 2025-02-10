@@ -1,7 +1,7 @@
 /**
  * @author jochongs
  */
-export const DELETE_USER_TYPE = {
+export const WITHDRAWAL_REASON_TYPE = {
   /** 앱 사용 불편 */
   APP_INCONVENIENCE: 1,
   /** 사용하지 않는 앱 */
@@ -16,5 +16,5 @@ export const DELETE_USER_TYPE = {
   ETC: 6,
 } as const;
 
-export type DeleteUserType =
-  (typeof DELETE_USER_TYPE)[keyof typeof DELETE_USER_TYPE];
+export type WithdrawalReasonType =
+  (typeof WITHDRAWAL_REASON_TYPE)[keyof typeof WITHDRAWAL_REASON_TYPE];

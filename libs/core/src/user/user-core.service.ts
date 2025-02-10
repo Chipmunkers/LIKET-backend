@@ -140,4 +140,14 @@ export class UserCoreService {
       throw err;
     }
   }
+
+  /**
+   * 사용자를 삭제하는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 삭제할 사용자 식별자
+   */
+  @Transactional()
+  public async deleteUserByIdx() {}
 }
