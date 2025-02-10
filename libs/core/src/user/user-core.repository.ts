@@ -55,6 +55,8 @@ export class UserCoreRepository {
    * SELECT user WHERE idx = $1
    *
    * @author jochongs
+   *
+   * @param idx user 식별자
    */
   public async selectUserByIdx(idx: number): Promise<UserSelectField | null> {
     return await this.txHost.tx.user.findUnique({
