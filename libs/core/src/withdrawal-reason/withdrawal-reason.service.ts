@@ -11,6 +11,7 @@ export class WithdrawalReasonCoreService {
 
   /**
    * 탈퇴 사유를 생성하는 메서드
+   * ! 주의: UserCoreService.withdrawalUserByIdx 메서드 사용을 권장합니다.
    *
    * @author jochongs
    *
@@ -20,7 +21,6 @@ export class WithdrawalReasonCoreService {
     idx: number,
     input: CreateWithdrawalReasonInput,
   ): Promise<WithdrawalReasonModel> {
-    // TODO: F key 에러 발생할 때 에러 던져줘야함.
     return WithdrawalReasonModel.fromPrisma(
       await this.withdrawalReasonCoreRepository.createWithdrawalReason(
         idx,

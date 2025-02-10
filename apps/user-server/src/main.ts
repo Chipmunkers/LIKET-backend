@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { GET_MODE, MODE } from 'libs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { UserCoreService } from 'libs/core/user/user-core.service';
+import { WithdrawalReasonCoreService } from 'libs/core/withdrawal-reason/withdrawal-reason.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
