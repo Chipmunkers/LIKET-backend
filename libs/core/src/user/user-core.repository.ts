@@ -159,6 +159,8 @@ export class UserCoreRepository {
   }
 
   /**
+   * UPDATE user SET ... WHERE idx = $1
+   *
    * @author jochongs
    */
   public async updateUserByIdx(
@@ -178,6 +180,20 @@ export class UserCoreRepository {
         profileImgPath: updateInput.profileImgPath,
         isAdmin: updateInput.isAdmin,
         blockedAt: updateInput.blockedAt,
+      },
+    });
+  }
+
+  /**
+   * SOFT DELETE user WHERE idx = $1
+   *
+   * @author jochongs
+   */
+  public async softDeleteUserByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.user.update({
+      where: { idx, deletedAt: null },
+      data: {
+        deletedAt: new Date(),
       },
     });
   }

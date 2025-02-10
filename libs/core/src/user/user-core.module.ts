@@ -6,9 +6,10 @@ import { ClsModule } from 'nestjs-cls';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { ClsPluginTransactional } from '@nestjs-cls/transactional';
 import { HashModule } from 'libs/modules/hash/hash.module';
+import { WithdrawalReasonCoreModule } from 'libs/core/withdrawal-reason/withdrawal-reason-core.module';
 
 @Module({
-  imports: [PrismaModule, HashModule],
+  imports: [PrismaModule, HashModule, WithdrawalReasonCoreModule],
   providers: [UserCoreService, UserCoreRepository],
   exports: [UserCoreService],
 })

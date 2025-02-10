@@ -10,12 +10,16 @@ import { HashService } from 'libs/modules/hash/hash.service';
 import { Prisma } from '@prisma/client';
 import { UserNotFoundError } from 'libs/core/user/exception/UserNotFoundException';
 import { UserProvider } from 'libs/core/user/constant/user-provider.constant';
+import { CreateWithdrawalReasonInput } from 'libs/core/withdrawal-reason/input/create-withdrawal.input';
+import { WithdrawalReasonModel } from 'libs/core/withdrawal-reason/model/withdrawal-reason.model';
+import { WithdrawalReasonCoreService } from 'libs/core/withdrawal-reason/withdrawal-reason.service';
 
 @Injectable()
 export class UserCoreService {
   constructor(
     private readonly userCoreRepository: UserCoreRepository,
     private readonly hashService: HashService,
+    private readonly withdrawalCoreService: WithdrawalReasonCoreService,
   ) {}
 
   /**
@@ -142,12 +146,21 @@ export class UserCoreService {
   }
 
   /**
-   * 사용자를 삭제하는 메서드
+   * 회원탈퇴 메서드
    *
    * @author jochongs
    *
    * @param idx 삭제할 사용자 식별자
    */
   @Transactional()
-  public async deleteUserByIdx() {}
+  public async withdrawalUserByIdx(
+    idx: number,
+    reasonInput: CreateWithdrawalReasonInput,
+  ): Promise<WithdrawalReasonModel> {
+    await this.userCoreRepository.softDeleteUserByIdx(idx);
+    return await this.withdrawalCoreService.createWithdrawalReason(
+      idx,
+      reasonInput,
+    );
+  }
 }
