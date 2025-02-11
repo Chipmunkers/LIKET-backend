@@ -14,6 +14,8 @@ import spyOn = jest.spyOn;
 import { ResetPwDto } from '../../../../src/api/user/dto/reset-pw.dto';
 import { LoginDto } from '../../../../src/api/auth/dto/local-login.dto';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { WithdrawalReasonCoreService } from 'libs/core/withdrawal-reason/withdrawal-reason.service';
+import { WithdrawalReasonCoreRepository } from 'libs/core/withdrawal-reason/withdrawal-reason-core.repository';
 
 describe('User (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -119,177 +121,180 @@ describe('User (e2e)', () => {
     });
   });
 
-  describe('POST /user/social', () => {
-    it('Social Signup success', async () => {
-      const socialLoginUser: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'jochong',
-        email: 'test123@naver.com',
-      };
+  /**
+   * @deprecated
+   */
+  // describe('POST /user/social', () => {
+  //   it('Social Signup success', async () => {
+  //     const socialLoginUser: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'jochong',
+  //       email: 'test123@naver.com',
+  //     };
 
-      const socialLoginJwtService = test.get(SocialLoginJwtService);
+  //     const socialLoginJwtService = test.get(SocialLoginJwtService);
 
-      const socialSignUpDto: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: 'jochong',
-        token: await socialLoginJwtService.sign(socialLoginUser),
-      };
+  //     const socialSignUpDto: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: 'jochong',
+  //       token: await socialLoginJwtService.sign(socialLoginUser),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto)
-        .expect(200);
-    });
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto)
+  //       .expect(200);
+  //   });
 
-    it('Invalid social token', async () => {
-      const socialSignUpDto: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: 'jochong',
-        token: 'this.is.invalidToken',
-      };
+  //   it('Invalid social token', async () => {
+  //     const socialSignUpDto: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: 'jochong',
+  //       token: 'this.is.invalidToken',
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto)
-        .expect(403);
-    });
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto)
+  //       .expect(403);
+  //   });
 
-    it('Duplicate email', async () => {
-      const sameEmail = 'test123@naver.com';
+  //   it('Duplicate email', async () => {
+  //     const sameEmail = 'test123@naver.com';
 
-      const socialLoginUser: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'jochong',
-        email: sameEmail,
-      };
+  //     const socialLoginUser: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'jochong',
+  //       email: sameEmail,
+  //     };
 
-      const socialLoginJwtService = test.get(SocialLoginJwtService);
+  //     const socialLoginJwtService = test.get(SocialLoginJwtService);
 
-      const socialSignUpDto: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: 'jochong',
-        token: await socialLoginJwtService.sign(socialLoginUser),
-      };
+  //     const socialSignUpDto: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: 'jochong',
+  //       token: await socialLoginJwtService.sign(socialLoginUser),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto)
-        .expect(200);
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto)
+  //       .expect(200);
 
-      const socialLoginUser2: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'jochong',
-        email: sameEmail,
-      };
+  //     const socialLoginUser2: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'jochong',
+  //       email: sameEmail,
+  //     };
 
-      const socialSignUpDto2: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: 'test',
-        token: await socialLoginJwtService.sign(socialLoginUser2),
-      };
+  //     const socialSignUpDto2: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: 'test',
+  //       token: await socialLoginJwtService.sign(socialLoginUser2),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto2)
-        .expect(409);
-    });
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto2)
+  //       .expect(409);
+  //   });
 
-    it('Duplicate nickname - but ok', async () => {
-      const sameNickname = 'jochong';
+  //   it('Duplicate nickname - but ok', async () => {
+  //     const sameNickname = 'jochong';
 
-      // First social login user
-      const socialLoginUser: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'kakaoUser1',
-        email: 'another@xxxx.xxx',
-      };
+  //     // First social login user
+  //     const socialLoginUser: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'kakaoUser1',
+  //       email: 'another@xxxx.xxx',
+  //     };
 
-      const socialLoginJwtService = test.get(SocialLoginJwtService);
+  //     const socialLoginJwtService = test.get(SocialLoginJwtService);
 
-      const socialSignUpDto: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: sameNickname,
-        token: await socialLoginJwtService.sign(socialLoginUser),
-      };
+  //     const socialSignUpDto: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: sameNickname,
+  //       token: await socialLoginJwtService.sign(socialLoginUser),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto)
-        .expect(200);
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto)
+  //       .expect(200);
 
-      // Second social login user with duplicated email
-      const socialLoginUser2: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'kakaoUser2',
-        email: 'theother@gmail.com',
-      };
+  //     // Second social login user with duplicated email
+  //     const socialLoginUser2: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'kakaoUser2',
+  //       email: 'theother@gmail.com',
+  //     };
 
-      const socialSignUpDto2: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: sameNickname, // Same nickname
-        token: await socialLoginJwtService.sign(socialLoginUser2),
-      };
+  //     const socialSignUpDto2: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: sameNickname, // Same nickname
+  //       token: await socialLoginJwtService.sign(socialLoginUser2),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto2)
-        .expect(200);
-    });
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto2)
+  //       .expect(200);
+  //   });
 
-    it('Duplicate sign up with local user email', async () => {
-      const sameEmail = 'sameEmail@xxxx.xxx';
+  //   it('Duplicate sign up with local user email', async () => {
+  //     const sameEmail = 'sameEmail@xxxx.xxx';
 
-      // Local user
-      const signUpDto: SignUpDto = {
-        emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
-        pw: 'pw123123**',
-        nickname: 'jochong',
-        gender: Gender.MALE,
-        birth: 2002,
-      };
+  //     // Local user
+  //     const signUpDto: SignUpDto = {
+  //       emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
+  //       pw: 'pw123123**',
+  //       nickname: 'jochong',
+  //       gender: Gender.MALE,
+  //       birth: 2002,
+  //     };
 
-      const emailJwtService = test.get(EmailJwtService);
+  //     const emailJwtService = test.get(EmailJwtService);
 
-      spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
-      await request(test.getServer())
-        .post('/user/local')
-        .send(signUpDto)
-        .expect(200);
+  //     spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
+  //     await request(test.getServer())
+  //       .post('/user/local')
+  //       .send(signUpDto)
+  //       .expect(200);
 
-      // Social sign up with duplicated email
-      const socialLoginUser: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'jochong',
-        email: sameEmail,
-      };
+  //     // Social sign up with duplicated email
+  //     const socialLoginUser: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'jochong',
+  //       email: sameEmail,
+  //     };
 
-      const socialLoginJwtService = test.get(SocialLoginJwtService);
+  //     const socialLoginJwtService = test.get(SocialLoginJwtService);
 
-      const socialSignUpDto: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: 'jochong',
-        token: await socialLoginJwtService.sign(socialLoginUser),
-      };
+  //     const socialSignUpDto: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: 'jochong',
+  //       token: await socialLoginJwtService.sign(socialLoginUser),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto)
-        .expect(409);
-    });
-  });
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto)
+  //       .expect(409);
+  //   });
+  // });
 
   describe('GET /user/my', () => {
     it('Success', async () => {
@@ -637,6 +642,32 @@ describe('User (e2e)', () => {
           pw: 'aa12341234**',
         })
         .expect(401);
+    });
+
+    it('Fail - transaction test', async () => {
+      const loginUser = test.getLoginUsers().user2;
+
+      const withdrawalCoreRepository = test.get(WithdrawalReasonCoreRepository);
+
+      withdrawalCoreRepository.createWithdrawalReason = jest
+        .fn()
+        .mockImplementation(async () => {
+          throw new Error('this is unknown error');
+        });
+
+      await request(test.getServer())
+        .delete('/user')
+        .send({
+          type: 1,
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(500);
+
+      const user = await test.getPrisma().user.findUniqueOrThrow({
+        where: { idx: loginUser.idx },
+      });
+
+      expect(user.deletedAt).toBeNull();
     });
   });
 });

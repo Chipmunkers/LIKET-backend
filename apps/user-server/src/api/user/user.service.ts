@@ -2,15 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
 import { MyInfoEntity } from './entity/my-info.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { HashService } from '../../common/module/hash/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { UserEntity } from './entity/user.entity';
 import { UploadedFileEntity } from '../upload/entity/uploaded-file.entity';
 import { EmailJwtService } from '../email-cert/email-jwt.service';
 import { EmailCertType } from '../email-cert/model/email-cert-type';
 import { LoginJwtService } from '../../common/module/login-jwt/login-jwt.service';
-import { SocialSignUpDto } from './dto/social-sign-up.dto';
-import { SocialLoginJwtService } from '../../common/module/social-login-jwt/social-login-jwt.service';
 import { EmailDuplicateException } from './exception/EmailDuplicateException';
 import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { LoginToken } from '../auth/model/login-token';
@@ -23,17 +20,13 @@ import { LiketRepository } from '../liket/liket.repository';
 import { ReviewRepository } from '../review/review.repository';
 import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
 import { MyReviewEntity } from '../review/entity/my-review.entity';
-import { PrismaProvider } from 'libs/modules';
 import { UserCoreService } from 'libs/core/user/user-core.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly prisma: PrismaProvider,
-    private readonly hashService: HashService,
     private readonly emailJwtService: EmailJwtService,
     private readonly loginJwtService: LoginJwtService,
-    private readonly socialLoginJwtService: SocialLoginJwtService,
     private readonly userRepository: UserRepository,
     private readonly liketRepository: LiketRepository,
     private readonly reviewRepository: ReviewRepository,
@@ -175,34 +168,32 @@ export class UserService {
    * 이메일 중복 검사 확인하기
    *
    * @author jochongs
+   *
+   * @throws {EmailDuplicateException} 409 - 이미 해당 계정으로 가입된 계정이 존재하는 경우
    */
   public async checkEmailDuplicate(
     checkDto: EmailDuplicateCheckDto,
   ): Promise<void> {
-    try {
-      await this.getUserByEmail(checkDto.email);
-    } catch (err) {
-      return;
+    const user = await this.userCoreService.findUserByEmail(checkDto.email);
+
+    if (user) {
+      throw new EmailDuplicateException('duplicated email');
     }
 
-    throw new EmailDuplicateException('duplicated email');
+    return;
   }
 
   /**
    * @author jochongs
    */
   public async getUserByEmail(email: string) {
-    const user = await this.userRepository.selectUserByEmail(email);
+    const user = await this.userCoreService.findUserByEmail(email);
 
     if (!user) {
-      this.logger.warn(
-        this.getUserByEmail,
-        `Attempt to find non-existent user ${email}`,
-      );
       throw new UserNotFoundException('Cannot find user');
     }
 
-    return UserEntity.createEntity(user);
+    return UserEntity.fromModel(user);
   }
 
   /**
@@ -214,17 +205,9 @@ export class UserService {
     loginUser: LoginUser,
     withdrawalDto: WithdrawalDto,
   ): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
-      await this.userRepository.deleteUserByIdx(loginUser.idx, tx);
-
-      // TODO: repository 패턴으로 변경 필요
-      await this.prisma.deleteUserReason.create({
-        data: {
-          idx: loginUser.idx,
-          contents: withdrawalDto.contents,
-          typeIdx: withdrawalDto.type,
-        },
-      });
+    await this.userCoreService.withdrawalUserByIdx(loginUser.idx, {
+      typeIdx: withdrawalDto.type,
+      contents: withdrawalDto.contents,
     });
   }
 }

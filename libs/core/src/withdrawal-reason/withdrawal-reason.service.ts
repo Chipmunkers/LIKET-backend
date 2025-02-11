@@ -1,3 +1,4 @@
+import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { CreateWithdrawalReasonInput } from 'libs/core/withdrawal-reason/input/create-withdrawal.input';
 import { WithdrawalReasonModel } from 'libs/core/withdrawal-reason/model/withdrawal-reason.model';
@@ -17,6 +18,7 @@ export class WithdrawalReasonCoreService {
    *
    * @param idx number
    */
+  @Transactional()
   public async createWithdrawalReason(
     idx: number,
     input: CreateWithdrawalReasonInput,
