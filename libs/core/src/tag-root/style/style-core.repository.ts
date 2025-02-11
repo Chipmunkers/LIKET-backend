@@ -1,8 +1,8 @@
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Injectable } from '@nestjs/common';
-import { FindManyStyleInput } from 'libs/core/culture-content-root/style/input/find-many-style.input';
-import { StyleSelectField } from 'libs/core/culture-content-root/style/model/prisma/style-select-field';
+import { FindManyStyleInput } from 'libs/core/tag-root/style/input/find-many-style.input';
+import { StyleSelectField } from 'libs/core/tag-root/style/model/prisma/style-select-field';
 import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
@@ -19,8 +19,8 @@ export class StyleCoreRepository {
    * @author jochongs
    */
   public async selectStyleAll({
-    orderBy = 'desc',
-    order = 'idx',
+    orderBy,
+    order,
   }: FindManyStyleInput): Promise<StyleSelectField[]> {
     return await this.txHost.tx.style.findMany({
       select: {

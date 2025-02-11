@@ -1,4 +1,4 @@
-import { StyleSelectField } from 'libs/core/culture-content-root/style/model/prisma/style-select-field';
+import { StyleSelectField } from 'libs/core/tag-root/style/model/prisma/style-select-field';
 
 /**
  * @author jochongs
