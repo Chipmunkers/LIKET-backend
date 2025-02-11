@@ -1,10 +1,10 @@
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
+import { PrismaProvider } from 'libs/modules';
 import { Injectable } from '@nestjs/common';
 import { Style } from 'libs/core/tag-root/style/constant/style';
 import { FindManyStyleInput } from 'libs/core/tag-root/style/input/find-many-style.input';
 import { StyleSelectField } from 'libs/core/tag-root/style/model/prisma/style-select-field';
-import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
 export class StyleCoreRepository {
@@ -31,7 +31,7 @@ export class StyleCoreRepository {
       },
       where: { deletedAt: null },
       orderBy: {
-        [order]: orderBy,
+        [orderBy]: order,
       },
     });
   }

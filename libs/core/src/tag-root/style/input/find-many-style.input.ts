@@ -1,4 +1,4 @@
 export class FindManyStyleInput {
-  orderBy: 'desc' | 'asc';
-  order: 'idx';
+  orderBy: 'idx';
+  order: 'desc' | 'asc';
 }
