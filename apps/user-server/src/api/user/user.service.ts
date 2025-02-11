@@ -11,8 +11,6 @@ import { LoginJwtService } from '../../common/module/login-jwt/login-jwt.service
 import { EmailDuplicateException } from './exception/EmailDuplicateException';
 import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { LoginToken } from '../auth/model/login-token';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { LoginUser } from '../auth/model/login-user';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { UserRepository } from './user.repository';
@@ -31,7 +29,6 @@ export class UserService {
     private readonly liketRepository: LiketRepository,
     private readonly reviewRepository: ReviewRepository,
     private readonly userCoreService: UserCoreService,
-    @Logger(UserService.name) private readonly logger: LoggerService,
   ) {}
 
   /**
@@ -88,10 +85,6 @@ export class UserService {
     const user = await this.userRepository.selectMyUser(userIdx);
 
     if (!user) {
-      this.logger.warn(
-        this.getMyInfo,
-        `Attempt to find non-existent user ${userIdx}`,
-      );
       throw new UserNotFoundException('Cannot find user');
     }
 
@@ -137,10 +130,6 @@ export class UserService {
     const user = await this.userRepository.selectUserByIdx(userIdx);
 
     if (!user) {
-      this.logger.warn(
-        this.getUserByIdx,
-        `Attempt to find non-existent user ${userIdx}`,
-      );
       throw new UserNotFoundException('Cannot find user');
     }
 
