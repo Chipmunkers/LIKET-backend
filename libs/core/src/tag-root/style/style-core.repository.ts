@@ -16,6 +16,7 @@ export class StyleCoreRepository {
 
   /**
    * SELECT style
+   * ! 주의: 대부분의 경우에서, 아래 메서드를 사용할 필요가 없습니다. 대신 STYLE을 사용하십시오.
    *
    * @author jochongs
    */
@@ -38,6 +39,7 @@ export class StyleCoreRepository {
 
   /**
    * SELECT style WHERE idx = $1
+   * ! 주의: 대부분의 경우에서, 아래 메서드를 사용할 필요가 없습니다. 대신 STYLE을 사용하십시오.
    *
    * @author jochongs
    */
