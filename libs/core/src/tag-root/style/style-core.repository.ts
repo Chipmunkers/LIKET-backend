@@ -1,6 +1,7 @@
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Injectable } from '@nestjs/common';
+import { Style } from 'libs/core/tag-root/style/constant/style';
 import { FindManyStyleInput } from 'libs/core/tag-root/style/input/find-many-style.input';
 import { StyleSelectField } from 'libs/core/tag-root/style/model/prisma/style-select-field';
 import { PrismaProvider } from 'libs/modules';
@@ -40,7 +41,7 @@ export class StyleCoreRepository {
    *
    * @author jochongs
    */
-  public async selectStyleByIdx(idx: number): Promise<StyleSelectField | null> {
+  public async selectStyleByIdx(idx: Style): Promise<StyleSelectField | null> {
     return await this.txHost.tx.style.findUnique({
       select: {
         idx: true,

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Style } from 'libs/core/tag-root/style/constant/style';
 import { FindManyStyleInput } from 'libs/core/tag-root/style/input/find-many-style.input';
 import { StyleModel } from 'libs/core/tag-root/style/model/style.model';
 import { StyleCoreRepository } from 'libs/core/tag-root/style/style-core.repository';
@@ -25,7 +26,7 @@ export class StyleCoreService {
    *
    * @param idx 스타일 식별자
    */
-  public async findStyleByIdx(idx: number): Promise<StyleModel | null> {
+  public async findStyleByIdx(idx: Style): Promise<StyleModel | null> {
     const style = await this.styleCoreRepository.selectStyleByIdx(idx);
 
     return style && StyleModel.fromPrisma(style);
