@@ -7,17 +7,17 @@ export class StyleModel {
   /**
    * 스타일 식별자
    */
-  idx: number;
+  public readonly idx: number;
 
   /**
    * 스타일 이름
    */
-  name: string;
+  public readonly name: string;
 
   /**
    * 생성일
    */
-  createdAt: Date;
+  public readonly createdAt: Date;
 
   constructor(data: StyleModel) {
     Object.assign(this, data);
