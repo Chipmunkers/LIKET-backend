@@ -1,4 +1,5 @@
 import { CultureContentAuthorModel } from 'libs/core/culture-content/model/culture-content-author.model';
+import { CultureContentImgModel } from 'libs/core/culture-content/model/culture-content-img.model';
 import { CultureContentLocationModel } from 'libs/core/culture-content/model/culture-content-location.model';
 import { CultureContentSelectField } from 'libs/core/culture-content/model/prisma/culture-content-select-field';
 import { AgeModel } from 'libs/core/tag-root/age/model/age.model';
@@ -12,107 +13,112 @@ export class CultureContentModel {
   /**
    * 컨텐츠 식별자
    */
-  idx: number;
+  public readonly idx: number;
 
   /**
    * 장르
    */
-  genre: GenreModel;
+  public readonly genre: GenreModel;
 
   /**
    * 연령대
    */
-  age: AgeModel;
+  public readonly age: AgeModel;
 
   /**
    * 스타일 목록
    */
-  styleList: StyleModel[];
+  public readonly styleList: StyleModel[];
 
   /**
    * 작성자
    */
-  author: CultureContentAuthorModel;
+  public readonly author: CultureContentAuthorModel;
 
   /**
    * 컨텐츠 지역 모델
    */
-  location: CultureContentLocationModel;
+  public readonly location: CultureContentLocationModel;
+
+  /**
+   * 컨텐츠 이미지 목록
+   */
+  public readonly imgList: CultureContentImgModel[];
 
   /**
    * 컨텐츠 ID
    */
-  id: string | null;
+  public readonly id: string | null;
 
   /**
    * 컨텐츠 제목
    */
-  title: string;
+  public readonly title: string;
 
   /**
    * 컨텐츠 설명
    */
-  description: string | null;
+  public readonly description: string | null;
 
   /**
    * 관련 웹사이트 링크
    */
-  websiteLink: string | null;
+  public readonly websiteLink: string | null;
 
   /**
    * 컨텐츠 시작 날짜
    */
-  startDate: Date;
+  public readonly startDate: Date;
 
   /**
    * 컨텐츠 종료 날짜
    */
-  endDate: Date | null;
+  public readonly endDate: Date | null;
 
   /**
    * 조회수
    */
-  viewCount: number;
+  public readonly viewCount: number;
 
   /**
    * 오픈 시간
    */
-  openTime: string | null;
+  public readonly openTime: string | null;
 
   /**
    * 요금 여부
    */
-  isFee: boolean;
+  public readonly isFee: boolean;
 
   /**
    * 예약 여부
    */
-  isReservation: boolean;
+  public readonly isReservation: boolean;
 
   /**
    * 반려동물 출입 가능 여부
    */
-  isPet: boolean;
+  public readonly isPet: boolean;
 
   /**
    * 주차 가능 여부
    */
-  isParking: boolean;
+  public readonly isParking: boolean;
 
   /**
    * 좋아요 수
    */
-  likeCount: number;
+  public readonly likeCount: number;
 
   /**
    * 생성일
    */
-  createdAt: Date;
+  public readonly createdAt: Date;
 
   /**
    * 활성화 된 시간
    */
-  acceptedAt: Date | null;
+  public readonly acceptedAt: Date | null;
 
   constructor(data: CultureContentModel) {
     Object.assign(this, data);
@@ -130,6 +136,7 @@ export class CultureContentModel {
       ),
       author: CultureContentAuthorModel.fromPrisma(content.User),
       location: CultureContentLocationModel.fromPrisma(content.Location),
+      imgList: content.ContentImg.map(CultureContentImgModel.fromPrisma),
       id: content.id,
       title: content.title,
       description: content.description,

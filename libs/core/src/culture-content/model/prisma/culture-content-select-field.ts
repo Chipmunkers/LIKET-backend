@@ -39,6 +39,13 @@ const CULTURE_CONTENT_SELECT_FIELD =
           riCode: true,
         },
       },
+      ContentImg: {
+        select: {
+          idx: true,
+          imgPath: true,
+          createdAt: true,
+        },
+      },
       Genre: {
         select: {
           idx: true,
