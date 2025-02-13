@@ -80,6 +80,11 @@ const CULTURE_CONTENT_SELECT_FIELD =
           isAdmin: true,
         },
       },
+      ContentLike: {
+        select: {
+          userIdx: true,
+        },
+      },
     },
   });
 

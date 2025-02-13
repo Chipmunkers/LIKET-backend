@@ -111,6 +111,11 @@ export class CultureContentModel {
   public readonly likeCount: number;
 
   /**
+   * 좋아요 여부
+   */
+  public readonly likeState: boolean;
+
+  /**
    * 생성일
    */
   public readonly createdAt: Date;
@@ -150,6 +155,7 @@ export class CultureContentModel {
       isPet: content.isPet,
       isParking: content.isParking,
       likeCount: content.likeCount,
+      likeState: !!content.ContentLike[0],
       createdAt: content.createdAt,
       acceptedAt: content.acceptedAt,
     });

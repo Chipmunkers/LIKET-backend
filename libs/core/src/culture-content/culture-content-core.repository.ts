@@ -3,6 +3,8 @@ import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-pr
 import { PrismaProvider } from 'libs/modules';
 
 import { Injectable } from '@nestjs/common';
+import { FindCultureContentAllInput } from 'libs/core/culture-content/input/find-culture-content-all.input';
+import { CultureContentSelectField } from 'libs/core/culture-content/model/prisma/culture-content-select-field';
 
 @Injectable()
 export class CultureContentCoreRepository {
