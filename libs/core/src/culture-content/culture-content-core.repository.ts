@@ -27,8 +27,9 @@ export class CultureContentCoreRepository {
     row,
     page,
     accept,
-    open,
+
     searchKeyword,
+    open = [],
     searchByList = [],
     order = 'desc',
     orderBy = 'accept',
@@ -245,54 +246,36 @@ export class CultureContentCoreRepository {
    * @author jochongs
    */
   private getOpenWhereClause(
-    open?: 'soon-open' | 'continue' | 'end',
+    openList: ('soon-open' | 'continue' | 'end')[],
   ): Prisma.CultureContentWhereInput {
-    if (open === undefined) return {};
+    if (open.length === 0) return {};
 
-    if (open === 'soon-open') {
-      return {
-        startDate: {
-          gt: new Date(),
-        },
-        OR: [
-          {
-            endDate: {
-              gt: new Date(),
-            },
-          },
-          {
-            endDate: null,
-          },
-        ],
-      };
-    }
+    const now = new Date();
 
-    if (open === 'continue') {
-      return {
-        startDate: {
-          lte: new Date(),
-        },
-        OR: [
-          {
-            endDate: {
-              gte: new Date(),
-            },
-          },
-          {
-            endDate: null,
-          },
-        ],
-      };
-    }
-
-    // end
     return {
-      startDate: {
-        lte: new Date(),
-      },
-      endDate: {
-        lte: new Date(),
-      },
+      OR: [
+        // soon-open 포함된 경우
+        openList.includes('soon-open')
+          ? {
+              startDate: { gt: now },
+              OR: [{ endDate: { gt: now } }, { endDate: null }],
+            }
+          : {},
+        // continue 포함된 경우
+        openList.includes('continue')
+          ? {
+              startDate: { lte: now },
+              OR: [{ endDate: { gte: now } }, { endDate: null }],
+            }
+          : {},
+        // end 포함된 경우
+        openList.includes('end')
+          ? {
+              startDate: { lte: now },
+              endDate: { lte: now },
+            }
+          : {},
+      ],
     };
   }
 

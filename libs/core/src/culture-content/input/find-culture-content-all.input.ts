@@ -37,8 +37,10 @@ export class FindCultureContentAllInput {
    * soon-open: 오픈 예정인 컨텐츠 필터링
    * continue: 진행중인 컨텐츠 필터링
    * end: 종료된 컨텐츠 필터링
+   *
+   * @default []
    */
-  open?: 'soon-open' | 'continue' | 'end';
+  open?: ('soon-open' | 'continue' | 'end')[];
 
   /**
    * 특정 장르만 보는 필터링
