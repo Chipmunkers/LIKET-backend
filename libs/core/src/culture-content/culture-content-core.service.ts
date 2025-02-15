@@ -20,7 +20,7 @@ export class CultureContentCoreService {
   @Transactional()
   public async findCultureContentByIdx(
     idx: number,
-    readUser: number,
+    readUser?: number,
   ): Promise<CultureContentModel | null> {
     const content =
       await this.cultureContentCoreRepository.selectCultureContentByIdx(
@@ -42,7 +42,7 @@ export class CultureContentCoreService {
   @Transactional()
   public async findCultureContentById(
     id: string,
-    readUser: number,
+    readUser?: number,
   ): Promise<CultureContentModel | null> {
     const content =
       await this.cultureContentCoreRepository.selectCultureContentById(
