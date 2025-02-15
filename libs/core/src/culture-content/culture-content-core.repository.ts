@@ -424,4 +424,107 @@ export class CultureContentCoreRepository {
       },
     });
   }
+
+  /**
+   * SELECT culture_content_tb WHERE id = $1
+   *
+   * @author jochongs
+   *
+   *
+   * @param contentId 컨텐츠 아이디
+   * @param readUser 조회한 사용자 인덱스
+   */
+  public async selectCultureContentById(
+    contentId: string,
+    readUser: number = -1,
+  ) {
+    return await this.txHost.tx.cultureContent.findFirst({
+      select: {
+        idx: true,
+        id: true,
+        title: true,
+        description: true,
+        websiteLink: true,
+        startDate: true,
+        endDate: true,
+        viewCount: true,
+        openTime: true,
+        isFee: true,
+        isReservation: true,
+        isPet: true,
+        isParking: true,
+        likeCount: true,
+        createdAt: true,
+        acceptedAt: true,
+        Location: {
+          select: {
+            idx: true,
+            address: true,
+            detailAddress: true,
+            region1Depth: true,
+            region2Depth: true,
+            hCode: true,
+            bCode: true,
+            positionX: true,
+            positionY: true,
+            sidoCode: true,
+            sggCode: true,
+            legCode: true,
+            riCode: true,
+          },
+        },
+        ContentImg: {
+          select: {
+            idx: true,
+            imgPath: true,
+            createdAt: true,
+          },
+          where: { deletedAt: null },
+          orderBy: { idx: 'asc' },
+        },
+        Genre: {
+          select: {
+            idx: true,
+            name: true,
+            createdAt: true,
+          },
+        },
+        Style: {
+          select: {
+            Style: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+        Age: {
+          select: {
+            idx: true,
+            name: true,
+            createdAt: true,
+          },
+        },
+        User: {
+          select: {
+            idx: true,
+            nickname: true,
+            email: true,
+            profileImgPath: true,
+            isAdmin: true,
+          },
+        },
+        ContentLike: {
+          select: { userIdx: true },
+          where: { userIdx: readUser },
+        },
+      },
+      where: {
+        id: contentId,
+        deletedAt: null,
+      },
+    });
+  }
 }
