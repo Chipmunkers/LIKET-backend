@@ -1,13 +1,33 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { CultureContentCoreRepository } from 'libs/core/culture-content/culture-content-core.repository';
+import { FindCultureContentAllInput } from 'libs/core/culture-content/input/find-culture-content-all.input';
 import { CultureContentModel } from 'libs/core/culture-content/model/culture-content.model';
+import { SummaryCultureContentModel } from 'libs/core/culture-content/model/summary-culture-content.model';
 
 @Injectable()
 export class CultureContentCoreService {
   constructor(
     private readonly cultureContentCoreRepository: CultureContentCoreRepository,
   ) {}
+
+  /**
+   * 문화생활컨텐츠를 검색하는 메서드
+   *
+   * @author jochongs
+   */
+  @Transactional()
+  public async findCultureContentAll(
+    input: FindCultureContentAllInput,
+    readUser?: number,
+  ): Promise<SummaryCultureContentModel[]> {
+    return (
+      await this.cultureContentCoreRepository.selectCultureContentAll(
+        input,
+        readUser,
+      )
+    ).map(SummaryCultureContentModel.fromPrisma);
+  }
 
   /**
    * idx를 통해 문화생활컨텐츠를 탐색하는 메서드

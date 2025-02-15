@@ -23,21 +23,22 @@ export class CultureContentCoreRepository {
    *
    * @author jochongs
    */
-  public async selectCultureContentAll({
-    row,
-    page,
-    accept,
-
-    searchKeyword,
-    open = [],
-    searchByList = [],
-    order = 'desc',
-    orderBy = 'accept',
-    genreList = [],
-    styleList = [],
-    ageList = [],
-    readUser = -1,
-  }: FindCultureContentAllInput): Promise<SummaryCultureContentSelectField[]> {
+  public async selectCultureContentAll(
+    {
+      row,
+      page,
+      accept,
+      searchKeyword,
+      open = [],
+      searchByList = [],
+      order = 'desc',
+      orderBy = 'accept',
+      genreList = [],
+      styleList = [],
+      ageList = [],
+    }: FindCultureContentAllInput,
+    readUser: number = -1,
+  ): Promise<SummaryCultureContentSelectField[]> {
     return await this.txHost.tx.cultureContent.findMany({
       select: {
         idx: true,
