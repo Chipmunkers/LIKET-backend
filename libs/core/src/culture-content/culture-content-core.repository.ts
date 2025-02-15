@@ -331,7 +331,10 @@ export class CultureContentCoreRepository {
    * @param idx 컨텐츠 식별자
    * @param readUser 조회한 사용자 인덱스
    */
-  public async selectCultureContentByIdx(idx: number, readUser?: number) {
+  public async selectCultureContentByIdx(
+    idx: number,
+    readUser?: number,
+  ): Promise<CultureContentSelectField | null> {
     return await this.txHost.tx.cultureContent.findUnique({
       select: {
         idx: true,
