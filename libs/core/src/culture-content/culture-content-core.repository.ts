@@ -333,7 +333,7 @@ export class CultureContentCoreRepository {
    */
   public async selectCultureContentByIdx(
     idx: number,
-    readUser?: number,
+    readUser: number = -1,
   ): Promise<CultureContentSelectField | null> {
     return await this.txHost.tx.cultureContent.findUnique({
       select: {
