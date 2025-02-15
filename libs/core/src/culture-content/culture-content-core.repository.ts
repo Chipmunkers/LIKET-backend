@@ -322,4 +322,103 @@ export class CultureContentCoreRepository {
         : undefined,
     };
   }
+
+  /**
+   * 문화생활컨텐츠 식별자로 데이터를 가져오는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 컨텐츠 식별자
+   * @param readUser 조회한 사용자 인덱스
+   */
+  public async selectCultureContentByIdx(idx: number, readUser?: number) {
+    return await this.txHost.tx.cultureContent.findUnique({
+      select: {
+        idx: true,
+        id: true,
+        title: true,
+        description: true,
+        websiteLink: true,
+        startDate: true,
+        endDate: true,
+        viewCount: true,
+        openTime: true,
+        isFee: true,
+        isReservation: true,
+        isPet: true,
+        isParking: true,
+        likeCount: true,
+        createdAt: true,
+        acceptedAt: true,
+        Location: {
+          select: {
+            idx: true,
+            address: true,
+            detailAddress: true,
+            region1Depth: true,
+            region2Depth: true,
+            hCode: true,
+            bCode: true,
+            positionX: true,
+            positionY: true,
+            sidoCode: true,
+            sggCode: true,
+            legCode: true,
+            riCode: true,
+          },
+        },
+        ContentImg: {
+          select: {
+            idx: true,
+            imgPath: true,
+            createdAt: true,
+          },
+          where: { deletedAt: null },
+          orderBy: { idx: 'asc' },
+        },
+        Genre: {
+          select: {
+            idx: true,
+            name: true,
+            createdAt: true,
+          },
+        },
+        Style: {
+          select: {
+            Style: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+        Age: {
+          select: {
+            idx: true,
+            name: true,
+            createdAt: true,
+          },
+        },
+        User: {
+          select: {
+            idx: true,
+            nickname: true,
+            email: true,
+            profileImgPath: true,
+            isAdmin: true,
+          },
+        },
+        ContentLike: {
+          select: { userIdx: true },
+          where: { userIdx: readUser },
+        },
+      },
+      where: {
+        idx,
+        deletedAt: null,
+      },
+    });
+  }
 }
