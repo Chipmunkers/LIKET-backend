@@ -324,7 +324,7 @@ export class CultureContentCoreRepository {
   }
 
   /**
-   * 문화생활컨텐츠 식별자로 데이터를 가져오는 메서드
+   * SELECT culture_content_tb WHERE idx = $1
    *
    * @author jochongs
    *
