@@ -30,4 +30,26 @@ export class CultureContentCoreService {
 
     return content && CultureContentModel.fromPrisma(content);
   }
+
+  /**
+   * id를 통해 문화생활컨텐츠를 탐색하는 메서드
+   *
+   * @author jochongs
+   *
+   * @param id 문화생활컨텐츠 아이디
+   * @param readUser 조회한 사용자 인덱스
+   */
+  @Transactional()
+  public async findCultureContentById(
+    id: string,
+    readUser: number,
+  ): Promise<CultureContentModel | null> {
+    const content =
+      await this.cultureContentCoreRepository.selectCultureContentById(
+        id,
+        readUser,
+      );
+
+    return content && CultureContentModel.fromPrisma(content);
+  }
 }
