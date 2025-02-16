@@ -188,6 +188,8 @@ export class UserCoreRepository {
    * SOFT DELETE user WHERE idx = $1
    *
    * @author jochongs
+   *
+   * @param idx 삭제할 컨텐츠 식별자
    */
   public async softDeleteUserByIdx(idx: number): Promise<void> {
     await this.txHost.tx.user.update({

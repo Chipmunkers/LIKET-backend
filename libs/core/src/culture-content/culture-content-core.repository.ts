@@ -533,6 +533,8 @@ export class CultureContentCoreRepository {
    * SOFT DELETE culture_content_tb WHERE idx = $1
    *
    * @author jochongs
+   *
+   * @param idx 삭제할 컨텐츠 식별자
    */
   public async softDeleteContentByIdx(idx: number): Promise<void> {
     await this.txHost.tx.cultureContent.update({
