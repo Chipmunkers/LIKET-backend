@@ -528,4 +528,16 @@ export class CultureContentCoreRepository {
       },
     });
   }
+
+  /**
+   * SOFT DELETE culture_content_tb WHERE idx = $1
+   *
+   * @author jochongs
+   */
+  public async softDeleteContentByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.cultureContent.update({
+      where: { idx, deletedAt: null },
+      data: { deletedAt: new Date() },
+    });
+  }
 }
