@@ -4,6 +4,9 @@ import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { ContentViewService } from 'apps/user-server/src/api/culture-content/content-view.service';
 import { CultureContentSeedHelper } from 'libs/testing';
+import { AGE } from 'libs/core/tag-root/age/constant/age';
+import { STYLE } from 'libs/core/tag-root/style/constant/style';
+import { ContentEntity } from 'apps/user-server/src/api/culture-content/entity/content.entity';
 
 describe('Culture Content View (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -52,6 +55,59 @@ describe('Culture Content View (e2e)', () => {
       await request(test.getServer())
         .get('/culture-content/9999999')
         .expect(404);
+    });
+
+    it('Correct field test', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        acceptedAt: new Date(),
+        userIdx: loginUser.idx,
+      });
+
+      const response = await request(test.getServer())
+        .get(`/culture-content/${content.idx}`)
+        .expect(200);
+
+      const responseContent: ContentEntity = response.body;
+
+      expect(responseContent.idx).toBe(content.idx);
+      expect(responseContent.acceptedAt).toBe(
+        content.acceptedAt?.toISOString(),
+      );
+      expect(responseContent.endDate).toBe(content.endDate);
+      expect(responseContent.title).toBe(content.title);
+      expect(responseContent.description).toBe(content.description);
+      expect(responseContent.isFee).toBe(content.isFee);
+      expect(responseContent.isParking).toBe(content.isParking);
+      expect(responseContent.isReservation).toBe(content.isReservation);
+      expect(responseContent.isPet).toBe(content.isPet);
+      expect(responseContent.location.region1Depth).toBe(
+        content.location.region1Depth,
+      );
+      expect(responseContent.location.region2Depth).toBe(
+        content.location.region2Depth,
+      );
+      expect(responseContent.location.bCode).toBe(content.location.bCode);
+      expect(responseContent.location.hCode).toBe(content.location.hCode);
+      expect(responseContent.location.positionX).toBe(
+        content.location.positionX,
+      );
+      expect(responseContent.location.positionY).toBe(
+        content.location.positionY,
+      );
+      expect(responseContent.location.detailAddress).toBe(
+        content.location.detailAddress,
+      );
+      expect(responseContent.imgList.sort()).toStrictEqual(
+        content.imgList.sort(),
+      );
+      expect(responseContent.openTime).toBe(content.openTime);
+      expect(responseContent.style.map(({ idx }) => idx).sort()).toStrictEqual(
+        content.styleIdxList.sort(),
+      );
+      expect(responseContent.age.idx).toBe(content.ageIdx);
+      expect(responseContent.genre.idx).toBe(content.genreIdx);
     });
 
     it('Not accepted content - author', async () => {
