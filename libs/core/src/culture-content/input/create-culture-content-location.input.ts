@@ -13,7 +13,7 @@ export class CreateCultureContentLocationInput {
    *
    * @example "서울"
    */
-  public readonly region1Depth?: string;
+  public readonly region1Depth: string;
 
   /**
    * 2깊이 지역 명

@@ -1,4 +1,4 @@
-import { TransactionHost } from '@nestjs-cls/transactional';
+import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { PrismaProvider } from 'libs/modules';
 import { Injectable } from '@nestjs/common';
@@ -10,6 +10,7 @@ import { Prisma } from '@prisma/client';
 import { Genre } from 'libs/core/tag-root/genre/constant/genre';
 import { Age } from 'libs/core/tag-root/age/constant/age';
 import { CoordinateRageInput } from 'libs/core/culture-content/input/coordinate-range.input';
+import { CreateCultureContentInput } from 'libs/core/culture-content/input/create-culture-content.input';
 
 @Injectable()
 export class CultureContentCoreRepository {
@@ -622,5 +623,147 @@ export class CultureContentCoreRepository {
     });
 
     return reviewSum._sum.starRating || 0;
+  }
+
+  /**
+   * INSERT culture content
+   */
+  @Transactional()
+  public async insertCultureContent(
+    input: CreateCultureContentInput,
+  ): Promise<CultureContentSelectField> {
+    const createdLocation = await this.txHost.tx.location.create({
+      data: {
+        address: input.location.address,
+        detailAddress: input.location.detailAddress,
+        region1Depth: input.location.region1Depth,
+        region2Depth: input.location.region2Depth,
+        hCode: input.location.hCode,
+        bCode: input.location.bCode,
+        positionX: input.location.positionX,
+        positionY: input.location.positionY,
+        sidoCode: input.location.bCode.substring(0, 2),
+        sggCode: input.location.bCode.substring(2, 5),
+        legCode: input.location.bCode.substring(5, 8),
+        riCode: input.location.bCode.substring(8, 10),
+      },
+    });
+
+    const createdContent = await this.txHost.tx.cultureContent.create({
+      select: {
+        idx: true,
+        id: true,
+        title: true,
+        description: true,
+        websiteLink: true,
+        startDate: true,
+        endDate: true,
+        viewCount: true,
+        openTime: true,
+        isFee: true,
+        isReservation: true,
+        isPet: true,
+        isParking: true,
+        likeCount: true,
+        createdAt: true,
+        acceptedAt: true,
+        Location: {
+          select: {
+            idx: true,
+            address: true,
+            detailAddress: true,
+            region1Depth: true,
+            region2Depth: true,
+            hCode: true,
+            bCode: true,
+            positionX: true,
+            positionY: true,
+            sidoCode: true,
+            sggCode: true,
+            legCode: true,
+            riCode: true,
+          },
+        },
+        ContentImg: {
+          select: {
+            idx: true,
+            imgPath: true,
+            createdAt: true,
+          },
+          where: { deletedAt: null },
+          orderBy: { idx: 'asc' },
+        },
+        Genre: {
+          select: {
+            idx: true,
+            name: true,
+            createdAt: true,
+          },
+        },
+        Style: {
+          select: {
+            Style: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+        Age: {
+          select: {
+            idx: true,
+            name: true,
+            createdAt: true,
+          },
+        },
+        User: {
+          select: {
+            idx: true,
+            nickname: true,
+            email: true,
+            profileImgPath: true,
+            isAdmin: true,
+          },
+        },
+        ContentLike: {
+          select: { userIdx: true },
+          where: { userIdx: -1 },
+        },
+      },
+      data: {
+        genreIdx: input.genreIdx,
+        userIdx: input.authorIdx || 1, // 관리자 식별자
+        ageIdx: input.ageIdx,
+        Style: {
+          createMany: {
+            data: input.styleIdxList.map((style) => ({
+              styleIdx: style,
+            })),
+          },
+        },
+        locationIdx: createdLocation.idx,
+        id: input.id,
+        title: input.title,
+        ContentImg: {
+          createMany: {
+            data: input.imgList.map((imgPath) => ({ imgPath })),
+          },
+        },
+        description: input.description,
+        websiteLink: input.websiteLink,
+        startDate: input.startDate,
+        endDate: input.endDate,
+        openTime: input.openTime,
+        isFee: input.isFee,
+        isReservation: input.isReservation,
+        isParking: input.isParking,
+        isPet: input.isPet,
+        acceptedAt: input.accept ? new Date() : null,
+      },
+    });
+
+    return createdContent;
   }
 }
