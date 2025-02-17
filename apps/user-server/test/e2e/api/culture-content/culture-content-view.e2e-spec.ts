@@ -3,7 +3,7 @@ import { PrismaProvider } from 'libs/modules';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { ContentViewService } from 'apps/user-server/src/api/culture-content/content-view.service';
-import { CultureContentSeedHelper } from 'libs/testing';
+import { CultureContentSeedHelper, ReviewSeedHelper } from 'libs/testing';
 import { AGE } from 'libs/core/tag-root/age/constant/age';
 import { STYLE } from 'libs/core/tag-root/style/constant/style';
 import { ContentEntity } from 'apps/user-server/src/api/culture-content/entity/content.entity';
@@ -11,6 +11,7 @@ import { ContentEntity } from 'apps/user-server/src/api/culture-content/entity/c
 describe('Culture Content View (e2e)', () => {
   const test = TestHelper.create(AppModule);
   const contentSeedHelper = test.seedHelper(CultureContentSeedHelper);
+  const reviewSeedHelper = test.seedHelper(ReviewSeedHelper);
 
   beforeEach(async () => {
     await test.init();
@@ -108,6 +109,42 @@ describe('Culture Content View (e2e)', () => {
       );
       expect(responseContent.age.idx).toBe(content.ageIdx);
       expect(responseContent.genre.idx).toBe(content.genreIdx);
+    });
+
+    it('Review count, star avg test', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        acceptedAt: new Date(),
+        userIdx: loginUser.idx,
+      });
+
+      await reviewSeedHelper.seedAll([
+        {
+          contentIdx: content.idx,
+          userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+          starRating: 4,
+        },
+        {
+          contentIdx: content.idx,
+          userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+          starRating: 4,
+        },
+        {
+          contentIdx: content.idx,
+          userIdx: test.getLoginUsers().not(loginUser.idx).idx,
+          starRating: 1,
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get(`/culture-content/${content.idx}`)
+        .expect(200);
+
+      const responseContent: ContentEntity = response.body;
+
+      expect(responseContent.reviewCount).toBe(3);
+      expect(responseContent.avgStarRating).toBe((4 + 4 + 1) / 3);
     });
 
     it('Not accepted content - author', async () => {
