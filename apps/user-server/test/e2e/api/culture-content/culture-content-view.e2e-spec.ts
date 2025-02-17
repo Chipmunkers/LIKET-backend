@@ -147,6 +147,40 @@ describe('Culture Content View (e2e)', () => {
       expect(responseContent.avgStarRating).toBe((4 + 4 + 1) / 3);
     });
 
+    it('like state test', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        acceptedAt: new Date(),
+        userIdx: contentAuthor.idx,
+      });
+
+      const loginUser = test.getLoginUsers().not(contentAuthor.idx);
+
+      const response = await request(test.getServer())
+        .get(`/culture-content/${content.idx}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const beforeResponseContent: ContentEntity = response.body;
+
+      expect(beforeResponseContent.likeState).toBeFalsy();
+
+      await request(test.getServer())
+        .post(`/culture-content/${content.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const afterResponse = await request(test.getServer())
+        .get(`/culture-content/${content.idx}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const afterResponseContent: ContentEntity = afterResponse.body;
+
+      expect(afterResponseContent.likeState).toBeTruthy();
+    });
+
     it('Not accepted content - author', async () => {
       const notAcceptedContent = await contentSeedHelper.seed({
         userIdx: test.getLoginUsers().user1.idx,
