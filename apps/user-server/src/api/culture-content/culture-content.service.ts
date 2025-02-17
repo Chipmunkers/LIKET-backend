@@ -38,12 +38,12 @@ export class CultureContentService {
    */
   public async getContentByIdx(
     idx: number,
-    userIdx?: number,
+    loginUser?: LoginUser,
   ): Promise<ContentEntity> {
     const content =
       await this.cultureContentRepository.selectCultureContentByIdx(
         idx,
-        userIdx,
+        loginUser?.idx,
       );
 
     if (!content) {

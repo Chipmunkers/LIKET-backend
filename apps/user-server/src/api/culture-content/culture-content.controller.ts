@@ -166,7 +166,7 @@ export class CultureContentController {
 
     const content = await this.cultureContentService.getContentByIdx(
       contentIdx,
-      loginUser?.idx,
+      loginUser,
     );
 
     if (loginUser) {
