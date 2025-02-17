@@ -1,3 +1,4 @@
+import { CoordinateRageInput } from 'libs/core/culture-content/input/coordinate-range.input';
 import { Age } from 'libs/core/tag-root/age/constant/age';
 import { Genre } from 'libs/core/tag-root/genre/constant/genre';
 import { Style } from 'libs/core/tag-root/style/constant/style';
@@ -15,13 +16,6 @@ export class FindCultureContentAllInput {
    * 한 번에 불러올 데이터 개수
    */
   row: number;
-
-  /**
-   * 정보를 불러오는 사용자의 인덱스
-   *
-   * @default -1
-   */
-  readUser?: number;
 
   /**
    * 활성화 컨텐츠 필터링
@@ -86,4 +80,10 @@ export class FindCultureContentAllInput {
    * @default "desc"
    */
   order?: 'asc' | 'desc';
+
+  /**
+   * 좌표 범위
+   * 해당 좌표 범위 내부 컨텐츠로 필터링
+   */
+  coordinateRange?: CoordinateRageInput;
 }

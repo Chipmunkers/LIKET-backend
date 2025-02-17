@@ -9,6 +9,7 @@ import { Style } from 'libs/core/tag-root/style/constant/style';
 import { Prisma } from '@prisma/client';
 import { Genre } from 'libs/core/tag-root/genre/constant/genre';
 import { Age } from 'libs/core/tag-root/age/constant/age';
+import { CoordinateRageInput } from 'libs/core/culture-content/input/coordinate-range.input';
 
 @Injectable()
 export class CultureContentCoreRepository {
@@ -36,6 +37,7 @@ export class CultureContentCoreRepository {
       genreList = [],
       styleList = [],
       ageList = [],
+      coordinateRange,
     }: FindCultureContentAllInput,
     readUser: number = -1,
   ): Promise<SummaryCultureContentSelectField[]> {
@@ -132,6 +134,7 @@ export class CultureContentCoreRepository {
           this.getAcceptWhereClause(accept),
           this.getOpenWhereClause(open),
           this.getSearchWhereClause(searchByList, searchKeyword),
+          this.getCoordinateRangeWhereClause(coordinateRange),
         ],
       },
       orderBy: {
@@ -321,6 +324,30 @@ export class CultureContentCoreRepository {
             contains: searchKeyword,
           }
         : undefined,
+    };
+  }
+
+  /**
+   * 좌표 범위 필터링
+   *
+   * @author jochongs
+   */
+  private getCoordinateRangeWhereClause(
+    input?: CoordinateRageInput,
+  ): Prisma.CultureContentWhereInput {
+    if (!input) return {};
+
+    return {
+      Location: {
+        positionX: {
+          gte: input.topX,
+          lte: input.bottomX,
+        },
+        positionY: {
+          gte: input.bottomY,
+          lte: input.bottomX,
+        },
+      },
     };
   }
 
