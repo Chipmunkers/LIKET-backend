@@ -1,6 +1,7 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { CultureContentCoreRepository } from 'libs/core/culture-content/culture-content-core.repository';
+import { CreateCultureContentInput } from 'libs/core/culture-content/input/create-culture-content.input';
 import { FindCultureContentAllInput } from 'libs/core/culture-content/input/find-culture-content-all.input';
 import { CultureContentModel } from 'libs/core/culture-content/model/culture-content.model';
 import { SummaryCultureContentModel } from 'libs/core/culture-content/model/summary-culture-content.model';
@@ -96,6 +97,20 @@ export class CultureContentCoreService {
   public async getCultureContentStarCountByIdx(idx: number): Promise<number> {
     return await this.cultureContentCoreRepository.selectTotalStarCountByIdx(
       idx,
+    );
+  }
+
+  /**
+   * 문화생활컨텐츠를 생성하는 메서드
+   *
+   * @author jochongs
+   */
+  @Transactional()
+  public async createCultureContent(
+    input: CreateCultureContentInput,
+  ): Promise<CultureContentModel> {
+    return CultureContentModel.fromPrisma(
+      await this.cultureContentCoreRepository.insertCultureContent(input),
     );
   }
 }
