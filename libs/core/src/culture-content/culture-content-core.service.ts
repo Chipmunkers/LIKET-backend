@@ -72,4 +72,30 @@ export class CultureContentCoreService {
 
     return content && CultureContentModel.fromPrisma(content);
   }
+
+  /**
+   * idx를 통해 문화생활컨텐츠의 리뷰 개수를 가져오는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 컨텐츠 식별자
+   */
+  @Transactional()
+  public async getCultureContentReviewCountByIdx(idx: number): Promise<number> {
+    return await this.cultureContentCoreRepository.selectReviewCountByIdx(idx);
+  }
+
+  /**
+   * idx를 통해 문화생활컨텐츠의 총 별점 개수를 가져오는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 컨텐츠 식별자
+   */
+  @Transactional()
+  public async getCultureContentStarCountByIdx(idx: number): Promise<number> {
+    return await this.cultureContentCoreRepository.selectTotalStarCountByIdx(
+      idx,
+    );
+  }
 }

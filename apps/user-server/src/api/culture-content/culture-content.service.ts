@@ -19,6 +19,8 @@ import { UserRepository } from '../user/user.repository';
 import { TagEntity } from '../content-tag/entity/tag.entity';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
+import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
+import { PermissionDeniedException } from 'apps/user-server/src/common/exception/PermissionDeniedException';
 
 @Injectable()
 export class CultureContentService {
@@ -28,6 +30,7 @@ export class CultureContentService {
     private readonly reviewRepository: ReviewRepository,
     private readonly contentTagRepository: ContentTagRepository,
     private readonly userRepository: UserRepository,
+    private readonly cultureContentCoreService: CultureContentCoreService,
     @Logger(CultureContentService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -40,22 +43,36 @@ export class CultureContentService {
     idx: number,
     loginUser?: LoginUser,
   ): Promise<ContentEntity> {
-    const content =
-      await this.cultureContentRepository.selectCultureContentByIdx(
+    const contentModel =
+      await this.cultureContentCoreService.findCultureContentByIdx(
         idx,
         loginUser?.idx,
       );
 
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find content');
+    if (!contentModel) {
+      throw new ContentNotFoundException('Cannot find culture content');
     }
 
-    const reviewStar =
-      await this.reviewRepository.selectReviewAvgStarRatingByContentIdx(
-        content.idx,
-      );
+    // 활성화된 컨텐츠는 작성자만 볼 수 있음
+    if (
+      !contentModel.acceptedAt &&
+      contentModel.author.idx !== loginUser?.idx
+    ) {
+      throw new PermissionDeniedException();
+    }
 
-    return ContentEntity.createEntity(content, reviewStar._sum.starRating || 0);
+    const reviewCount =
+      await this.cultureContentCoreService.getCultureContentReviewCountByIdx(
+        idx,
+      );
+    const totalStarCount =
+      await this.cultureContentCoreService.getCultureContentStarCountByIdx(idx);
+
+    return ContentEntity.fromModel(
+      contentModel,
+      reviewCount,
+      totalStarCount / reviewCount,
+    );
   }
 
   /**

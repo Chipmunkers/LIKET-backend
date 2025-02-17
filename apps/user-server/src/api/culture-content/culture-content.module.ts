@@ -9,9 +9,10 @@ import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { UserRepository } from '../user/user.repository';
 import { ContentViewService } from './content-view.service';
 import { PrismaModule } from 'libs/modules';
+import { CultureContentCoreModule } from 'libs/core/culture-content/culture-content-core.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, CultureContentCoreModule],
   controllers: [CultureContentController],
   providers: [
     CultureContentService,

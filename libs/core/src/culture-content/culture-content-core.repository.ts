@@ -569,4 +569,58 @@ export class CultureContentCoreRepository {
       data: { deletedAt: new Date() },
     });
   }
+
+  /**
+   * 컨텐츠의 리뷰 개수를 가져오는 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 컨텐츠 식별자
+   */
+  public async selectReviewCountByIdx(idx: number): Promise<number> {
+    const content = await this.txHost.tx.cultureContent.findUniqueOrThrow({
+      select: {
+        _count: {
+          select: {
+            Review: {
+              where: {
+                deletedAt: null,
+                User: {
+                  deletedAt: null,
+                },
+              },
+            },
+          },
+        },
+      },
+      where: { idx, deletedAt: null },
+    });
+
+    return content._count.Review;
+  }
+
+  /**
+   * 컨텐츠의 리뷰 별점 합을 가져오는 메서드
+   * ! 주의: 컨텐츠가 존재하지 않을 경우 0을 리턴합니다.
+   *
+   * @author jochongs
+   *
+   * @param idx 컨텐츠 식별자
+   */
+  public async selectTotalStarCountByIdx(idx: number): Promise<number> {
+    const reviewSum = await this.txHost.tx.review.aggregate({
+      _sum: {
+        starRating: true,
+      },
+      where: {
+        cultureContentIdx: idx,
+        deletedAt: null,
+        User: {
+          deletedAt: null,
+        },
+      },
+    });
+
+    return reviewSum._sum.starRating || 0;
+  }
 }
