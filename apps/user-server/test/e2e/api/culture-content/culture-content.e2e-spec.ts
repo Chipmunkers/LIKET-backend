@@ -1,10 +1,10 @@
 import { CreateContentRequestDto } from 'apps/user-server/src/api/culture-content/dto/create-content-request.dto';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
-import { GENRE } from 'libs/common';
 import { CultureContentSeedHelper } from 'libs/testing';
 import * as request from 'supertest';
 import invalidCreateContentRequest from './invalid-create-content-request';
+import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
 
 describe('Culture Content (e2e)', () => {
   const test = TestHelper.create(AppModule);

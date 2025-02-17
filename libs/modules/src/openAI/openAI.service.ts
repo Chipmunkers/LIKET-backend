@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
-import { Age, AGE, GET_MODE, MODE, Mode, Style, STYLE } from 'libs/common';
 import { RetryUtilService } from 'libs/modules/retry-util/retry-util.service';
+import { GET_MODE, MODE, Mode } from 'libs/common';
+import { AGE, Age } from 'libs/core/tag-root/age/constant/age';
+import { STYLE, Style } from 'libs/core/tag-root/style/constant/style';
 import OpenAI from 'openai';
 
 @Injectable()
