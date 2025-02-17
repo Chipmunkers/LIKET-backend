@@ -10,12 +10,12 @@ export class FindCultureContentAllInput {
   /**
    * 페이지 (1부터 시작)
    */
-  page: number;
+  public readonly page: number;
 
   /**
    * 한 번에 불러올 데이터 개수
    */
-  row: number;
+  public readonly row: number;
 
   /**
    * 활성화 컨텐츠 필터링
@@ -23,7 +23,7 @@ export class FindCultureContentAllInput {
    * true: 활성화된 컨텐츠만 가져옴
    * false: 비활성화된 컨텐츠만 가져옴
    */
-  accept?: boolean;
+  public readonly accept?: boolean;
 
   /**
    * 컨텐츠 오픈 상태 필터링
@@ -34,22 +34,22 @@ export class FindCultureContentAllInput {
    *
    * @default []
    */
-  open?: ('soon-open' | 'continue' | 'end')[];
+  public readonly open?: ('soon-open' | 'continue' | 'end')[];
 
   /**
    * 특정 장르만 보는 필터링
    */
-  genreList?: Genre[];
+  public readonly genreList?: Genre[];
 
   /**
    * 특정 스타일만 보는 필터링
    */
-  styleList?: Style[];
+  public readonly styleList?: Style[];
 
   /**
    * 특정 연령대만 보는 필터링
    */
-  ageList?: Age[];
+  public readonly ageList?: Age[];
 
   /**
    * 검색 요소
@@ -60,30 +60,30 @@ export class FindCultureContentAllInput {
    *
    * @default []
    */
-  searchByList?: ('title' | 'user' | 'id')[];
+  public readonly searchByList?: ('title' | 'user' | 'id')[];
 
   /**
    * 검색 키워드
    */
-  searchKeyword?: string;
+  public readonly searchKeyword?: string;
 
   /**
    * 정렬 요소
    *
    * @default "accept"
    */
-  orderBy?: 'accept' | 'like' | 'create';
+  public readonly orderBy?: 'accept' | 'like' | 'create';
 
   /**
    * 정렬 방식
    *
    * @default "desc"
    */
-  order?: 'asc' | 'desc';
+  public readonly order?: 'asc' | 'desc';
 
   /**
    * 좌표 범위
    * 해당 좌표 범위 내부 컨텐츠로 필터링
    */
-  coordinateRange?: CoordinateRageInput;
+  public readonly coordinateRange?: CoordinateRageInput;
 }

@@ -3,14 +3,14 @@
  */
 export class CoordinateRageInput {
   /** 좌측 상단 x 좌표 */
-  topX: number;
+  public readonly topX: number;
 
   /** 좌측 상단 y 좌표 */
-  topY: number;
+  public readonly topY: number;
 
   /** 우측 하단 x 좌표 */
-  bottomX: number;
+  public readonly bottomX: number;
 
   /** 우측 하단 y 좌표 */
-  bottomY: number;
+  public readonly bottomY: number;
 }
