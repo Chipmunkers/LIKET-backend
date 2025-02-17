@@ -47,10 +47,6 @@ export class CultureContentService {
       );
 
     if (!content) {
-      this.logger.warn(
-        this.getContentByIdx,
-        `Attempt to not found content | content = ${idx}`,
-      );
       throw new ContentNotFoundException('Cannot find content');
     }
 
