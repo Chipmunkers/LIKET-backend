@@ -120,7 +120,6 @@ export class CultureContentCoreService {
 
   /**
    * 식별자로 문화생활컨텐츠 수정하기
-   * ! 주의: 컨텐츠 좋아요 여부는 반드시 false로 전달됩니다.
    *
    * @author jochongs
    *
@@ -130,7 +129,7 @@ export class CultureContentCoreService {
   public async updateCultureContentByIdx(
     idx: number,
     input: UpdateCultureContentInput,
-  ): Promise<CultureContentModel> {
+  ): Promise<void> {
     const content =
       await this.cultureContentCoreRepository.selectCultureContentByIdx(idx);
 
@@ -138,18 +137,14 @@ export class CultureContentCoreService {
       throw new CultureContentNotFoundException(idx);
     }
 
-    const updatedContent =
-      await this.cultureContentCoreRepository.updateCultureContentByIdx(
-        idx,
-        input,
-      );
-
-    return CultureContentModel.fromPrisma(updatedContent);
+    await this.cultureContentCoreRepository.updateCultureContentByIdx(
+      idx,
+      input,
+    );
   }
 
   /**
    * 문화생활컨텐츠 활성화하기
-   * ! 주의: 컨텐츠 좋아요 여부는 반드시 false로 전달됩니다.
    *
    * @author jochongs
    *
@@ -157,9 +152,7 @@ export class CultureContentCoreService {
    * @throws {AlreadyAcceptedCultureContentException} 409 - 이미 활성화된 컨텐츠일 경우
    */
   @Transactional()
-  public async acceptCultureContentByIdx(
-    idx: number,
-  ): Promise<CultureContentModel> {
+  public async acceptCultureContentByIdx(idx: number): Promise<void> {
     const content =
       await this.cultureContentCoreRepository.selectCultureContentByIdx(idx);
 
@@ -171,12 +164,9 @@ export class CultureContentCoreService {
       throw new AlreadyAcceptedCultureContentException(idx);
     }
 
-    const updatedContent =
-      await this.cultureContentCoreRepository.updateCultureContentByIdx(idx, {
-        acceptedAt: new Date(),
-      });
-
-    return CultureContentModel.fromPrisma(updatedContent);
+    await this.cultureContentCoreRepository.updateCultureContentByIdx(idx, {
+      acceptedAt: new Date(),
+    });
   }
 
   /**
@@ -188,9 +178,7 @@ export class CultureContentCoreService {
    * @throws {AlreadyRevokedCultureContentException} 409 - 컨텐츠가 이미 비활성화 되어있는 경우
    */
   @Transactional()
-  public async revokeCultureContentByIdx(
-    idx: number,
-  ): Promise<CultureContentModel> {
+  public async revokeCultureContentByIdx(idx: number): Promise<void> {
     const content =
       await this.cultureContentCoreRepository.selectCultureContentByIdx(idx);
 
@@ -202,11 +190,8 @@ export class CultureContentCoreService {
       throw new AlreadyRevokedCultureContentException(idx);
     }
 
-    const updatedContent =
-      await this.cultureContentCoreRepository.updateCultureContentByIdx(idx, {
-        acceptedAt: null,
-      });
-
-    return CultureContentModel.fromPrisma(updatedContent);
+    await this.cultureContentCoreRepository.updateCultureContentByIdx(idx, {
+      acceptedAt: null,
+    });
   }
 }

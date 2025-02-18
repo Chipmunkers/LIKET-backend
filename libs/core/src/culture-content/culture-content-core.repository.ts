@@ -795,90 +795,9 @@ export class CultureContentCoreRepository {
   public async updateCultureContentByIdx(
     idx: number,
     updateInput: UpdateCultureContentInput & { acceptedAt?: Date | null },
-  ): Promise<CultureContentSelectField> {
+  ): Promise<void> {
     const updatedContent = await this.txHost.tx.cultureContent.update({
-      select: {
-        idx: true,
-        id: true,
-        title: true,
-        description: true,
-        websiteLink: true,
-        startDate: true,
-        endDate: true,
-        viewCount: true,
-        openTime: true,
-        isFee: true,
-        isReservation: true,
-        isPet: true,
-        isParking: true,
-        likeCount: true,
-        createdAt: true,
-        acceptedAt: true,
-        Location: {
-          select: {
-            idx: true,
-            address: true,
-            detailAddress: true,
-            region1Depth: true,
-            region2Depth: true,
-            hCode: true,
-            bCode: true,
-            positionX: true,
-            positionY: true,
-            sidoCode: true,
-            sggCode: true,
-            legCode: true,
-            riCode: true,
-          },
-        },
-        ContentImg: {
-          select: {
-            idx: true,
-            imgPath: true,
-            createdAt: true,
-          },
-          where: { deletedAt: null },
-          orderBy: { idx: 'asc' },
-        },
-        Genre: {
-          select: {
-            idx: true,
-            name: true,
-            createdAt: true,
-          },
-        },
-        Style: {
-          select: {
-            Style: {
-              select: {
-                idx: true,
-                name: true,
-                createdAt: true,
-              },
-            },
-          },
-        },
-        Age: {
-          select: {
-            idx: true,
-            name: true,
-            createdAt: true,
-          },
-        },
-        User: {
-          select: {
-            idx: true,
-            nickname: true,
-            email: true,
-            profileImgPath: true,
-            isAdmin: true,
-          },
-        },
-        ContentLike: {
-          select: { userIdx: true },
-          where: { userIdx: -1 },
-        },
-      },
+      select: { locationIdx: true },
       where: { idx, deletedAt: null },
       data: {
         genreIdx: updateInput.genreIdx,
@@ -918,7 +837,7 @@ export class CultureContentCoreRepository {
 
     if (updateInput.location) {
       await this.txHost.tx.location.update({
-        where: { idx: updatedContent.Location.idx },
+        where: { idx: updatedContent.locationIdx },
         data: {
           address: updateInput.location.address,
           detailAddress: updateInput.location.detailAddress,
@@ -935,7 +854,5 @@ export class CultureContentCoreRepository {
         },
       });
     }
-
-    return updatedContent;
   }
 }
