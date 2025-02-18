@@ -39,6 +39,7 @@ export class CultureContentCoreRepository {
       styleList = [],
       ageList = [],
       coordinateRange,
+      likeUser,
     }: FindCultureContentAllInput,
     readUser: number = -1,
   ): Promise<SummaryCultureContentSelectField[]> {
@@ -136,6 +137,7 @@ export class CultureContentCoreRepository {
           this.getOpenWhereClause(open),
           this.getSearchWhereClause(searchByList, searchKeyword),
           this.getCoordinateRangeWhereClause(coordinateRange),
+          this.getLikeContentWhereClause(likeUser),
         ],
       },
       orderBy: {
@@ -348,6 +350,23 @@ export class CultureContentCoreRepository {
           gte: input.bottomY,
           lte: input.bottomX,
         },
+      },
+    };
+  }
+
+  /**
+   * 사용자가 좋아요 누른 컨텐츠만 필터링
+   *
+   * @author jochongs
+   */
+  private getLikeContentWhereClause(
+    likeUser?: number,
+  ): Prisma.CultureContentWhereInput {
+    if (!likeUser) return {};
+
+    return {
+      ContentLike: {
+        some: { userIdx: likeUser },
       },
     };
   }
