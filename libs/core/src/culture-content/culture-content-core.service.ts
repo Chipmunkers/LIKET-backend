@@ -119,7 +119,7 @@ export class CultureContentCoreService {
   }
 
   /**
-   * 식별자로 문화생활컨텐츠 수정하기
+   * 식별자로 문화생활컨텐츠 수정 메서드
    *
    * @author jochongs
    *
@@ -144,7 +144,7 @@ export class CultureContentCoreService {
   }
 
   /**
-   * 문화생활컨텐츠 활성화하기
+   * 문화생활컨텐츠 활성화 메서드
    *
    * @author jochongs
    *
@@ -170,7 +170,7 @@ export class CultureContentCoreService {
   }
 
   /**
-   * 문화생활컨텐츠 비활성화하기
+   * 문화생활컨텐츠 비활성화 메서드
    *
    * @author jochongs
    *
