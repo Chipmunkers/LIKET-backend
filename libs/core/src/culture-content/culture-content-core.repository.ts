@@ -794,7 +794,7 @@ export class CultureContentCoreRepository {
   @Transactional()
   public async updateCultureContentByIdx(
     idx: number,
-    updateInput: UpdateCultureContentInput,
+    updateInput: UpdateCultureContentInput & { acceptedAt?: Date | null },
   ): Promise<CultureContentSelectField> {
     const updatedContent = await this.txHost.tx.cultureContent.update({
       select: {
@@ -912,6 +912,7 @@ export class CultureContentCoreRepository {
         isReservation: updateInput.isReservation,
         isParking: updateInput.isParking,
         isPet: updateInput.isPet,
+        acceptedAt: updateInput.acceptedAt,
       },
     });
 
