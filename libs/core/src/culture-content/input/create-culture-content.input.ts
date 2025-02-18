@@ -27,7 +27,7 @@ export class CreateCultureContentInput {
   public readonly location: CreateCultureContentLocationInput;
 
   /** 컨텐츠 아이디 */
-  public readonly id: string;
+  public readonly id?: string;
 
   /** 제목 */
   public readonly title: string;
