@@ -1,6 +1,8 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { CultureContentCoreRepository } from 'libs/core/culture-content/culture-content-core.repository';
+import { AlreadyAcceptedCultureContentException } from 'libs/core/culture-content/exception/AlreadyAcceptedCultureContentException';
+import { CultureContentNotFoundException } from 'libs/core/culture-content/exception/CultureContentNotFoundException';
 import { CreateCultureContentInput } from 'libs/core/culture-content/input/create-culture-content.input';
 import { FindCultureContentAllInput } from 'libs/core/culture-content/input/find-culture-content-all.input';
 import { UpdateCultureContentInput } from 'libs/core/culture-content/input/update-culture-content.input';
@@ -133,5 +135,37 @@ export class CultureContentCoreService {
       );
 
     return CultureContentModel.fromPrisma(content);
+  }
+
+  /**
+   * 문화생활컨텐츠 활성화하기
+   * ! 주의: 컨텐츠 좋아요 여부는 반드시 false로 전달됩니다.
+   *
+   * @author jochongs
+   *
+   * @throws {CultureContentNotFoundException} 404 - 컨텐츠를 찾을 수 없는 경우
+   * @throws {AlreadyAcceptedCultureContentException} 409 - 이미 활성화된 컨텐츠일 경우
+   */
+  @Transactional()
+  public async acceptCultureContentByIdx(
+    idx: number,
+  ): Promise<CultureContentModel> {
+    const content =
+      await this.cultureContentCoreRepository.selectCultureContentByIdx(idx);
+
+    if (!content) {
+      throw new CultureContentNotFoundException(idx);
+    }
+
+    if (content.acceptedAt) {
+      throw new AlreadyAcceptedCultureContentException(idx);
+    }
+
+    const updatedContent =
+      await this.cultureContentCoreRepository.updateCultureContentByIdx(idx, {
+        acceptedAt: new Date(),
+      });
+
+    return CultureContentModel.fromPrisma(updatedContent);
   }
 }
