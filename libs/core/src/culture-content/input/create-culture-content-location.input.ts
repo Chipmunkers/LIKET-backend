@@ -6,7 +6,7 @@ export class CreateCultureContentLocationInput {
   public readonly address: string;
 
   /** 세부 주소 */
-  public readonly detailAddress?: string;
+  public readonly detailAddress: string | null;
 
   /**
    * 1깊이 지역 명

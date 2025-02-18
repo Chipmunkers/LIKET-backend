@@ -295,10 +295,28 @@ export class CultureContentService {
     userIdx: number,
     createDto: CreateContentRequestDto,
   ): Promise<number> {
-    return this.cultureContentRepository.insertCultureContent(
-      userIdx,
-      createDto,
-    );
+    const content = await this.cultureContentCoreService.createCultureContent({
+      authorIdx: userIdx,
+      imgList: createDto.imgList,
+      ageIdx: createDto.ageIdx,
+      genreIdx: createDto.genreIdx,
+      isFee: createDto.isFee,
+      isReservation: createDto.isReservation,
+      isParking: createDto.isParking,
+      isPet: createDto.isPet,
+      location: createDto.location,
+      title: createDto.title,
+      openTime: createDto.openTime,
+      websiteLink: createDto.websiteLink,
+      id: null,
+      accept: false,
+      description: createDto.description,
+      endDate: createDto.endDate ? new Date(createDto.endDate) : null,
+      startDate: new Date(createDto.startDate),
+      styleIdxList: createDto.styleIdxList,
+    });
+
+    return content.idx;
   }
 
   /**

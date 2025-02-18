@@ -5,6 +5,7 @@ import { CultureContentSeedHelper } from 'libs/testing';
 import * as request from 'supertest';
 import invalidCreateContentRequest from './invalid-create-content-request';
 import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
+import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
 
 describe('Culture Content (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -1116,9 +1117,9 @@ describe('Culture Content (e2e)', () => {
           address: '전북 익산시 부송동 100',
           region1Depth: '서울',
           region2Depth: '강동구',
-          positionX: 126.99597295767953,
+          positionX: 126.9959729576795,
           positionY: 35.97664845766847,
-          hCode: '4514069000',
+          hCode: '1231231231',
           bCode: '4514013400',
         },
         isFee: true,
@@ -1134,7 +1135,72 @@ describe('Culture Content (e2e)', () => {
         .send(createDto)
         .expect(200);
 
-      expect(response.body?.idx).toBeDefined();
+      const createdContentIdx: number = response.body.idx;
+
+      expect(createdContentIdx).toBeDefined();
+
+      const content = await test.getPrisma().cultureContent.findUniqueOrThrow({
+        include: {
+          Style: {
+            include: {
+              Style: {
+                select: {
+                  idx: true,
+                },
+              },
+            },
+          },
+          Location: true,
+        },
+        where: { idx: createdContentIdx },
+      });
+
+      expect(content.idx).toBe(createdContentIdx);
+      expect(content.title).toBe(createDto.title);
+      expect(content.description).toBe(createDto.description);
+      expect(content.websiteLink).toBe(createDto.websiteLink);
+      expect(content.startDate.toISOString()).toBe(
+        createDto.startDate.toISOString(),
+      );
+      expect(content.endDate?.toISOString()).toBe(
+        createDto.endDate?.toISOString(),
+      );
+      expect(content.openTime).toBe(createDto.openTime);
+      expect(content.genreIdx).toBe(createDto.genreIdx);
+      expect(
+        content.Style.map(({ styleIdx }) => styleIdx).sort(),
+      ).toStrictEqual(createDto.styleIdxList.sort());
+      expect(content.ageIdx).toBe(createDto.ageIdx);
+      expect(content.Location.address).toBe(createDto.location.address);
+      expect(content.Location.detailAddress).toBe(
+        createDto.location.detailAddress,
+      );
+      expect(content.Location.region1Depth).toBe(
+        createDto.location.region1Depth,
+      );
+      expect(content.Location.region2Depth).toBe(
+        createDto.location.region2Depth,
+      );
+      expect(content.Location.positionX).toBe(createDto.location.positionX);
+      expect(content.Location.positionY).toBe(createDto.location.positionY);
+      expect(content.Location.hCode).toBe(createDto.location.hCode);
+      expect(content.Location.bCode).toBe(createDto.location.bCode);
+      expect(content.Location.sidoCode).toBe(
+        createDto.location.bCode.substring(0, 2),
+      );
+      expect(content.Location.sggCode).toBe(
+        createDto.location.bCode.substring(2, 5),
+      );
+      expect(content.Location.legCode).toBe(
+        createDto.location.bCode.substring(5, 8),
+      );
+      expect(content.Location.riCode).toBe(
+        createDto.location.bCode.substring(8, 10),
+      );
+      expect(content.isFee).toBe(createDto.isFee);
+      expect(content.isPet).toBe(createDto.isPet);
+      expect(content.isReservation).toBe(createDto.isReservation);
+      expect(content.isParking).toBe(createDto.isParking);
     });
 
     it('No token', async () => {

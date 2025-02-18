@@ -15,7 +15,7 @@ export class CreateCultureContentInput {
    *
    * @default 1 관리자
    */
-  public readonly authorIdx?: number;
+  public readonly authorIdx: number | null;
 
   /** 연령대 */
   public readonly ageIdx: Age;
@@ -27,7 +27,7 @@ export class CreateCultureContentInput {
   public readonly location: CreateCultureContentLocationInput;
 
   /** 컨텐츠 아이디 */
-  public readonly id?: string;
+  public readonly id: string | null;
 
   /** 제목 */
   public readonly title: string;
@@ -36,19 +36,19 @@ export class CreateCultureContentInput {
   public readonly imgList: string[];
 
   /** 설명 */
-  public readonly description?: string;
+  public readonly description: string | null;
 
   /** 웹 사이트 링크 */
-  public readonly websiteLink?: string;
+  public readonly websiteLink: string | null;
 
   /** 시작 날짜 */
   public readonly startDate: Date;
 
   /** 종료 날짜 */
-  public readonly endDate?: Date;
+  public readonly endDate: Date | null;
 
   /** 오픈 날짜 */
-  public readonly openTime?: string;
+  public readonly openTime: string | null;
 
   /** 요금 여부 */
   public readonly isFee: boolean;
