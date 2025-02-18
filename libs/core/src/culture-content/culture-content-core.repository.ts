@@ -747,9 +747,7 @@ export class CultureContentCoreRepository {
         id: input.id,
         title: input.title,
         ContentImg: {
-          createMany: {
-            data: input.imgList.map((imgPath) => ({ imgPath })),
-          },
+          createMany: { data: input.imgList.map((imgPath) => ({ imgPath })) },
         },
         description: input.description,
         websiteLink: input.websiteLink,
