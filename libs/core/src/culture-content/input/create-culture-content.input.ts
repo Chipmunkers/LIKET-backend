@@ -61,7 +61,4 @@ export class CreateCultureContentInput {
 
   /** 반려동물 출입 가능 여부 */
   public readonly isPet: boolean;
-
-  /** 활성 여부 */
-  public readonly accept: boolean;
 }

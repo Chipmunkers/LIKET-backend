@@ -309,7 +309,6 @@ export class CultureContentService {
       openTime: createDto.openTime,
       websiteLink: createDto.websiteLink,
       id: null,
-      accept: false,
       description: createDto.description,
       endDate: createDto.endDate ? new Date(createDto.endDate) : null,
       startDate: new Date(createDto.startDate),

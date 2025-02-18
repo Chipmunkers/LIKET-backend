@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { CultureContentCoreRepository } from 'libs/core/culture-content/culture-content-core.repository';
 import { CreateCultureContentInput } from 'libs/core/culture-content/input/create-culture-content.input';
 import { FindCultureContentAllInput } from 'libs/core/culture-content/input/find-culture-content-all.input';
+import { UpdateCultureContentInput } from 'libs/core/culture-content/input/update-culture-content.input';
 import { CultureContentModel } from 'libs/core/culture-content/model/culture-content.model';
 import { SummaryCultureContentModel } from 'libs/core/culture-content/model/summary-culture-content.model';
 
@@ -112,5 +113,25 @@ export class CultureContentCoreService {
     return CultureContentModel.fromPrisma(
       await this.cultureContentCoreRepository.insertCultureContent(input),
     );
+  }
+
+  /**
+   * 식별자로 문화생활컨텐츠 수정하기
+   * ! 주의: 컨텐츠 좋아요 여부는 반드시 false로 전달됩니다.
+   *
+   * @author jochongs
+   */
+  @Transactional()
+  public async updateCultureContentByIdx(
+    idx: number,
+    input: UpdateCultureContentInput,
+  ): Promise<CultureContentModel> {
+    const content =
+      await this.cultureContentCoreRepository.updateCultureContentByIdx(
+        idx,
+        input,
+      );
+
+    return CultureContentModel.fromPrisma(content);
   }
 }

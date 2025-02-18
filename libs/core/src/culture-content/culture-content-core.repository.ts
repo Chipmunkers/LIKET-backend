@@ -11,6 +11,7 @@ import { Genre } from 'libs/core/tag-root/genre/constant/genre';
 import { Age } from 'libs/core/tag-root/age/constant/age';
 import { CoordinateRageInput } from 'libs/core/culture-content/input/coordinate-range.input';
 import { CreateCultureContentInput } from 'libs/core/culture-content/input/create-culture-content.input';
+import { UpdateCultureContentInput } from 'libs/core/culture-content/input/update-culture-content.input';
 
 @Injectable()
 export class CultureContentCoreRepository {
@@ -777,10 +778,163 @@ export class CultureContentCoreRepository {
         isReservation: input.isReservation,
         isParking: input.isParking,
         isPet: input.isPet,
-        acceptedAt: input.accept ? new Date() : null,
       },
     });
 
     return createdContent;
+  }
+
+  /**
+   * UPDATE culture_content_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 컨텐츠 식별자
+   */
+  @Transactional()
+  public async updateCultureContentByIdx(
+    idx: number,
+    updateInput: UpdateCultureContentInput,
+  ): Promise<CultureContentSelectField> {
+    const updatedContent = await this.txHost.tx.cultureContent.update({
+      select: {
+        idx: true,
+        id: true,
+        title: true,
+        description: true,
+        websiteLink: true,
+        startDate: true,
+        endDate: true,
+        viewCount: true,
+        openTime: true,
+        isFee: true,
+        isReservation: true,
+        isPet: true,
+        isParking: true,
+        likeCount: true,
+        createdAt: true,
+        acceptedAt: true,
+        Location: {
+          select: {
+            idx: true,
+            address: true,
+            detailAddress: true,
+            region1Depth: true,
+            region2Depth: true,
+            hCode: true,
+            bCode: true,
+            positionX: true,
+            positionY: true,
+            sidoCode: true,
+            sggCode: true,
+            legCode: true,
+            riCode: true,
+          },
+        },
+        ContentImg: {
+          select: {
+            idx: true,
+            imgPath: true,
+            createdAt: true,
+          },
+          where: { deletedAt: null },
+          orderBy: { idx: 'asc' },
+        },
+        Genre: {
+          select: {
+            idx: true,
+            name: true,
+            createdAt: true,
+          },
+        },
+        Style: {
+          select: {
+            Style: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+        Age: {
+          select: {
+            idx: true,
+            name: true,
+            createdAt: true,
+          },
+        },
+        User: {
+          select: {
+            idx: true,
+            nickname: true,
+            email: true,
+            profileImgPath: true,
+            isAdmin: true,
+          },
+        },
+        ContentLike: {
+          select: { userIdx: true },
+          where: { userIdx: -1 },
+        },
+      },
+      where: { idx, deletedAt: null },
+      data: {
+        genreIdx: updateInput.genreIdx,
+        ageIdx: updateInput.ageIdx,
+        Style: updateInput.styleIdxList
+          ? {
+              deleteMany: {},
+              createMany: {
+                data: updateInput.styleIdxList.map((style) => ({
+                  styleIdx: style,
+                })),
+              },
+            }
+          : undefined,
+        id: updateInput.id,
+        title: updateInput.title,
+        ContentImg: updateInput.imgList
+          ? {
+              deleteMany: {},
+              createMany: {
+                data: updateInput.imgList.map((imgPath) => ({ imgPath })),
+              },
+            }
+          : undefined,
+        description: updateInput.description,
+        websiteLink: updateInput.websiteLink,
+        startDate: updateInput.startDate,
+        endDate: updateInput.endDate,
+        openTime: updateInput.openTime,
+        isFee: updateInput.isFee,
+        isReservation: updateInput.isReservation,
+        isParking: updateInput.isParking,
+        isPet: updateInput.isPet,
+      },
+    });
+
+    if (updateInput.location) {
+      await this.txHost.tx.location.update({
+        where: { idx: updatedContent.Location.idx },
+        data: {
+          address: updateInput.location.address,
+          detailAddress: updateInput.location.detailAddress,
+          region1Depth: updateInput.location.region1Depth,
+          region2Depth: updateInput.location.region2Depth,
+          hCode: updateInput.location.hCode,
+          bCode: updateInput.location.bCode,
+          positionX: updateInput.location.positionX,
+          positionY: updateInput.location.positionY,
+          sidoCode: updateInput.location.bCode?.substring(0, 2),
+          sggCode: updateInput.location.bCode?.substring(2, 5),
+          legCode: updateInput.location.bCode?.substring(5, 8),
+          riCode: updateInput.location.bCode?.substring(8, 10),
+        },
+      });
+    }
+
+    return updatedContent;
   }
 }
