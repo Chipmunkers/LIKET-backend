@@ -72,4 +72,46 @@ export class CultureContentLikeCoreRepository {
       },
     });
   }
+
+  /**
+   * DELETE content_like_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 컨텐츠 식별자
+   * @param userIdx 좋아요 취소를 누른 사용자 식별자
+   */
+  public async deleteCultureContentLike(
+    idx: number,
+    userIdx: number,
+  ): Promise<void> {
+    await this.txHost.tx.contentLike.delete({
+      where: {
+        contentIdx_userIdx: {
+          contentIdx: idx,
+          userIdx,
+        },
+      },
+    });
+  }
+
+  /**
+   * UPDATE like_count = like_count - $2 WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 컨텐츠 식별자
+   * @param count 뺄 숫자
+   */
+  public async decreaseCultureContentLikeCountByIdx(
+    idx: number,
+    count: number = 1,
+  ): Promise<void> {
+    await this.txHost.tx.cultureContent.update({
+      where: { idx, deletedAt: null },
+      data: {
+        likeCount: { decrement: count },
+      },
+    });
+  }
 }
