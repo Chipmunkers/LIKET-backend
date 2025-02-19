@@ -1,5 +1,8 @@
 import { ConflictException } from '@nestjs/common';
 
+/**
+ * @author jochongs
+ */
 export class AlreadyLikedCultureContentException extends ConflictException {
   /** 컨텐츠 인덱스 */
   public readonly idx: number;
