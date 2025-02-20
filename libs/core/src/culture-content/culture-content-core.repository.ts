@@ -12,6 +12,8 @@ import { Age } from 'libs/core/tag-root/age/constant/age';
 import { CoordinateRageInput } from 'libs/core/culture-content/input/coordinate-range.input';
 import { CreateCultureContentInput } from 'libs/core/culture-content/input/create-culture-content.input';
 import { UpdateCultureContentInput } from 'libs/core/culture-content/input/update-culture-content.input';
+import { FindLikedCultureContentAllInput } from 'libs/core/culture-content/input/find-liked-culture-content-all.input';
+import { LikedCultureContentSelectField } from 'libs/core/culture-content/model/prisma/liked-culture-content-select-field';
 
 @Injectable()
 export class CultureContentCoreRepository {
@@ -40,7 +42,6 @@ export class CultureContentCoreRepository {
       styleList = [],
       ageList = [],
       coordinateRange,
-      likeUser,
     }: FindCultureContentAllInput,
     readUser: number = -1,
   ): Promise<SummaryCultureContentSelectField[]> {
@@ -138,7 +139,6 @@ export class CultureContentCoreRepository {
           this.getOpenWhereClause(open),
           this.getSearchWhereClause(searchByList, searchKeyword),
           this.getCoordinateRangeWhereClause(coordinateRange),
-          this.getLikeContentWhereClause(likeUser),
         ],
       },
       orderBy: {
@@ -147,6 +147,150 @@ export class CultureContentCoreRepository {
       take: row,
       skip: (page - 1) * row,
     });
+  }
+
+  /**
+   * 좋아요 누른 컨텐츠만 SELECT
+   *
+   * @author jochongs
+   *
+   * @param userIdx 사용자의 인덱스
+   */
+  public async selectLikedCultureContentAll(
+    userIdx: number,
+    {
+      accept,
+      open = [],
+      page,
+      row,
+      order = 'desc',
+      orderBy = 'like',
+    }: FindLikedCultureContentAllInput,
+  ): Promise<LikedCultureContentSelectField[]> {
+    return await this.txHost.tx.contentLike.findMany({
+      select: {
+        CultureContent: {
+          select: {
+            idx: true,
+            id: true,
+            title: true,
+            startDate: true,
+            endDate: true,
+            viewCount: true,
+            openTime: true,
+            likeCount: true,
+            createdAt: true,
+            acceptedAt: true,
+            Location: {
+              select: {
+                idx: true,
+                address: true,
+                detailAddress: true,
+                region1Depth: true,
+                region2Depth: true,
+                hCode: true,
+                bCode: true,
+                positionX: true,
+                positionY: true,
+                sidoCode: true,
+                sggCode: true,
+                legCode: true,
+                riCode: true,
+              },
+            },
+            ContentImg: {
+              select: {
+                idx: true,
+                imgPath: true,
+                createdAt: true,
+              },
+              where: {
+                deletedAt: null,
+              },
+              orderBy: {
+                idx: 'asc',
+              },
+            },
+            Genre: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+            Style: {
+              select: {
+                Style: {
+                  select: {
+                    idx: true,
+                    name: true,
+                    createdAt: true,
+                  },
+                },
+              },
+            },
+            Age: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+            User: {
+              select: {
+                idx: true,
+                nickname: true,
+                email: true,
+                profileImgPath: true,
+                isAdmin: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        AND: [
+          { userIdx },
+          { CultureContent: { deletedAt: null } },
+          { CultureContent: this.getAcceptWhereClause(accept) },
+          { CultureContent: this.getOpenWhereClause(open) },
+        ],
+      },
+      orderBy: this.getLikedContentOrderBy(orderBy, order),
+      skip: (page - 1) * row,
+      take: row,
+    });
+  }
+
+  /**
+   * 좋아요 누른 컨텐츠 정렬 방식 가져오는 메서드
+   *
+   * @author jochongs
+   */
+  private getLikedContentOrderBy(
+    orderBy: 'create' | 'like' | 'accept',
+    order: 'desc' | 'asc',
+  ): Prisma.ContentLikeOrderByWithRelationInput {
+    if (orderBy === 'create') {
+      return {
+        CultureContent: {
+          idx: order,
+        },
+      };
+    }
+
+    if (orderBy === 'like') {
+      return {
+        createdAt: order,
+      };
+    }
+
+    // accept
+    return {
+      CultureContent: {
+        acceptedAt: order,
+      },
+    };
   }
 
   /**
@@ -351,23 +495,6 @@ export class CultureContentCoreRepository {
           gte: input.bottomY,
           lte: input.bottomX,
         },
-      },
-    };
-  }
-
-  /**
-   * 사용자가 좋아요 누른 컨텐츠만 필터링
-   *
-   * @author jochongs
-   */
-  private getLikeContentWhereClause(
-    likeUser?: number,
-  ): Prisma.CultureContentWhereInput {
-    if (!likeUser) return {};
-
-    return {
-      ContentLike: {
-        some: { userIdx: likeUser },
       },
     };
   }

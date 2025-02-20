@@ -86,9 +86,4 @@ export class FindCultureContentAllInput {
    * 해당 좌표 범위 내부 컨텐츠로 필터링
    */
   public readonly coordinateRange?: CoordinateRageInput;
-
-  /**
-   * 해당 사용자가 좋아요 누른 컨텐츠 필터링
-   */
-  public readonly likeUser?: number;
 }

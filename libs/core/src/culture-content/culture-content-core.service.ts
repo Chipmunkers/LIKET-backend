@@ -6,6 +6,7 @@ import { AlreadyRevokedCultureContentException } from 'libs/core/culture-content
 import { CultureContentNotFoundException } from 'libs/core/culture-content/exception/CultureContentNotFoundException';
 import { CreateCultureContentInput } from 'libs/core/culture-content/input/create-culture-content.input';
 import { FindCultureContentAllInput } from 'libs/core/culture-content/input/find-culture-content-all.input';
+import { FindLikedCultureContentAllInput } from 'libs/core/culture-content/input/find-liked-culture-content-all.input';
 import { UpdateCultureContentInput } from 'libs/core/culture-content/input/update-culture-content.input';
 import { CultureContentModel } from 'libs/core/culture-content/model/culture-content.model';
 import { SummaryCultureContentModel } from 'libs/core/culture-content/model/summary-culture-content.model';
@@ -193,5 +194,24 @@ export class CultureContentCoreService {
     await this.cultureContentCoreRepository.updateCultureContentByIdx(idx, {
       acceptedAt: null,
     });
+  }
+
+  /**
+   * 좋아요 누른 컨텐츠 목록 보기
+   *
+   * @author jochongs
+   *
+   * @param userIdx 조회하려는 사용자 인덱스
+   */
+  public async findAllLikedCultureContentAll(
+    userIdx: number,
+    input: FindLikedCultureContentAllInput,
+  ): Promise<SummaryCultureContentModel[]> {
+    return (
+      await this.cultureContentCoreRepository.selectLikedCultureContentAll(
+        userIdx,
+        input,
+      )
+    ).map(SummaryCultureContentModel.fromLiked);
   }
 }
