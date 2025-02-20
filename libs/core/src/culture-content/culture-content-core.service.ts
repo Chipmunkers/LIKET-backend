@@ -203,6 +203,7 @@ export class CultureContentCoreService {
    *
    * @param userIdx 조회하려는 사용자 인덱스
    */
+  @Transactional()
   public async findAllLikedCultureContentAll(
     userIdx: number,
     input: FindLikedCultureContentAllInput,
