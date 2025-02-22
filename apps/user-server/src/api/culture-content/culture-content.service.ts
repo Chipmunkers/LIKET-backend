@@ -9,8 +9,6 @@ import { LoginUser } from '../auth/model/login-user';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { CultureContentRepository } from './culture-content.repository';
-import { CultureContentLikeRepository } from './culture-content-like.repository';
-import { ReviewRepository } from '../review/review.repository';
 import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { UserRepository } from '../user/user.repository';
 import { TagEntity } from '../content-tag/entity/tag.entity';

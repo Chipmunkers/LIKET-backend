@@ -3,8 +3,6 @@ import { CultureContentController } from './culture-content.controller';
 import { CultureContentService } from './culture-content.service';
 import { ContentAuthService } from './content-auth.service';
 import { CultureContentRepository } from './culture-content.repository';
-import { CultureContentLikeRepository } from './culture-content-like.repository';
-import { ReviewRepository } from '../review/review.repository';
 import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { UserRepository } from '../user/user.repository';
 import { ContentViewService } from './content-view.service';
@@ -18,8 +16,6 @@ import { CultureContentCoreModule } from 'libs/core/culture-content/culture-cont
     CultureContentService,
     ContentAuthService,
     CultureContentRepository,
-    CultureContentLikeRepository,
-    ReviewRepository,
     ContentTagRepository,
     UserRepository,
     CultureContentService,
