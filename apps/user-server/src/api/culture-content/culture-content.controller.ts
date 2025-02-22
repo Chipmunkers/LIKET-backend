@@ -279,9 +279,10 @@ export class CultureContentController {
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) contentIdx: number,
   ): Promise<void> {
-    await this.contentAuthService.checkDeletePermission(loginUser, contentIdx);
-
-    await this.cultureContentService.deleteContentRequest(contentIdx);
+    await this.cultureContentService.deleteContentRequest(
+      contentIdx,
+      loginUser,
+    );
 
     return;
   }

@@ -81,43 +81,18 @@ export class ContentAuthService {
   /**
    * @author jochongs
    */
-  public async checkDeletePermission(
+  public checkDeletePermission(
     loginUser: LoginUser,
-    contentIdx: number,
-  ): Promise<void> {
-    const content = await this.getContentByContentIdx(contentIdx);
-
-    if (content.userIdx !== loginUser.idx) {
+    contentModel: CultureContentModel,
+  ): void {
+    if (contentModel.author.idx !== loginUser.idx) {
       throw new PermissionDeniedException('Permission denied');
     }
 
-    if (content.acceptedAt) {
+    if (contentModel.acceptedAt) {
       throw new AcceptedContentException(
         'Cannot update accepted culture content',
       );
     }
-
-    return;
-  }
-
-  /**
-   * @author jochongs
-   */
-  private async getContentByContentIdx(contentIdx: number) {
-    const content = await this.prisma.cultureContent.findUnique({
-      where: {
-        idx: contentIdx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!content) {
-      throw new ContentNotFoundException('Cannot find culture content');
-    }
-
-    return content;
   }
 }

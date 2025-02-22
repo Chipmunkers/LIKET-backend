@@ -353,7 +353,22 @@ export class CultureContentService {
   /**
    * @author jochongs
    */
-  public async deleteContentRequest(idx: number): Promise<void> {
+  public async deleteContentRequest(
+    idx: number,
+    loginUser: LoginUser,
+  ): Promise<void> {
+    const contentModel =
+      await this.cultureContentCoreService.findCultureContentByIdx(idx);
+
+    if (!contentModel) {
+      throw new ContentNotFoundException('Cannot find culture content');
+    }
+
+    this.cultureContentAuthService.checkDeletePermission(
+      loginUser,
+      contentModel,
+    );
+
     await this.cultureContentRepository.deleteContentRequest(idx);
   }
 
