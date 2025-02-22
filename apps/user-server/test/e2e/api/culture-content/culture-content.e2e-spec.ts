@@ -1680,7 +1680,7 @@ describe('Culture Content (e2e)', () => {
       const contentList: SummaryContentEntity[] = response.body.contentList;
 
       expect(contentList.map(({ idx }) => idx)).toStrictEqual([
-        secondLikeContents.idx,
+        secondLikeContents.idx, // 최근에 좋아요한 순서대로 가져옴
         firstLikeContent.idx,
       ]);
     });
