@@ -17,19 +17,18 @@ import { TagEntity } from '../content-tag/entity/tag.entity';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
-import { PermissionDeniedException } from 'apps/user-server/src/common/exception/PermissionDeniedException';
 import { CultureContentLikeCoreService } from 'libs/core/culture-content/culture-content-like-core.service';
+import { ContentAuthService } from 'apps/user-server/src/api/culture-content/content-auth.service';
 
 @Injectable()
 export class CultureContentService {
   constructor(
     private readonly cultureContentRepository: CultureContentRepository,
-    private readonly cultureContentLikeRepository: CultureContentLikeRepository,
-    private readonly reviewRepository: ReviewRepository,
     private readonly contentTagRepository: ContentTagRepository,
     private readonly userRepository: UserRepository,
     private readonly cultureContentCoreService: CultureContentCoreService,
     private readonly cultureContentLikeCoreService: CultureContentLikeCoreService,
+    private readonly cultureContentAuthService: ContentAuthService,
     @Logger(CultureContentService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -52,13 +51,7 @@ export class CultureContentService {
       throw new ContentNotFoundException('Cannot find culture content');
     }
 
-    // 활성화된 컨텐츠는 작성자만 볼 수 있음
-    if (
-      !contentModel.acceptedAt &&
-      contentModel.author.idx !== loginUser?.idx
-    ) {
-      throw new PermissionDeniedException();
-    }
+    this.cultureContentAuthService.checkReadPermission(contentModel, loginUser);
 
     const reviewCount =
       await this.cultureContentCoreService.getCultureContentReviewCountByIdx(

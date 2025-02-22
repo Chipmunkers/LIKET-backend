@@ -161,8 +161,6 @@ export class CultureContentController {
     @Param('idx', ParseIntPipe) contentIdx: number,
     @User() loginUser?: LoginUser,
   ): Promise<ContentEntity> {
-    await this.contentAuthService.checkReadPermission(contentIdx, loginUser);
-
     const content = await this.cultureContentService.getContentByIdx(
       contentIdx,
       loginUser,

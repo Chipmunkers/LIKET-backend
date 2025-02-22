@@ -9,6 +9,7 @@ import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { AcceptedContentException } from './exception/AcceptedContentException';
 import { PrismaProvider } from 'libs/modules';
+import { CultureContentModel } from 'libs/core/culture-content/model/culture-content.model';
 
 @Injectable()
 export class ContentAuthService {
@@ -38,18 +39,17 @@ export class ContentAuthService {
   /**
    * @author jochongs
    */
-  public checkReadPermission: (
-    contentIdx: number,
+  public checkReadPermission(
+    contentModel: CultureContentModel,
     loginUser?: LoginUser,
-  ) => Promise<void> = async (contentIdx, loginUser) => {
-    const content = await this.getContentByContentIdx(contentIdx);
-
-    if (!content.acceptedAt && content.userIdx !== loginUser?.idx) {
-      throw new PermissionDeniedException('Permission denied');
+  ): void {
+    if (
+      !contentModel.acceptedAt &&
+      contentModel.author.idx !== loginUser?.idx
+    ) {
+      throw new PermissionDeniedException();
     }
-
-    return;
-  };
+  }
 
   /**
    * @author jochongs
