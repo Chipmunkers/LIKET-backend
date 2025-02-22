@@ -57,31 +57,25 @@ export class ContentAuthService {
   public async checkWritePermission(
     loginUser: LoginUser,
     createDto: CreateContentRequestDto,
-  ): Promise<void> {
-    return;
-  }
+  ): Promise<void> {}
 
   /**
    * @author jochongs
    */
-  public async checkUpdatePermission(
+  public checkUpdatePermission(
     loginUser: LoginUser,
-    contentIdx: number,
+    contentModel: CultureContentModel,
     updateDto: UpdateContentDto,
-  ): Promise<void> {
-    const content = await this.getContentByContentIdx(contentIdx);
-
-    if (content.userIdx !== loginUser.idx) {
-      throw new PermissionDeniedException('Permission denied');
+  ): void {
+    if (contentModel.author.idx !== loginUser.idx) {
+      throw new PermissionDeniedException();
     }
 
-    if (content.acceptedAt) {
+    if (contentModel.acceptedAt) {
       throw new AcceptedContentException(
         'Cannot update accepted culture content',
       );
     }
-
-    return;
   }
 
   /**

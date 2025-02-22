@@ -123,21 +123,12 @@ export class CultureContentCoreService {
    * 식별자로 문화생활컨텐츠 수정 메서드
    *
    * @author jochongs
-   *
-   * @throws {CultureContentNotFoundException} 404 - 컨텐츠를 찾을 수 없는 경우
    */
   @Transactional()
   public async updateCultureContentByIdx(
     idx: number,
     input: UpdateCultureContentInput,
   ): Promise<void> {
-    const content =
-      await this.cultureContentCoreRepository.selectCultureContentByIdx(idx);
-
-    if (!content) {
-      throw new CultureContentNotFoundException(idx);
-    }
-
     await this.cultureContentCoreRepository.updateCultureContentByIdx(
       idx,
       input,

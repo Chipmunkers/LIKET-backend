@@ -1293,6 +1293,152 @@ describe('Culture Content (e2e)', () => {
         .expect(201);
     });
 
+    it('Success - check updated field', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: null,
+      });
+
+      const contentBeforeUpdate = await test
+        .getPrisma()
+        .cultureContent.findUniqueOrThrow({
+          include: {
+            Style: { include: { Style: true } },
+            ContentImg: true,
+            Location: true,
+          },
+          where: { idx: content.idx },
+        });
+
+      expect(contentBeforeUpdate.idx).toBe(content.idx);
+      expect(contentBeforeUpdate.title).toBe(content.title);
+      expect(contentBeforeUpdate.description).toBe(content.description);
+      expect(
+        contentBeforeUpdate.ContentImg.map((img) => img.imgPath).sort(),
+      ).toStrictEqual(content.imgList.sort());
+
+      expect(contentBeforeUpdate.startDate).toStrictEqual(content.startDate);
+      expect(contentBeforeUpdate.endDate).toStrictEqual(content.endDate);
+      expect(contentBeforeUpdate.openTime).toBe(content.openTime);
+      expect(contentBeforeUpdate.genreIdx).toBe(content.genreIdx);
+      expect(contentBeforeUpdate.ageIdx).toBe(content.ageIdx);
+      expect(
+        contentBeforeUpdate.Style.map(({ styleIdx }) => styleIdx).sort(),
+      ).toStrictEqual(content.styleIdxList.sort());
+      expect(contentBeforeUpdate.Location.address).toBe(
+        content.location.address,
+      );
+      expect(contentBeforeUpdate.Location.detailAddress).toBe(
+        content.location.detailAddress,
+      );
+      expect(contentBeforeUpdate.Location.region1Depth).toBe(
+        content.location.region1Depth,
+      );
+      expect(contentBeforeUpdate.Location.region2Depth).toBe(
+        content.location.region2Depth,
+      );
+      expect(contentBeforeUpdate.Location.bCode).toBe(content.location.bCode);
+      expect(contentBeforeUpdate.Location.hCode).toBe(content.location.hCode);
+      expect(contentBeforeUpdate.Location.positionX).toBe(
+        content.location.positionX,
+      );
+      expect(contentBeforeUpdate.Location.positionY).toBe(
+        content.location.positionY,
+      );
+
+      expect(contentBeforeUpdate.isFee).toBe(content.isFee);
+      expect(contentBeforeUpdate.isReservation).toBe(content.isReservation);
+      expect(contentBeforeUpdate.isParking).toBe(content.isParking);
+      expect(contentBeforeUpdate.isPet).toBe(content.isPet);
+      expect(contentBeforeUpdate.acceptedAt).toStrictEqual(content.acceptedAt);
+
+      const updateDto = {
+        title: '도라에몽 팝업 스토어',
+        description: '도라에몽 팝업 스토어 입니다.',
+        websiteLink: 'liket.site',
+        imgList: ['/content/test.img'],
+        startDate: new Date(),
+        endDate: new Date(),
+        openTime: '평일 6 ~ 12시',
+        genreIdx: 1,
+        styleIdxList: [1, 2, 3],
+        ageIdx: 1,
+        location: {
+          detailAddress: 'LH아파트 1250호',
+          address: '전북 익산시 부송동 100',
+          region1Depth: '서울',
+          region2Depth: '강동구',
+          positionX: 126.9959729576795,
+          positionY: 35.9766484576684,
+          hCode: '4514069000',
+          bCode: '4514013400',
+        },
+        isFee: true,
+        isReservation: true,
+        isParking: true,
+        isPet: true,
+      };
+
+      await request(test.getServer())
+        .put(`/culture-content/request/${content.idx}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send(updateDto)
+        .expect(201);
+
+      const contentAfterUpdate = await test
+        .getPrisma()
+        .cultureContent.findUniqueOrThrow({
+          include: {
+            Style: { include: { Style: true } },
+            ContentImg: true,
+            Location: true,
+          },
+          where: { idx: content.idx },
+        });
+
+      expect(contentAfterUpdate.title).toBe(updateDto.title);
+      expect(contentAfterUpdate.description).toBe(updateDto.description);
+      expect(
+        contentAfterUpdate.ContentImg.map((img) => img.imgPath).sort(),
+      ).toStrictEqual(updateDto.imgList.sort());
+
+      expect(contentAfterUpdate.startDate).toStrictEqual(updateDto.startDate);
+      expect(contentAfterUpdate.endDate).toStrictEqual(updateDto.endDate);
+      expect(contentAfterUpdate.openTime).toBe(updateDto.openTime);
+      expect(contentAfterUpdate.genreIdx).toBe(updateDto.genreIdx);
+      expect(contentAfterUpdate.ageIdx).toBe(updateDto.ageIdx);
+      expect(
+        contentAfterUpdate.Style.map(({ styleIdx }) => styleIdx).sort(),
+      ).toStrictEqual(updateDto.styleIdxList.sort());
+      expect(contentAfterUpdate.Location.address).toBe(
+        updateDto.location.address,
+      );
+      expect(contentAfterUpdate.Location.detailAddress).toBe(
+        updateDto.location.detailAddress,
+      );
+      expect(contentAfterUpdate.Location.region1Depth).toBe(
+        updateDto.location.region1Depth,
+      );
+      expect(contentAfterUpdate.Location.region2Depth).toBe(
+        updateDto.location.region2Depth,
+      );
+      expect(contentAfterUpdate.Location.bCode).toBe(updateDto.location.bCode);
+      expect(contentAfterUpdate.Location.hCode).toBe(updateDto.location.hCode);
+      expect(contentAfterUpdate.Location.positionX).toBe(
+        updateDto.location.positionX,
+      );
+      expect(contentAfterUpdate.Location.positionY).toBe(
+        updateDto.location.positionY,
+      );
+
+      expect(contentAfterUpdate.isFee).toBe(updateDto.isFee);
+      expect(contentAfterUpdate.isReservation).toBe(updateDto.isReservation);
+      expect(contentAfterUpdate.isParking).toBe(updateDto.isParking);
+      expect(contentAfterUpdate.isPet).toBe(updateDto.isPet);
+    });
+
     it('Non author update content', async () => {
       const createDto = {
         title: '도라에몽 팝업 스토어',

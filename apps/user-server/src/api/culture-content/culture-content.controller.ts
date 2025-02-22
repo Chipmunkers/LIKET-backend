@@ -255,16 +255,10 @@ export class CultureContentController {
     @Param('idx', ParseIntPipe) contentIdx: number,
     @Body() updateDto: UpdateContentDto,
   ): Promise<void> {
-    await this.contentAuthService.checkUpdatePermission(
-      loginUser,
-      contentIdx,
-      updateDto,
-    );
-
     await this.cultureContentService.updateContentRequest(
       contentIdx,
       updateDto,
-      loginUser.idx,
+      loginUser,
     );
 
     return;

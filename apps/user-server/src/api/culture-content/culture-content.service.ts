@@ -314,12 +314,38 @@ export class CultureContentService {
   public async updateContentRequest(
     idx: number,
     updateDto: UpdateContentDto,
-    userIdx: number,
+    loginUser: LoginUser,
   ): Promise<void> {
-    await this.cultureContentRepository.updateCultureContentByIdx(
-      idx,
+    const contentModel =
+      await this.cultureContentCoreService.findCultureContentByIdx(idx);
+
+    if (!contentModel) {
+      throw new ContentNotFoundException('Cannot find culture content');
+    }
+
+    this.cultureContentAuthService.checkUpdatePermission(
+      loginUser,
+      contentModel,
       updateDto,
     );
+
+    await this.cultureContentCoreService.updateCultureContentByIdx(idx, {
+      imgList: updateDto.imgList,
+      ageIdx: updateDto.ageIdx,
+      genreIdx: updateDto.genreIdx,
+      isFee: updateDto.isFee,
+      isReservation: updateDto.isReservation,
+      isParking: updateDto.isParking,
+      isPet: updateDto.isPet,
+      location: updateDto.location,
+      title: updateDto.title,
+      openTime: updateDto.openTime,
+      websiteLink: updateDto.websiteLink,
+      description: updateDto.description,
+      endDate: updateDto.endDate ? new Date(updateDto.endDate) : null,
+      startDate: new Date(updateDto.startDate),
+      styleIdxList: updateDto.styleIdxList,
+    });
 
     return;
   }
