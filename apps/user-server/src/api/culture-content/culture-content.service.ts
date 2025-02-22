@@ -407,16 +407,19 @@ export class CultureContentService {
    */
   public async getLikeContentAll(
     loginUser: LoginUser,
-    pagerble: LikeContentPagerbleDto,
+    pageable: LikeContentPagerbleDto,
   ): Promise<SummaryContentEntity[]> {
     return (
       await this.cultureContentCoreService.findLikedCultureContentAll(
         loginUser.idx,
         {
-          page: pagerble.page,
+          page: pageable.page,
           row: 10,
-
-          // ! 주의: 장르 필터링을 넣지를 않음 빨리 넣어야함
+          genre: pageable.genre ? [pageable.genre] : undefined,
+          orderBy: 'like',
+          order: 'desc',
+          accept: true,
+          open: pageable.onlyopen ? ['continue'] : [],
         },
       )
     ).map(SummaryContentEntity.fromModel);

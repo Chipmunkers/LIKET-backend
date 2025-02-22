@@ -42,7 +42,7 @@ export class FindLikedCultureContentAllInput {
    * true: 활성화된 컨텐츠만 가져옴
    * false: 비활성화된 컨텐츠만 가져옴
    */
-  public readonly accept?: boolean;
+  public readonly accept: boolean;
 
   /**
    * 컨텐츠 오픈 상태 필터링
