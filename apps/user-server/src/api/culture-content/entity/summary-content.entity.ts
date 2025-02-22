@@ -51,6 +51,12 @@ export class SummaryContentEntity extends PickType(ContentEntity, [
     });
   }
 
+  /**
+   * `CultureContentCoreModule`이 만들어짐에따라 deprecated 되었습니다.
+   * 대신 fromModel 정적 메서드를 사용하십시오.
+   *
+   * @deprecated
+   */
   static fromLikeContent(data: SelectLikedContentFieldPrisma) {
     const content = data.CultureContent;
 

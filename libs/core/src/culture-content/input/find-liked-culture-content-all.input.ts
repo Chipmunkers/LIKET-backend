@@ -1,3 +1,5 @@
+import { Genre } from 'libs/core/tag-root/genre/constant/genre';
+
 /**
  * @author jochongs
  */
@@ -52,4 +54,11 @@ export class FindLikedCultureContentAllInput {
    * @default []
    */
   public readonly open?: ('soon-open' | 'continue' | 'end')[];
+
+  /**
+   * 장르 필터링
+   *
+   * @default []
+   */
+  public readonly genre?: Genre[];
 }

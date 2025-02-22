@@ -204,7 +204,7 @@ export class CultureContentCoreService {
    * @param userIdx 조회하려는 사용자 인덱스
    */
   @Transactional()
-  public async findAllLikedCultureContentAll(
+  public async findLikedCultureContentAll(
     userIdx: number,
     input: FindLikedCultureContentAllInput,
   ): Promise<SummaryCultureContentModel[]> {

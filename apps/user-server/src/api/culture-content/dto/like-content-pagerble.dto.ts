@@ -1,8 +1,9 @@
 import { PickType } from '@nestjs/swagger';
 import { PagerbleDto } from '../../../common/dto/pagerble.dto';
 import { ToBoolean } from '../../../common/decorator/to-boolean.decorator';
-import { IsBoolean, IsInt, IsOptional } from 'class-validator';
+import { IsBoolean, IsIn, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
+import { GENRE, Genre } from 'libs/core/tag-root/genre/constant/genre';
 
 /**
  * @author jochongs
@@ -19,7 +20,7 @@ export class LikeContentPagerbleDto extends PickType(PagerbleDto, ['page']) {
    * 장르 필터링
    */
   @Type(() => Number)
-  @IsInt()
+  @IsIn(Object.values(GENRE))
   @IsOptional()
-  genre?: number;
+  genre?: Genre;
 }

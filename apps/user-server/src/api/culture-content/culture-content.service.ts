@@ -409,17 +409,21 @@ export class CultureContentService {
     loginUser: LoginUser,
     pagerble: LikeContentPagerbleDto,
   ): Promise<SummaryContentEntity[]> {
-    const likeContentList =
-      await this.cultureContentLikeRepository.selectLikeContentAll(
+    return (
+      await this.cultureContentCoreService.findLikedCultureContentAll(
         loginUser.idx,
-        pagerble,
-      );
-    return likeContentList.map((likeContent) =>
-      SummaryContentEntity.fromLikeContent(likeContent),
-    );
+        {
+          page: pagerble.page,
+          row: 10,
+
+          // ! 주의: 장르 필터링을 넣지를 않음 빨리 넣어야함
+        },
+      )
+    ).map(SummaryContentEntity.fromModel);
   }
 }
 
 // TODO: delete, update 메서드들 auth 로직 제거하고 service 내부에서 삭제할 수 있는 체크하기
 // TODO: updateCultureContentMethod, accept, revoke 메서드 관련 리팩토링 진행하고 테스트 케이스 만들기
 // TODO: increaseCultureContentLikeByIdx 이거 마저 구현해야함 -> 좋아요 누른 사용자가 이미 눌렀을 때 예외처리같은게 하나도 없긴함.
+// TODO: 좋아요 목록 보기 구현하다가 말았음. genre dto 손봤고 다음으로 genre 필터링 input에도 넣어야함
