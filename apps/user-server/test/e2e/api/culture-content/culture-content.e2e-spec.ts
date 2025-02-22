@@ -1691,5 +1691,30 @@ describe('Culture Content (e2e)', () => {
         .query({ onlyopen: false })
         .expect(401);
     });
+
+    it('fail - invalid onlyopen', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({
+          onlyopen: null, // invalid only open
+        })
+        .expect(400);
+    });
+
+    it('fail - invalid genre', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({
+          onlyopen: false,
+          genre: 100, // genre does not exist
+        })
+        .expect(400);
+    });
   });
 });
