@@ -1579,5 +1579,117 @@ describe('Culture Content (e2e)', () => {
         [content.idx].sort(),
       );
     });
+
+    it('Success with onlyopen filtering', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().user2;
+
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+      const [endContent, openContents, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            startDate: threeDaysAgo,
+            endDate: threeDaysAgo, // end contents
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            startDate: threeDaysAgo,
+            endDate: null, // open contents
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            startDate: threeDaysAgo,
+            endDate: null, // open contents
+          },
+        ]);
+
+      // like first content
+      await request(test.getServer())
+        .post(`/culture-content/${endContent.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      // like second content
+      await request(test.getServer())
+        .post(`/culture-content/${openContents.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({
+          onlyopen: true, // only open filtering
+        })
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [openContents.idx].sort(),
+      );
+    });
+
+    it('Success: orderby test', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().user2;
+
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+      const [secondLikeContents, firstLikeContent, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+        ]);
+
+      // like first content
+      await request(test.getServer())
+        .post(`/culture-content/${firstLikeContent.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      // like second content
+      await request(test.getServer())
+        .post(`/culture-content/${secondLikeContents.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({ onlyopen: false })
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        secondLikeContents.idx,
+        firstLikeContent.idx,
+      ]);
+    });
+
+    it('fail - no token', async () => {
+      await request(test.getServer())
+        .get('/culture-content/like/all')
+        .query({ onlyopen: false })
+        .expect(401);
+    });
   });
 });
