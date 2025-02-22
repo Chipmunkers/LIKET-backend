@@ -43,7 +43,7 @@ export class CultureContentLikeCoreService {
       throw new AlreadyLikedCultureContentException(contentIdx, userIdx);
     }
 
-    await this.cultureContentLikeCoreRepository.selectCultureContentLike(
+    await this.cultureContentLikeCoreRepository.insertCultureContentLike(
       contentIdx,
       userIdx,
     );

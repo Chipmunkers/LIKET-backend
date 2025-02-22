@@ -21,6 +21,7 @@ import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
 import { PermissionDeniedException } from 'apps/user-server/src/common/exception/PermissionDeniedException';
+import { CultureContentLikeCoreService } from 'libs/core/culture-content/culture-content-like-core.service';
 
 @Injectable()
 export class CultureContentService {
@@ -31,6 +32,7 @@ export class CultureContentService {
     private readonly contentTagRepository: ContentTagRepository,
     private readonly userRepository: UserRepository,
     private readonly cultureContentCoreService: CultureContentCoreService,
+    private readonly cultureContentLikeCoreService: CultureContentLikeCoreService,
     @Logger(CultureContentService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -344,27 +346,11 @@ export class CultureContentService {
   /**
    * @author jochongs
    */
-  public async likeContent(userIdx: number, contentIdx: number) {
-    const likeState =
-      await this.cultureContentLikeRepository.selectCultureContentLike(
-        userIdx,
-        contentIdx,
-      );
-
-    if (likeState) {
-      this.logger.warn(
-        this.likeContent,
-        'Attempt to like to already liked content',
-      );
-      throw new AlreadyLikeContentException('Already liked culture content');
-    }
-
-    await this.cultureContentLikeRepository.increaseCultureContentLike(
+  public async likeContent(userIdx: number, contentIdx: number): Promise<void> {
+    await this.cultureContentLikeCoreService.likeCultureContentByIdx(
       userIdx,
       contentIdx,
     );
-
-    return;
   }
 
   /**
@@ -374,30 +360,10 @@ export class CultureContentService {
     userIdx: number,
     contentIdx: number,
   ): Promise<void> {
-    await this.getContentByIdx(contentIdx);
-
-    const likeState =
-      await this.cultureContentLikeRepository.selectCultureContentLike(
-        userIdx,
-        contentIdx,
-      );
-
-    if (!likeState) {
-      this.logger.warn(
-        this.likeContent,
-        'Attempt to cancel to like non-liked content',
-      );
-      throw new AlreadyNotLikeContentException(
-        'Already do not like culture content',
-      );
-    }
-
-    await this.cultureContentLikeRepository.decreaseCultureContentLike(
+    await this.cultureContentLikeCoreService.cancelToLikeCultureContentByIdx(
       userIdx,
       contentIdx,
     );
-
-    return;
   }
 
   /**
