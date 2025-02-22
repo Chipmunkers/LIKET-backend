@@ -402,7 +402,7 @@ export class CultureContentCoreRepository {
   private getOpenWhereClause(
     openList: ('soon-open' | 'continue' | 'end')[],
   ): Prisma.CultureContentWhereInput {
-    if (open.length === 0) return {};
+    if (openList.length === 0) return {};
 
     const now = new Date();
 
