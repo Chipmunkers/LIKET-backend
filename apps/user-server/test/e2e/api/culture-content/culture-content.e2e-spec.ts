@@ -6,6 +6,7 @@ import * as request from 'supertest';
 import invalidCreateContentRequest from './invalid-create-content-request';
 import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
+import { SummaryContentEntity } from 'apps/user-server/src/api/culture-content/entity/summary-content.entity';
 
 describe('Culture Content (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -1482,6 +1483,101 @@ describe('Culture Content (e2e)', () => {
         .delete(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(400);
+    });
+  });
+
+  describe('GET /culture-content/like/all', () => {
+    it('Success', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().user2;
+
+      const [content, secondContent, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+        ]);
+
+      // like first content
+      await request(test.getServer())
+        .post(`/culture-content/${content.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      // like second content
+      await request(test.getServer())
+        .post(`/culture-content/${secondContent.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({ onlyopen: false })
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [content.idx, secondContent.idx].sort(),
+      );
+    });
+
+    it('Success with genre filtering', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().user2;
+
+      const [content, secondContent, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            genreIdx: GENRE.CONCERT,
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            genreIdx: GENRE.MUSICAL,
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            genreIdx: GENRE.POPUP_STORE,
+          },
+        ]);
+
+      // like first content
+      await request(test.getServer())
+        .post(`/culture-content/${content.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      // like second content
+      await request(test.getServer())
+        .post(`/culture-content/${secondContent.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({ onlyopen: false, genre: GENRE.CONCERT }) // genre filtering
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [content.idx].sort(),
+      );
     });
   });
 });
