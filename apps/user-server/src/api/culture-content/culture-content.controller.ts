@@ -24,7 +24,6 @@ import { Exception } from '../../common/decorator/exception.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { ContentAuthService } from './content-auth.service';
 import { LoginUser } from '../auth/model/login-user';
-import { HotCultureContentEntity } from './entity/hot-content.entity';
 import { GetHotContentResponseDto } from './dto/response/get-hot-style-content.dto';
 import { GetHotAgeContentResponseDto } from './dto/response/get-hot-age-content.dto';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
