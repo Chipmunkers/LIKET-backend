@@ -24,27 +24,11 @@ export class ContentAuthService {
     pagerble: ContentPagerbleDto,
     loginUser?: LoginUser,
   ): Promise<void> {
-    this.logger.log(
-      this.checkReadAllPermission,
-      'Check content read permission',
-    );
     if (pagerble.user && pagerble.user !== loginUser?.idx) {
-      this.logger.warn(
-        this.checkReadAllPermission,
-        `Unauthenticated attempt to read content with user pagerble | user = ${
-          loginUser?.idx || 'Guest'
-        }`,
-      );
       throw new PermissionDeniedException();
     }
 
     if (!pagerble.accept && pagerble.user !== loginUser?.idx) {
-      this.logger.warn(
-        this.checkReadAllPermission,
-        `Unauthenticated attempt to read content with accept pagerble | user = ${
-          loginUser?.idx || 'Guest'
-        }`,
-      );
       throw new PermissionDeniedException();
     }
 
@@ -58,17 +42,9 @@ export class ContentAuthService {
     contentIdx: number,
     loginUser?: LoginUser,
   ) => Promise<void> = async (contentIdx, loginUser) => {
-    this.logger.log(
-      this.checkReadPermission,
-      `SELECT culture content | content = ${contentIdx}`,
-    );
     const content = await this.getContentByContentIdx(contentIdx);
 
     if (!content.acceptedAt && content.userIdx !== loginUser?.idx) {
-      this.logger.warn(
-        this.checkReadPermission,
-        'Unauthenticated attempt to read not accepted content',
-      );
       throw new PermissionDeniedException('Permission denied');
     }
 
@@ -118,18 +94,10 @@ export class ContentAuthService {
     const content = await this.getContentByContentIdx(contentIdx);
 
     if (content.userIdx !== loginUser.idx) {
-      this.logger.warn(
-        this.checkDeletePermission,
-        `Attempt to delete unauthenticated user | user = ${loginUser.idx}`,
-      );
       throw new PermissionDeniedException('Permission denied');
     }
 
     if (content.acceptedAt) {
-      this.logger.warn(
-        this.checkDeletePermission,
-        'Attempt to delete accepted content',
-      );
       throw new AcceptedContentException(
         'Cannot update accepted culture content',
       );
@@ -142,10 +110,6 @@ export class ContentAuthService {
    * @author jochongs
    */
   private async getContentByContentIdx(contentIdx: number) {
-    this.logger.log(
-      this.getContentByContentIdx,
-      `SELECT content = ${contentIdx}`,
-    );
     const content = await this.prisma.cultureContent.findUnique({
       where: {
         idx: contentIdx,
@@ -157,10 +121,6 @@ export class ContentAuthService {
     });
 
     if (!content) {
-      this.logger.warn(
-        this.checkReadPermission,
-        `Attempt to non-existent content | content = ${contentIdx}`,
-      );
       throw new ContentNotFoundException('Cannot find culture content');
     }
 
