@@ -940,6 +940,49 @@ describe('Culture Content (e2e)', () => {
       ]);
     });
 
+    it('Success: user filtering', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().not(loginUser.idx);
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: loginUser.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: loginUser.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: otherUser.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: otherUser.idx,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          user: loginUser.idx,
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [content1.idx, content2.idx].sort(),
+      );
+    });
+
     it('No token', async () => {
       await request(test.getServer()).get('/culture-content/all').expect(200);
     });
