@@ -86,4 +86,14 @@ export class FindCultureContentAllInput {
    * 해당 좌표 범위 내부 컨텐츠로 필터링
    */
   public readonly coordinateRange?: CoordinateRageInput;
+
+  /**
+   * 작성자 인덱스
+   */
+  public readonly author?: number;
+
+  /**
+   * 법정동 앞 두자리 필터링
+   */
+  public readonly sidoCode?: string;
 }

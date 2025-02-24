@@ -42,6 +42,8 @@ export class CultureContentCoreRepository {
       styleList = [],
       ageList = [],
       coordinateRange,
+      author,
+      sidoCode,
     }: FindCultureContentAllInput,
     readUser: number = -1,
   ): Promise<SummaryCultureContentSelectField[]> {
@@ -132,6 +134,9 @@ export class CultureContentCoreRepository {
       },
       where: {
         AND: [
+          { deletedAt: null },
+          this.getAuthorWhereClause(author),
+          this.getSidoCodeWhereClause(sidoCode),
           this.getGenreWhereClause(genreList),
           this.getStyleWhereClause(styleList),
           this.getAgeWhereClause(ageList),
@@ -312,6 +317,42 @@ export class CultureContentCoreRepository {
     }
 
     return 'acceptedAt';
+  }
+
+  /**
+   * 작성자 필터 WHERE 절을 가져오는 메서드
+   *
+   * @author jochongs
+   *
+   * @param authorIdx 작성자 식별자
+   */
+  private getAuthorWhereClause(
+    authorIdx?: number,
+  ): Prisma.CultureContentWhereInput {
+    if (!authorIdx) return {};
+
+    return {
+      userIdx: authorIdx,
+    };
+  }
+
+  /**
+   * sido 코드 필터 WHERE 절을 가져오는 메서드
+   *
+   * @author jochongs
+   *
+   * @param sidoCode 시도 코드
+   */
+  private getSidoCodeWhereClause(
+    sidoCode?: string,
+  ): Prisma.CultureContentWhereInput {
+    if (!sidoCode) return {};
+
+    return {
+      Location: {
+        sidoCode,
+      },
+    };
   }
 
   /**
