@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
-import { ContentNotFoundException } from './exception/ContentNotFound';
 import { PermissionDeniedException } from '../../common/exception/PermissionDeniedException';
 import { LoginUser } from '../auth/model/login-user';
 import { Logger } from '../../common/module/logger/logger.decorator';
