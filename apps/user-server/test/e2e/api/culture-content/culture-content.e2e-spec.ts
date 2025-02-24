@@ -1,11 +1,9 @@
-import { CreateContentRequestDto } from 'apps/user-server/src/api/culture-content/dto/create-content-request.dto';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { CultureContentSeedHelper } from 'libs/testing';
 import * as request from 'supertest';
 import invalidCreateContentRequest from './invalid-create-content-request';
 import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
-import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
 import { SummaryContentEntity } from 'apps/user-server/src/api/culture-content/entity/summary-content.entity';
 import { AGE } from 'libs/core/tag-root/age/constant/age';
 import { STYLE } from 'libs/core/tag-root/style/constant/style';
