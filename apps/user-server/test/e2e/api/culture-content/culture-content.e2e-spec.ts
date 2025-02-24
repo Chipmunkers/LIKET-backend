@@ -748,14 +748,6 @@ describe('Culture Content (e2e)', () => {
       const loginUser = test.getLoginUsers().user1;
       const contentAuthor = test.getLoginUsers().not(loginUser.idx);
 
-      const getDaysAgo = (dateNum: number): Date => {
-        const date = new Date();
-
-        date.setDate(date.getDate() - dateNum);
-
-        return date;
-      };
-
       const [content1, content2, content3, content4] =
         await contentSeedHelper.seedAll([
           {
@@ -807,14 +799,6 @@ describe('Culture Content (e2e)', () => {
       const loginUser = test.getLoginUsers().user1;
       const contentAuthor = test.getLoginUsers().not(loginUser.idx);
 
-      const getDaysAgo = (dateNum: number): Date => {
-        const date = new Date();
-
-        date.setDate(date.getDate() - dateNum);
-
-        return date;
-      };
-
       const [content1, content2, content3, content4] =
         await contentSeedHelper.seedAll([
           {
@@ -859,6 +843,100 @@ describe('Culture Content (e2e)', () => {
         content4.idx,
         content2.idx,
         content1.idx,
+      ]);
+    });
+
+    it('Success: orderby - create desc', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          orderby: 'create',
+          order: 'desc',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content4.idx,
+        content3.idx,
+        content2.idx,
+        content1.idx,
+      ]);
+    });
+
+    it('Success: orderby - create asc', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          orderby: 'create',
+          order: 'asc',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content1.idx,
+        content2.idx,
+        content3.idx,
+        content4.idx,
       ]);
     });
 
