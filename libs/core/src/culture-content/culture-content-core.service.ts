@@ -206,4 +206,18 @@ export class CultureContentCoreService {
       )
     ).map(SummaryCultureContentModel.fromLiked);
   }
+
+  /**
+   * 조회수 상승하기
+   *
+   * @param idx 컨텐츠 식별자
+   * @param count 상승 시킬 숫자
+   */
+  @Transactional()
+  public async increaseViewCountByIdx(
+    idx: number,
+    count: number,
+  ): Promise<void> {
+    await this.cultureContentCoreRepository.increaseViewCountByIdx(idx, count);
+  }
 }

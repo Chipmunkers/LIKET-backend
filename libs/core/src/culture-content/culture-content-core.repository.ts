@@ -984,4 +984,26 @@ export class CultureContentCoreRepository {
       });
     }
   }
+
+  /**
+   * UPDATE culture_content_tb SET view_count = view_count + $2 WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 컨텐츠 식별자
+   * @param count 상승 시킬 숫자
+   */
+  public async increaseViewCountByIdx(
+    idx: number,
+    count: number,
+  ): Promise<void> {
+    await this.txHost.tx.cultureContent.update({
+      where: { idx, deletedAt: null },
+      data: {
+        viewCount: {
+          increment: count,
+        },
+      },
+    });
+  }
 }
