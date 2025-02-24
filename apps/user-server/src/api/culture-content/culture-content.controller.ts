@@ -55,12 +55,10 @@ export class CultureContentController {
   ): Promise<GetCultureContentAllResponseDto> {
     await this.contentAuthService.checkReadAllPermission(pagerble, loginUser);
 
-    const result = await this.cultureContentService.getContentAll(
+    return await this.cultureContentService.getContentAll(
       pagerble,
       loginUser?.idx,
     );
-
-    return result;
   }
 
   /**
