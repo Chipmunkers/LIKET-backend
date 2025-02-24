@@ -689,6 +689,61 @@ describe('Culture Content (e2e)', () => {
       ]);
     });
 
+    it('Success: orderby - time: asc', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const getDaysAgo = (dateNum: number): Date => {
+        const date = new Date();
+
+        date.setDate(date.getDate() - dateNum);
+
+        return date;
+      };
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: getDaysAgo(1), // 하루 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(2), // 이틀 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(3), // 사흘 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(4), // 나흘 전 승인
+            userIdx: contentAuthor.idx,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          orderby: 'time',
+          order: 'asc',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content4.idx,
+        content3.idx,
+        content2.idx,
+        content1.idx,
+      ]);
+    });
+
     it('No token', async () => {
       await request(test.getServer()).get('/culture-content/all').expect(200);
     });
