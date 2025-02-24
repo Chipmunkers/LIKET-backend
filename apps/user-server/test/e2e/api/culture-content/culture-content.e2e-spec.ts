@@ -8,6 +8,7 @@ import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
 import { SummaryContentEntity } from 'apps/user-server/src/api/culture-content/entity/summary-content.entity';
 import { AGE } from 'libs/core/tag-root/age/constant/age';
+import { STYLE } from 'libs/core/tag-root/style/constant/style';
 
 describe('Culture Content (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -445,20 +446,111 @@ describe('Culture Content (e2e)', () => {
 
     it('Success: style filter', async () => {
       const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [cuteContent, cuteContent2, cuteContent3] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE, STYLE.ARTISTIC],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE, STYLE.DETECTIVE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.FUN, STYLE.DETECTIVE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.GOODS, STYLE.HEALING],
+          },
+        ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
-          genre: 1,
-          age: 2,
-          style: 3,
+          style: [STYLE.CUTE],
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [cuteContent.idx, cuteContent2.idx, cuteContent3.idx].sort(),
+      );
+    });
+
+    it('Success: style filter - 2', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [cuteContent, cuteContent2, cuteContent3, detectiveContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE, STYLE.ARTISTIC],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE, STYLE.DETECTIVE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.FUN, STYLE.DETECTIVE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.GOODS, STYLE.HEALING],
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          style: [STYLE.CUTE, STYLE.DETECTIVE],
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [
+          cuteContent.idx,
+          cuteContent2.idx,
+          cuteContent3.idx,
+          detectiveContent.idx,
+        ].sort(),
+      );
     });
 
     it('Success: region filter', async () => {
