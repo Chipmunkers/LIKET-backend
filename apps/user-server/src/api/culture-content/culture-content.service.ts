@@ -6,8 +6,6 @@ import { ContentNotFoundException } from './exception/ContentNotFound';
 import { ContentEntity } from './entity/content.entity';
 import { SummaryContentEntity } from './entity/summary-content.entity';
 import { LoginUser } from '../auth/model/login-user';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { CultureContentRepository } from './culture-content.repository';
 import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { UserRepository } from '../user/user.repository';
@@ -27,7 +25,6 @@ export class CultureContentService {
     private readonly cultureContentCoreService: CultureContentCoreService,
     private readonly cultureContentLikeCoreService: CultureContentLikeCoreService,
     private readonly cultureContentAuthService: ContentAuthService,
-    @Logger(CultureContentService.name) private readonly logger: LoggerService,
   ) {}
 
   /**
