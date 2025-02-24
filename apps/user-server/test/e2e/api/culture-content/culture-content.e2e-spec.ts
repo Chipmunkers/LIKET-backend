@@ -7,6 +7,7 @@ import invalidCreateContentRequest from './invalid-create-content-request';
 import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
 import { SummaryContentEntity } from 'apps/user-server/src/api/culture-content/entity/summary-content.entity';
+import { AGE } from 'libs/core/tag-root/age/constant/age';
 
 describe('Culture Content (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -387,19 +388,59 @@ describe('Culture Content (e2e)', () => {
 
     it('Success: age filter', async () => {
       const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [
+        allAgeContent,
+        allAgeContent2,
+        childrenContent,
+        fortiesContent,
+        thirtiesContent,
+      ] = await contentSeedHelper.seedAll([
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+          ageIdx: AGE.ALL,
+        },
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+          ageIdx: AGE.ALL,
+        },
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+          ageIdx: AGE.CHILDREN,
+        },
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+          ageIdx: AGE.FORTIES_FIFTIES,
+        },
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+          ageIdx: AGE.THIRTIES,
+        },
+      ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
-          genre: 1,
-          age: 2,
+          age: AGE.ALL,
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [allAgeContent.idx, allAgeContent2.idx].sort(),
+      );
     });
 
     it('Success: style filter', async () => {
