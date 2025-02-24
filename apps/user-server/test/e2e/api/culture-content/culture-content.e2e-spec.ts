@@ -259,7 +259,7 @@ describe('Culture Content (e2e)', () => {
       const [content1, content2] = await contentSeedHelper.seedAll([
         { userIdx: loginUser.idx, acceptedAt: null },
         { userIdx: loginUser.idx, acceptedAt: null },
-        { userIdx: otherUser.idx, acceptedAt: null },
+        { userIdx: otherUser.idx, acceptedAt: null }, // other user
         { userIdx: loginUser.idx, acceptedAt: null, deletedAt: new Date() },
       ]);
 
@@ -283,18 +283,54 @@ describe('Culture Content (e2e)', () => {
 
     it('Success: genre filter', async () => {
       const loginUser = test.getLoginUsers().user1;
+      const authorUser = test.getLoginUsers().not(loginUser.idx);
+
+      const [
+        musicalContent,
+        festivalContent,
+        festivalContent2,
+        notAcceptedContent,
+      ] = await contentSeedHelper.seedAll([
+        {
+          userIdx: authorUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.MUSICAL,
+        },
+        {
+          userIdx: authorUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.FESTIVAL,
+        },
+        {
+          userIdx: authorUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.FESTIVAL,
+        },
+        {
+          userIdx: authorUser.idx,
+          acceptedAt: null,
+          genreIdx: GENRE.MUSICAL,
+        },
+      ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
-          genre: 1,
+          genre: GENRE.FESTIVAL,
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.length).toBe(2);
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [festivalContent.idx, festivalContent2.idx].sort(),
+      );
     });
 
     it('Success: genre filter without login token', async () => {
