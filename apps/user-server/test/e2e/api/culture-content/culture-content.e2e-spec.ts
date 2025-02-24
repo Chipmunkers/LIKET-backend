@@ -36,6 +36,81 @@ describe('Culture Content (e2e)', () => {
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
+    it('Success: correct field test', async () => {
+      const loginUser = test.getLoginUsers().user2;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx).idx;
+
+      const [firstContent, secondContent, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList.length).toBe(3);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [thirdContent.idx, secondContent.idx, firstContent.idx].sort(),
+      );
+
+      expect(contentList[2].idx).toBe(thirdContent.idx);
+      expect(contentList[2].age.idx).toBe(thirdContent.ageIdx);
+      expect(contentList[2].genre.idx).toBe(thirdContent.genreIdx);
+      expect(contentList[2].title).toBe(thirdContent.title);
+      expect(contentList[2].thumbnail).toBe(thirdContent.imgList[0]);
+      expect(contentList[2].style.map(({ idx }) => idx).sort()).toStrictEqual(
+        thirdContent.styleIdxList.sort(),
+      );
+      expect(contentList[2].endDate?.toISOString()).toBe(
+        thirdContent.endDate?.toISOString(),
+      );
+      expect(contentList[2].startDate).toBe(
+        thirdContent.startDate?.toISOString(),
+      );
+      expect(contentList[2].acceptedAt).toBe(
+        thirdContent.acceptedAt?.toISOString(),
+      );
+      expect(contentList[2].location.address).toBe(
+        thirdContent.location.address,
+      );
+      expect(contentList[2].location.detailAddress).toBe(
+        thirdContent.location.detailAddress,
+      );
+      expect(contentList[2].location.region1Depth).toBe(
+        thirdContent.location.region1Depth,
+      );
+      expect(contentList[2].location.region2Depth).toBe(
+        thirdContent.location.region2Depth,
+      );
+      expect(contentList[2].location.bCode).toBe(thirdContent.location.bCode);
+      expect(contentList[2].location.hCode).toBe(thirdContent.location.hCode);
+      expect(contentList[2].location.positionY).toBe(
+        thirdContent.location.positionY,
+      );
+      expect(contentList[2].location.positionX).toBe(
+        thirdContent.location.positionX,
+      );
+    });
+
     it('Success: get my contents', async () => {
       const otherUser = test.getLoginUsers().user1;
       const loginUser = test.getLoginUsers().user2;
