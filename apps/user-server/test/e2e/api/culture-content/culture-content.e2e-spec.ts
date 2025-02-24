@@ -634,25 +634,59 @@ describe('Culture Content (e2e)', () => {
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
-    it('Success: orderby', async () => {
+    it('Success: orderby - time: desc', async () => {
       const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const getDaysAgo = (dateNum: number): Date => {
+        const date = new Date();
+
+        date.setDate(date.getDate() - dateNum);
+
+        return date;
+      };
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: getDaysAgo(1), // 하루 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(2), // 이틀 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(3), // 사흘 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(4), // 나흘 전 승인
+            userIdx: contentAuthor.idx,
+          },
+        ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
-          genre: 1,
-          age: 2,
-          style: 3,
-          region: '11',
-          open: true,
-          orderby: 'create',
+          orderby: 'time',
+          order: 'desc',
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content1.idx,
+        content2.idx,
+        content3.idx,
+        content4.idx,
+      ]);
     });
 
     it('No token', async () => {
