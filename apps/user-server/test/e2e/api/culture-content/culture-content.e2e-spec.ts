@@ -803,6 +803,65 @@ describe('Culture Content (e2e)', () => {
       ]);
     });
 
+    it('Success: orderby - like: asc', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const getDaysAgo = (dateNum: number): Date => {
+        const date = new Date();
+
+        date.setDate(date.getDate() - dateNum);
+
+        return date;
+      };
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 5,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 4,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 2,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 3,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          orderby: 'like',
+          order: 'asc',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content3.idx,
+        content4.idx,
+        content2.idx,
+        content1.idx,
+      ]);
+    });
+
     it('No token', async () => {
       await request(test.getServer()).get('/culture-content/all').expect(200);
     });
