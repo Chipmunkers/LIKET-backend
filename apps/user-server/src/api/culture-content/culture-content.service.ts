@@ -15,6 +15,7 @@ import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-cont
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
 import { CultureContentLikeCoreService } from 'libs/core/culture-content/culture-content-like-core.service';
 import { ContentAuthService } from 'apps/user-server/src/api/culture-content/content-auth.service';
+import { Style } from 'libs/core/tag-root/style/constant/style';
 
 @Injectable()
 export class CultureContentService {
@@ -134,14 +135,19 @@ export class CultureContentService {
   public async getSoonEndContentAll(
     userIdx?: number,
   ): Promise<SummaryContentEntity[]> {
-    const contentList =
-      await this.cultureContentRepository.selectSoonEndCultureContentAll(
+    return (
+      await this.cultureContentCoreService.findCultureContentAll(
+        {
+          page: 1,
+          row: 100,
+          accept: true,
+          open: ['continue'],
+          orderBy: 'endDate',
+          order: 'asc',
+        },
         userIdx,
-      );
-
-    return contentList.map((content) =>
-      SummaryContentEntity.createEntity(content),
-    );
+      )
+    ).map(SummaryContentEntity.fromModel);
   }
 
   /**
@@ -231,16 +237,19 @@ export class CultureContentService {
   ): Promise<{ contentList: SummaryContentEntity[]; style: TagEntity }> {
     const hotStyle = await this.contentTagRepository.selectHotStyle();
 
-    const contentList =
-      await this.cultureContentRepository.selectHotCultureContentByStyleIdx(
-        hotStyle.idx,
-        loginUser?.idx,
-      );
-
     return {
-      contentList: contentList.map((content) =>
-        SummaryContentEntity.createEntity(content),
-      ),
+      contentList: (
+        await this.cultureContentCoreService.findCultureContentAll(
+          {
+            page: 1,
+            row: 5,
+            styleList: [hotStyle.idx as Style], // TODO: hotStyle 자체를 변경해야함.
+            orderBy: 'like',
+            order: 'desc',
+          },
+          loginUser?.idx,
+        )
+      ).map(SummaryContentEntity.fromModel),
       style: {
         idx: hotStyle.idx,
         name: hotStyle.name,

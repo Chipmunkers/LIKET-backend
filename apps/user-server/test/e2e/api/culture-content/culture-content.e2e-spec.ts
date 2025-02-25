@@ -1419,35 +1419,75 @@ describe('Culture Content (e2e)', () => {
       const oneDateAfter = new Date();
       oneDateAfter.setDate(oneDateAfter.getDate() + 1);
 
-      await contentSeedHelper.seedAll([
+      const twoDateAfter = new Date();
+      twoDateAfter.setDate(twoDateAfter.getDate() + 2);
+
+      const threeDateAfter = new Date();
+      threeDateAfter.setDate(threeDateAfter.getDate() + 3);
+
+      const [
+        contentNeverEnd,
+        contentEndAfterOneDate,
+        contentEndAfterTwoDate,
+        contentEndAfterThreeDate,
+      ] = await contentSeedHelper.seedAll([
         {
+          // content never end
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo,
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+        {
+          // content open after 1 day
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo,
+          endDate: oneDateAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          // content open after 2 day
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo, // -30 ~ +2
+          endDate: twoDateAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          // content open after 3 day
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo,
+          endDate: threeDateAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          // not open content
           userIdx: test.getLoginUsers().user1.idx,
           startDate: oneDateAfter,
           endDate: oneDateAfter,
           acceptedAt: new Date(),
         },
         {
+          // not open content
           userIdx: test.getLoginUsers().user1.idx,
-          startDate: new Date(),
-          endDate: null,
-          acceptedAt: new Date(),
-        },
-        {
-          // open state content
-          userIdx: test.getLoginUsers().user1.idx,
-          startDate: new Date(),
-          endDate: null,
+          startDate: oneMonthAgo,
+          endDate: oneMonthAgo,
           acceptedAt: new Date(),
         },
       ]);
 
       const response = await request(test.getServer()).get(
-        '/culture-content/soon-open/all',
+        '/culture-content/soon-end/all',
       );
 
-      const { contentList } = response.body;
+      const contentList: SummaryContentEntity[] = response.body.contentList;
 
-      expect(contentList.length).toBe(1);
+      expect(contentList.length).toBe(4);
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        contentEndAfterOneDate.idx,
+        contentEndAfterTwoDate.idx,
+        contentEndAfterThreeDate.idx,
+        contentNeverEnd.idx,
+      ]);
     });
   });
 
