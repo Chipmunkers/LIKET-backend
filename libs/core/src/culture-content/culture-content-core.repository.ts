@@ -14,6 +14,7 @@ import { CreateCultureContentInput } from 'libs/core/culture-content/input/creat
 import { UpdateCultureContentInput } from 'libs/core/culture-content/input/update-culture-content.input';
 import { FindLikedCultureContentAllInput } from 'libs/core/culture-content/input/find-liked-culture-content-all.input';
 import { LikedCultureContentSelectField } from 'libs/core/culture-content/model/prisma/liked-culture-content-select-field';
+import { GenreWithHotCultureContentSelectField } from 'libs/core/culture-content/model/prisma/genre-with-hot-culture-content-select-field';
 
 @Injectable()
 export class CultureContentCoreRepository {
@@ -22,6 +23,126 @@ export class CultureContentCoreRepository {
       TransactionalAdapterPrisma<PrismaProvider>
     >,
   ) {}
+
+  /**
+   * 장르별 인기 컨텐츠 목록 보기
+   *
+   * @author jochongs
+   */
+  public async selectHotCultureContentGroupByGenre(
+    readUser?: number,
+  ): Promise<GenreWithHotCultureContentSelectField[]> {
+    return await this.txHost.tx.genre.findMany({
+      select: {
+        idx: true,
+        name: true,
+        CultureContent: {
+          select: {
+            idx: true,
+            id: true,
+            title: true,
+            startDate: true,
+            endDate: true,
+            viewCount: true,
+            openTime: true,
+            likeCount: true,
+            createdAt: true,
+            acceptedAt: true,
+            Location: {
+              select: {
+                idx: true,
+                address: true,
+                detailAddress: true,
+                region1Depth: true,
+                region2Depth: true,
+                hCode: true,
+                bCode: true,
+                positionX: true,
+                positionY: true,
+                sidoCode: true,
+                sggCode: true,
+                legCode: true,
+                riCode: true,
+              },
+            },
+            ContentImg: {
+              select: {
+                idx: true,
+                imgPath: true,
+                createdAt: true,
+              },
+              where: {
+                deletedAt: null,
+              },
+              orderBy: {
+                idx: 'asc',
+              },
+            },
+            Genre: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+            Style: {
+              select: {
+                Style: {
+                  select: {
+                    idx: true,
+                    name: true,
+                    createdAt: true,
+                  },
+                },
+              },
+            },
+            Age: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+            User: {
+              select: {
+                idx: true,
+                nickname: true,
+                email: true,
+                profileImgPath: true,
+                isAdmin: true,
+              },
+            },
+            ContentLike: {
+              select: {
+                userIdx: true,
+              },
+              where: {
+                userIdx: readUser || -1,
+              },
+            },
+          },
+          where: {
+            AND: [
+              this.getAcceptWhereClause(true),
+              this.getOpenWhereClause(['continue']),
+              { deletedAt: null },
+              { likeCount: { not: 0 } },
+            ],
+          },
+          take: 4,
+          orderBy: {
+            likeCount: 'desc',
+          },
+        },
+      },
+      where: {
+        AND: [{ deletedAt: null }],
+      },
+      orderBy: {
+        idx: 'asc',
+      },
+    });
+  }
 
   /**
    * SELECT culture_content_tb

@@ -9,6 +9,7 @@ import { FindCultureContentAllInput } from 'libs/core/culture-content/input/find
 import { FindLikedCultureContentAllInput } from 'libs/core/culture-content/input/find-liked-culture-content-all.input';
 import { UpdateCultureContentInput } from 'libs/core/culture-content/input/update-culture-content.input';
 import { CultureContentModel } from 'libs/core/culture-content/model/culture-content.model';
+import { GenreWithHotCultureContentsModel } from 'libs/core/culture-content/model/genre-with-hot-culture-contents.model';
 import { SummaryCultureContentModel } from 'libs/core/culture-content/model/summary-culture-content.model';
 
 @Injectable()
@@ -33,6 +34,23 @@ export class CultureContentCoreService {
         readUser,
       )
     ).map(SummaryCultureContentModel.fromPrisma);
+  }
+
+  /**
+   * 장르별 인기 컨텐츠를 가져오는 메서드
+   * 모든 장르별, 좋아요 많은 순서대로 컨텐츠 4개를 함께 가져옴
+   *
+   * @author jochongs
+   */
+  @Transactional()
+  public async findHotCultureContentGroupByGenre(
+    readUser?: number,
+  ): Promise<GenreWithHotCultureContentsModel[]> {
+    return (
+      await this.cultureContentCoreRepository.selectHotCultureContentGroupByGenre(
+        readUser,
+      )
+    ).map(GenreWithHotCultureContentsModel.fromPrisma);
   }
 
   /**
