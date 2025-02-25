@@ -1336,17 +1336,33 @@ describe('Culture Content (e2e)', () => {
       const oneMonthAfter = new Date();
       oneMonthAfter.setMonth(oneMonthAfter.getMonth() + 1);
 
-      await contentSeedHelper.seedAll([
+      const twoMonthAfter = new Date();
+      twoMonthAfter.setMonth(twoMonthAfter.getMonth() + 2);
+
+      const threeMonthAfter = new Date();
+      threeMonthAfter.setMonth(threeMonthAfter.getMonth() + 3);
+
+      const [
+        contentOpenAfterTwoMonth,
+        contentOpenAfterThreeMonth,
+        contentOpenAfterOneMonth,
+      ] = await contentSeedHelper.seedAll([
         {
           userIdx: test.getLoginUsers().user1.idx,
-          startDate: oneMonthAfter,
+          startDate: twoMonthAfter,
+          endDate: twoMonthAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: threeMonthAfter,
           endDate: null,
           acceptedAt: new Date(),
         },
         {
           userIdx: test.getLoginUsers().user1.idx,
           startDate: oneMonthAfter,
-          endDate: oneMonthAfter,
+          endDate: null,
           acceptedAt: new Date(),
         },
         {
@@ -1362,9 +1378,15 @@ describe('Culture Content (e2e)', () => {
         '/culture-content/soon-open/all',
       );
 
-      const { contentList } = response.body;
+      const contentList: SummaryContentEntity[] = response.body.contentList;
 
-      expect(contentList.length).toBe(2);
+      expect(contentList.length).toBe(3);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        contentOpenAfterOneMonth.idx,
+        contentOpenAfterTwoMonth.idx,
+        contentOpenAfterThreeMonth.idx,
+      ]);
     });
   });
 

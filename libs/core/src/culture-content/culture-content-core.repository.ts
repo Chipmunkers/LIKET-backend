@@ -306,14 +306,22 @@ export class CultureContentCoreRepository {
    * @author jochongs
    */
   private getOrderByFieldName(
-    orderBy: 'accept' | 'like' | 'create',
-  ): 'acceptedAt' | 'likeCount' | 'idx' {
+    orderBy: 'accept' | 'like' | 'create' | 'startDate' | 'endDate',
+  ): 'acceptedAt' | 'likeCount' | 'idx' | 'startDate' | 'endDate' {
     if (orderBy === 'like') {
       return 'likeCount';
     }
 
     if (orderBy === 'create') {
       return 'idx';
+    }
+
+    if (orderBy === 'startDate') {
+      return 'startDate';
+    }
+
+    if (orderBy === 'endDate') {
+      return 'endDate';
     }
 
     return 'acceptedAt';

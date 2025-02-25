@@ -69,31 +69,34 @@ export class CultureContentService {
    */
   public async getContentAll(pagerble: ContentPagerbleDto, userIdx?: number) {
     const contentList =
-      await this.cultureContentCoreService.findCultureContentAll({
-        page: pagerble.page,
-        row: 10,
-        accept: pagerble.accept,
-        author: pagerble.user,
-        genreList: pagerble.genre ? [pagerble.genre] : undefined,
-        styleList: pagerble.style,
-        ageList: pagerble.age ? [pagerble.age] : undefined,
-        open:
-          pagerble.open === undefined
-            ? undefined
-            : pagerble.open
-              ? ['continue']
-              : ['end'],
-        orderBy:
-          pagerble.orderby === 'like'
-            ? 'like'
-            : pagerble.orderby === 'create'
-              ? 'create'
-              : 'accept',
-        order: pagerble.order,
-        searchByList: ['title'],
-        searchKeyword: pagerble.search,
-        sidoCode: pagerble.region,
-      });
+      await this.cultureContentCoreService.findCultureContentAll(
+        {
+          page: pagerble.page,
+          row: 10,
+          accept: pagerble.accept,
+          author: pagerble.user,
+          genreList: pagerble.genre ? [pagerble.genre] : undefined,
+          styleList: pagerble.style,
+          ageList: pagerble.age ? [pagerble.age] : undefined,
+          open:
+            pagerble.open === undefined
+              ? undefined
+              : pagerble.open
+                ? ['continue']
+                : ['end'],
+          orderBy:
+            pagerble.orderby === 'like'
+              ? 'like'
+              : pagerble.orderby === 'create'
+                ? 'create'
+                : 'accept',
+          order: pagerble.order,
+          searchByList: ['title'],
+          searchKeyword: pagerble.search,
+          sidoCode: pagerble.region,
+        },
+        userIdx,
+      );
 
     return {
       contentList: contentList.map(SummaryContentEntity.fromModel),
@@ -108,14 +111,19 @@ export class CultureContentService {
   public async getSoonOpenContentAll(
     userIdx?: number,
   ): Promise<SummaryContentEntity[]> {
-    const contentList =
-      await this.cultureContentRepository.selectSoonOpenCultureContentAll(
+    return (
+      await this.cultureContentCoreService.findCultureContentAll(
+        {
+          page: 1,
+          row: 5,
+          orderBy: 'startDate',
+          open: ['soon-open'],
+          accept: true,
+          order: 'asc',
+        },
         userIdx,
-      );
-
-    return contentList.map((content) =>
-      SummaryContentEntity.createEntity(content),
-    );
+      )
+    ).map(SummaryContentEntity.fromModel);
   }
 
   /**

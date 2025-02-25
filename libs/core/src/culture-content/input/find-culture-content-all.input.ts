@@ -72,7 +72,12 @@ export class FindCultureContentAllInput {
    *
    * @default "accept"
    */
-  public readonly orderBy?: 'accept' | 'like' | 'create';
+  public readonly orderBy?:
+    | 'accept'
+    | 'like'
+    | 'create'
+    | 'startDate'
+    | 'endDate';
 
   /**
    * 정렬 방식
