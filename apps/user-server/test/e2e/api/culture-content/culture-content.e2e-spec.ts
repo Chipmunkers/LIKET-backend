@@ -7,6 +7,7 @@ import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
 import { SummaryContentEntity } from 'apps/user-server/src/api/culture-content/entity/summary-content.entity';
 import { AGE } from 'libs/core/tag-root/age/constant/age';
 import { STYLE } from 'libs/core/tag-root/style/constant/style';
+import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
 
 describe('Culture Content (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -1491,7 +1492,7 @@ describe('Culture Content (e2e)', () => {
     });
   });
 
-  describe('GET /culture-content/all', () => {
+  describe('GET /culture-content/hot/all', () => {
     it('Success with no token', async () => {
       const response = await request(test.getServer())
         .get('/culture-content/hot/all')
@@ -1517,6 +1518,123 @@ describe('Culture Content (e2e)', () => {
       for (const genre of response.body) {
         expect(Array.isArray(genre.contentList)).toBe(true);
       }
+    });
+
+    it('Success: genre all exist test', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const response = await request(test.getServer())
+        .get('/culture-content/hot/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const genreWithHotContentList: GenreWithHotContentEntity[] =
+        response.body;
+
+      expect(
+        genreWithHotContentList.map(({ idx }) => idx).sort(),
+      ).toStrictEqual(Object.values(GENRE).sort());
+    });
+
+    it('Success: each genre has correct contents', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+
+      const [
+        festivalContent,
+        concertContent,
+        musicalContent,
+        theaterContent,
+        exhibitionContent,
+        popupStoreContent,
+      ] = await contentSeedHelper.seedAll([
+        {
+          genreIdx: GENRE.FESTIVAL,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+        {
+          genreIdx: GENRE.CONCERT,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+        {
+          genreIdx: GENRE.MUSICAL,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+        {
+          genreIdx: GENRE.THEATER,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+        {
+          genreIdx: GENRE.EXHIBITION,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+        {
+          genreIdx: GENRE.POPUP_STORE,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/hot/all')
+        .expect(200);
+
+      const genreWithHotContentList: GenreWithHotContentEntity[] =
+        response.body;
+
+      console.log(genreWithHotContentList);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.FESTIVAL)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([festivalContent.idx]);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.CONCERT)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([concertContent.idx]);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.MUSICAL)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([musicalContent.idx]);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.THEATER)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([theaterContent.idx]);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.EXHIBITION)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([exhibitionContent.idx]);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.POPUP_STORE)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([popupStoreContent.idx]);
     });
   });
 
