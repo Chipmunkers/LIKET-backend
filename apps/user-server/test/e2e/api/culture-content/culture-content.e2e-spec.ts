@@ -8,6 +8,7 @@ import { SummaryContentEntity } from 'apps/user-server/src/api/culture-content/e
 import { AGE } from 'libs/core/tag-root/age/constant/age';
 import { STYLE } from 'libs/core/tag-root/style/constant/style';
 import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
+import { TagEntity } from 'apps/user-server/src/api/content-tag/entity/tag.entity';
 
 describe('Culture Content (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -1703,6 +1704,49 @@ describe('Culture Content (e2e)', () => {
 
       expect(response.body).toBeDefined();
       expect(Array.isArray(response.body.contentList)).toBe(true);
+    });
+
+    it('Success: default age test (no token)', async () => {
+      const author = test.getLoginUsers().user1;
+
+      const [twentiesContent1, twentiesContent2, allContent, fortiesContent] =
+        await contentSeedHelper.seedAll([
+          {
+            ageIdx: AGE.TWENTIES,
+            userIdx: author.idx,
+            acceptedAt: new Date(),
+            likeCount: 3,
+          },
+          {
+            ageIdx: AGE.TWENTIES,
+            userIdx: author.idx,
+            acceptedAt: new Date(),
+            likeCount: 1,
+          },
+          {
+            ageIdx: AGE.ALL,
+            userIdx: author.idx,
+            acceptedAt: new Date(),
+          },
+          {
+            ageIdx: AGE.FORTIES_FIFTIES,
+            userIdx: author.idx,
+            acceptedAt: new Date(),
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/hot-age/all')
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+      const age: TagEntity = response.body.age;
+
+      expect(age.idx).toBe(AGE.TWENTIES);
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        twentiesContent1.idx,
+        twentiesContent2.idx,
+      ]);
     });
   });
 

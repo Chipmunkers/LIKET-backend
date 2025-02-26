@@ -16,6 +16,7 @@ import { CultureContentCoreService } from 'libs/core/culture-content/culture-con
 import { CultureContentLikeCoreService } from 'libs/core/culture-content/culture-content-like-core.service';
 import { ContentAuthService } from 'apps/user-server/src/api/culture-content/content-auth.service';
 import { Style } from 'libs/core/tag-root/style/constant/style';
+import { AGE, Age } from 'libs/core/tag-root/age/constant/age';
 
 @Injectable()
 export class CultureContentService {
@@ -183,17 +184,22 @@ export class CultureContentService {
 
     const age = await this.contentTagRepository.selectAgeByIdx(ageIdx);
 
-    const contentList =
-      await this.cultureContentRepository.selectHotCultureContentByAgeIdx(
-        ageIdx,
-        loginUser?.idx,
-      );
-
     return {
-      contentList: contentList.map((content) =>
-        SummaryContentEntity.createEntity(content),
-      ),
-      age: TagEntity.createEntity(age),
+      contentList: (
+        await this.cultureContentCoreService.findCultureContentAll(
+          {
+            page: 1,
+            row: 100,
+            accept: true,
+            open: ['continue'],
+            orderBy: 'like',
+            order: 'desc',
+            ageList: [age.idx as Age], // TODO: 타입 강화 필요함.
+          },
+          loginUser?.idx,
+        )
+      ).map(SummaryContentEntity.fromModel),
+      age,
     };
   }
 
@@ -202,7 +208,7 @@ export class CultureContentService {
    */
   private async getLoginUserAgeIdx(loginUser?: LoginUser) {
     if (!loginUser) {
-      return 1; // 20대
+      return AGE.TWENTIES;
     }
 
     const user = await this.userRepository.selectUserByIdx(loginUser.idx);
