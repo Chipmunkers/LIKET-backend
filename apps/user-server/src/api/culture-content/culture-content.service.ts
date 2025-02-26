@@ -6,7 +6,6 @@ import { ContentNotFoundException } from './exception/ContentNotFound';
 import { ContentEntity } from './entity/content.entity';
 import { SummaryContentEntity } from './entity/summary-content.entity';
 import { LoginUser } from '../auth/model/login-user';
-import { CultureContentRepository } from './culture-content.repository';
 import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { UserRepository } from '../user/user.repository';
 import { TagEntity } from '../content-tag/entity/tag.entity';
@@ -21,7 +20,6 @@ import { AGE, Age } from 'libs/core/tag-root/age/constant/age';
 @Injectable()
 export class CultureContentService {
   constructor(
-    private readonly cultureContentRepository: CultureContentRepository,
     private readonly contentTagRepository: ContentTagRepository,
     private readonly userRepository: UserRepository,
     private readonly cultureContentCoreService: CultureContentCoreService,
@@ -421,7 +419,7 @@ export class CultureContentService {
       contentModel,
     );
 
-    await this.cultureContentRepository.deleteContentRequest(idx);
+    await this.cultureContentCoreService.deleteCultureContentByIdx(idx);
   }
 
   /**
