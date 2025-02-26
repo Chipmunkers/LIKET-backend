@@ -50,13 +50,13 @@ export class CultureContentController {
   @Exception(400, 'Invalid querystring')
   @Exception(403, 'Permission denied')
   public async getCultureContentAll(
-    @Query() pagerble: ContentPagerbleDto,
+    @Query() pageable: ContentPagerbleDto,
     @User() loginUser?: LoginUser,
   ): Promise<GetCultureContentAllResponseDto> {
-    await this.contentAuthService.checkReadAllPermission(pagerble, loginUser);
+    await this.contentAuthService.checkReadAllPermission(pageable, loginUser);
 
     return await this.cultureContentService.getContentAll(
-      pagerble,
+      pageable,
       loginUser?.idx,
     );
   }
