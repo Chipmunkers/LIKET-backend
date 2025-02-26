@@ -68,7 +68,12 @@ export class CultureContentService {
    *
    * @author jochongs
    */
-  public async getContentAll(pagerble: ContentPagerbleDto, userIdx?: number) {
+  public async getContentAll(
+    pagerble: ContentPagerbleDto,
+    loginUser?: LoginUser,
+  ) {
+    this.cultureContentAuthService.checkReadAllPermission(pagerble, loginUser);
+
     const contentList =
       await this.cultureContentCoreService.findCultureContentAll(
         {
@@ -96,7 +101,7 @@ export class CultureContentService {
           searchKeyword: pagerble.search,
           sidoCode: pagerble.region,
         },
-        userIdx,
+        loginUser?.idx,
       );
 
     return {
@@ -317,11 +322,13 @@ export class CultureContentService {
    * @author jochongs
    */
   public async createContentRequest(
-    userIdx: number,
+    loginUser: LoginUser,
     createDto: CreateContentRequestDto,
   ): Promise<number> {
+    this.cultureContentAuthService.checkWritePermission(loginUser, createDto);
+
     const content = await this.cultureContentCoreService.createCultureContent({
-      authorIdx: userIdx,
+      authorIdx: loginUser.idx,
       imgList: createDto.imgList,
       ageIdx: createDto.ageIdx,
       genreIdx: createDto.genreIdx,

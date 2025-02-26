@@ -20,10 +20,10 @@ export class ContentAuthService {
   /**
    * @author jochongs
    */
-  public async checkReadAllPermission(
+  public checkReadAllPermission(
     pagerble: ContentPagerbleDto,
     loginUser?: LoginUser,
-  ): Promise<void> {
+  ): void {
     if (pagerble.user && pagerble.user !== loginUser?.idx) {
       throw new PermissionDeniedException();
     }
@@ -53,10 +53,10 @@ export class ContentAuthService {
   /**
    * @author jochongs
    */
-  public async checkWritePermission(
+  public checkWritePermission(
     loginUser: LoginUser,
     createDto: CreateContentRequestDto,
-  ): Promise<void> {}
+  ): void {}
 
   /**
    * @author jochongs

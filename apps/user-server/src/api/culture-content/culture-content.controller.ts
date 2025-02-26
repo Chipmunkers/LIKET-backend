@@ -36,7 +36,6 @@ import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-cont
 export class CultureContentController {
   constructor(
     private readonly cultureContentService: CultureContentService,
-    private readonly contentAuthService: ContentAuthService,
     private readonly contentViewService: ContentViewService,
   ) {}
 
@@ -53,12 +52,7 @@ export class CultureContentController {
     @Query() pageable: ContentPagerbleDto,
     @User() loginUser?: LoginUser,
   ): Promise<GetCultureContentAllResponseDto> {
-    await this.contentAuthService.checkReadAllPermission(pageable, loginUser);
-
-    return await this.cultureContentService.getContentAll(
-      pageable,
-      loginUser?.idx,
-    );
+    return await this.cultureContentService.getContentAll(pageable, loginUser);
   }
 
   /**
@@ -228,7 +222,7 @@ export class CultureContentController {
     @User() loginUser: LoginUser,
   ): Promise<CreateContentRequestResponseDto> {
     const contentIdx = await this.cultureContentService.createContentRequest(
-      loginUser.idx,
+      loginUser,
       createDto,
     );
 
