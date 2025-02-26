@@ -7,6 +7,8 @@ const REVIEW_CULTURE_CONTENT_SELECT_FIELD =
   Prisma.validator<Prisma.CultureContentDefaultArgs>()({
     select: {
       idx: true,
+      title: true,
+      likeCount: true,
       User: {
         select: {
           idx: true,
