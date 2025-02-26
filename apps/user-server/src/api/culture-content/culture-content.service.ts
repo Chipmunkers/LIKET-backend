@@ -7,7 +7,6 @@ import { ContentEntity } from './entity/content.entity';
 import { SummaryContentEntity } from './entity/summary-content.entity';
 import { LoginUser } from '../auth/model/login-user';
 import { ContentTagRepository } from '../content-tag/content-tag.repository';
-import { UserRepository } from '../user/user.repository';
 import { TagEntity } from '../content-tag/entity/tag.entity';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
@@ -16,12 +15,13 @@ import { CultureContentLikeCoreService } from 'libs/core/culture-content/culture
 import { ContentAuthService } from 'apps/user-server/src/api/culture-content/content-auth.service';
 import { Style } from 'libs/core/tag-root/style/constant/style';
 import { AGE, Age } from 'libs/core/tag-root/age/constant/age';
+import { UserCoreService } from 'libs/core/user/user-core.service';
 
 @Injectable()
 export class CultureContentService {
   constructor(
     private readonly contentTagRepository: ContentTagRepository,
-    private readonly userRepository: UserRepository,
+    private readonly userCoreService: UserCoreService,
     private readonly cultureContentCoreService: CultureContentCoreService,
     private readonly cultureContentLikeCoreService: CultureContentLikeCoreService,
     private readonly cultureContentAuthService: ContentAuthService,
@@ -209,7 +209,7 @@ export class CultureContentService {
       return AGE.TWENTIES;
     }
 
-    const user = await this.userRepository.selectUserByIdx(loginUser.idx);
+    const user = await this.userCoreService.findUserByIdx(loginUser.idx);
 
     if (!user?.birth) {
       return 4; // 20대
