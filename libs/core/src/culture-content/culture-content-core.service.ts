@@ -154,6 +154,16 @@ export class CultureContentCoreService {
   }
 
   /**
+   * 문화생활컨텐츠 삭제 메서드
+   *
+   * @author jochongs
+   */
+  @Transactional()
+  public async deleteCultureContentByIdx(idx: number): Promise<void> {
+    await this.cultureContentCoreRepository.softDeleteContentByIdx(idx);
+  }
+
+  /**
    * 문화생활컨텐츠 활성화 메서드
    *
    * @author jochongs
