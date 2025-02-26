@@ -1634,6 +1634,53 @@ describe('Culture Content (e2e)', () => {
           .sort(),
       ).toStrictEqual([popupStoreContent.idx]);
     });
+
+    it('Success: like contents order test', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+
+      const [like0Contents, like2Contents, like1Contents] =
+        await contentSeedHelper.seedAll([
+          {
+            genreIdx: GENRE.FESTIVAL,
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 0,
+          },
+          {
+            genreIdx: GENRE.FESTIVAL,
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 2,
+          },
+          {
+            genreIdx: GENRE.FESTIVAL,
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 1,
+          },
+          {
+            genreIdx: GENRE.FESTIVAL,
+            acceptedAt: null,
+            userIdx: contentAuthor.idx,
+            likeCount: 100,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/hot/all')
+        .expect(200);
+
+      const genreWithHotContentList: GenreWithHotContentEntity[] =
+        response.body;
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.FESTIVAL)
+          .flatMap(({ contentList }) =>
+            contentList.map((content) => content.idx),
+          ),
+      ).toStrictEqual([like2Contents.idx, like1Contents.idx]);
+    });
   });
 
   describe('GET /culture-content/hot-age/all', () => {
