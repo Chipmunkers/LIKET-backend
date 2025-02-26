@@ -285,15 +285,17 @@ export class CultureContentService {
       const hotStyle = hotStyles[0];
 
       const contentList =
-        await this.cultureContentRepository.selectHotCultureContentByStyleIdx(
-          hotStyle.idx,
-          loginUser?.idx,
-        );
+        await this.cultureContentCoreService.findCultureContentAll({
+          page: 1,
+          row: 5,
+          accept: true,
+          order: 'desc',
+          orderBy: 'like',
+          styleList: [hotStyle.idx as Style],
+        });
 
       return {
-        contentList: contentList.map((content) =>
-          SummaryContentEntity.createEntity(content),
-        ),
+        contentList: contentList.map(SummaryContentEntity.fromModel),
         style: {
           idx: hotStyle.idx,
           name: hotStyle.name,
@@ -306,15 +308,17 @@ export class CultureContentService {
     const randomStyle = styles[Math.floor(Math.random() * styles.length)];
 
     const contentList =
-      await this.cultureContentRepository.selectHotCultureContentByStyleIdx(
-        randomStyle.idx,
-        loginUser?.idx,
-      );
+      await this.cultureContentCoreService.findCultureContentAll({
+        page: 1,
+        row: 5,
+        accept: true,
+        order: 'desc',
+        orderBy: 'like',
+        styleList: [randomStyle.idx as Style],
+      });
 
     return {
-      contentList: contentList.map((content) =>
-        SummaryContentEntity.createEntity(content),
-      ),
+      contentList: contentList.map(SummaryContentEntity.fromModel),
       style: {
         idx: randomStyle.idx,
         name: randomStyle.name,
