@@ -155,12 +155,14 @@ export class CultureContentService {
    *
    * @author jochongs
    */
-  public async getHotContentAll() {
-    const genreList =
-      await this.cultureContentRepository.selectHotCultureContentAll();
+  public async getHotContentAll(readUser?: number) {
+    const genreWithHotContentModelList =
+      await this.cultureContentCoreService.findHotCultureContentGroupByGenre(
+        readUser,
+      );
 
-    return genreList.map((genre) =>
-      GenreWithHotContentEntity.createEntity(genre),
+    return genreWithHotContentModelList.map((genre) =>
+      GenreWithHotContentEntity.fromModel(genre),
     );
   }
 
