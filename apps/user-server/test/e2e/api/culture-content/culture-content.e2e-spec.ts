@@ -2453,6 +2453,14 @@ describe('Culture Content (e2e)', () => {
         .delete(`/culture-content/request/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
+
+      const selectedContent = await test
+        .getPrisma()
+        .cultureContent.findUniqueOrThrow({
+          where: { idx: content.idx },
+        });
+
+      expect(selectedContent.deletedAt).not.toBeNull();
     });
 
     it('Non author delete content', async () => {
