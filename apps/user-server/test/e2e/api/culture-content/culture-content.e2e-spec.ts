@@ -1531,9 +1531,9 @@ describe('Culture Content (e2e)', () => {
       const genreWithHotContentList: GenreWithHotContentEntity[] =
         response.body;
 
-      expect(
-        genreWithHotContentList.map(({ idx }) => idx).sort(),
-      ).toStrictEqual(Object.values(GENRE).sort());
+      expect(genreWithHotContentList.map(({ idx }) => idx)).toStrictEqual(
+        Object.values(GENRE).sort((prev, next) => prev - next),
+      );
     });
 
     it('Success: each genre has correct contents', async () => {
@@ -1591,8 +1591,6 @@ describe('Culture Content (e2e)', () => {
 
       const genreWithHotContentList: GenreWithHotContentEntity[] =
         response.body;
-
-      console.log(genreWithHotContentList);
 
       expect(
         genreWithHotContentList
