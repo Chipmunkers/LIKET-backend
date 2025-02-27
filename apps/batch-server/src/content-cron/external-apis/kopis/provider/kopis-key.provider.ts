@@ -16,8 +16,10 @@ export class KopisKeyProvider {
 
   /**
    * OPEN API 쿼리 제한 횟수
+   *
+   * TODO: 매일 매일 초기화하는 로직을 넣어야하는데 까먹었어요.
    */
-  private KEY_QUERY_LIMIT = 1500;
+  private KEY_QUERY_LIMIT = 150000000;
 
   constructor(private readonly configService: ConfigService) {
     this.KOPIS_SERVICE_KEY_LIST = this.configService.get('kopis').keys || '';
