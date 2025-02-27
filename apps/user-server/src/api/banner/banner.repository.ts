@@ -1,21 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { PrismaProvider } from 'libs/modules';
+import { SELECT_BANNER_FIELD_PRISMA } from 'apps/user-server/src/api/banner/entity/prisma/select-banner-field';
 
 @Injectable()
 export class BannerRepository {
-  constructor(
-    private readonly prisma: PrismaProvider,
-    @Logger(BannerRepository.name) private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
+  /**
+   * 배너 목록 보기 API
+   *
+   * @author jochongs
+   */
   public selectBannerAll() {
-    this.logger.log(this.selectBannerAll, 'SELECT active banner');
     return this.prisma.activeBanner.findMany({
-      include: {
-        Banner: true,
-      },
+      select: SELECT_BANNER_FIELD_PRISMA.select,
       orderBy: {
         order: 'asc',
       },

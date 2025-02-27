@@ -7,8 +7,8 @@ import {
 } from 'class-validator';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { LocationEntity } from './location.entity';
-import { CotnentWithInclude } from './prisma-type/content-with-include';
 import { Type } from 'class-transformer';
+import { SelectContentFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-content-field';
 
 /**
  * @author jochongs
@@ -196,7 +196,7 @@ export class ContentEntity {
     Object.assign(this, data);
   }
 
-  static createEntity(data: CotnentWithInclude, totalSumStar?: number) {
+  static createEntity(data: SelectContentFieldPrisma, totalSumStar?: number) {
     return new ContentEntity({
       idx: data.idx,
       title: data.title,

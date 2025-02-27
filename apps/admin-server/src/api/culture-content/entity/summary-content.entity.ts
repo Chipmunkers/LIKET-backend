@@ -24,7 +24,7 @@ const ContentWithInclude = Prisma.validator<Prisma.CultureContentDefaultArgs>()(
   },
 );
 
-type CotnentWithInclude = Prisma.CultureContentGetPayload<
+type ContentWithInclude = Prisma.CultureContentGetPayload<
   typeof ContentWithInclude
 >;
 
@@ -58,14 +58,14 @@ export class SummaryContentEntity {
   /**
    * 시작일
    *
-   * @exmaple 2024-02-28T12:00:00.000Z
+   * @example 2024-02-28T12:00:00.000Z
    */
   public startDate: Date;
 
   /**
    * 시작일
    *
-   * @exmaple 2024-02-28T12:00:00.000Z
+   * @example 2024-02-28T12:00:00.000Z
    */
   public endDate: Date | null;
 
@@ -142,7 +142,7 @@ export class SummaryContentEntity {
     Object.assign(this, data);
   }
 
-  static createEntity(content: CotnentWithInclude) {
+  static createEntity(content: ContentWithInclude) {
     return new SummaryContentEntity({
       idx: content.idx,
       title: content.title,

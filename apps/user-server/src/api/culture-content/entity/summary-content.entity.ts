@@ -2,8 +2,8 @@ import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { LocationEntity } from './location.entity';
 import { PickType } from '@nestjs/swagger';
 import { ContentEntity } from './content.entity';
-import { SummaryCotnentWithInclude } from './prisma-type/summary-content-with-include';
-import { LikeContentWithInclude } from './prisma-type/like-content-with-include';
+import { SelectSummaryContentFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-summary-content-field';
+import { SelectLikedContentFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-liked-content-field';
 
 /**
  * @author jochongs
@@ -27,7 +27,7 @@ export class SummaryContentEntity extends PickType(ContentEntity, [
     Object.assign(this, content);
   }
 
-  static createEntity(data: SummaryCotnentWithInclude) {
+  static createEntity(data: SelectSummaryContentFieldPrisma) {
     return new SummaryContentEntity({
       idx: data.idx,
       title: data.title,
@@ -44,7 +44,7 @@ export class SummaryContentEntity extends PickType(ContentEntity, [
     });
   }
 
-  static fromLikeContent(data: LikeContentWithInclude) {
+  static fromLikeContent(data: SelectLikedContentFieldPrisma) {
     const content = data.CultureContent;
 
     return new SummaryContentEntity({

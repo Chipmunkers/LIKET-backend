@@ -1,4 +1,9 @@
 import { Age, Genre, Style } from '@prisma/client';
+import {
+  SelectAgeFieldPrisma,
+  SelectGenreFieldPrisma,
+  SelectStyleFieldPrisma,
+} from 'apps/user-server/src/api/content-tag/entity/prisma/select-tag-field';
 
 /**
  * @author jochongs
@@ -22,7 +27,12 @@ export class TagEntity {
     Object.assign(this, data);
   }
 
-  static createEntity(data: Age | Genre | Style): TagEntity {
+  static createEntity(
+    data:
+      | SelectAgeFieldPrisma
+      | SelectGenreFieldPrisma
+      | SelectStyleFieldPrisma,
+  ): TagEntity {
     return new TagEntity({
       idx: data.idx,
       name: data.name,

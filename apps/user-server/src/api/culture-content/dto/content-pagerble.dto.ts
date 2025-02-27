@@ -115,6 +115,6 @@ export class ContentPagerbleDto extends PickType(PagerbleDto, [
    */
   @IsString()
   @IsOptional()
-  @Length(1, 10)
+  @Length(1, 100)
   search?: string;
 }

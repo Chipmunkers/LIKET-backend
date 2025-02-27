@@ -1,23 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { RedisService } from '../../common/module/redis/redis.service';
 import { PrismaProvider } from 'libs/modules';
+import {
+  SELECT_AGE_FIELD_PRISMA,
+  SELECT_GENRE_FIELD_PRISMA,
+  SELECT_STYLE_FIELD_PRISMA,
+} from 'apps/user-server/src/api/content-tag/entity/prisma/select-tag-field';
 
 @Injectable()
 export class ContentTagRepository {
   constructor(
     private readonly prisma: PrismaProvider,
     private readonly redis: RedisService,
-    @Logger(ContentTagRepository.name) private readonly logger: LoggerService,
   ) {}
 
   /**
    * @author jochongs
    */
   public selectGenreAll() {
-    this.logger.log(this.selectGenreAll, 'SELECT genre');
     return this.prisma.genre.findMany({
+      select: SELECT_GENRE_FIELD_PRISMA.select,
       where: {
         deletedAt: null,
       },
@@ -31,8 +33,8 @@ export class ContentTagRepository {
    * @author jochongs
    */
   public selectAgeAll() {
-    this.logger.log(this.selectStyleAll, 'SELECT age');
     return this.prisma.age.findMany({
+      select: SELECT_AGE_FIELD_PRISMA.select,
       where: {
         deletedAt: null,
       },
@@ -47,6 +49,7 @@ export class ContentTagRepository {
    */
   public selectAgeByIdx(idx: number) {
     return this.prisma.age.findUniqueOrThrow({
+      select: SELECT_AGE_FIELD_PRISMA.select,
       where: {
         idx,
       },
@@ -57,8 +60,8 @@ export class ContentTagRepository {
    * @author jochongs
    */
   public selectStyleAll() {
-    this.logger.log(this.selectStyleAll, 'SELECT styles');
     return this.prisma.style.findMany({
+      select: SELECT_STYLE_FIELD_PRISMA.select,
       where: {
         deletedAt: null,
       },
@@ -73,7 +76,7 @@ export class ContentTagRepository {
    *
    * @author jochongs
    */
-  public selectHotStyle() {
+  public async selectHotStyle() {
     return this.prisma.style
       .findMany({
         select: {
@@ -105,7 +108,9 @@ export class ContentTagRepository {
 
   /**
    * 스타일 가져오기. 각 스타일 태그가 연결되어있는 컨텐츠 개수를 계산해서 가져옴
+   * !주의: 메인 페이지 기능 변경에 따라 삭제될 예정입니다.
    *
+   * @deprecated
    * @author jochongs
    */
   public async selectStylesWithContentCount(): Promise<

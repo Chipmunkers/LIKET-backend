@@ -3,6 +3,8 @@ import { LoggerService } from '../../common/module/logger/logger.service';
 import { Injectable } from '@nestjs/common';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { PrismaProvider } from 'libs/modules';
+import { SelectLikedContentFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-liked-content-field';
+import { ContentLike } from '@prisma/client';
 
 @Injectable()
 export class CultureContentLikeRepository {
@@ -15,12 +17,15 @@ export class CultureContentLikeRepository {
   /**
    * @author jochongs
    */
-  public selectCultureContentLike(userIdx: number, contentIdx: number) {
+  public async selectCultureContentLike(
+    userIdx: number,
+    contentIdx: number,
+  ): Promise<ContentLike | null> {
     this.logger.log(
       this.selectCultureContentLike,
       'SELECT culture content like',
     );
-    return this.prisma.contentLike.findUnique({
+    return await this.prisma.contentLike.findUnique({
       where: {
         contentIdx_userIdx: {
           userIdx,
@@ -33,12 +38,15 @@ export class CultureContentLikeRepository {
   /**
    * @author jochongs
    */
-  public increaseCultureContentLike(userIdx: number, contentIdx: number) {
+  public async increaseCultureContentLike(
+    userIdx: number,
+    contentIdx: number,
+  ): Promise<void> {
     this.logger.log(
       this.increaseCultureContentLike,
       'UPDATE content like count, INSERT culture content like',
     );
-    return this.prisma.$transaction([
+    await this.prisma.$transaction([
       this.prisma.cultureContent.update({
         where: {
           idx: contentIdx,
@@ -61,12 +69,15 @@ export class CultureContentLikeRepository {
   /**
    * @author jochongs
    */
-  public decreaseCultureContentLike(userIdx: number, contentIdx: number) {
+  public async decreaseCultureContentLike(
+    userIdx: number,
+    contentIdx: number,
+  ): Promise<void> {
     this.logger.log(
       this.decreaseCultureContentLike,
       'UPDATE content like count, DELETE culture content like',
     );
-    return this.prisma.$transaction([
+    await this.prisma.$transaction([
       this.prisma.cultureContent.update({
         where: {
           idx: contentIdx,
@@ -91,16 +102,29 @@ export class CultureContentLikeRepository {
   /**
    * @author jochongs
    */
-  public selectLikeContentAll(
+  public async selectLikeContentAll(
     userIdx: number,
     pagerble: LikeContentPagerbleDto,
-  ) {
-    return this.prisma.contentLike.findMany({
-      include: {
+  ): Promise<SelectLikedContentFieldPrisma[]> {
+    return await this.prisma.contentLike.findMany({
+      select: {
         CultureContent: {
-          include: {
-            User: true,
+          select: {
+            idx: true,
+            title: true,
+            startDate: true,
+            endDate: true,
+            createdAt: true,
+            acceptedAt: true,
+            User: {
+              select: {
+                idx: true,
+              },
+            },
             ContentImg: {
+              select: {
+                imgPath: true,
+              },
               where: {
                 deletedAt: null,
               },
@@ -108,10 +132,20 @@ export class CultureContentLikeRepository {
                 idx: 'asc',
               },
             },
-            Genre: true,
+            Genre: {
+              select: {
+                idx: true,
+                name: true,
+              },
+            },
             Style: {
-              include: {
-                Style: true,
+              select: {
+                Style: {
+                  select: {
+                    idx: true,
+                    name: true,
+                  },
+                },
               },
               where: {
                 Style: {
@@ -119,8 +153,24 @@ export class CultureContentLikeRepository {
                 },
               },
             },
-            Age: true,
-            Location: true,
+            Age: {
+              select: {
+                idx: true,
+                name: true,
+              },
+            },
+            Location: {
+              select: {
+                region1Depth: true,
+                region2Depth: true,
+                detailAddress: true,
+                address: true,
+                positionX: true,
+                positionY: true,
+                hCode: true,
+                bCode: true,
+              },
+            },
           },
         },
       },

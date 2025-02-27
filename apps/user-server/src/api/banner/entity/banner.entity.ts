@@ -1,14 +1,4 @@
-import { Prisma } from '@prisma/client';
-
-const bannerWithInclude = Prisma.validator<Prisma.ActiveBannerDefaultArgs>()({
-  include: {
-    Banner: true,
-  },
-});
-
-type BannerWithInclude = Prisma.ActiveBannerGetPayload<
-  typeof bannerWithInclude
->;
+import { SelectBannerFieldPrisma } from 'apps/user-server/src/api/banner/entity/prisma/select-banner-field';
 
 /**
  * @author jochongs
@@ -53,7 +43,9 @@ export class BannerEntity {
     Object.assign(this, data);
   }
 
-  static createActiveBannerEntity(banner: BannerWithInclude): BannerEntity {
+  static createActiveBannerEntity(
+    banner: SelectBannerFieldPrisma,
+  ): BannerEntity {
     return new BannerEntity({
       idx: banner.idx,
       name: banner.Banner.name,

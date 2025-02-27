@@ -1,6 +1,6 @@
 import { PickType } from '@nestjs/swagger';
-import { Location } from '@prisma/client';
 import { LocationEntity } from './location.entity';
+import { SelectSummaryLocationFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-summary-location-field';
 
 /**
  * @author jochongs
@@ -14,7 +14,7 @@ export class SummaryLocationEntity extends PickType(LocationEntity, [
     Object.assign(this, data);
   }
 
-  static createEntity(data: Location) {
+  static createEntity(data: SelectSummaryLocationFieldPrisma) {
     return new SummaryLocationEntity({
       region1Depth: data.region1Depth,
       region2Depth: data.region2Depth,
