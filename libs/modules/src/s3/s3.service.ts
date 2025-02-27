@@ -42,7 +42,9 @@ export class S3Service {
     try {
       const contentType: string = response.headers['content-type'] || '';
 
-      if (!contentType.includes('image')) {
+      // ! 주의: jfif 확장자 URL에서 content type을 image로 주지 않는 문제가 있습니다.
+      // ! 주의: 취약적이 될 수 있으니 조심하시기 바랍니다.
+      if (!contentType.includes('image') && !url.endsWith('jfif')) {
         throw new Error('fail to download image | url = ' + url);
       }
 
