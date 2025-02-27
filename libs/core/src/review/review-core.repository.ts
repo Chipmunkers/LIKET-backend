@@ -384,4 +384,24 @@ export class ReviewCoreRepository {
       },
     });
   }
+
+  /**
+   * SOFT DELETE review WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 삭제할 리뷰 식별자
+   */
+  public async softDeleteReviewByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.review.update({
+      where: {
+        idx,
+        deletedAt: null,
+        User: { deletedAt: null, blockedAt: null },
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
 }

@@ -86,4 +86,15 @@ export class ReviewCoreService {
   ): Promise<void> {
     return await this.reviewCoreRepository.updateReviewByIdx(idx, input);
   }
+
+  /**
+   * 리뷰 삭제 메서드
+   *
+   * @author jochongs
+   *
+   * @param idx 삭제할 리뷰 식별자
+   */
+  public async deleteReviewByIdx(idx: number): Promise<void> {
+    return await this.reviewCoreRepository.softDeleteReviewByIdx(idx);
+  }
 }
