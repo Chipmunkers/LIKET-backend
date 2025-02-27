@@ -73,7 +73,7 @@ export class ReviewCoreService {
   }
 
   /**
-   * UPDATE review WHERE idx = $1
+   * 리뷰 업데이트 메서드
    *
    * @author jochongs
    *
