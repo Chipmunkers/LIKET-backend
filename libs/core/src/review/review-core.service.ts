@@ -2,6 +2,7 @@ import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { CreateReviewInput } from 'libs/core/review/input/create-review.input';
 import { FindReviewAllInput } from 'libs/core/review/input/find-review-all.input';
+import { UpdateReviewInput } from 'libs/core/review/input/update-review.input';
 import { ReviewModel } from 'libs/core/review/model/review.model';
 import { ReviewCoreRepository } from 'libs/core/review/review-core.repository';
 
@@ -69,5 +70,20 @@ export class ReviewCoreService {
         cultureContentIdx,
       ),
     );
+  }
+
+  /**
+   * UPDATE review WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 수정할 리뷰 식별자
+   * @param input 수정할 리뷰 정보
+   */
+  public async updateReviewByIdx(
+    idx: number,
+    input: UpdateReviewInput,
+  ): Promise<void> {
+    return await this.reviewCoreRepository.updateReviewByIdx(idx, input);
   }
 }

@@ -5,6 +5,7 @@ import { ReviewSelectField } from 'libs/core/review/model/prisma/review-select-f
 import { PrismaProvider } from 'libs/modules';
 import { Prisma } from '@prisma/client';
 import { CreateReviewInput } from 'libs/core/review/input/create-review.input';
+import { UpdateReviewInput } from 'libs/core/review/input/update-review.input';
 
 export class ReviewCoreRepository {
   constructor(
@@ -349,6 +350,36 @@ export class ReviewCoreRepository {
             data: input.imgList.map((imgPath) => ({ imgPath })),
           },
         },
+        description: input.description,
+      },
+    });
+  }
+
+  /**
+   * UPDATE review WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 수정할 리뷰 식별자
+   * @param input 수정할 리뷰 정보
+   */
+  public async updateReviewByIdx(
+    idx: number,
+    input: UpdateReviewInput,
+  ): Promise<void> {
+    await this.txHost.tx.review.update({
+      where: { idx, deletedAt: null, User: { deletedAt: null } },
+      data: {
+        starRating: input.starRating,
+        visitTime: input.visitTime,
+        ReviewImg: input.imgList
+          ? {
+              deleteMany: {},
+              createMany: {
+                data: input.imgList.map((imgPath) => ({ imgPath })),
+              },
+            }
+          : undefined,
         description: input.description,
       },
     });
