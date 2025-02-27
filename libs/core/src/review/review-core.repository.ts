@@ -4,6 +4,7 @@ import { FindReviewAllInput } from 'libs/core/review/input/find-review-all.input
 import { ReviewSelectField } from 'libs/core/review/model/prisma/review-select-field';
 import { PrismaProvider } from 'libs/modules';
 import { Prisma } from '@prisma/client';
+import { CreateReviewInput } from 'libs/core/review/input/create-review.input';
 
 export class ReviewCoreRepository {
   constructor(
@@ -259,5 +260,97 @@ export class ReviewCoreRepository {
     return {
       userIdx: idx,
     };
+  }
+
+  /**
+   * INSERT review
+   *
+   * @author jochongs
+   *
+   * @param input 생성할 리뷰 정보
+   * @param userIdx 작성자 식별자
+   * @param cultureContentIdx 연결된 문화생활컨텐츠 식별자
+   */
+  public async insertReview(
+    input: CreateReviewInput,
+    userIdx: number,
+    cultureContentIdx: number,
+  ): Promise<ReviewSelectField> {
+    return await this.txHost.tx.review.create({
+      select: {
+        idx: true,
+        description: true,
+        reportCount: true,
+        likeCount: true,
+        createdAt: true,
+        starRating: true,
+        visitTime: true,
+        User: {
+          select: {
+            idx: true,
+            profileImgPath: true,
+            isAdmin: true,
+          },
+        },
+        ReviewImg: {
+          select: {
+            idx: true,
+            imgPath: true,
+            createdAt: true,
+          },
+          where: { deletedAt: null },
+        },
+        ReviewLike: {
+          select: { userIdx: true },
+          where: { userIdx: -1 },
+        },
+        CultureContent: {
+          select: {
+            idx: true,
+            title: true,
+            likeCount: true,
+            User: {
+              select: {
+                idx: true,
+                nickname: true,
+                email: true,
+                profileImgPath: true,
+                isAdmin: true,
+              },
+            },
+            ContentImg: {
+              select: {
+                idx: true,
+                imgPath: true,
+                createdAt: true,
+              },
+              where: { deletedAt: null },
+              orderBy: {
+                idx: 'asc',
+              },
+            },
+            Genre: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+      },
+      data: {
+        cultureContentIdx,
+        userIdx,
+        starRating: input.starRating,
+        visitTime: input.visitTime,
+        ReviewImg: {
+          createMany: {
+            data: input.imgList.map((imgPath) => ({ imgPath })),
+          },
+        },
+        description: input.description,
+      },
+    });
   }
 }

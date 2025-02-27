@@ -1,5 +1,6 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
+import { CreateReviewInput } from 'libs/core/review/input/create-review.input';
 import { FindReviewAllInput } from 'libs/core/review/input/find-review-all.input';
 import { ReviewModel } from 'libs/core/review/model/review.model';
 import { ReviewCoreRepository } from 'libs/core/review/review-core.repository';
@@ -45,5 +46,28 @@ export class ReviewCoreService {
     );
 
     return review && ReviewModel.fromPrisma(review);
+  }
+
+  /**
+   * 리뷰 생성하는 메서드
+   *
+   * @author jochongs
+   *
+   * @param input 생설할 리뷰 정보
+   * @param userIdx 작성자 식별자
+   * @param cultureContentIdx 연결된 문화생활컨텐츠 식별자
+   */
+  public async createReview(
+    input: CreateReviewInput,
+    userIdx: number,
+    cultureContentIdx: number,
+  ): Promise<ReviewModel> {
+    return ReviewModel.fromPrisma(
+      await this.reviewCoreRepository.insertReview(
+        input,
+        userIdx,
+        cultureContentIdx,
+      ),
+    );
   }
 }
