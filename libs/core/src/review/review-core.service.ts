@@ -58,6 +58,7 @@ export class ReviewCoreService {
    * @param userIdx 작성자 식별자
    * @param cultureContentIdx 연결된 문화생활컨텐츠 식별자
    */
+  @Transactional()
   public async createReview(
     input: CreateReviewInput,
     userIdx: number,
@@ -80,6 +81,7 @@ export class ReviewCoreService {
    * @param idx 수정할 리뷰 식별자
    * @param input 수정할 리뷰 정보
    */
+  @Transactional()
   public async updateReviewByIdx(
     idx: number,
     input: UpdateReviewInput,
@@ -94,6 +96,7 @@ export class ReviewCoreService {
    *
    * @param idx 삭제할 리뷰 식별자
    */
+  @Transactional()
   public async deleteReviewByIdx(idx: number): Promise<void> {
     return await this.reviewCoreRepository.softDeleteReviewByIdx(idx);
   }
