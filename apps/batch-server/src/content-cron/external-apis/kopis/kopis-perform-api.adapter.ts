@@ -8,13 +8,13 @@ import { IExternalApiAdapterService } from 'apps/batch-server/src/content-cron/i
 import { KakaoAddressEntity } from 'libs/modules/kakao-address/entity/kakao-address.entity';
 import { KakaoRoadAddressEntity } from 'libs/modules/kakao-address/entity/kakao-road-address.entity';
 import { KakaoAddressService } from 'libs/modules/kakao-address/kakao-address.service';
-import { AGE, GENRE } from 'libs/common';
 import { OpenAIService, S3Service, UploadedFileEntity } from 'libs/modules';
 import * as uuid from 'uuid';
 import { UpdateContentInfo } from 'apps/batch-server/src/content-cron/external-apis/kopis/type/UpdateContentInfo';
 import { RetryUtilService } from 'libs/modules/retry-util/retry-util.service';
 import { DiscordService } from 'libs/modules/discord/discord.service';
 import { SERVER_TYPE } from 'libs/common/constants/server-type';
+import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
 
 @Injectable()
 export class KopisPerformApiAdapter
@@ -34,9 +34,8 @@ export class KopisPerformApiAdapter
    * @author jochongs
    */
   public async transform(perform: PerformEntity): Promise<TempContentEntity> {
-    const facilityEntity = await this.facilityProvider.getFacilityByPerform(
-      perform,
-    );
+    const facilityEntity =
+      await this.facilityProvider.getFacilityByPerform(perform);
 
     const {
       documents: [{ address, road_address }],
@@ -77,9 +76,8 @@ export class KopisPerformApiAdapter
   public async extractUpdateData(
     data: PerformEntity,
   ): Promise<UpdateContentInfo> {
-    const facilityEntity = await this.facilityProvider.getFacilityByPerform(
-      data,
-    );
+    const facilityEntity =
+      await this.facilityProvider.getFacilityByPerform(data);
 
     const {
       documents: [{ address, road_address }],

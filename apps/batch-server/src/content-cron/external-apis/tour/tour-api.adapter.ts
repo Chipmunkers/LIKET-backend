@@ -6,10 +6,10 @@ import { IExternalApiAdapterService } from 'apps/batch-server/src/content-cron/i
 import { KakaoAddressEntity } from 'libs/modules/kakao-address/entity/kakao-address.entity';
 import { KakaoRoadAddressEntity } from 'libs/modules/kakao-address/entity/kakao-road-address.entity';
 import { KakaoAddressService } from 'libs/modules/kakao-address/kakao-address.service';
-import { GENRE } from 'libs/common';
 import { OpenAIService, S3Service, UploadedFileEntity } from 'libs/modules';
 import * as uuid from 'uuid';
 import { UpdateContentInfo } from 'apps/batch-server/src/content-cron/external-apis/kopis/type/UpdateContentInfo';
+import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
 
 @Injectable()
 export class TourApiAdapter
