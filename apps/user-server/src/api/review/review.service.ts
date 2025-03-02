@@ -14,6 +14,8 @@ import { ReviewRepository } from './review.repository';
 import { ReviewLikeRepository } from './review-like.repository';
 import { CultureContentRepository } from '../culture-content/culture-content.repository';
 import { ReviewWithInclude } from './entity/prisma-type/review-with-include';
+import { ReviewAuthService } from 'apps/user-server/src/api/review/review-auth.service';
+import { ReviewCoreService } from 'libs/core/review/review-core.service';
 
 @Injectable()
 export class ReviewService {
@@ -21,6 +23,8 @@ export class ReviewService {
     private readonly reviewRepository: ReviewRepository,
     private readonly reviewLikeRepository: ReviewLikeRepository,
     private readonly cultureContentRepository: CultureContentRepository,
+    private readonly reviewAuthService: ReviewAuthService,
+    private readonly reviewCoreService: ReviewCoreService,
     @Logger(ReviewService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -35,25 +39,38 @@ export class ReviewService {
   ): Promise<{
     reviewList: ReviewEntity[];
   }> {
-    const reviewList: ReviewWithInclude[] = [];
+    const reviewList: ReviewEntity[] = [];
+
     if (pagerble.review && pagerble.page === 1) {
-      const firstReview = await this.reviewRepository.selectReviewByIdx(
+      const firstReview = await this.reviewCoreService.findReviewByIdx(
         pagerble.review,
         userIdx,
       );
 
       if (firstReview) {
-        reviewList.push(firstReview);
+        reviewList.push(ReviewEntity.fromModel(firstReview));
       }
     }
 
     reviewList.push(
-      ...(await this.reviewRepository.selectReviewAll(pagerble, userIdx)),
+      ...(
+        await this.reviewCoreService.findReviewAll(
+          {
+            page: pagerble.page,
+            row: 10,
+            cultureContentIdx: pagerble.content,
+            order: pagerble.order,
+            orderBy: pagerble.orderby,
+            isLiketCreated: pagerble.liket,
+            withOutReviewList: pagerble.review ? [pagerble.review] : [],
+            userIdx: pagerble.user,
+          },
+          userIdx,
+        )
+      ).map(ReviewEntity.fromModel),
     );
 
-    return {
-      reviewList: reviewList.map((review) => ReviewEntity.createEntity(review)),
-    };
+    return { reviewList };
   }
 
   /**

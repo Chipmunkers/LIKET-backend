@@ -23,6 +23,21 @@ export class FindReviewAllInput {
   public readonly cultureContentIdx?: number;
 
   /**
+   * 라이켓 필터링
+   *
+   * true: 라이켓이 작성된 리뷰만 보기
+   * false: 라이켓이 작성되지 않은 리뷰만 보기
+   */
+  public readonly isLiketCreated?: boolean;
+
+  /**
+   * 리뷰 필터링
+   *
+   * 해당 리뷰는 제외하고 가져옴
+   */
+  public readonly withOutReviewList?: number[];
+
+  /**
    * 정렬 순서
    *
    * @default "desc"

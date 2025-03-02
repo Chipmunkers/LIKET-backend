@@ -1,4 +1,4 @@
-import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
+import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { FindReviewAllInput } from 'libs/core/review/input/find-review-all.input';
 import { ReviewSelectField } from 'libs/core/review/model/prisma/review-select-field';
@@ -6,7 +6,9 @@ import { PrismaProvider } from 'libs/modules';
 import { Prisma } from '@prisma/client';
 import { CreateReviewInput } from 'libs/core/review/input/create-review.input';
 import { UpdateReviewInput } from 'libs/core/review/input/update-review.input';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class ReviewCoreRepository {
   constructor(
     private readonly txHost: TransactionHost<
@@ -105,7 +107,9 @@ export class ReviewCoreRepository {
       cultureContentIdx,
       order = 'desc',
       orderBy = 'time',
+      withOutReviewList = [],
       searchByList = [],
+      isLiketCreated,
       searchKeyword,
     }: FindReviewAllInput,
     readUser?: number,
@@ -181,6 +185,8 @@ export class ReviewCoreRepository {
           this.getSearchWhereClause(searchByList, searchKeyword),
           this.getCultureContentWhereClause(cultureContentIdx),
           this.getUserWhereClause(userIdx),
+          this.getIsLikeCreatedReviewOnlyWhereClause(isLiketCreated),
+          this.getWithOutReviewListWhereClause(withOutReviewList),
         ],
       },
       take: row,
@@ -251,6 +257,49 @@ export class ReviewCoreRepository {
 
     return {
       cultureContentIdx: idx,
+    };
+  }
+
+  /**
+   * 라이켓 필터 WHERE 절을 가져오는 메서드
+   *
+   * @author jochongs
+   */
+  private getIsLikeCreatedReviewOnlyWhereClause(
+    isLiketCreated?: boolean,
+  ): Prisma.ReviewWhereInput {
+    if (isLiketCreated === undefined) return {};
+
+    return {
+      Liket: {
+        some: isLiketCreated
+          ? {
+              deletedAt: null,
+            }
+          : undefined,
+        none: !isLiketCreated
+          ? {
+              deletedAt: null,
+            }
+          : undefined,
+      },
+    };
+  }
+
+  /**
+   * 리뷰 필터 WHERE 절을 가져오는 메서드
+   *
+   * @author jochongs
+   */
+  private getWithOutReviewListWhereClause(
+    withOutReviewList: number[],
+  ): Prisma.ReviewWhereInput {
+    if (!withOutReviewList.length) return {};
+
+    return {
+      idx: {
+        notIn: withOutReviewList,
+      },
     };
   }
 

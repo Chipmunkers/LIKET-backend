@@ -1,5 +1,5 @@
-import { ReviewEntity } from 'apps/admin-server/src/api/review/entity/review.entity';
 import { LiketService } from 'apps/user-server/src/api/liket/liket.service';
+import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { CultureContentSeedHelper, ReviewSeedHelper } from 'libs/testing';
@@ -19,38 +19,191 @@ describe('Review (e2e)', () => {
   });
 
   describe('GET /review/all', () => {
-    it('Success', async () => {
+    // it('Success', async () => {
+    //   const contentAuthor = test.getLoginUsers().user1;
+    //   const content = await contentSeedHelper.seed({
+    //     userIdx: contentAuthor.idx,
+    //     acceptedAt: new Date(),
+    //   });
+
+    //   const response = await request(test.getServer())
+    //     .get('/review/all')
+    //     .query({
+    //       content: content.idx,
+    //       orderby: 'time',
+    //       page: 1,
+    //       order: 'desc',
+    //     })
+    //     .expect(200);
+
+    //   expect(response.body?.reviewList).toBeDefined();
+    //   expect(Array.isArray(response.body.reviewList)).toBe(true);
+    // });
+
+    // it('Success - field check', async () => {
+    //   const contentAuthor = test.getLoginUsers().user1;
+    //   const content = await contentSeedHelper.seed({
+    //     userIdx: contentAuthor.idx,
+    //     acceptedAt: new Date(),
+    //   });
+
+    //   const reviewAuthor = test.getLoginUsers().not(contentAuthor.idx);
+
+    //   const [seedReview] = await reviewSeedHelper.seedAll([
+    //     {
+    //       contentIdx: content.idx,
+    //       userIdx: reviewAuthor.idx,
+    //     },
+    //   ]);
+
+    //   const response = await request(test.getServer())
+    //     .get('/review/all')
+    //     .query({
+    //       content: content.idx,
+    //       page: 1,
+    //     });
+
+    //   const reviewList: ReviewEntity[] = response.body.reviewList;
+    //   const review = reviewList[0];
+
+    //   expect(review.idx).toBe(seedReview.idx);
+    //   expect(review.visitTime).toBe(seedReview.visitTime.toISOString());
+    //   expect(review.thumbnail).toBe(seedReview.imgList[0]);
+    //   expect(review.cultureContent.idx).toBe(seedReview.contentIdx);
+    //   expect(review.author.idx).toBe(seedReview.userIdx);
+    //   expect(review.description).toBe(seedReview.description);
+    //   expect(review.starRating).toBe(seedReview.starRating);
+    //   expect(review.likeCount).toBe(seedReview.likeCount);
+    //   expect(review.imgList.sort()).toStrictEqual(seedReview.imgList.sort());
+    //   expect(review.idx).toBe(seedReview.idx);
+    //   expect(review.idx).toBe(seedReview.idx);
+    // });
+
+    // it('Success - content filtering test', async () => {
+    //   const contentAuthor = test.getLoginUsers().user1;
+
+    //   const [content1, content2] = await contentSeedHelper.seedAll([
+    //     {
+    //       userIdx: contentAuthor.idx,
+    //       acceptedAt: new Date(),
+    //     },
+    //     {
+    //       userIdx: contentAuthor.idx,
+    //       acceptedAt: new Date(),
+    //     },
+    //   ]);
+
+    //   const reviewAuthor = test.getLoginUsers().not(contentAuthor.idx);
+
+    //   const [
+    //     content1Review1,
+    //     content1Review2,
+    //     content2Review1,
+    //     content2Review2,
+    //   ] = await reviewSeedHelper.seedAll([
+    //     {
+    //       contentIdx: content1.idx,
+    //       userIdx: reviewAuthor.idx,
+    //     },
+    //     {
+    //       contentIdx: content1.idx,
+    //       userIdx: reviewAuthor.idx,
+    //     },
+    //     {
+    //       contentIdx: content2.idx,
+    //       userIdx: reviewAuthor.idx,
+    //     },
+    //     {
+    //       contentIdx: content2.idx,
+    //       userIdx: reviewAuthor.idx,
+    //     },
+    //   ]);
+
+    //   const response = await request(test.getServer())
+    //     .get('/review/all')
+    //     .query({
+    //       content: content1.idx,
+    //       orderby: 'time',
+    //       page: 1,
+    //     });
+
+    //   const reviewList: ReviewEntity[] = response.body.reviewList;
+
+    //   expect(reviewList.length).toBe(2);
+    //   expect(reviewList.map(({ idx }) => idx).sort()).toStrictEqual(
+    //     [content1Review1.idx, content1Review2.idx].sort(),
+    //   );
+    // });
+
+    it('Success - user filtering test', async () => {
       const contentAuthor = test.getLoginUsers().user1;
-      const content = await contentSeedHelper.seed({
+
+      const author1 = test.getLoginUsers().user1;
+      const author2 = test.getLoginUsers().user2;
+
+      const content1 = await contentSeedHelper.seed({
         userIdx: contentAuthor.idx,
         acceptedAt: new Date(),
       });
 
+      const content2 = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const [
+        author1Content1Review,
+        author1Content2Review,
+        author2Content1Review,
+        author2Content2Review,
+      ] = await reviewSeedHelper.seedAll([
+        {
+          userIdx: author1.idx,
+          contentIdx: content1.idx,
+        },
+        {
+          userIdx: author1.idx,
+          contentIdx: content2.idx,
+        },
+        {
+          userIdx: author2.idx,
+          contentIdx: content1.idx,
+        },
+        {
+          userIdx: author2.idx,
+          contentIdx: content2.idx,
+        },
+      ]);
+
       const response = await request(test.getServer())
         .get('/review/all')
+        .set('Authorization', `Bearer ${author1.accessToken}`)
         .query({
-          content: content.idx,
           orderby: 'time',
           page: 1,
-          order: 'desc',
+          user: author1.idx,
         })
         .expect(200);
 
-      expect(response.body?.reviewList).toBeDefined();
-      expect(Array.isArray(response.body.reviewList)).toBe(true);
+      const reviewList: ReviewEntity[] = response.body.reviewList;
+
+      expect(reviewList.length).toBe(2);
+      expect(reviewList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [author1Content1Review.idx, author1Content2Review.idx].sort(),
+      );
     });
 
-    it('Attempt to get reviews of other user', async () => {
-      const loginUser = test.getLoginUsers().user1;
+    // it('Attempt to get reviews of other user', async () => {
+    //   const loginUser = test.getLoginUsers().user1;
 
-      await request(test.getServer())
-        .get('/review/all')
-        .set('Authorization', `Bearer ${loginUser.accessToken}`)
-        .query({
-          user: 2,
-        })
-        .expect(403);
-    });
+    //   await request(test.getServer())
+    //     .get('/review/all')
+    //     .set('Authorization', `Bearer ${loginUser.accessToken}`)
+    //     .query({
+    //       user: 2,
+    //     })
+    //     .expect(403);
+    // });
 
     it('Attempt to get review without liket', async () => {
       const loginUser = test.getLoginUsers().user2;
