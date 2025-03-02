@@ -8,6 +8,8 @@ import { UserModel } from 'libs/core/user/model/user.model';
 export class ReviewAuthorModel extends PickType(UserModel, [
   'idx',
   'profileImgPath',
+  'nickname',
+  'provider',
   'isAdmin',
 ]) {
   constructor(data: ReviewAuthorModel) {
@@ -19,6 +21,8 @@ export class ReviewAuthorModel extends PickType(UserModel, [
     return new ReviewAuthorModel({
       idx: user.idx,
       isAdmin: user.isAdmin,
+      nickname: user.nickname,
+      provider: user.provider,
       profileImgPath: user.profileImgPath,
     });
   }

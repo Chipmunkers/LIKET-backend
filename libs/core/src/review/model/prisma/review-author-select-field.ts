@@ -8,6 +8,8 @@ const REVIEW_AUTHOR_SELECT_FIELD = Prisma.validator<Prisma.UserDefaultArgs>()({
     idx: true,
     profileImgPath: true,
     isAdmin: true,
+    nickname: true,
+    provider: true,
   },
 });
 

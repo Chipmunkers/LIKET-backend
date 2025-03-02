@@ -9,6 +9,8 @@ import {
   Length,
 } from 'class-validator';
 import { ReviewCultureContentEntity } from 'apps/user-server/src/api/review/entity/review-culture-content.entity';
+import { ReviewModel } from 'libs/core/review/model/review.model';
+import { ReviewAuthorEntity } from 'apps/user-server/src/api/review/entity/review-author.entity';
 
 /**
  * @author jochongs
@@ -97,6 +99,12 @@ export class ReviewEntity {
     Object.assign(this, data);
   }
 
+  /**
+   * `core` 모듈이 개발됨에 따라 deprecated 되었습니다.
+   * 대신, `fromModel`을 사용하십시오.
+   *
+   * @deprecated
+   */
   static createEntity(review: ReviewWithInclude) {
     return new ReviewEntity({
       idx: review.idx,
@@ -116,6 +124,22 @@ export class ReviewEntity {
       starRating: review.starRating,
       likeCount: review.likeCount,
       likeState: review.ReviewLike[0] ? true : false,
+    });
+  }
+
+  public static fromModel(model: ReviewModel): ReviewEntity {
+    return new ReviewEntity({
+      idx: model.idx,
+      author: ReviewAuthorEntity.fromModel(model.author),
+      cultureContent: ReviewCultureContentEntity.fromModel(model.content),
+      visitTime: model.visitTime,
+      starRating: model.starRating,
+      description: model.description,
+      thumbnail: model.imgList[0]?.imgPath || '',
+      imgList: model.imgList.map(({ imgPath }) => imgPath),
+      likeCount: model.likeCount,
+      likeState: model.likeState,
+      createdAt: model.createdAt,
     });
   }
 }

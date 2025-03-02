@@ -37,6 +37,8 @@ export class ReviewCoreRepository {
             idx: true,
             profileImgPath: true,
             isAdmin: true,
+            provider: true,
+            nickname: true,
           },
         },
         ReviewImg: {
@@ -122,6 +124,8 @@ export class ReviewCoreRepository {
             idx: true,
             profileImgPath: true,
             isAdmin: true,
+            provider: true,
+            nickname: true,
           },
         },
         ReviewImg: {
@@ -291,6 +295,8 @@ export class ReviewCoreRepository {
             idx: true,
             profileImgPath: true,
             isAdmin: true,
+            provider: true,
+            nickname: true,
           },
         },
         ReviewImg: {

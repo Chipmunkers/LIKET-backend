@@ -14,6 +14,8 @@ const REVIEW_SELECT_FIELD = Prisma.validator<Prisma.ReviewDefaultArgs>()({
         idx: true,
         profileImgPath: true,
         isAdmin: true,
+        nickname: true,
+        provider: true,
       },
     },
     ReviewImg: {
