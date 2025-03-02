@@ -1,27 +1,14 @@
 import { UserProfileEntity } from '../../user/entity/user-profile.entity';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { ReviewWithInclude } from './prisma-type/review-with-include';
-import { PickType } from '@nestjs/swagger';
-import { ContentEntity } from '../../culture-content/entity/content.entity';
 import {
-  IsDate,
   IsDateString,
   IsIn,
   IsNumber,
   IsString,
   Length,
 } from 'class-validator';
-
-/**
- * @author jochongs
- */
-class ReviewContent extends PickType(ContentEntity, [
-  'idx',
-  'title',
-  'genre',
-  'likeCount',
-  'thumbnail',
-] as const) {}
+import { ReviewCultureContentEntity } from 'apps/user-server/src/api/review/entity/review-culture-content.entity';
 
 /**
  * @author jochongs
@@ -52,7 +39,7 @@ export class ReviewEntity {
   /**
    * 문화생활컨텐츠 정보
    */
-  public cultureContent: ReviewContent;
+  public cultureContent: ReviewCultureContentEntity;
 
   /**
    * 작성자
