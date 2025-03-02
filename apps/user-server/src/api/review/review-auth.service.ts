@@ -13,12 +13,14 @@ export class ReviewAuthService {
   constructor(private readonly prisma: PrismaProvider) {}
 
   /**
+   * 목록보기 권한 확인 메서드
+   *
    * @author jochongs
    */
-  public checkReadAllPermission: (
+  public async checkReadAllPermission(
     pageable: ReviewPageableDto,
     loginUser?: LoginUser,
-  ) => Promise<void> = async (pageable, loginUser) => {
+  ): Promise<void> {
     if (!pageable.user && !pageable.content) {
       throw new PermissionDeniedException();
     }
@@ -54,27 +56,27 @@ export class ReviewAuthService {
     }
 
     return;
-  };
+  }
 
   /**
    * @author jochongs
    */
-  public checkWritePermission: (
+  public async checkWritePermission(
     loginUser: LoginUser,
     contentIdx: number,
     createDto: CreateReviewDto,
-  ) => Promise<void> = async (loginUser, contentIdx, createDto) => {
+  ): Promise<void> {
     return;
-  };
+  }
 
   /**
    * @author jochongs
    */
-  public checkUpdatePermission: (
+  public async checkUpdatePermission(
     loginUser: LoginUser,
     reviewIdx: number,
     updateDto: UpdateReviewDto,
-  ) => Promise<void> = async (loginUser, reviewIdx, updateDto) => {
+  ): Promise<void> {
     const review = await this.prisma.review.findUnique({
       where: {
         idx: reviewIdx,
@@ -97,15 +99,15 @@ export class ReviewAuthService {
     }
 
     return;
-  };
+  }
 
   /**
    * @author jochongs
    */
-  public checkDeletePermission: (
+  public async checkDeletePermission(
     loginUser: LoginUser,
     reviewIdx: number,
-  ) => Promise<void> = async (loginUser, reviewIdx) => {
+  ): Promise<void> {
     const review = await this.prisma.review.findUnique({
       where: {
         idx: reviewIdx,
@@ -128,5 +130,5 @@ export class ReviewAuthService {
     }
 
     return;
-  };
+  }
 }
