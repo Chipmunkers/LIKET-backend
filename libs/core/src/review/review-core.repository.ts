@@ -113,6 +113,7 @@ export class ReviewCoreRepository {
       isOnlyOpenCultureContent,
       isLiketCreated,
       searchKeyword,
+      from,
     }: FindReviewAllInput,
     readUser?: number,
   ): Promise<ReviewSelectField[]> {
@@ -198,6 +199,7 @@ export class ReviewCoreRepository {
             isOnlyAcceptedCultureContent,
           ),
           this.getIsOnlyOpenCultureContentWhereClause(isOnlyOpenCultureContent),
+          this.getFromCreatedReviewWhereClause(from),
         ],
       },
       take: row,
@@ -371,6 +373,24 @@ export class ReviewCoreRepository {
       CultureContent: {
         startDate: { lte: now },
         OR: [{ endDate: { gte: now } }, { endDate: null }],
+      },
+    };
+  }
+
+  /**
+   * 최근 n일 전까지 작성된 리뷰만 보기
+   *
+   * @author jochongs
+   */
+  private getFromCreatedReviewWhereClause(n?: number): Prisma.ReviewWhereInput {
+    if (n === undefined) return {};
+
+    const date = new Date();
+    date.setDate(date.getDate() + n);
+
+    return {
+      createdAt: {
+        gt: date,
       },
     };
   }

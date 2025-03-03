@@ -78,6 +78,11 @@ export class FindReviewAllInput {
   public readonly isOnlyOpenCultureContent?: boolean;
 
   /**
+   * 최근 N일 전까지 작성된 리뷰만 보기
+   */
+  public readonly from?: number;
+
+  /**
    * 검색어
    */
   public readonly searchKeyword?: string;
