@@ -59,4 +59,9 @@ export type ReviewInput = {
    * @defualt null
    */
   firstReportedAt?: Date | null;
+
+  /**
+   * 생성일
+   */
+  createdAt?: Date;
 };

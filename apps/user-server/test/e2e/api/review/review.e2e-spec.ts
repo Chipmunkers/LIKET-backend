@@ -3,6 +3,7 @@ import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.enti
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { CultureContentSeedHelper, ReviewSeedHelper } from 'libs/testing';
+import { TestScheduler } from 'rxjs/testing';
 import * as request from 'supertest';
 
 describe('Review (e2e)', () => {
@@ -610,6 +611,64 @@ describe('Review (e2e)', () => {
         like4Review.idx,
         like3Review.idx,
       ]);
+    });
+
+    it('Success - a review created 8 days ago', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().not(contentAuthor.idx);
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const eightDaysAgo = new Date();
+      eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
+
+      const now = new Date();
+
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const reviewSeedList = await reviewSeedHelper.seedAll([
+        {
+          contentIdx: content.idx,
+          userIdx: reviewAuthor.idx,
+          likeCount: 1000,
+          createdAt: eightDaysAgo,
+        },
+        {
+          contentIdx: content.idx,
+          userIdx: reviewAuthor.idx,
+          likeCount: 5,
+          createdAt: now,
+        },
+        {
+          contentIdx: content.idx,
+          userIdx: reviewAuthor.idx,
+          likeCount: 4,
+          createdAt: now,
+        },
+        {
+          contentIdx: content.idx,
+          userIdx: reviewAuthor.idx,
+          likeCount: 3,
+          createdAt: now,
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/review/hot/all')
+        .expect(200);
+
+      const responseReviewList: ReviewEntity[] = response.body;
+
+      expect(responseReviewList.map(({ idx }) => idx)).toStrictEqual(
+        reviewSeedList
+          .filter(({ createdAt }) => new Date(createdAt) > sevenDaysAgo)
+          .sort((prev, next) => next.likeCount - prev.likeCount)
+          .map(({ idx }) => idx),
+      );
     });
   });
 
