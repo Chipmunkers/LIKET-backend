@@ -98,11 +98,20 @@ export class ReviewService {
    * 인기 리뷰 가져오기
    */
   public async getHotReviewAll(loginUser?: LoginUser): Promise<ReviewEntity[]> {
-    const reviewList = await this.reviewRepository.selectHotReviewAll(
+    const reviewList = await this.reviewCoreService.findReviewAll(
+      {
+        page: 1,
+        row: 5,
+        from: 7,
+        order: 'desc',
+        orderBy: 'like',
+        isOnlyAcceptedCultureContent: true,
+        isOnlyOpenCultureContent: true,
+      },
       loginUser?.idx,
     );
 
-    return reviewList.map((review) => ReviewEntity.createEntity(review));
+    return reviewList.map((review) => ReviewEntity.fromModel(review));
   }
 
   /**

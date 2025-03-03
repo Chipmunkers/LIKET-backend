@@ -576,9 +576,14 @@ describe('Review (e2e)', () => {
       const contentAuthor = test.getLoginUsers().user1;
       const reviewAuthor = test.getLoginUsers().not(contentAuthor.idx);
 
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
       const content = await contentSeedHelper.seed({
         userIdx: contentAuthor.idx,
         acceptedAt: new Date(),
+        startDate: threeDaysAgo,
+        endDate: null,
       });
 
       const [like4Review, like3Review, like7Review] =
@@ -617,9 +622,14 @@ describe('Review (e2e)', () => {
       const contentAuthor = test.getLoginUsers().user1;
       const reviewAuthor = test.getLoginUsers().not(contentAuthor.idx);
 
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
       const content = await contentSeedHelper.seed({
         userIdx: contentAuthor.idx,
         acceptedAt: new Date(),
+        startDate: threeDaysAgo,
+        endDate: null,
       });
 
       const eightDaysAgo = new Date();
@@ -670,6 +680,8 @@ describe('Review (e2e)', () => {
           .map(({ idx }) => idx),
       );
     });
+
+    it('Success - with a review of not accepted culture content', async () => {});
   });
 
   describe('POST /culture-content/:idx/review', () => {

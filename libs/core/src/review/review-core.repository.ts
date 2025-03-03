@@ -358,7 +358,7 @@ export class ReviewCoreRepository {
 
     const now = new Date();
 
-    if (isOnly) {
+    if (!isOnly) {
       return {
         NOT: {
           CultureContent: {
@@ -386,7 +386,7 @@ export class ReviewCoreRepository {
     if (n === undefined) return {};
 
     const date = new Date();
-    date.setDate(date.getDate() + n);
+    date.setDate(date.getDate() - n);
 
     return {
       createdAt: {
