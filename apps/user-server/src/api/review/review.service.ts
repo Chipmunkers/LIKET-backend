@@ -78,7 +78,10 @@ export class ReviewService {
   /**
    * 리뷰 자세히보기
    */
-  public async getReviewByIdx(idx: number, loginUser?: LoginUser) {
+  public async getReviewByIdx(
+    idx: number,
+    loginUser?: LoginUser,
+  ): Promise<ReviewEntity> {
     const review = await this.reviewCoreService.findReviewByIdx(
       idx,
       loginUser?.idx,
