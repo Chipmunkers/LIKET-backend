@@ -62,6 +62,22 @@ export class FindReviewAllInput {
   public readonly searchByList?: ('content' | 'user')[];
 
   /**
+   * 활성화된 문화생활컨텐츠의 리뷰만 보기
+   *
+   * true - 활성화된 문화생활컨텐츠의 리뷰만 보여짐
+   * false - 비활성화된 문화생활컨텐츠의 리뷰만 보여짐
+   */
+  public readonly isOnlyAcceptedCultureContent?: boolean;
+
+  /**
+   * 현재 오픈되어있는 문화생활컨텐츠의 리뷰만 보기
+   *
+   * true - 현재 오픈되어있는 문화생활컨텐츠의 리뷰만 보여짐
+   * false - 현재 오픈되어있지 않은 문화생활컨텐츠의 리뷰만 보여짐
+   */
+  public readonly isOnlyOpenCultureContent?: boolean;
+
+  /**
    * 검색어
    */
   public readonly searchKeyword?: string;

@@ -109,6 +109,8 @@ export class ReviewCoreRepository {
       orderBy = 'time',
       withOutReviewList = [],
       searchByList = [],
+      isOnlyAcceptedCultureContent,
+      isOnlyOpenCultureContent,
       isLiketCreated,
       searchKeyword,
     }: FindReviewAllInput,
@@ -181,12 +183,23 @@ export class ReviewCoreRepository {
       },
       where: {
         deletedAt: null,
+        CultureContent: { deletedAt: null },
+        User: { deletedAt: null, blockedAt: null },
+        ReviewReport: readUser
+          ? {
+              none: { reportUserIdx: readUser },
+            }
+          : undefined,
         AND: [
           this.getSearchWhereClause(searchByList, searchKeyword),
           this.getCultureContentWhereClause(cultureContentIdx),
           this.getUserWhereClause(userIdx),
           this.getIsLikeCreatedReviewOnlyWhereClause(isLiketCreated),
           this.getWithOutReviewListWhereClause(withOutReviewList),
+          this.getIsOnlyAcceptCultureContentWhereClause(
+            isOnlyAcceptedCultureContent,
+          ),
+          this.getIsOnlyOpenCultureContentWhereClause(isOnlyOpenCultureContent),
         ],
       },
       take: row,
@@ -313,6 +326,54 @@ export class ReviewCoreRepository {
 
     return {
       userIdx: idx,
+    };
+  }
+
+  /**
+   * 활성화된 컨텐츠 필터 WHERE 절을 가져오는 메서드
+   *
+   * @author jochongs
+   */
+  private getIsOnlyAcceptCultureContentWhereClause(
+    isOnly?: boolean,
+  ): Prisma.ReviewWhereInput {
+    if (isOnly === undefined) return {};
+
+    return {
+      CultureContent: {
+        acceptedAt: isOnly ? { not: null } : null,
+      },
+    };
+  }
+
+  /**
+   * 오픈된 컨텐츠 필터 WHERE 절을 가져오는 메서드
+   *
+   * @author jochongs
+   */
+  private getIsOnlyOpenCultureContentWhereClause(
+    isOnly?: boolean,
+  ): Prisma.ReviewWhereInput {
+    if (isOnly === undefined) return {};
+
+    const now = new Date();
+
+    if (isOnly) {
+      return {
+        NOT: {
+          CultureContent: {
+            startDate: { lte: now },
+            OR: [{ endDate: { gte: now } }, { endDate: null }],
+          },
+        },
+      };
+    }
+
+    return {
+      CultureContent: {
+        startDate: { lte: now },
+        OR: [{ endDate: { gte: now } }, { endDate: null }],
+      },
     };
   }
 
