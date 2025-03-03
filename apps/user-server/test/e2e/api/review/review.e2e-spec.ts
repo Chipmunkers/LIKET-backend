@@ -403,6 +403,8 @@ describe('Review (e2e)', () => {
       expect(reviewList[1].idx).toBe(firstReview.idx);
     });
 
+    // TODO: liket filtering 테스트 케이스 추가 해야함
+
     it('Non-accepted content | not author', async () => {
       const loginUser = test.getLoginUsers().user2;
       const otherUser = test.getLoginUsers().user1;
