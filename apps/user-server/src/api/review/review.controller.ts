@@ -60,7 +60,7 @@ export class ReviewController {
   public async getReviewByIdx(
     @Param('idx', ParseIntPipe) idx: number,
     @User() loginUser?: LoginUser,
-  ) {
+  ): Promise<ReviewEntity> {
     return await this.reviewService.getReviewByIdx(idx, loginUser);
   }
 
