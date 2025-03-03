@@ -19,121 +19,121 @@ describe('Review (e2e)', () => {
   });
 
   describe('GET /review/all', () => {
-    // it('Success', async () => {
-    //   const contentAuthor = test.getLoginUsers().user1;
-    //   const content = await contentSeedHelper.seed({
-    //     userIdx: contentAuthor.idx,
-    //     acceptedAt: new Date(),
-    //   });
+    it('Success', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
 
-    //   const response = await request(test.getServer())
-    //     .get('/review/all')
-    //     .query({
-    //       content: content.idx,
-    //       orderby: 'time',
-    //       page: 1,
-    //       order: 'desc',
-    //     })
-    //     .expect(200);
+      const response = await request(test.getServer())
+        .get('/review/all')
+        .query({
+          content: content.idx,
+          orderby: 'time',
+          page: 1,
+          order: 'desc',
+        })
+        .expect(200);
 
-    //   expect(response.body?.reviewList).toBeDefined();
-    //   expect(Array.isArray(response.body.reviewList)).toBe(true);
-    // });
+      expect(response.body?.reviewList).toBeDefined();
+      expect(Array.isArray(response.body.reviewList)).toBe(true);
+    });
 
-    // it('Success - field check', async () => {
-    //   const contentAuthor = test.getLoginUsers().user1;
-    //   const content = await contentSeedHelper.seed({
-    //     userIdx: contentAuthor.idx,
-    //     acceptedAt: new Date(),
-    //   });
+    it('Success - field check', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
 
-    //   const reviewAuthor = test.getLoginUsers().not(contentAuthor.idx);
+      const reviewAuthor = test.getLoginUsers().not(contentAuthor.idx);
 
-    //   const [seedReview] = await reviewSeedHelper.seedAll([
-    //     {
-    //       contentIdx: content.idx,
-    //       userIdx: reviewAuthor.idx,
-    //     },
-    //   ]);
+      const [seedReview] = await reviewSeedHelper.seedAll([
+        {
+          contentIdx: content.idx,
+          userIdx: reviewAuthor.idx,
+        },
+      ]);
 
-    //   const response = await request(test.getServer())
-    //     .get('/review/all')
-    //     .query({
-    //       content: content.idx,
-    //       page: 1,
-    //     });
+      const response = await request(test.getServer())
+        .get('/review/all')
+        .query({
+          content: content.idx,
+          page: 1,
+        });
 
-    //   const reviewList: ReviewEntity[] = response.body.reviewList;
-    //   const review = reviewList[0];
+      const reviewList: ReviewEntity[] = response.body.reviewList;
+      const review = reviewList[0];
 
-    //   expect(review.idx).toBe(seedReview.idx);
-    //   expect(review.visitTime).toBe(seedReview.visitTime.toISOString());
-    //   expect(review.thumbnail).toBe(seedReview.imgList[0]);
-    //   expect(review.cultureContent.idx).toBe(seedReview.contentIdx);
-    //   expect(review.author.idx).toBe(seedReview.userIdx);
-    //   expect(review.description).toBe(seedReview.description);
-    //   expect(review.starRating).toBe(seedReview.starRating);
-    //   expect(review.likeCount).toBe(seedReview.likeCount);
-    //   expect(review.imgList.sort()).toStrictEqual(seedReview.imgList.sort());
-    //   expect(review.idx).toBe(seedReview.idx);
-    //   expect(review.idx).toBe(seedReview.idx);
-    // });
+      expect(review.idx).toBe(seedReview.idx);
+      expect(review.visitTime).toBe(seedReview.visitTime.toISOString());
+      expect(review.thumbnail).toBe(seedReview.imgList[0]);
+      expect(review.cultureContent.idx).toBe(seedReview.contentIdx);
+      expect(review.author.idx).toBe(seedReview.userIdx);
+      expect(review.description).toBe(seedReview.description);
+      expect(review.starRating).toBe(seedReview.starRating);
+      expect(review.likeCount).toBe(seedReview.likeCount);
+      expect(review.imgList.sort()).toStrictEqual(seedReview.imgList.sort());
+      expect(review.idx).toBe(seedReview.idx);
+      expect(review.idx).toBe(seedReview.idx);
+    });
 
-    // it('Success - content filtering test', async () => {
-    //   const contentAuthor = test.getLoginUsers().user1;
+    it('Success - content filtering test', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
 
-    //   const [content1, content2] = await contentSeedHelper.seedAll([
-    //     {
-    //       userIdx: contentAuthor.idx,
-    //       acceptedAt: new Date(),
-    //     },
-    //     {
-    //       userIdx: contentAuthor.idx,
-    //       acceptedAt: new Date(),
-    //     },
-    //   ]);
+      const [content1, content2] = await contentSeedHelper.seedAll([
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+        },
+      ]);
 
-    //   const reviewAuthor = test.getLoginUsers().not(contentAuthor.idx);
+      const reviewAuthor = test.getLoginUsers().not(contentAuthor.idx);
 
-    //   const [
-    //     content1Review1,
-    //     content1Review2,
-    //     content2Review1,
-    //     content2Review2,
-    //   ] = await reviewSeedHelper.seedAll([
-    //     {
-    //       contentIdx: content1.idx,
-    //       userIdx: reviewAuthor.idx,
-    //     },
-    //     {
-    //       contentIdx: content1.idx,
-    //       userIdx: reviewAuthor.idx,
-    //     },
-    //     {
-    //       contentIdx: content2.idx,
-    //       userIdx: reviewAuthor.idx,
-    //     },
-    //     {
-    //       contentIdx: content2.idx,
-    //       userIdx: reviewAuthor.idx,
-    //     },
-    //   ]);
+      const [
+        content1Review1,
+        content1Review2,
+        content2Review1,
+        content2Review2,
+      ] = await reviewSeedHelper.seedAll([
+        {
+          contentIdx: content1.idx,
+          userIdx: reviewAuthor.idx,
+        },
+        {
+          contentIdx: content1.idx,
+          userIdx: reviewAuthor.idx,
+        },
+        {
+          contentIdx: content2.idx,
+          userIdx: reviewAuthor.idx,
+        },
+        {
+          contentIdx: content2.idx,
+          userIdx: reviewAuthor.idx,
+        },
+      ]);
 
-    //   const response = await request(test.getServer())
-    //     .get('/review/all')
-    //     .query({
-    //       content: content1.idx,
-    //       orderby: 'time',
-    //       page: 1,
-    //     });
+      const response = await request(test.getServer())
+        .get('/review/all')
+        .query({
+          content: content1.idx,
+          orderby: 'time',
+          page: 1,
+        });
 
-    //   const reviewList: ReviewEntity[] = response.body.reviewList;
+      const reviewList: ReviewEntity[] = response.body.reviewList;
 
-    //   expect(reviewList.length).toBe(2);
-    //   expect(reviewList.map(({ idx }) => idx).sort()).toStrictEqual(
-    //     [content1Review1.idx, content1Review2.idx].sort(),
-    //   );
-    // });
+      expect(reviewList.length).toBe(2);
+      expect(reviewList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [content1Review1.idx, content1Review2.idx].sort(),
+      );
+    });
 
     it('Success - user filtering test', async () => {
       const contentAuthor = test.getLoginUsers().user1;
@@ -193,17 +193,17 @@ describe('Review (e2e)', () => {
       );
     });
 
-    // it('Attempt to get reviews of other user', async () => {
-    //   const loginUser = test.getLoginUsers().user1;
+    it('Attempt to get reviews of other user', async () => {
+      const loginUser = test.getLoginUsers().user1;
 
-    //   await request(test.getServer())
-    //     .get('/review/all')
-    //     .set('Authorization', `Bearer ${loginUser.accessToken}`)
-    //     .query({
-    //       user: 2,
-    //     })
-    //     .expect(403);
-    // });
+      await request(test.getServer())
+        .get('/review/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({
+          user: 2,
+        })
+        .expect(403);
+    });
 
     it('Attempt to get review without liket', async () => {
       const loginUser = test.getLoginUsers().user2;
