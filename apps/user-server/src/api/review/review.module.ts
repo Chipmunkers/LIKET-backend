@@ -20,5 +20,3 @@ import { ReviewCoreModule } from 'libs/core/review/review-core.module';
   ],
 })
 export class ReviewModule {}
-
-// TODO: 리뷰 목록 불러오는 기능 잘 되는지 확인하기

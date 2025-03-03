@@ -112,18 +112,10 @@ export class ReviewService {
       await this.cultureContentRepository.selectCultureContentByIdx(contentIdx);
 
     if (!content) {
-      this.logger.warn(
-        this.createReview,
-        `Attempt to create review with non-existent content ${contentIdx}`,
-      );
       throw new ContentNotFoundException('Cannot find content');
     }
 
     if (!content.acceptedAt) {
-      this.logger.warn(
-        this.createReview,
-        `Attempt to create review with not accepted content ${contentIdx}`,
-      );
       throw new ContentNotFoundException('Cannot find content');
     }
 
