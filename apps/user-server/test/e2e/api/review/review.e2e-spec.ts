@@ -570,6 +570,47 @@ describe('Review (e2e)', () => {
       expect(response.body).toBeDefined();
       expect(Array.isArray(response.body)).toBe(true);
     });
+
+    it('Success - order test', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().not(contentAuthor.idx);
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const [like4Review, like3Review, like7Review] =
+        await reviewSeedHelper.seedAll([
+          {
+            contentIdx: content.idx,
+            userIdx: reviewAuthor.idx,
+            likeCount: 4,
+          },
+          {
+            contentIdx: content.idx,
+            userIdx: reviewAuthor.idx,
+            likeCount: 3,
+          },
+          {
+            contentIdx: content.idx,
+            userIdx: reviewAuthor.idx,
+            likeCount: 7,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/review/hot/all')
+        .expect(200);
+
+      const responseReviewList: ReviewEntity[] = response.body;
+
+      expect(responseReviewList.map(({ idx }) => idx)).toStrictEqual([
+        like7Review.idx,
+        like4Review.idx,
+        like3Review.idx,
+      ]);
+    });
   });
 
   describe('POST /culture-content/:idx/review', () => {
