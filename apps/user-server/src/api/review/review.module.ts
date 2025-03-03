@@ -7,9 +7,10 @@ import { ReviewLikeRepository } from './review-like.repository';
 import { CultureContentRepository } from '../culture-content/culture-content.repository';
 import { PrismaModule } from 'libs/modules';
 import { ReviewCoreModule } from 'libs/core/review/review-core.module';
+import { CultureContentCoreModule } from 'libs/core/culture-content/culture-content-core.module';
 
 @Module({
-  imports: [PrismaModule, ReviewCoreModule],
+  imports: [PrismaModule, ReviewCoreModule, CultureContentCoreModule],
   controllers: [ReviewController],
   providers: [
     ReviewService,
@@ -18,5 +19,6 @@ import { ReviewCoreModule } from 'libs/core/review/review-core.module';
     ReviewLikeRepository,
     CultureContentRepository,
   ],
+  exports: [],
 })
 export class ReviewModule {}

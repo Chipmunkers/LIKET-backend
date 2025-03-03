@@ -16,10 +16,12 @@ import { CultureContentRepository } from '../culture-content/culture-content.rep
 import { ReviewWithInclude } from './entity/prisma-type/review-with-include';
 import { ReviewAuthService } from 'apps/user-server/src/api/review/review-auth.service';
 import { ReviewCoreService } from 'libs/core/review/review-core.service';
+import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
 
 @Injectable()
 export class ReviewService {
   constructor(
+    private readonly cultureContentCoreService: CultureContentCoreService,
     private readonly reviewRepository: ReviewRepository,
     private readonly reviewLikeRepository: ReviewLikeRepository,
     private readonly cultureContentRepository: CultureContentRepository,
