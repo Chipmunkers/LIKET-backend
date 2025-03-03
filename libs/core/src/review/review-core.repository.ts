@@ -186,9 +186,7 @@ export class ReviewCoreRepository {
         CultureContent: { deletedAt: null },
         User: { deletedAt: null, blockedAt: null },
         ReviewReport: readUser
-          ? {
-              none: { reportUserIdx: readUser },
-            }
+          ? { none: { reportUserIdx: readUser } }
           : undefined,
         AND: [
           this.getSearchWhereClause(searchByList, searchKeyword),
