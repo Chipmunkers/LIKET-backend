@@ -79,7 +79,7 @@ export class ReviewService {
    * 리뷰 자세히보기
    */
   public async getReviewByIdx(idx: number, loginUser?: LoginUser) {
-    const review = await this.reviewRepository.selectReviewByIdx(
+    const review = await this.reviewCoreService.findReviewByIdx(
       idx,
       loginUser?.idx,
     );
@@ -88,7 +88,7 @@ export class ReviewService {
       throw new ReviewNotFoundException('Cannot find review');
     }
 
-    return ReviewEntity.createEntity(review);
+    return ReviewEntity.fromModel(review);
   }
 
   /**

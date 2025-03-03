@@ -483,6 +483,39 @@ describe('Review (e2e)', () => {
       expect(response.body?.idx).toBe(review.idx);
     });
 
+    it('Success - field check', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+      const reviewAuthor = test.getLoginUsers().user2;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const review = await reviewSeedHelper.seed({
+        userIdx: reviewAuthor.idx,
+        contentIdx: content.idx,
+      });
+
+      const response = await request(test.getServer())
+        .get(`/review/${review.idx}`)
+        .expect(200);
+
+      const responseReview: ReviewEntity = response.body;
+
+      expect(responseReview.idx).toBe(review.idx);
+      expect(responseReview.author.idx).toBe(review.userIdx);
+      expect(responseReview.thumbnail).toBe(review.imgList[0]);
+      expect(responseReview.visitTime).toBe(review.visitTime.toISOString());
+      expect(responseReview.cultureContent.idx).toBe(review.contentIdx);
+      expect(responseReview.imgList.sort()).toStrictEqual(
+        review.imgList.sort(),
+      );
+      expect(responseReview.description).toBe(review.description);
+      expect(responseReview.starRating).toBe(review.starRating);
+      expect(responseReview.likeCount).toBe(review.likeCount);
+    });
+
     it('Success - with login token', async () => {
       const contentAuthor = test.getLoginUsers().user1;
       const reviewAuthor = test.getLoginUsers().user2;
