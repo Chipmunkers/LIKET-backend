@@ -193,6 +193,80 @@ describe('Review (e2e)', () => {
       );
     });
 
+    it('Success - review filtering', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+
+      const author = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: contentAuthor.idx,
+        acceptedAt: new Date(),
+      });
+
+      const [
+        firstReview,
+        secondReview,
+        thirdReview,
+        fourthReview,
+        fifthReview,
+        sixthReview,
+      ] = await reviewSeedHelper.seedAll([
+        {
+          contentIdx: content.idx,
+          userIdx: author.idx,
+        },
+        {
+          contentIdx: content.idx,
+          userIdx: author.idx,
+        },
+        {
+          contentIdx: content.idx,
+          userIdx: author.idx,
+        },
+        {
+          contentIdx: content.idx,
+          userIdx: author.idx,
+        },
+        {
+          contentIdx: content.idx,
+          userIdx: author.idx,
+        },
+        {
+          contentIdx: content.idx,
+          userIdx: author.idx,
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/review/all')
+        .query({
+          orderby: 'time',
+          page: 1,
+          content: content.idx,
+          review: sixthReview.idx,
+        })
+        .expect(200);
+
+      const reviewList: ReviewEntity[] = response.body.reviewList;
+
+      expect(reviewList.length).toBe(6);
+      expect(reviewList[0].idx).toBe(sixthReview.idx);
+
+      const response2 = await request(test.getServer())
+        .get('/review/all')
+        .query({
+          orderby: 'time',
+          page: 2,
+          content: content.idx,
+          review: sixthReview.idx,
+        })
+        .expect(200);
+
+      const reviewList2: ReviewEntity[] = response2.body.reviewList;
+
+      expect(reviewList2.length).toBe(0);
+    });
+
     it('Attempt to get reviews of other user', async () => {
       const loginUser = test.getLoginUsers().user1;
 
