@@ -36,17 +36,19 @@ export class ReviewService {
    * @author jochongs
    */
   public async getReviewAll(
-    pagerble: ReviewPageableDto,
-    userIdx?: number,
+    pageable: ReviewPageableDto,
+    loginUser?: LoginUser,
   ): Promise<{
     reviewList: ReviewEntity[];
   }> {
+    await this.reviewAuthService.checkReadAllPermission(pageable, loginUser);
+
     const reviewList: ReviewEntity[] = [];
 
-    if (pagerble.review && pagerble.page === 1) {
+    if (pageable.review && pageable.page === 1) {
       const firstReview = await this.reviewCoreService.findReviewByIdx(
-        pagerble.review,
-        userIdx,
+        pageable.review,
+        loginUser?.idx,
       );
 
       if (firstReview) {
@@ -58,16 +60,16 @@ export class ReviewService {
       ...(
         await this.reviewCoreService.findReviewAll(
           {
-            page: pagerble.page,
+            page: pageable.page,
             row: 10,
-            cultureContentIdx: pagerble.content,
-            order: pagerble.order,
-            orderBy: pagerble.orderby,
-            isLiketCreated: pagerble.liket,
-            withOutReviewList: pagerble.review ? [pagerble.review] : [],
-            userIdx: pagerble.user,
+            cultureContentIdx: pageable.content,
+            order: pageable.order,
+            orderBy: pageable.orderby,
+            isLiketCreated: pageable.liket,
+            withOutReviewList: pageable.review ? [pageable.review] : [],
+            userIdx: pageable.user,
           },
-          userIdx,
+          loginUser?.idx,
         )
       ).map(ReviewEntity.fromModel),
     );
