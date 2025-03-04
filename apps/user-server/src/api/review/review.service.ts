@@ -184,7 +184,18 @@ export class ReviewService {
   /**
    * 리뷰 삭제하기
    */
-  public async deleteReview(idx: number): Promise<void> {
+  public async deleteReview(idx: number, loginUser: LoginUser): Promise<void> {
+    const reviewModel = await this.reviewCoreService.findReviewByIdx(
+      idx,
+      loginUser.idx,
+    );
+
+    if (!reviewModel) {
+      throw new ReviewNotFoundException('Cannot find review');
+    }
+
+    await this.reviewAuthService.checkDeletePermission(loginUser, reviewModel);
+
     await this.reviewRepository.deleteReviewByIdx(idx);
   }
 

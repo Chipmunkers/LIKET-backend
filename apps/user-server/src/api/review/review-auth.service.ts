@@ -85,26 +85,9 @@ export class ReviewAuthService {
    */
   public async checkDeletePermission(
     loginUser: LoginUser,
-    reviewIdx: number,
+    reviewModel: ReviewModel,
   ): Promise<void> {
-    const review = await this.prisma.review.findUnique({
-      where: {
-        idx: reviewIdx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-        CultureContent: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!review) {
-      throw new ReviewNotFoundException('Cannot find review');
-    }
-
-    if (review.userIdx !== loginUser.idx) {
+    if (reviewModel.author.idx !== loginUser.idx) {
       throw new PermissionDeniedException('Permission denied');
     }
 

@@ -129,11 +129,7 @@ export class ReviewController {
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
-    await this.reviewAuthService.checkDeletePermission(loginUser, reviewIdx);
-
-    await this.reviewService.deleteReview(reviewIdx);
-
-    return;
+    await this.reviewService.deleteReview(reviewIdx, loginUser);
   }
 
   /**
