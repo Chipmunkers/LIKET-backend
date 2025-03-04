@@ -124,6 +124,12 @@ export class ReviewService {
     loginUser: LoginUser,
     createDto: CreateReviewDto,
   ): Promise<ReviewEntity> {
+    await this.reviewAuthService.checkWritePermission(
+      loginUser,
+      contentIdx,
+      createDto,
+    );
+
     const content =
       await this.cultureContentRepository.selectCultureContentByIdx(contentIdx);
 
