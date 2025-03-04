@@ -1,6 +1,7 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { AlreadyLikeReviewException } from 'apps/user-server/src/api/review/exception/AlreadyLikeReviewException';
+import { AlreadyCancelToLikeReviewException } from 'libs/core/review/exception/AlreadyCancelToLikeReviewException';
 import { AlreadyLikedReviewException } from 'libs/core/review/exception/AlreadyLikedReviewException';
 import { ReviewNotFoundException } from 'libs/core/review/exception/ReviewNotFoundException';
 import { ReviewCoreRepository } from 'libs/core/review/review-core.repository';
@@ -49,6 +50,47 @@ export class ReviewLikeCoreService {
 
     await this.reviewLikeCoreRepository.insertReviewLike(userIdx, reviewIdx);
     await this.reviewLikeCoreRepository.increaseReviewLikeCountByIdx(
+      reviewIdx,
+      1,
+    );
+  }
+
+  /**
+   * 리뷰 좋아요 취소하기
+   *
+   * @author jochongs
+   *
+   * @param userIdx 좋아요 취소하는 사용자 식별자
+   * @param reviewIdx 리뷰 식별자
+   *
+   * @throws {ReviewNotFoundException} 404 - 좋아요 취소하려는 리뷰를 찾을 수 없는 경우
+   * @throws {AlreadyCancelToLikeReviewException} 409 - 이미 좋아요가 취소되어있는 경우
+   */
+  @Transactional()
+  public async cancelToLikeReviewByIdx(
+    userIdx: number,
+    reviewIdx: number,
+  ): Promise<void> {
+    const review = await this.reviewCoreRepository.selectReviewByIdx(
+      reviewIdx,
+      userIdx,
+    );
+
+    if (!review) {
+      throw new ReviewNotFoundException(reviewIdx);
+    }
+
+    const likeState = await this.reviewLikeCoreRepository.selectReviewLike(
+      userIdx,
+      reviewIdx,
+    );
+
+    if (!likeState) {
+      throw new AlreadyCancelToLikeReviewException(userIdx, reviewIdx);
+    }
+
+    await this.reviewLikeCoreRepository.deleteReviewLike(userIdx, reviewIdx);
+    await this.reviewLikeCoreRepository.decreaseReviewLikeCountByIdx(
       reviewIdx,
       1,
     );
