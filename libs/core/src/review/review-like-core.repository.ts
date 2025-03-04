@@ -50,4 +50,26 @@ export class ReviewLikeCoreRepository {
       data: { userIdx, reviewIdx },
     });
   }
+
+  /**
+   * DELETE review_like_tb WHERE user_idx = $1 AND review_idx = $2
+   *
+   * @author jochongs
+   *
+   * @param userIdx 사용자 식별자
+   * @param reviewIdx 리뷰 식별자
+   */
+  public async deleteReviewLike(
+    userIdx: number,
+    reviewIdx: number,
+  ): Promise<void> {
+    await this.txHost.tx.reviewLike.delete({
+      where: {
+        reviewIdx_userIdx: {
+          userIdx,
+          reviewIdx,
+        },
+      },
+    });
+  }
 }
