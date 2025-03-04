@@ -7,10 +7,14 @@ import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { LoginUser } from '../auth/model/login-user';
 import { PrismaProvider } from 'libs/modules';
+import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
 
 @Injectable()
 export class ReviewAuthService {
-  constructor(private readonly prisma: PrismaProvider) {}
+  constructor(
+    private readonly prisma: PrismaProvider,
+    private readonly cultureContentCoreService: CultureContentCoreService,
+  ) {}
 
   /**
    * 목록보기 권한 확인 메서드
@@ -30,27 +34,18 @@ export class ReviewAuthService {
     }
 
     if (pageable.content) {
-      const content = await this.prisma.cultureContent.findUnique({
-        select: {
-          idx: true,
-          userIdx: true,
-          acceptedAt: true,
-        },
-        where: {
-          idx: pageable.content,
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-          },
-        },
-      });
+      const content =
+        await this.cultureContentCoreService.findCultureContentByIdx(
+          pageable.content,
+          loginUser?.idx,
+        );
 
       if (!content) {
         throw new ContentNotFoundException('Cannot find content');
       }
 
       // 수락되지 않은 컨텐츠의 리뷰는 작성자만 볼 수 있음
-      if (!content.acceptedAt && content.userIdx !== loginUser?.idx) {
+      if (!content.acceptedAt && content.author.idx !== loginUser?.idx) {
         throw new PermissionDeniedException();
       }
     }
