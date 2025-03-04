@@ -33,4 +33,21 @@ export class ReviewLikeCoreRepository {
       },
     });
   }
+
+  /**
+   * INSERT review_like_tb
+   *
+   * @author jochongs
+   *
+   * @param userIdx 사용자 식별자
+   * @param reviewIdx 리뷰 식별자
+   */
+  public async insertReviewLike(
+    userIdx: number,
+    reviewIdx: number,
+  ): Promise<ReviewLike> {
+    return await this.txHost.tx.reviewLike.create({
+      data: { userIdx, reviewIdx },
+    });
+  }
 }
