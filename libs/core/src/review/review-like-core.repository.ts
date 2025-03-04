@@ -72,4 +72,26 @@ export class ReviewLikeCoreRepository {
       },
     });
   }
+
+  /**
+   * UPDATE like_count = like_count + $2 WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param reviewIdx 리뷰 식별자
+   * @param count 상승 시킬 좋아요 개수
+   */
+  public async increaseReviewLikeCountByIdx(
+    reviewIdx: number,
+    count: number,
+  ): Promise<void> {
+    await this.txHost.tx.review.update({
+      where: { idx: reviewIdx, deletedAt: null, User: { deletedAt: null } },
+      data: {
+        likeCount: {
+          increment: count,
+        },
+      },
+    });
+  }
 }
