@@ -169,7 +169,7 @@ export class ReviewService {
     );
 
     if (!reviewModel) {
-      throw new NotFoundException('Cannot find review');
+      throw new ReviewNotFoundException('Cannot find review');
     }
 
     await this.reviewAuthService.checkUpdatePermission(
