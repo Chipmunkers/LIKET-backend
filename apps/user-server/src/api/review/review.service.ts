@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -13,7 +13,6 @@ import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { ReviewRepository } from './review.repository';
 import { ReviewLikeRepository } from './review-like.repository';
 import { CultureContentRepository } from '../culture-content/culture-content.repository';
-import { ReviewWithInclude } from './entity/prisma-type/review-with-include';
 import { ReviewAuthService } from 'apps/user-server/src/api/review/review-auth.service';
 import { ReviewCoreService } from 'libs/core/review/review-core.service';
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
