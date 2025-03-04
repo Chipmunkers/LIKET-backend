@@ -21,6 +21,7 @@ export class ReviewLikeCoreService {
    * @param userIdx 좋아요를 누른 사용자 식별자
    * @param reviewIdx 리뷰 식별자
    *
+   * @throws {ReviewNotFoundException} 404 - 좋아요 누를 리뷰가 존재하지 않는 경우
    * @throws {AlreadyLikeReviewException} 409 - 이미 userIdx 사용자가 reviewIdx 리뷰를 좋아요 누른 경우
    */
   @Transactional()
