@@ -112,15 +112,7 @@ export class ReviewController {
     @Param('idx', ParseIntPipe) reviewIdx: number,
     @Body() updateDto: UpdateReviewDto,
   ): Promise<void> {
-    await this.reviewAuthService.checkUpdatePermission(
-      loginUser,
-      reviewIdx,
-      updateDto,
-    );
-
-    await this.reviewService.updateReview(reviewIdx, updateDto);
-
-    return;
+    await this.reviewService.updateReview(reviewIdx, updateDto, loginUser);
   }
 
   /**

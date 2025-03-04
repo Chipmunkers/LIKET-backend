@@ -8,6 +8,7 @@ import { ContentNotFoundException } from '../culture-content/exception/ContentNo
 import { LoginUser } from '../auth/model/login-user';
 import { PrismaProvider } from 'libs/modules';
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
+import { ReviewModel } from 'libs/core/review/model/review.model';
 
 @Injectable()
 export class ReviewAuthService {
@@ -69,27 +70,10 @@ export class ReviewAuthService {
    */
   public async checkUpdatePermission(
     loginUser: LoginUser,
-    reviewIdx: number,
     updateDto: UpdateReviewDto,
+    reviewModel: ReviewModel,
   ): Promise<void> {
-    const review = await this.prisma.review.findUnique({
-      where: {
-        idx: reviewIdx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-        CultureContent: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!review) {
-      throw new ReviewNotFoundException('Cannot find review');
-    }
-
-    if (review.userIdx !== loginUser.idx) {
+    if (reviewModel.author.idx !== loginUser.idx) {
       throw new PermissionDeniedException('Permission denied');
     }
 

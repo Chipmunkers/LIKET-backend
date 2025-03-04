@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -161,7 +161,23 @@ export class ReviewService {
   public async updateReview(
     idx: number,
     updateDto: UpdateReviewDto,
+    loginUser: LoginUser,
   ): Promise<void> {
+    const reviewModel = await this.reviewCoreService.findReviewByIdx(
+      idx,
+      loginUser.idx,
+    );
+
+    if (!reviewModel) {
+      throw new NotFoundException('Cannot find review');
+    }
+
+    await this.reviewAuthService.checkUpdatePermission(
+      loginUser,
+      updateDto,
+      reviewModel,
+    );
+
     await this.reviewRepository.updateReviewByIdx(idx, updateDto);
   }
 
