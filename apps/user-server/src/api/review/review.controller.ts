@@ -91,10 +91,12 @@ export class ReviewController {
     @User() loginUser: LoginUser,
     @Body() createDto: CreateReviewDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
-  ): Promise<void> {
-    await this.reviewService.createReview(contentIdx, loginUser.idx, createDto);
-
-    return;
+  ): Promise<ReviewEntity> {
+    return await this.reviewService.createReview(
+      contentIdx,
+      loginUser,
+      createDto,
+    );
   }
 
   /**

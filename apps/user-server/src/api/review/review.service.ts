@@ -119,9 +119,9 @@ export class ReviewService {
    */
   public async createReview(
     contentIdx: number,
-    userIdx: number,
+    loginUser: LoginUser,
     createDto: CreateReviewDto,
-  ): Promise<void> {
+  ): Promise<ReviewEntity> {
     const content =
       await this.cultureContentRepository.selectCultureContentByIdx(contentIdx);
 
@@ -133,14 +133,18 @@ export class ReviewService {
       throw new ContentNotFoundException('Cannot find content');
     }
 
-    await this.reviewRepository.insertReview({
-      userIdx,
-      contentIdx: content.idx,
-      starRating: createDto.starRating,
-      description: createDto.description,
-      imgList: createDto.imgList,
-      visitTime: new Date(createDto.visitTime),
-    });
+    const createdReviewModel = await this.reviewCoreService.createReview(
+      {
+        starRating: createDto.starRating,
+        imgList: createDto.imgList,
+        description: createDto.description,
+        visitTime: createDto.visitTime,
+      },
+      loginUser.idx,
+      contentIdx,
+    );
+
+    return ReviewEntity.fromModel(createdReviewModel);
   }
 
   /**

@@ -2,6 +2,7 @@ import { UserProfileEntity } from '../../user/entity/user-profile.entity';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { ReviewWithInclude } from './prisma-type/review-with-include';
 import {
+  IsDate,
   IsDateString,
   IsIn,
   IsNumber,
@@ -11,6 +12,7 @@ import {
 import { ReviewCultureContentEntity } from 'apps/user-server/src/api/review/entity/review-culture-content.entity';
 import { ReviewModel } from 'libs/core/review/model/review.model';
 import { ReviewAuthorEntity } from 'apps/user-server/src/api/review/entity/review-author.entity';
+import { Type } from 'class-transformer';
 
 /**
  * @author jochongs
@@ -28,7 +30,8 @@ export class ReviewEntity {
    *
    * @example 2024-05-07T12:12:12.000Z
    */
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   public visitTime: Date;
 
   /**
