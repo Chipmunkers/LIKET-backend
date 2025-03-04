@@ -12,6 +12,6 @@ import { ReviewLikeCoreService } from 'libs/core/review/review-like-core.service
     ReviewLikeCoreService,
     ReviewLikeCoreRepository,
   ],
-  exports: [ReviewCoreService],
+  exports: [ReviewCoreService, ReviewLikeCoreService],
 })
 export class ReviewCoreModule {}
