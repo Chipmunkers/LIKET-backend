@@ -4,7 +4,7 @@ import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { ReportReviewDto } from 'apps/user-server/src/api/review-report/dto/report-review.dto';
 import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
 import { CultureContentSeedHelper, ReviewSeedHelper } from 'libs/testing';
-import { REVIEW_REPORT_TYPE } from 'libs/common';
+import { REVIEW_REPORT_TYPE } from 'libs/core/review/constant/review-report-type';
 
 describe('Review Report(e2e)', () => {
   const test = TestHelper.create(AppModule);

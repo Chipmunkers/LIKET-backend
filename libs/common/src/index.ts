@@ -3,6 +3,5 @@ export * from './types/DeepRequired';
 
 export * from './utils/random';
 
-export * from './constants/review-report-type';
 export * from './constants/inquiry-type';
 export * from './constants/mode';
