@@ -3,15 +3,10 @@ import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
-import { AlreadyLikeReviewException } from './exception/AlreadyLikeReviewException';
-import { AlreadyNotLikeReviewException } from './exception/AlreadyNotLikeReviewException';
 import { ReviewEntity } from './entity/review.entity';
 import { LoginUser } from '../auth/model/login-user';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { ReviewRepository } from './review.repository';
-import { ReviewLikeRepository } from './review-like.repository';
 import { CultureContentRepository } from '../culture-content/culture-content.repository';
 import { ReviewAuthService } from 'apps/user-server/src/api/review/review-auth.service';
 import { ReviewCoreService } from 'libs/core/review/review-core.service';
@@ -24,11 +19,9 @@ export class ReviewService {
     private readonly cultureContentCoreService: CultureContentCoreService,
     private readonly reviewLikeCoreService: ReviewLikeCoreService,
     private readonly reviewRepository: ReviewRepository,
-    private readonly reviewLikeRepository: ReviewLikeRepository,
     private readonly cultureContentRepository: CultureContentRepository,
     private readonly reviewAuthService: ReviewAuthService,
     private readonly reviewCoreService: ReviewCoreService,
-    @Logger(ReviewService.name) private readonly logger: LoggerService,
   ) {}
 
   /**

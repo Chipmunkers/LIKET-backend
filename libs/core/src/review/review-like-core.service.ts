@@ -1,6 +1,5 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
-import { AlreadyLikeReviewException } from 'apps/user-server/src/api/review/exception/AlreadyLikeReviewException';
 import { AlreadyCancelToLikeReviewException } from 'libs/core/review/exception/AlreadyCancelToLikeReviewException';
 import { AlreadyLikedReviewException } from 'libs/core/review/exception/AlreadyLikedReviewException';
 import { ReviewNotFoundException } from 'libs/core/review/exception/ReviewNotFoundException';
@@ -23,7 +22,7 @@ export class ReviewLikeCoreService {
    * @param reviewIdx 리뷰 식별자
    *
    * @throws {ReviewNotFoundException} 404 - 좋아요 누를 리뷰가 존재하지 않는 경우
-   * @throws {AlreadyLikeReviewException} 409 - 이미 userIdx 사용자가 reviewIdx 리뷰를 좋아요 누른 경우
+   * @throws {AlreadyLikedReviewException} 409 - 이미 userIdx 사용자가 reviewIdx 리뷰를 좋아요 누른 경우
    */
   @Transactional()
   public async likeReviewByIdx(

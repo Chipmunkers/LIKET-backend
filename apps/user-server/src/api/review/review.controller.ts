@@ -19,17 +19,13 @@ import { Exception } from '../../common/decorator/exception.decorator';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { GetReviewAllResponseDto } from './dto/response/get-review-all-response.dto';
-import { ReviewAuthService } from './review-auth.service';
 import { LoginUser } from '../auth/model/login-user';
 import { ReviewEntity } from './entity/review.entity';
 
 @Controller()
 @ApiTags('Review')
 export class ReviewController {
-  constructor(
-    private readonly reviewService: ReviewService,
-    private readonly reviewAuthService: ReviewAuthService,
-  ) {}
+  constructor(private readonly reviewService: ReviewService) {}
 
   /**
    * 컨텐츠 리뷰 목록 보기
