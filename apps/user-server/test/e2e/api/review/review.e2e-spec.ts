@@ -1214,7 +1214,7 @@ describe('Review (e2e)', () => {
         .expect(201);
     });
 
-    it('Cancel like (already unliked)', async () => {
+    it('fail - already cancel to like review', async () => {
       const loginUser = test.getLoginUsers().user1;
       const contentAuthor = test.getLoginUsers().user1;
       const reviewAuthor = test.getLoginUsers().user1;
