@@ -3,7 +3,6 @@ import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.enti
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { CultureContentSeedHelper, ReviewSeedHelper } from 'libs/testing';
-import { TestScheduler } from 'rxjs/testing';
 import * as request from 'supertest';
 
 describe('Review (e2e)', () => {
