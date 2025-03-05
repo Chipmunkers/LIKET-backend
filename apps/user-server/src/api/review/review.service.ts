@@ -7,7 +7,6 @@ import { ReviewEntity } from './entity/review.entity';
 import { LoginUser } from '../auth/model/login-user';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { ReviewRepository } from './review.repository';
-import { CultureContentRepository } from '../culture-content/culture-content.repository';
 import { ReviewAuthService } from 'apps/user-server/src/api/review/review-auth.service';
 import { ReviewCoreService } from 'libs/core/review/review-core.service';
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
@@ -19,7 +18,6 @@ export class ReviewService {
     private readonly cultureContentCoreService: CultureContentCoreService,
     private readonly reviewLikeCoreService: ReviewLikeCoreService,
     private readonly reviewRepository: ReviewRepository,
-    private readonly cultureContentRepository: CultureContentRepository,
     private readonly reviewAuthService: ReviewAuthService,
     private readonly reviewCoreService: ReviewCoreService,
   ) {}
@@ -125,7 +123,10 @@ export class ReviewService {
     );
 
     const content =
-      await this.cultureContentRepository.selectCultureContentByIdx(contentIdx);
+      await this.cultureContentCoreService.findCultureContentByIdx(
+        contentIdx,
+        loginUser.idx,
+      );
 
     if (!content) {
       throw new ContentNotFoundException('Cannot find content');
