@@ -147,7 +147,7 @@ export class ReviewController {
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
-    await this.reviewService.likeReview(loginUser.idx, reviewIdx);
+    await this.reviewService.likeReview(loginUser, reviewIdx);
 
     return;
   }
@@ -167,7 +167,7 @@ export class ReviewController {
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
-    await this.reviewService.cancelToLikeReview(loginUser.idx, reviewIdx);
+    await this.reviewService.cancelToLikeReview(loginUser, reviewIdx);
 
     return;
   }

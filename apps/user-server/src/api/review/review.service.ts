@@ -203,48 +203,23 @@ export class ReviewService {
   /**
    * 리뷰 좋아요 누르기
    */
-  public async likeReview(userIdx: number, reviewIdx: number): Promise<void> {
-    await this.getReviewByIdx(reviewIdx);
-
-    const reviewLike = await this.reviewLikeRepository.selectReviewLike(
-      userIdx,
-      reviewIdx,
-    );
-
-    if (reviewLike) {
-      this.logger.warn(this.likeReview, 'Attempt to like already liked review');
-      throw new AlreadyLikeReviewException('Already like review');
-    }
-
-    await this.reviewLikeRepository.increaseReviewLike(userIdx, reviewIdx);
-
-    return;
+  public async likeReview(
+    loginUser: LoginUser,
+    reviewIdx: number,
+  ): Promise<void> {
+    await this.reviewLikeCoreService.likeReviewByIdx(loginUser.idx, reviewIdx);
   }
 
   /**
    * 좋아요 취소하기
    */
   public async cancelToLikeReview(
-    userIdx: number,
+    loginUser: LoginUser,
     reviewIdx: number,
   ): Promise<void> {
-    await this.getReviewByIdx(reviewIdx);
-
-    const reviewLike = await this.reviewLikeRepository.selectReviewLike(
-      userIdx,
+    await this.reviewLikeCoreService.cancelToLikeReviewByIdx(
+      loginUser.idx,
       reviewIdx,
     );
-
-    if (!reviewLike) {
-      this.logger.log(
-        this.cancelToLikeReview,
-        `Attempt to cancel to like non liked review ${reviewIdx}`,
-      );
-      throw new AlreadyNotLikeReviewException('Already do not like review');
-    }
-
-    await this.reviewLikeRepository.decreaseReviewLike(userIdx, reviewIdx);
-
-    return;
   }
 }
