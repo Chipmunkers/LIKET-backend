@@ -235,7 +235,7 @@ describe('Review Report(e2e)', () => {
         contentIdx: content.idx,
       });
 
-      const reportDto: ReportReviewDto = {
+      const reportDto = {
         typeIdx: 99999, // 존재하지 않는 타입
       };
 
@@ -243,7 +243,7 @@ describe('Review Report(e2e)', () => {
         .post(`/review/${review.idx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
-        .expect(500);
+        .expect(400);
     });
 
     it('Select review test after reporting a review', async () => {
