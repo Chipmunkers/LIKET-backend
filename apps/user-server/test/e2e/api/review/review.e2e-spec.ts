@@ -1214,7 +1214,7 @@ describe('Review (e2e)', () => {
         .expect(201);
     });
 
-    it('fail - already cancel to like review', async () => {
+    it('Fail - already cancel to like review', async () => {
       const loginUser = test.getLoginUsers().user1;
       const contentAuthor = test.getLoginUsers().user1;
       const reviewAuthor = test.getLoginUsers().user1;
@@ -1235,7 +1235,7 @@ describe('Review (e2e)', () => {
         .expect(409);
     });
 
-    it('Non-existent review', async () => {
+    it('Fail - cancel to like a review which does not exist', async () => {
       const reviewIdx = -999999; // Non-existent
       const loginUser = test.getLoginUsers().user1;
 
@@ -1245,7 +1245,7 @@ describe('Review (e2e)', () => {
         .expect(404);
     });
 
-    it('No token', async () => {
+    it('Fail - Attempt to cancel to like without login token', async () => {
       const contentAuthor = test.getLoginUsers().user1;
       const reviewAuthor = test.getLoginUsers().user1;
 
