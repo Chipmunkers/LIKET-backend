@@ -1,5 +1,8 @@
 import { Prisma } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 const REVIEW_SELECT_FIELD = Prisma.validator<Prisma.ReviewDefaultArgs>()({
   select: {
     idx: true,
@@ -63,6 +66,9 @@ const REVIEW_SELECT_FIELD = Prisma.validator<Prisma.ReviewDefaultArgs>()({
   },
 });
 
+/**
+ * @author jochongs
+ */
 export type ReviewSelectField = Prisma.ReviewGetPayload<
   typeof REVIEW_SELECT_FIELD
 >;

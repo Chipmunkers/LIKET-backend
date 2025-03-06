@@ -46,8 +46,8 @@ export class ReviewReportService {
               not: null,
             }
           : pageable.state === 'wait'
-          ? null
-          : undefined,
+            ? null
+            : undefined,
     };
     const reviewList = await this.prisma.review.findMany({
       include: {
