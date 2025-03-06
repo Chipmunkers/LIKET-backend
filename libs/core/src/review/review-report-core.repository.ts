@@ -14,7 +14,6 @@ export class ReviewReportCoreRepository {
 
   /**
    * SELECT review_report_tb WHERE idx = $1
-   * ! 주의: 리뷰
    *
    * @author jochongs
    *
