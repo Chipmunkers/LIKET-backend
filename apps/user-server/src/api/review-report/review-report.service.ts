@@ -6,8 +6,6 @@ import { LoginUser } from '../auth/model/login-user';
 import { ReportReviewDto } from './dto/report-review.dto';
 import { ReviewNotFoundException } from '../review/exception/ReviewNotFoundException';
 import { AlreadyReportedReviewException } from './exception/AlreadyReportedReviewException';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
@@ -17,7 +15,6 @@ export class ReviewReportService {
     private readonly reviewRepository: ReviewRepository,
     private readonly userRepository: UserRepository,
     private readonly reviewReportRepository: ReviewReportRepository,
-    @Logger(ReviewReportService.name) private readonly logger: LoggerService,
   ) {}
 
   /**
@@ -35,10 +32,6 @@ export class ReviewReportService {
     const review = await this.reviewRepository.selectReviewByIdx(idx);
 
     if (!review) {
-      this.logger.warn(
-        this.reportReviewByIdx,
-        `Cannot find review | idx = ${idx}`,
-      );
       throw new ReviewNotFoundException('Cannot find review');
     }
 
@@ -48,10 +41,6 @@ export class ReviewReportService {
     );
 
     if (reviewReport) {
-      this.logger.warn(
-        this.reportReviewByIdx,
-        `Login User(${loginUser.idx}) already report the review`,
-      );
       throw new AlreadyReportedReviewException(
         'LoginUser already report the review',
       );
