@@ -3,18 +3,15 @@ import { Prisma } from '@prisma/client';
 /**
  * @author jochongs
  */
-const REPORTED_REVIEW_SELECT_FIELD =
+const SUMMARY_REPORTED_REVIEW_SELECT_FIELD =
   Prisma.validator<Prisma.ReviewDefaultArgs>()({
     select: {
       idx: true,
-      description: true,
       reportCount: true,
-      likeCount: true,
       createdAt: true,
-      starRating: true,
-      visitTime: true,
       deletedAt: true,
       firstReportedAt: true,
+      description: true,
       User: {
         select: {
           idx: true,
@@ -22,13 +19,6 @@ const REPORTED_REVIEW_SELECT_FIELD =
           isAdmin: true,
           nickname: true,
           provider: true,
-        },
-      },
-      ReviewImg: {
-        select: {
-          idx: true,
-          imgPath: true,
-          createdAt: true,
         },
       },
       CultureContent: {
@@ -67,6 +57,6 @@ const REPORTED_REVIEW_SELECT_FIELD =
 /**
  * @author jochongs
  */
-export type ReportedReviewSelectField = Prisma.ReviewGetPayload<
-  typeof REPORTED_REVIEW_SELECT_FIELD
+export type SummaryReportedReviewSelectField = Prisma.ReviewGetPayload<
+  typeof SUMMARY_REPORTED_REVIEW_SELECT_FIELD
 >;
