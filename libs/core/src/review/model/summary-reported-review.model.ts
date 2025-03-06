@@ -1,6 +1,6 @@
 import { PickType } from '@nestjs/swagger';
 import { SummaryReportedReviewSelectField } from 'libs/core/review/model/prisma/summary-reported-review-select-field';
-import { ReportedReviewModel } from 'libs/core/review/model/reported-reivew.model';
+import { ReportedReviewModel } from 'libs/core/review/model/reported-review.model';
 import { ReviewAuthorModel } from 'libs/core/review/model/review-author.model';
 import { ReviewCultureContentModel } from 'libs/core/review/model/review-culture-content.model';
 
