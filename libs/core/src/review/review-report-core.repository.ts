@@ -3,6 +3,7 @@ import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-pr
 import { PrismaProvider } from 'libs/modules';
 import { Injectable } from '@nestjs/common';
 import { ReviewReport } from '@prisma/client';
+import { ReviewReportType } from 'libs/core/review/constant/review-report-type';
 
 @Injectable()
 export class ReviewReportCoreRepository {
@@ -30,6 +31,28 @@ export class ReviewReportCoreRepository {
           reportUserIdx: userIdx,
           reviewIdx,
         },
+      },
+    });
+  }
+
+  /**
+   * INSERT review_report_tb
+   *
+   * @author jochongs
+   *
+   * @param reviewIdx 리뷰 식별자
+   * @param userIdx 사용자 식별자
+   */
+  public async insertReviewReport(
+    reviewIdx: number,
+    userIdx: number,
+    typeIdx: ReviewReportType,
+  ): Promise<ReviewReport> {
+    return await this.txHost.tx.reviewReport.create({
+      data: {
+        reviewIdx,
+        reportUserIdx: userIdx,
+        typeIdx,
       },
     });
   }
