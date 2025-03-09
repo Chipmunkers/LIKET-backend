@@ -78,4 +78,18 @@ export class ReviewReportCoreRepository {
       },
     });
   }
+
+  /**
+   * UPDATE review_tb SET report_count = 0
+   *
+   * @author jochongs
+   *
+   * @param reviewIdx 리뷰 식별자
+   */
+  public async updateReviewReportCountToZero(reviewIdx: number): Promise<void> {
+    await this.txHost.tx.review.update({
+      where: { idx: reviewIdx, deletedAt: null },
+      data: { reportCount: 0 },
+    });
+  }
 }
