@@ -56,4 +56,26 @@ export class ReviewReportCoreRepository {
       },
     });
   }
+
+  /**
+   * UPDATE review_tb SET report_count = report_count + $2 WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param reviewIdx 리뷰 식별자
+   * @param count 증가 시킬 신고 횟수
+   */
+  public async increaseReviewReportCount(
+    reviewIdx: number,
+    count: number,
+  ): Promise<void> {
+    await this.txHost.tx.review.update({
+      where: { idx: reviewIdx, deletedAt: null },
+      data: {
+        reportCount: {
+          increment: count,
+        },
+      },
+    });
+  }
 }
