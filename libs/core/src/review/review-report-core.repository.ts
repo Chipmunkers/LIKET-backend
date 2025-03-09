@@ -58,6 +58,29 @@ export class ReviewReportCoreRepository {
   }
 
   /**
+   * Soft DELETE review_report_tb WHERE review_idx = $1 AND report_user_idx = $2
+   *
+   * @author jochongs
+   *
+   * @param reviewIdx 리뷰 식별자
+   * @param userIdx 사용자 식별자
+   */
+  public async softDeleteReviewReportState(
+    reviewIdx: number,
+    userIdx: number,
+  ): Promise<void> {
+    await this.txHost.tx.reviewReport.update({
+      where: {
+        reportUserIdx_reviewIdx: {
+          reviewIdx,
+          reportUserIdx: userIdx,
+        },
+      },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  /**
    * UPDATE review_tb SET report_count = report_count + $2 WHERE idx = $1
    *
    * @author jochongs
