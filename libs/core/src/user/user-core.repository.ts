@@ -199,4 +199,49 @@ export class UserCoreRepository {
       },
     });
   }
+
+  /**
+   * UPDATE report_count WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   * @param count 증가 시킬 신고 횟수
+   */
+  public async increaseReportCountByIdx(
+    idx: number,
+    count: number,
+  ): Promise<void> {
+    await this.txHost.tx.user.update({
+      where: { idx, deletedAt: null },
+      data: {
+        reportCount: {
+          increment: count,
+        },
+      },
+    });
+  }
+
+  /**
+   * UPDATE report_count WHERE idx = $1
+   * 신고 횟수 감소
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   * @param count 감소 시킬 신고 횟수
+   */
+  public async decreaseReportCountByIdx(
+    idx: number,
+    count: number,
+  ): Promise<void> {
+    await this.txHost.tx.user.update({
+      where: { idx, deletedAt: null },
+      data: {
+        reportCount: {
+          decrement: count,
+        },
+      },
+    });
+  }
 }

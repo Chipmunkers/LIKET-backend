@@ -5,6 +5,7 @@ import { ReviewLikeCoreRepository } from 'libs/core/review/review-like-core.repo
 import { ReviewLikeCoreService } from 'libs/core/review/review-like-core.service';
 import { ReviewReportCoreRepository } from 'libs/core/review/review-report-core.repository';
 import { ReviewReportCoreService } from 'libs/core/review/review-report-core.service';
+import { UserCoreRepository } from 'libs/core/user/user-core.repository';
 
 @Module({
   imports: [],
@@ -15,6 +16,7 @@ import { ReviewReportCoreService } from 'libs/core/review/review-report-core.ser
     ReviewLikeCoreRepository,
     ReviewReportCoreRepository,
     ReviewReportCoreService,
+    UserCoreRepository,
   ],
   exports: [ReviewCoreService, ReviewLikeCoreService, ReviewReportCoreService],
 })

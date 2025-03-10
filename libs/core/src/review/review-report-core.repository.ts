@@ -2,7 +2,7 @@ import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { PrismaProvider } from 'libs/modules';
 import { Injectable } from '@nestjs/common';
-import { ReviewReport } from '@prisma/client';
+import { Review, ReviewReport } from '@prisma/client';
 import { ReviewReportType } from 'libs/core/review/constant/review-report-type';
 
 @Injectable()
@@ -12,6 +12,21 @@ export class ReviewReportCoreRepository {
       TransactionalAdapterPrisma<PrismaProvider>
     >,
   ) {}
+
+  /**
+   * SELECT review_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 리뷰 식별자
+   */
+  public async selectReviewByIdxNoMatterReviewDeleted(
+    idx: number,
+  ): Promise<Review | null> {
+    return await this.txHost.tx.review.findUnique({
+      where: { idx },
+    });
+  }
 
   /**
    * SELECT review_report_tb WHERE idx = $1
@@ -63,19 +78,12 @@ export class ReviewReportCoreRepository {
    * @author jochongs
    *
    * @param reviewIdx 리뷰 식별자
-   * @param userIdx 사용자 식별자
    */
-  public async softDeleteReviewReportState(
+  public async softDeleteReviewReportAllByIdx(
     reviewIdx: number,
-    userIdx: number,
   ): Promise<void> {
-    await this.txHost.tx.reviewReport.update({
-      where: {
-        reportUserIdx_reviewIdx: {
-          reviewIdx,
-          reportUserIdx: userIdx,
-        },
-      },
+    await this.txHost.tx.reviewReport.updateMany({
+      where: { reviewIdx, deletedAt: null },
       data: { deletedAt: new Date() },
     });
   }
