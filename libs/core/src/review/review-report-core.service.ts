@@ -77,7 +77,7 @@ export class ReviewReportCoreService {
   @Transactional()
   public async deleteReviewReportAllByReviewIdx(reviewIdx: number) {
     const review =
-      await this.reviewReportCoreRepository.selectReviewByIdxNoMatterReviewDeleted(
+      await this.reviewReportCoreRepository.selectReportedReviewByIdx(
         reviewIdx,
       );
 
@@ -92,7 +92,7 @@ export class ReviewReportCoreService {
       reviewIdx,
     );
     await this.userCoreRepository.decreaseReportCountByIdx(
-      review.userIdx,
+      review.User.idx,
       review.reportCount,
     );
   }

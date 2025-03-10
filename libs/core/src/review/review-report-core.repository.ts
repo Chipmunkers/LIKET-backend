@@ -2,8 +2,9 @@ import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { PrismaProvider } from 'libs/modules';
 import { Injectable } from '@nestjs/common';
-import { Review, ReviewReport } from '@prisma/client';
+import { ReviewReport } from '@prisma/client';
 import { ReviewReportType } from 'libs/core/review/constant/review-report-type';
+import { ReportedReviewSelectField } from 'libs/core/review/model/prisma/reported-review-select-field';
 
 @Injectable()
 export class ReviewReportCoreRepository {
@@ -20,10 +21,71 @@ export class ReviewReportCoreRepository {
    *
    * @param idx 리뷰 식별자
    */
-  public async selectReviewByIdxNoMatterReviewDeleted(
+  public async selectReportedReviewByIdx(
     idx: number,
-  ): Promise<Review | null> {
+  ): Promise<ReportedReviewSelectField | null> {
     return await this.txHost.tx.review.findUnique({
+      select: {
+        idx: true,
+        description: true,
+        reportCount: true,
+        likeCount: true,
+        createdAt: true,
+        starRating: true,
+        visitTime: true,
+        deletedAt: true,
+        firstReportedAt: true,
+        User: {
+          select: {
+            idx: true,
+            profileImgPath: true,
+            isAdmin: true,
+            nickname: true,
+            provider: true,
+          },
+        },
+        ReviewImg: {
+          select: {
+            idx: true,
+            imgPath: true,
+            createdAt: true,
+          },
+          where: { deletedAt: null },
+          orderBy: { idx: 'asc' },
+        },
+        CultureContent: {
+          select: {
+            idx: true,
+            title: true,
+            likeCount: true,
+            User: {
+              select: {
+                idx: true,
+                nickname: true,
+                email: true,
+                profileImgPath: true,
+                isAdmin: true,
+              },
+            },
+            ContentImg: {
+              select: {
+                idx: true,
+                imgPath: true,
+                createdAt: true,
+              },
+              where: { deletedAt: null },
+              orderBy: { idx: 'asc' },
+            },
+            Genre: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+      },
       where: { idx },
     });
   }
