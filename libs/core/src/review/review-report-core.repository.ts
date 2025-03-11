@@ -6,6 +6,8 @@ import { ReviewReport } from '@prisma/client';
 import { ReviewReportType } from 'libs/core/review/constant/review-report-type';
 import { ReportedReviewSelectField } from 'libs/core/review/model/prisma/reported-review-select-field';
 import { ReviewReportTypeAggSelectField } from 'libs/core/review/model/prisma/review-report-type-agg-select-field';
+import { FindReportedReviewAllInput } from 'libs/core/review/input/find-reported-review-all.input';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ReviewReportCoreRepository {
@@ -89,6 +91,147 @@ export class ReviewReportCoreRepository {
       },
       where: { idx },
     });
+  }
+
+  /**
+   * SELECT review_tb
+   *
+   * @author jochongs
+   */
+  public async selectReportedReviewAll({
+    page,
+    row,
+    searchBy = [],
+    search,
+    state,
+    orderBy = 'firstReportedAt',
+    order = 'desc',
+  }: FindReportedReviewAllInput): Promise<ReportedReviewSelectField[]> {
+    return await this.txHost.tx.review.findMany({
+      select: {
+        idx: true,
+        description: true,
+        reportCount: true,
+        likeCount: true,
+        createdAt: true,
+        starRating: true,
+        visitTime: true,
+        deletedAt: true,
+        firstReportedAt: true,
+        User: {
+          select: {
+            idx: true,
+            profileImgPath: true,
+            isAdmin: true,
+            nickname: true,
+            provider: true,
+          },
+        },
+        ReviewImg: {
+          select: {
+            idx: true,
+            imgPath: true,
+            createdAt: true,
+          },
+          where: { deletedAt: null },
+          orderBy: { idx: 'asc' },
+        },
+        CultureContent: {
+          select: {
+            idx: true,
+            title: true,
+            likeCount: true,
+            User: {
+              select: {
+                idx: true,
+                nickname: true,
+                email: true,
+                profileImgPath: true,
+                isAdmin: true,
+              },
+            },
+            ContentImg: {
+              select: {
+                idx: true,
+                imgPath: true,
+                createdAt: true,
+              },
+              where: { deletedAt: null },
+              orderBy: { idx: 'asc' },
+            },
+            Genre: {
+              select: {
+                idx: true,
+                name: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        AND: [
+          this.getReportStateWhereClause(state),
+          this.getSearchWhereClause(searchBy, search),
+        ],
+      },
+      orderBy: { [this.getOrderByField(orderBy)]: order },
+      skip: (page - 1) * row,
+      take: row,
+    });
+  }
+
+  /**
+   * 정렬 요소 필드 이름을 가져오는 메서드
+   *
+   * @author jochongs
+   */
+  private getOrderByField(
+    orderBy: FindReportedReviewAllInput['orderBy'],
+  ): 'firstReportedAt' | 'reportCount' | 'idx' {
+    if (orderBy === 'firstReportedAt') {
+      return 'firstReportedAt';
+    }
+    if (orderBy === 'reportCount') {
+      return 'reportCount';
+    }
+    return 'idx';
+  }
+
+  /**
+   * 신고 상태 필터 WHERE 절을 가져오는 메서드
+   *
+   * @author jochongs
+   */
+  public getReportStateWhereClause(
+    state: FindReportedReviewAllInput['state'],
+  ): Prisma.ReviewWhereInput {
+    if (!state) return {};
+
+    return {
+      deletedAt: state ? { not: null } : null,
+    };
+  }
+
+  /**
+   * 검색어 필터 WHERE 절을 가져오는 메서드
+   *
+   * @author jochongs
+   */
+  public getSearchWhereClause(
+    searchBy: FindReportedReviewAllInput['searchBy'],
+    search: FindReportedReviewAllInput['search'],
+  ): Prisma.ReviewWhereInput {
+    if (!search || !searchBy || !searchBy.length) return {};
+
+    return {
+      description: searchBy.includes('review')
+        ? { contains: search }
+        : undefined,
+      User: searchBy.includes('author')
+        ? { email: { contains: search }, nickname: { contains: search } }
+        : undefined,
+    };
   }
 
   /**

@@ -21,4 +21,22 @@ export class FindReportedReviewAllInput {
    * false: 삭제 처리가 안 된 리뷰만 가져오기
    */
   public readonly state?: boolean;
+
+  /**
+   * 정렬 요소
+   *
+   * firstReportedAt: 신고된 시간 순
+   * reportCount: 신고 횟수 순
+   * idx: 리뷰 식별자 순
+   *
+   * @default "firstReportedAt"
+   */
+  public readonly orderBy?: 'firstReportedAt' | 'reportCount' | 'idx';
+
+  /**
+   * 정렬 방식
+   *
+   * @default "desc"
+   */
+  public readonly order?: 'asc' | 'desc';
 }
