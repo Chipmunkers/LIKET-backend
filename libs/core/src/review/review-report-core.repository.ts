@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ReviewReport } from '@prisma/client';
 import { ReviewReportType } from 'libs/core/review/constant/review-report-type';
 import { ReportedReviewSelectField } from 'libs/core/review/model/prisma/reported-review-select-field';
+import { ReviewReportTypeAggSelectField } from 'libs/core/review/model/prisma/review-report-type-agg-select-field';
 
 @Injectable()
 export class ReviewReportCoreRepository {
@@ -87,6 +88,33 @@ export class ReviewReportCoreRepository {
         },
       },
       where: { idx },
+    });
+  }
+
+  /**
+   * SELECT review_report_tb WHERE review_idx = $1 GROUP BY type_idx
+   */
+  public async selectReportCountGroupByTypeIdx(
+    idx: number,
+  ): Promise<ReviewReportTypeAggSelectField[]> {
+    return await this.txHost.tx.reviewReportType.findMany({
+      select: {
+        idx: true,
+        name: true,
+        _count: {
+          select: {
+            ReviewReport: true,
+          },
+        },
+      },
+      where: {
+        ReviewReport: {
+          some: {
+            reviewIdx: idx,
+            deletedAt: null,
+          },
+        },
+      },
     });
   }
 

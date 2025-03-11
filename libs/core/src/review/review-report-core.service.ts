@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ReviewReportType } from 'libs/core/review/constant/review-report-type';
 import { AlreadyReportedReviewException } from 'libs/core/review/exception/AlreadyReportedReviewException';
 import { ReviewNotFoundException } from 'libs/core/review/exception/ReviewNotFoundException';
+import { ReportedReviewModel } from 'libs/core/review/model/reported-review.model';
 import { ReviewCoreRepository } from 'libs/core/review/review-core.repository';
 import { ReviewReportCoreRepository } from 'libs/core/review/review-report-core.repository';
 import { UserCoreRepository } from 'libs/core/user/user-core.repository';
@@ -14,6 +15,33 @@ export class ReviewReportCoreService {
     private readonly userCoreRepository: UserCoreRepository,
     private readonly reviewCoreRepository: ReviewCoreRepository,
   ) {}
+
+  /**
+   * 신고된 리뷰 가져오기
+   *
+   * @author jochongs
+   *
+   * @param idx 리뷰 식별자
+   *
+   * @throws {ReviewNotFoundException} 404 - 리뷰를 찾을 수 없을 경우
+   */
+  public async selectReportedReviewByIdx(
+    idx: number,
+  ): Promise<ReportedReviewModel> {
+    const reportedReview =
+      await this.reviewReportCoreRepository.selectReportedReviewByIdx(idx);
+
+    if (!reportedReview) {
+      throw new ReviewNotFoundException(idx);
+    }
+
+    const reportCountList =
+      await this.reviewReportCoreRepository.selectReportCountGroupByTypeIdx(
+        idx,
+      );
+
+    return ReportedReviewModel.fromPrisma(reportedReview, reportCountList);
+  }
 
   /**
    * 리뷰 신고하기
