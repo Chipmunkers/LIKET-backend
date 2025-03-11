@@ -356,4 +356,22 @@ export class ReviewReportCoreRepository {
       data: { reportCount: 0 },
     });
   }
+
+  /**
+   * UPDATE review_tb SET first_reported_at = NOW() WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 리뷰 식별자
+   * @param date 신고 시간
+   */
+  public async updateFirstReportedAt(
+    reviewIdx: number,
+    date: Date | null,
+  ): Promise<void> {
+    await this.txHost.tx.review.update({
+      where: { idx: reviewIdx },
+      data: { firstReportedAt: date },
+    });
+  }
 }

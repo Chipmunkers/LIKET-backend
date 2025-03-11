@@ -34,6 +34,7 @@ export class ReviewCoreRepository {
         createdAt: true,
         starRating: true,
         visitTime: true,
+        firstReportedAt: true,
         User: {
           select: {
             idx: true,
@@ -126,6 +127,7 @@ export class ReviewCoreRepository {
         createdAt: true,
         starRating: true,
         visitTime: true,
+        firstReportedAt: true,
         User: {
           select: {
             idx: true,
@@ -418,6 +420,7 @@ export class ReviewCoreRepository {
         createdAt: true,
         starRating: true,
         visitTime: true,
+        firstReportedAt: true,
         User: {
           select: {
             idx: true,

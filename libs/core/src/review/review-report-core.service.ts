@@ -86,6 +86,12 @@ export class ReviewReportCoreService {
       throw new AlreadyReportedReviewException();
     }
 
+    if (!review.firstReportedAt) {
+      await this.reviewReportCoreRepository.updateFirstReportedAt(
+        reviewIdx,
+        new Date(),
+      );
+    }
     await this.reviewReportCoreRepository.insertReviewReport(
       reviewIdx,
       userIdx,
@@ -123,6 +129,10 @@ export class ReviewReportCoreService {
     );
     await this.reviewReportCoreRepository.updateReviewReportCountToZero(
       reviewIdx,
+    );
+    await this.reviewReportCoreRepository.updateFirstReportedAt(
+      reviewIdx,
+      null,
     );
     await this.userCoreRepository.decreaseReportCountByIdx(
       review.User.idx,

@@ -12,6 +12,7 @@ const REVIEW_SELECT_FIELD = Prisma.validator<Prisma.ReviewDefaultArgs>()({
     createdAt: true,
     starRating: true,
     visitTime: true,
+    firstReportedAt: true,
     User: {
       select: {
         idx: true,
