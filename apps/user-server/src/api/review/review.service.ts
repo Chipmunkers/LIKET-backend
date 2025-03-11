@@ -191,7 +191,7 @@ export class ReviewService {
 
     await this.reviewAuthService.checkDeletePermission(loginUser, reviewModel);
 
-    await this.reviewRepository.deleteReviewByIdx(idx);
+    await this.reviewCoreService.deleteReviewByIdx(idx);
   }
 
   /**
