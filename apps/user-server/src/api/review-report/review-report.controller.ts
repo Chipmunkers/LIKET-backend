@@ -13,15 +13,11 @@ import { LoginUser } from '../auth/model/login-user';
 import { ReviewReportService } from './review-report.service';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { ReportReviewDto } from './dto/report-review.dto';
-import { ReviewReportAuthService } from './review-report-auth.service';
 
 @Controller()
 @ApiTags('Review-Report')
 export class ReviewReportController {
-  constructor(
-    private readonly reviewReportService: ReviewReportService,
-    private readonly reviewReportAuthService: ReviewReportAuthService,
-  ) {}
+  constructor(private readonly reviewReportService: ReviewReportService) {}
 
   /**
    * 리뷰 신고하기
@@ -40,12 +36,6 @@ export class ReviewReportController {
     @Body() reportReviewDto: ReportReviewDto,
     @User() loginUser: LoginUser,
   ): Promise<void> {
-    await this.reviewReportAuthService.checkWritePermission(
-      idx,
-      reportReviewDto,
-      loginUser,
-    );
-
     await this.reviewReportService.reportReviewByIdx(
       idx,
       reportReviewDto,
