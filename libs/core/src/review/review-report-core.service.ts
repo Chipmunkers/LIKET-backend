@@ -23,18 +23,16 @@ export class ReviewReportCoreService {
    * @author jochongs
    *
    * @param idx 리뷰 식별자
-   *
-   * @throws {ReviewNotFoundException} 404 - 리뷰를 찾을 수 없을 경우
    */
   @Transactional()
-  public async selectReportedReviewByIdx(
+  public async findReportedReviewByIdx(
     idx: number,
-  ): Promise<ReportedReviewModel> {
+  ): Promise<ReportedReviewModel | null> {
     const reportedReview =
       await this.reviewReportCoreRepository.selectReportedReviewByIdx(idx);
 
     if (!reportedReview) {
-      throw new ReviewNotFoundException(idx);
+      return null;
     }
 
     const reportCountList =
