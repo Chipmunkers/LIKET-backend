@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ReviewReportType } from 'libs/core/review/constant/review-report-type';
 import { AlreadyReportedReviewException } from 'libs/core/review/exception/AlreadyReportedReviewException';
 import { ReviewNotFoundException } from 'libs/core/review/exception/ReviewNotFoundException';
+import { ReviewReportPermissionDeniedException } from 'libs/core/review/exception/ReviewReportPermissionDeniedException';
 import { ReportedReviewModel } from 'libs/core/review/model/reported-review.model';
 import { ReviewCoreRepository } from 'libs/core/review/review-core.repository';
 import { ReviewReportCoreRepository } from 'libs/core/review/review-report-core.repository';
@@ -25,6 +26,7 @@ export class ReviewReportCoreService {
    *
    * @throws {ReviewNotFoundException} 404 - 리뷰를 찾을 수 없을 경우
    */
+  @Transactional()
   public async selectReportedReviewByIdx(
     idx: number,
   ): Promise<ReportedReviewModel> {
@@ -55,6 +57,7 @@ export class ReviewReportCoreService {
    *
    * @throws {AlreadyReportedReviewException} 409 - 이미 신고한 리뷰일 경우
    * @throws {ReviewNotFoundException} 404 - 리뷰를 찾을 수 없을 경우
+   * @throws {ReviewReportPermissionDeniedException} 403 - 본인이 작성한 리뷰인 경우
    */
   @Transactional()
   public async reportReviewByIdx(
@@ -69,6 +72,10 @@ export class ReviewReportCoreService {
 
     if (!review) {
       throw new ReviewNotFoundException(reviewIdx);
+    }
+
+    if (userIdx === review.User.idx) {
+      throw new ReviewReportPermissionDeniedException();
     }
 
     const reviewState =
