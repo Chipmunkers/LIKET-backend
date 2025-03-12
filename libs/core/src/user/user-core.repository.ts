@@ -256,6 +256,7 @@ export class UserCoreRepository {
     return await this.txHost.tx.review.count({
       where: {
         deletedAt: null,
+        userIdx: idx,
       },
     });
   }
