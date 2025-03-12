@@ -163,4 +163,16 @@ export class UserCoreService {
       reasonInput,
     );
   }
+
+  /**
+   * 사용자가 작성한 리뷰 개수 가져오기
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  @Transactional()
+  public async getReviewCountByUserIdx(idx: number): Promise<number> {
+    return await this.userCoreRepository.selectReviewCountByUserIdx(idx);
+  }
 }

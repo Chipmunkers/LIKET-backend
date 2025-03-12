@@ -244,4 +244,19 @@ export class UserCoreRepository {
       },
     });
   }
+
+  /**
+   * SELECT COUNT(*) FROM review WHERE user_idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  public async selectReviewCountByUserIdx(idx: number): Promise<number> {
+    return await this.txHost.tx.review.count({
+      where: {
+        deletedAt: null,
+      },
+    });
+  }
 }
