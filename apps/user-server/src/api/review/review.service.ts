@@ -6,7 +6,6 @@ import { ContentNotFoundException } from '../culture-content/exception/ContentNo
 import { ReviewEntity } from './entity/review.entity';
 import { LoginUser } from '../auth/model/login-user';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
-import { ReviewRepository } from './review.repository';
 import { ReviewAuthService } from 'apps/user-server/src/api/review/review-auth.service';
 import { ReviewCoreService } from 'libs/core/review/review-core.service';
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
@@ -17,7 +16,6 @@ export class ReviewService {
   constructor(
     private readonly cultureContentCoreService: CultureContentCoreService,
     private readonly reviewLikeCoreService: ReviewLikeCoreService,
-    private readonly reviewRepository: ReviewRepository,
     private readonly reviewAuthService: ReviewAuthService,
     private readonly reviewCoreService: ReviewCoreService,
   ) {}
