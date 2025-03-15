@@ -4,8 +4,6 @@ import { HashService } from '../../common/module/hash/hash.service';
 import { FindPwDto } from './dto/find-pw.dto';
 import { EmailJwtService } from '../email-cert/email-jwt.service';
 import { EmailCertType } from '../email-cert/model/email-cert-type';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { UserRepository } from './user.repository';
 import { LoginUser } from '../auth/model/login-user';
 import { ResetPwDto } from './dto/reset-pw.dto';
@@ -19,7 +17,6 @@ export class UserPwService {
     private readonly hashService: HashService,
     private readonly emailJwtService: EmailJwtService,
     private readonly userRepository: UserRepository,
-    @Logger(UserPwService.name) private readonly logger: LoggerService,
   ) {}
 
   /**
