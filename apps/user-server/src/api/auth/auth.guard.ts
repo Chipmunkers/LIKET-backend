@@ -7,7 +7,6 @@ import {
 import { InvalidLoginJwtException } from './exception/InvalidLoginJwtException';
 import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-payload';
 import { Response } from 'express';
-import { UserCoreService } from 'libs/core/user/user-core.service';
 import { AuthService } from 'apps/user-server/src/api/auth/auth.service';
 
 /**
