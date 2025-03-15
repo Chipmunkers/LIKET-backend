@@ -7,6 +7,7 @@ import { UtilService } from '../../common/module/util/util.service';
 import { FILE_GROUPING } from './file-grouping';
 import { UploadedFileEntity } from './entity/uploaded-file.entity';
 
+// TODO: lib 에 s3 모듈로 변경해야함.
 @Injectable()
 export class UploadService {
   private s3Client: S3Client;
