@@ -125,4 +125,17 @@ export class UserInterestCoreRepository {
       })),
     });
   }
+
+  /**
+   * DELETE interest_location_tb
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  public async deleteInterestLocation(idx: number): Promise<void> {
+    await this.txHost.tx.interestLocation.deleteMany({
+      where: { userIdx: idx },
+    });
+  }
 }
