@@ -7,14 +7,15 @@ import {
 import { InvalidLoginJwtException } from './exception/InvalidLoginJwtException';
 import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-payload';
 import { Response } from 'express';
-import { PrismaProvider } from 'libs/modules';
+import { UserCoreService } from 'libs/core/user/user-core.service';
+import { AuthService } from 'apps/user-server/src/api/auth/auth.service';
 
 /**
  * @author jochongs
  */
 @Injectable()
 export class LoginAuthGuard implements CanActivate {
-  constructor(private readonly prisma: PrismaProvider) {}
+  constructor(private readonly authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -26,15 +27,7 @@ export class LoginAuthGuard implements CanActivate {
       throw new InvalidLoginJwtException('Invalid login jwt');
     }
 
-    const user = await this.prisma.user.findUnique({
-      select: {
-        blockedAt: true,
-      },
-      where: {
-        idx: payload.idx,
-        deletedAt: null,
-      },
-    });
+    const user = await this.authService.findUserByIdx(payload.idx);
 
     if (!user) {
       response.clearCookie('refreshToken');

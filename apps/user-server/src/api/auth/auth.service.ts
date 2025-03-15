@@ -20,6 +20,7 @@ import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-p
 import { AppleLoginStrategy } from './strategy/apple/apple-login.strategy';
 import { UserCoreService } from 'libs/core/user/user-core.service';
 import { HashService } from 'libs/modules/hash/hash.service';
+import { UserModel } from 'libs/core/user/model/user.model';
 
 @Injectable()
 export class AuthService {
@@ -278,5 +279,17 @@ export class AuthService {
    */
   private async updateLoginTimeByUserIdx(idx: number) {
     await this.userCoreService.updateUserLastLoginByIdx(idx);
+  }
+
+  /**
+   * 사용자 정보 불러오기
+   * ! 주의: AuthGuard에서만 사용 권장
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  public async findUserByIdx(idx: number): Promise<UserModel | null> {
+    return await this.userCoreService.findUserByIdx(idx);
   }
 }
