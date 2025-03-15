@@ -744,13 +744,13 @@ describe('Review (e2e)', () => {
       const loginUser = test.getLoginUsers().user1;
 
       const contentAuthor = test.getLoginUsers().user2;
-      const notAccepetedContent = await contentSeedHelper.seed({
+      const notAcceptedContent = await contentSeedHelper.seed({
         userIdx: contentAuthor.idx,
         acceptedAt: null,
       });
 
       await request(test.getServer())
-        .post(`/culture-content/${notAccepetedContent.idx}/review`)
+        .post(`/culture-content/${notAcceptedContent.idx}/review`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send({
           starRating: 4,
