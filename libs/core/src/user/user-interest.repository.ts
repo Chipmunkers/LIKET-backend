@@ -63,4 +63,17 @@ export class UserInterestCoreRepository {
       })),
     });
   }
+
+  /**
+   * DELETE interest_style_tb WHERE user_idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  public async deleteInterestStyle(idx: number): Promise<void> {
+    await this.txHost.tx.interestStyle.deleteMany({
+      where: { userIdx: idx },
+    });
+  }
 }
