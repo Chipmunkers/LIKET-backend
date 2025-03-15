@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { HashModule } from '../../common/module/hash/hash.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import kakaoLoginConfig from './strategy/kakao/config/kakao-login.config';
 import { KakaoLoginStrategy } from './strategy/kakao/kakao-login.strategy';
@@ -17,6 +16,7 @@ import appleLoginConfig from './strategy/apple/config/apple-login.config';
 import { AppleLoginStrategy } from './strategy/apple/apple-login.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { UserCoreModule } from 'libs/core/user/user-core.module';
+import { HashModule } from 'libs/modules/hash/hash.module';
 
 @Module({
   imports: [

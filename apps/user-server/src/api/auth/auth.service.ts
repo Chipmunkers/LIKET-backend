@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { HashService } from '../../common/module/hash/hash.service';
 import { LoginDto } from './dto/local-login.dto';
 import { BlockedUserException } from './exception/BlockedUserException';
 import { InvalidEmailOrPwException } from './exception/InvalidEmailOrPwException';
@@ -20,6 +19,7 @@ import { SocialLoginEmailDuplicateException } from './exception/SocialLoginEmail
 import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-payload';
 import { AppleLoginStrategy } from './strategy/apple/apple-login.strategy';
 import { UserCoreService } from 'libs/core/user/user-core.service';
+import { HashService } from 'libs/modules/hash/hash.service';
 
 @Injectable()
 export class AuthService {
@@ -65,7 +65,7 @@ export class AuthService {
       throw new BlockedUserException('your account has been suspended');
     }
 
-    if (!this.hashService.comparePw(loginDto.pw, user.pw || '')) {
+    if (!(await this.hashService.comparePw(loginDto.pw, user.pw || ''))) {
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 

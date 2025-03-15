@@ -1,11 +1,9 @@
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
 import { HashService } from '../../../../src/common/module/hash/hash.service';
 import { EmailJwtService } from '../../../../src/api/email-cert/email-jwt.service';
 import { LoginJwtService } from '../../../../src/common/module/login-jwt/login-jwt.service';
 import { SocialLoginJwtService } from '../../../../src/common/module/social-login-jwt/social-login-jwt.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../../../../src/api/user/user.service';
-import { AuthService } from '../../../../src/api/auth/auth.service';
 import { LoggerService } from '../../../../src/common/module/logger/logger.service';
 import { SignUpDto } from '../../../../src/api/user/dto/sign-up.dto';
 import { Gender } from '../../../../src/api/user/model/Gender';
@@ -13,10 +11,11 @@ import { JwtService } from '@nestjs/jwt';
 import { LoggerModule } from '../../../../src/common/module/logger/logger.module';
 import { LoginJwtRepository } from '../../../../src/common/module/login-jwt/login-jwt.repository';
 import { EmailCertType } from '../../../../src/api/email-cert/model/email-cert-type';
+import { PrismaProvider } from 'libs/modules';
 
 describe('UserService', () => {
   let userService: UserService;
-  let prisma: PrismaService;
+  let prisma: PrismaProvider;
   let hashService: HashService;
   let emailJwtService: EmailJwtService;
   let loginJwtService: LoginJwtService;
@@ -28,7 +27,7 @@ describe('UserService', () => {
       imports: [LoggerModule.forRoot()],
       providers: [
         UserService,
-        PrismaService,
+        PrismaProvider,
         HashService,
         EmailJwtService,
         LoginJwtService,
@@ -39,7 +38,7 @@ describe('UserService', () => {
     }).compile();
 
     userService = module.get(UserService);
-    prisma = module.get(PrismaService);
+    prisma = module.get(PrismaProvider);
     hashService = module.get(HashService);
     emailJwtService = module.get(EmailJwtService);
     loginJwtService = module.get(LoginJwtService);
@@ -96,7 +95,7 @@ describe('UserService', () => {
       };
       const prismaUserCreateMock = jest
         .spyOn(prisma.user, 'create')
-        .mockResolvedValue(signUpUser);
+        .mockResolvedValue(signUpUser as any);
 
       // 5. 로그인 토큰 생성
       const accessToken = 'this.is.accessToken';
