@@ -10,7 +10,6 @@ import { SocialLoginJwtModule } from '../../common/module/social-login-jwt/socia
 import { UserPwService } from './user-pw.service';
 import { UserRepository } from './user.repository';
 import { LiketRepository } from '../liket/liket.repository';
-import { ReviewRepository } from '../review/review.repository';
 import { PrismaModule } from 'libs/modules';
 import { UserCoreModule } from 'libs/core/user/user-core.module';
 import { ReviewCoreModule } from 'libs/core/review/review-core.module';
@@ -33,7 +32,6 @@ import { ReviewCoreModule } from 'libs/core/review/review-core.module';
     UserPwService,
     UserRepository,
     LiketRepository,
-    ReviewRepository,
   ],
   exports: [SocialLoginUserService, UserRepository],
 })

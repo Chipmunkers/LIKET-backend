@@ -15,9 +15,7 @@ import { LoginUser } from '../auth/model/login-user';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { UserRepository } from './user.repository';
 import { LiketRepository } from '../liket/liket.repository';
-import { ReviewRepository } from '../review/review.repository';
 import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
-import { MyReviewEntity } from '../review/entity/my-review.entity';
 import { UserCoreService } from 'libs/core/user/user-core.service';
 import { ReviewCoreService } from 'libs/core/review/review-core.service';
 import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
@@ -29,7 +27,6 @@ export class UserService {
     private readonly loginJwtService: LoginJwtService,
     private readonly userRepository: UserRepository,
     private readonly liketRepository: LiketRepository,
-    private readonly reviewRepository: ReviewRepository,
     private readonly userCoreService: UserCoreService,
     private readonly reviewCoreService: ReviewCoreService,
   ) {}
@@ -85,9 +82,9 @@ export class UserService {
    * @param userIdx 로그인 사용자 인덱스
    */
   public async getMyInfo(userIdx: number): Promise<MyInfoEntity> {
-    const user = await this.userRepository.selectMyUser(userIdx);
+    const userModel = await this.userCoreService.findUserByIdx(userIdx);
 
-    if (!user) {
+    if (!userModel) {
       throw new UserNotFoundException('Cannot find user');
     }
 
@@ -112,8 +109,20 @@ export class UserService {
         orderBy: 'time',
       })
     ).map(ReviewEntity.fromModel);
+    const reviewCount =
+      await this.userCoreService.getReviewCountByUserIdx(userIdx);
 
-    return MyInfoEntity.createEntity(user, liketList, liketCount, reviewList);
+    const contentLikeCount =
+      await this.userCoreService.getContentLikeCountByUserIdx(userIdx);
+
+    return MyInfoEntity.fromModel(
+      userModel,
+      liketList,
+      liketCount,
+      reviewList,
+      reviewCount,
+      contentLikeCount,
+    );
   }
 
   /**

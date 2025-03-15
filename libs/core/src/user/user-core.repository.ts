@@ -260,4 +260,27 @@ export class UserCoreRepository {
       },
     });
   }
+
+  /**
+   * SELECT COUNT(*) FROM content_like_tb WHERE user_idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  public async selectCultureContentLikeCountByUserIdx(
+    idx: number,
+  ): Promise<number> {
+    return await this.txHost.tx.contentLike.count({
+      where: {
+        CultureContent: {
+          deletedAt: null,
+          acceptedAt: {
+            not: null,
+          },
+        },
+        userIdx: idx,
+      },
+    });
+  }
 }

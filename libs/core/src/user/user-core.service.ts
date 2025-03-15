@@ -175,4 +175,18 @@ export class UserCoreService {
   public async getReviewCountByUserIdx(idx: number): Promise<number> {
     return await this.userCoreRepository.selectReviewCountByUserIdx(idx);
   }
+
+  /**
+   * 사용자가 누른 좋아요 개수 가져오기
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  @Transactional()
+  public async getContentLikeCountByUserIdx(idx: number): Promise<number> {
+    return await this.userCoreRepository.selectCultureContentLikeCountByUserIdx(
+      idx,
+    );
+  }
 }
