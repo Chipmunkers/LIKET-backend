@@ -65,8 +65,7 @@ export class UserService {
       signUpUser.idx,
       signUpUser.isAdmin,
     );
-
-    await this.userRepository.updateUserLastLoginByIdx(signUpUser.idx);
+    await this.userCoreService.updateUserLastLoginByIdx(signUpUser.idx);
 
     return {
       accessToken,

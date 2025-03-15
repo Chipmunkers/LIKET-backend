@@ -189,4 +189,19 @@ export class UserCoreService {
       idx,
     );
   }
+
+  /**
+   * 최근 로그인 기록 수정하기
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  @Transactional()
+  public async updateUserLastLoginByIdx(idx: number): Promise<void> {
+    return await this.userCoreRepository.updateUserLastLoginByIdx(
+      idx,
+      new Date(),
+    );
+  }
 }

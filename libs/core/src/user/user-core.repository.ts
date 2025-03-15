@@ -283,4 +283,24 @@ export class UserCoreRepository {
       },
     });
   }
+
+  /**
+   * 최근 로그인 기록 수정하기
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   * @param date 변경될 로그인 날짜
+   */
+  public async updateUserLastLoginByIdx(
+    idx: number,
+    loginAt: Date,
+  ): Promise<void> {
+    await this.txHost.tx.user.update({
+      where: { idx, deletedAt: null },
+      data: {
+        loginAt: loginAt,
+      },
+    });
+  }
 }
