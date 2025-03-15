@@ -2,15 +2,13 @@ import { Module } from '@nestjs/common';
 import { ReviewController } from './review.controller';
 import { ReviewService } from './review.service';
 import { ReviewAuthService } from './review-auth.service';
-import { CultureContentRepository } from '../culture-content/culture-content.repository';
-import { PrismaModule } from 'libs/modules';
 import { ReviewCoreModule } from 'libs/core/review/review-core.module';
 import { CultureContentCoreModule } from 'libs/core/culture-content/culture-content-core.module';
 
 @Module({
-  imports: [PrismaModule, ReviewCoreModule, CultureContentCoreModule],
+  imports: [ReviewCoreModule, CultureContentCoreModule],
   controllers: [ReviewController],
-  providers: [ReviewService, ReviewAuthService, CultureContentRepository],
+  providers: [ReviewService, ReviewAuthService],
   exports: [],
 })
 export class ReviewModule {}

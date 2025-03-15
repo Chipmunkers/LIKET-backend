@@ -1,19 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { PermissionDeniedException } from '../../common/exception/PermissionDeniedException';
 import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { LoginUser } from '../auth/model/login-user';
-import { PrismaProvider } from 'libs/modules';
 import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
 import { ReviewModel } from 'libs/core/review/model/review.model';
 
 @Injectable()
 export class ReviewAuthService {
   constructor(
-    private readonly prisma: PrismaProvider,
     private readonly cultureContentCoreService: CultureContentCoreService,
   ) {}
 
