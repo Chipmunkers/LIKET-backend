@@ -196,12 +196,13 @@ export class UserCoreService {
    * @author jochongs
    *
    * @param idx 사용자 식별자
+   * @param loginAt 업데이트 할 최근 로그인 시간
    */
   @Transactional()
-  public async updateUserLastLoginByIdx(idx: number): Promise<void> {
-    return await this.userCoreRepository.updateUserLastLoginByIdx(
-      idx,
-      new Date(),
-    );
+  public async updateUserLastLoginByIdx(
+    idx: number,
+    loginAt: Date | null = new Date(),
+  ): Promise<void> {
+    return await this.userCoreRepository.updateUserLastLoginByIdx(idx, loginAt);
   }
 }

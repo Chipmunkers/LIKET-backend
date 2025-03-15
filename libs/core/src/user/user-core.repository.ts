@@ -294,7 +294,7 @@ export class UserCoreRepository {
    */
   public async updateUserLastLoginByIdx(
     idx: number,
-    loginAt: Date,
+    loginAt: Date | null,
   ): Promise<void> {
     await this.txHost.tx.user.update({
       where: { idx, deletedAt: null },

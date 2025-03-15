@@ -16,14 +16,15 @@ import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
 import appleLoginConfig from './strategy/apple/config/apple-login.config';
 import { AppleLoginStrategy } from './strategy/apple/apple-login.strategy';
 import { JwtModule } from '@nestjs/jwt';
+import { UserCoreModule } from 'libs/core/user/user-core.module';
 
 @Module({
   imports: [
     HashModule,
-    UserModule,
     LoginJwtModule,
     SocialLoginJwtModule,
     UtilModule,
+    UserCoreModule,
     ConfigModule.forFeature(kakaoLoginConfig),
     ConfigModule.forFeature(naverLoginConfig),
     ConfigModule.forFeature(appleLoginConfig),
