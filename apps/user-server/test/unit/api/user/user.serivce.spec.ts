@@ -12,6 +12,9 @@ import { LoginJwtRepository } from '../../../../src/common/module/login-jwt/logi
 import { EmailCertType } from '../../../../src/api/email-cert/model/email-cert-type';
 import { PrismaProvider } from 'libs/modules';
 
+/**
+ * ! 주의: 단위 테스트는 현재 관리되고 있지 않습니다.
+ */
 describe('UserService', () => {
   let userService: UserService;
   let prisma: PrismaProvider;
