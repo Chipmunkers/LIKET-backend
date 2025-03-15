@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { FindPwDto } from './dto/find-pw.dto';
 import { EmailJwtService } from '../email-cert/email-jwt.service';
 import { EmailCertType } from '../email-cert/model/email-cert-type';
-import { UserRepository } from './user.repository';
 import { LoginUser } from '../auth/model/login-user';
 import { ResetPwDto } from './dto/reset-pw.dto';
 import { UserNotFoundException } from './exception/UserNotFoundException';
@@ -15,7 +14,6 @@ export class UserPwService {
   constructor(
     private readonly hashService: HashService,
     private readonly emailJwtService: EmailJwtService,
-    private readonly userRepository: UserRepository,
     private readonly userCoreService: UserCoreService,
   ) {}
 
@@ -48,7 +46,7 @@ export class UserPwService {
     loginUser: LoginUser,
     resetDto: ResetPwDto,
   ): Promise<void> {
-    const user = await this.userRepository.selectUserByIdx(loginUser.idx);
+    const user = await this.userCoreService.findUserByIdx(loginUser.idx);
 
     if (!user) {
       throw new UserNotFoundException('Cannot find user');
