@@ -7,7 +7,6 @@ import { SocialLoginUserService } from './social-login-user.service';
 import { LoginJwtModule } from '../../common/module/login-jwt/login-jwt.module';
 import { SocialLoginJwtModule } from '../../common/module/social-login-jwt/social-login-jwt.module';
 import { UserPwService } from './user-pw.service';
-import { UserRepository } from './user.repository';
 import { LiketRepository } from '../liket/liket.repository';
 import { PrismaModule } from 'libs/modules';
 import { UserCoreModule } from 'libs/core/user/user-core.module';
@@ -30,9 +29,8 @@ import { HashModule } from 'libs/modules/hash/hash.module';
     UserService,
     SocialLoginUserService,
     UserPwService,
-    UserRepository,
     LiketRepository,
   ],
-  exports: [SocialLoginUserService, UserRepository],
+  exports: [SocialLoginUserService],
 })
 export class UserModule {}

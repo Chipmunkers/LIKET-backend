@@ -5,7 +5,6 @@ import { UserEntity } from './entity/user.entity';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
-import { UserRepository } from './user.repository';
 import { adjectives } from './data/adjectives';
 import { animals } from './data/animals';
 import { UserCoreService } from 'libs/core/user/user-core.service';
@@ -14,7 +13,6 @@ import { UserModel } from 'libs/core/user/model/user.model';
 @Injectable()
 export class SocialLoginUserService {
   constructor(
-    private readonly userRepository: UserRepository,
     private readonly userCoreService: UserCoreService,
     @Logger(SocialLoginUserService.name) private readonly logger: LoggerService,
   ) {}
