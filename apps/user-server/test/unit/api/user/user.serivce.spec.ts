@@ -1,4 +1,3 @@
-import { HashService } from '../../../../src/common/module/hash/hash.service';
 import { EmailJwtService } from '../../../../src/api/email-cert/email-jwt.service';
 import { LoginJwtService } from '../../../../src/common/module/login-jwt/login-jwt.service';
 import { SocialLoginJwtService } from '../../../../src/common/module/social-login-jwt/social-login-jwt.service';
@@ -16,7 +15,6 @@ import { PrismaProvider } from 'libs/modules';
 describe('UserService', () => {
   let userService: UserService;
   let prisma: PrismaProvider;
-  let hashService: HashService;
   let emailJwtService: EmailJwtService;
   let loginJwtService: LoginJwtService;
   let socialLoginJwtService: SocialLoginJwtService;
@@ -28,7 +26,6 @@ describe('UserService', () => {
       providers: [
         UserService,
         PrismaProvider,
-        HashService,
         EmailJwtService,
         LoginJwtService,
         SocialLoginJwtService,
@@ -39,7 +36,6 @@ describe('UserService', () => {
 
     userService = module.get(UserService);
     prisma = module.get(PrismaProvider);
-    hashService = module.get(HashService);
     emailJwtService = module.get(EmailJwtService);
     loginJwtService = module.get(LoginJwtService);
     socialLoginJwtService = module.get(SocialLoginJwtService);
@@ -72,9 +68,9 @@ describe('UserService', () => {
 
       // 3. 비밀번호 해싱
       const hashedPw = 'skdlfjalksadfjdsaklfjadsfklj';
-      const hashServiceHashPwMock = jest
-        .spyOn(hashService, 'hashPw')
-        .mockReturnValue(hashedPw);
+      // const hashServiceHashPwMock = jest
+      //   .spyOn(hashService, 'hashPw')
+      //   .mockReturnValue(hashedPw);
 
       // 4. INSERT user
       const signUpUser = {
