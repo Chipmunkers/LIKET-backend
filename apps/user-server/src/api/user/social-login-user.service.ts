@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { SocialLoginUser } from '../auth/model/social-login-user';
 import { SocialProvider } from '../auth/strategy/social-provider.enum';
 import { UserEntity } from './entity/user.entity';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { adjectives } from './data/adjectives';
 import { animals } from './data/animals';
@@ -12,10 +10,7 @@ import { UserModel } from 'libs/core/user/model/user.model';
 
 @Injectable()
 export class SocialLoginUserService {
-  constructor(
-    private readonly userCoreService: UserCoreService,
-    @Logger(SocialLoginUserService.name) private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly userCoreService: UserCoreService) {}
 
   /**
    * 소셜사 제공 id로 사용자 찾기
@@ -32,10 +27,6 @@ export class SocialLoginUserService {
     );
 
     if (!user) {
-      this.logger.warn(
-        this.getUserBySocialId,
-        `Attempt to find non-existent social user`,
-      );
       throw new UserNotFoundException('Cannot find user');
     }
 
