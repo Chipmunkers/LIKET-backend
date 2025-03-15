@@ -173,7 +173,12 @@ export class ReviewService {
       reviewModel,
     );
 
-    await this.reviewRepository.updateReviewByIdx(idx, updateDto);
+    await this.reviewCoreService.updateReviewByIdx(idx, {
+      description: updateDto.description,
+      imgList: updateDto.imgList,
+      starRating: updateDto.starRating,
+      visitTime: updateDto.visitTime,
+    });
   }
 
   /**

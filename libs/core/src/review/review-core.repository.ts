@@ -511,7 +511,10 @@ export class ReviewCoreRepository {
         visitTime: input.visitTime,
         ReviewImg: input.imgList
           ? {
-              deleteMany: {},
+              updateMany: {
+                where: {},
+                data: { deletedAt: new Date() },
+              },
               createMany: {
                 data: input.imgList.map((imgPath) => ({ imgPath })),
               },

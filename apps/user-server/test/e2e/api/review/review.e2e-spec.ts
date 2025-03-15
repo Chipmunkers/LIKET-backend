@@ -884,6 +884,11 @@ describe('Review (e2e)', () => {
       const descriptionAfterModifying = 'description after modifying';
       const starRatingAfterModifying = 5;
       const visitTimeAfterModifying = new Date();
+      const imgListAfterModifying = [
+        '/review/review.img',
+        '/review/review.img2',
+        '/review/review.img3',
+      ];
 
       await request(test.getServer())
         .put(`/review/${review.idx}`)
@@ -892,23 +897,34 @@ describe('Review (e2e)', () => {
           starRating: starRatingAfterModifying,
           description: descriptionAfterModifying,
           visitTime: visitTimeAfterModifying,
-          imgList: ['/review/review.img'],
+          imgList: imgListAfterModifying,
         })
         .expect(201);
 
-      const afterModifyingReveiw = await test
+      const afterModifyingReview = await test
         .getPrisma()
         .review.findUniqueOrThrow({
-          where: {
-            idx: review.idx,
+          select: {
+            description: true,
+            starRating: true,
+            visitTime: true,
+            ReviewImg: {
+              select: { imgPath: true },
+              orderBy: { idx: 'asc' },
+              where: { deletedAt: null },
+            },
           },
+          where: { idx: review.idx },
         });
 
-      expect(afterModifyingReveiw.description).toBe(descriptionAfterModifying);
-      expect(afterModifyingReveiw.starRating).toBe(starRatingAfterModifying);
-      expect(afterModifyingReveiw.visitTime).toStrictEqual(
+      expect(afterModifyingReview.description).toBe(descriptionAfterModifying);
+      expect(afterModifyingReview.starRating).toBe(starRatingAfterModifying);
+      expect(afterModifyingReview.visitTime).toStrictEqual(
         visitTimeAfterModifying,
       );
+      expect(
+        afterModifyingReview.ReviewImg.map(({ imgPath }) => imgPath),
+      ).toStrictEqual(imgListAfterModifying);
     });
 
     it('Non-existent review', async () => {
