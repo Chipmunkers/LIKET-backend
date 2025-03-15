@@ -144,13 +144,13 @@ export class UserService {
    * @author jochongs
    */
   public async getUserByIdx(userIdx: number): Promise<UserEntity> {
-    const user = await this.userRepository.selectUserByIdx(userIdx);
+    const user = await this.userCoreService.findUserByIdx(userIdx);
 
     if (!user) {
       throw new UserNotFoundException('Cannot find user');
     }
 
-    return UserEntity.createEntity(user);
+    return UserEntity.fromModel(user);
   }
 
   /**
