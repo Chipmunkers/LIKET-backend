@@ -9,6 +9,7 @@ import { LoginUser } from '../auth/model/login-user';
 import { ResetPwDto } from './dto/reset-pw.dto';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { InvalidCurrentPasswordException } from './exception/InvalidCurrentPasswordException';
+import { UserCoreService } from 'libs/core/user/user-core.service';
 
 @Injectable()
 export class UserPwService {
@@ -17,6 +18,7 @@ export class UserPwService {
     private readonly hashService: HashService,
     private readonly emailJwtService: EmailJwtService,
     private readonly userRepository: UserRepository,
+    private readonly userCoreService: UserCoreService,
   ) {}
 
   /**
@@ -24,7 +26,7 @@ export class UserPwService {
    *
    * @author jochongs
    */
-  public async findPw(findPwDto: FindPwDto) {
+  public async findPw(findPwDto: FindPwDto): Promise<void> {
     const email = await this.emailJwtService.verify(
       findPwDto.emailToken,
       EmailCertType.FIND_PW,
@@ -33,8 +35,6 @@ export class UserPwService {
     const user = await this.userService.getUserByEmail(email);
 
     await this.updatePw(user.idx, findPwDto.pw);
-
-    return;
   }
 
   /**
