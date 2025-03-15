@@ -93,4 +93,17 @@ export class UserInterestCoreRepository {
       })),
     });
   }
+
+  /**
+   * DELETE interest_age_tb WHERE user_idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  public async deleteInterestAge(idx: number): Promise<void> {
+    await this.txHost.tx.interestAge.deleteMany({
+      where: { userIdx: idx },
+    });
+  }
 }
