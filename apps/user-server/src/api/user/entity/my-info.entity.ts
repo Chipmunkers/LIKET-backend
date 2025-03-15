@@ -2,7 +2,7 @@ import { PickType } from '@nestjs/swagger';
 import { UserEntity } from './user.entity';
 import { UserWithInclude } from './prisma-type/user-with-include';
 import { SummaryLiketEntity } from '../../liket/entity/summary-liket.entity';
-import { MyReviewEntity } from '../../review/entity/my-review.entity';
+import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
 
 class MyLiket extends PickType(SummaryLiketEntity, [
   'idx',
@@ -33,7 +33,7 @@ export class MyInfoEntity extends PickType(UserEntity, [
   /**
    * 리뷰 목록
    */
-  public reviewList: MyReviewEntity[];
+  public reviewList: ReviewEntity[];
 
   /**
    * 라이켓 개수
@@ -61,7 +61,7 @@ export class MyInfoEntity extends PickType(UserEntity, [
     user: UserWithInclude,
     liketList: SummaryLiketEntity[],
     liketCount: number,
-    reviewList: MyReviewEntity[],
+    reviewList: ReviewEntity[],
   ): MyInfoEntity {
     return new MyInfoEntity({
       idx: user.idx,

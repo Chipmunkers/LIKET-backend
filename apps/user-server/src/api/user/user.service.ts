@@ -19,6 +19,8 @@ import { ReviewRepository } from '../review/review.repository';
 import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
 import { MyReviewEntity } from '../review/entity/my-review.entity';
 import { UserCoreService } from 'libs/core/user/user-core.service';
+import { ReviewCoreService } from 'libs/core/review/review-core.service';
+import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
 
 @Injectable()
 export class UserService {
@@ -29,6 +31,7 @@ export class UserService {
     private readonly liketRepository: LiketRepository,
     private readonly reviewRepository: ReviewRepository,
     private readonly userCoreService: UserCoreService,
+    private readonly reviewCoreService: ReviewCoreService,
   ) {}
 
   /**
@@ -101,8 +104,14 @@ export class UserService {
       await this.liketRepository.selectLiketCountByUserIdx(userIdx);
 
     const reviewList = (
-      await this.reviewRepository.selectReviewForMyInfo(userIdx)
-    ).map((review) => MyReviewEntity.createEntity(review));
+      await this.reviewCoreService.findReviewAll({
+        page: 1,
+        row: 10,
+        userIdx,
+        order: 'desc',
+        orderBy: 'time',
+      })
+    ).map(ReviewEntity.fromModel);
 
     return MyInfoEntity.createEntity(user, liketList, liketCount, reviewList);
   }
