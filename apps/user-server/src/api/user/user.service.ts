@@ -13,7 +13,6 @@ import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { LoginToken } from '../auth/model/login-token';
 import { LoginUser } from '../auth/model/login-user';
 import { WithdrawalDto } from './dto/withdrawal.dto';
-import { UserRepository } from './user.repository';
 import { LiketRepository } from '../liket/liket.repository';
 import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
 import { UserCoreService } from 'libs/core/user/user-core.service';
@@ -25,7 +24,6 @@ export class UserService {
   constructor(
     private readonly emailJwtService: EmailJwtService,
     private readonly loginJwtService: LoginJwtService,
-    private readonly userRepository: UserRepository,
     private readonly liketRepository: LiketRepository,
     private readonly userCoreService: UserCoreService,
     private readonly reviewCoreService: ReviewCoreService,
