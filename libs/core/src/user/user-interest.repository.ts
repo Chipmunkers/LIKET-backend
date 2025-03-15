@@ -4,6 +4,7 @@ import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Genre } from 'libs/core/tag-root/genre/constant/genre';
 import { Style } from 'libs/core/tag-root/style/constant/style';
+import { Age } from 'libs/core/tag-root/age/constant/age';
 
 @Injectable()
 export class UserInterestCoreRepository {
@@ -74,6 +75,22 @@ export class UserInterestCoreRepository {
   public async deleteInterestStyle(idx: number): Promise<void> {
     await this.txHost.tx.interestStyle.deleteMany({
       where: { userIdx: idx },
+    });
+  }
+
+  /**
+   * INSERT interest_age_tb
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  public async insertInterestAge(idx: number, ageList: Age[]): Promise<void> {
+    await this.txHost.tx.interestAge.createMany({
+      data: ageList.map((ageIdx) => ({
+        ageIdx,
+        userIdx: idx,
+      })),
     });
   }
 }
