@@ -106,4 +106,23 @@ export class UserInterestCoreRepository {
       where: { userIdx: idx },
     });
   }
+
+  /**
+   * INSERT interest_location_tb
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  public async insertInterestLocation(
+    idx: number,
+    locationList: string[],
+  ): Promise<void> {
+    await this.txHost.tx.interestLocation.createMany({
+      data: locationList.map((bCode) => ({
+        bCode,
+        userIdx: idx,
+      })),
+    });
+  }
 }
