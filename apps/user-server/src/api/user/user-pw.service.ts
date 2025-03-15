@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UserService } from './user.service';
-import { HashService } from '../../common/module/hash/hash.service';
 import { FindPwDto } from './dto/find-pw.dto';
 import { EmailJwtService } from '../email-cert/email-jwt.service';
 import { EmailCertType } from '../email-cert/model/email-cert-type';
@@ -10,11 +8,11 @@ import { ResetPwDto } from './dto/reset-pw.dto';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { InvalidCurrentPasswordException } from './exception/InvalidCurrentPasswordException';
 import { UserCoreService } from 'libs/core/user/user-core.service';
+import { HashService } from 'libs/modules/hash/hash.service';
 
 @Injectable()
 export class UserPwService {
   constructor(
-    private readonly userService: UserService,
     private readonly hashService: HashService,
     private readonly emailJwtService: EmailJwtService,
     private readonly userRepository: UserRepository,
@@ -32,7 +30,11 @@ export class UserPwService {
       EmailCertType.FIND_PW,
     );
 
-    const user = await this.userService.getUserByEmail(email);
+    const user = await this.userCoreService.findUserByEmail(email);
+
+    if (!user) {
+      throw new UserNotFoundException('Cannot find user');
+    }
 
     await this.updatePw(user.idx, findPwDto.pw);
   }
@@ -52,7 +54,7 @@ export class UserPwService {
       throw new UserNotFoundException('Cannot find user');
     }
 
-    if (!this.hashService.comparePw(resetDto.currPw, user.pw || '')) {
+    if (!(await this.hashService.comparePw(resetDto.currPw, user.pw || ''))) {
       throw new InvalidCurrentPasswordException('Wrong password');
     }
 
@@ -65,13 +67,6 @@ export class UserPwService {
    * @author jochongs
    */
   public async updatePw(idx: number, pw: string): Promise<void> {
-    await this.userService.getUserByIdx(idx);
-
-    await this.userRepository.updateUserPwByIdx(
-      idx,
-      this.hashService.hashPw(pw),
-    );
-
-    return;
+    await this.userCoreService.updateUserByIdx(idx, { pw });
   }
 }

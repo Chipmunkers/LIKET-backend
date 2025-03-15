@@ -188,19 +188,6 @@ export class UserService {
   }
 
   /**
-   * @author jochongs
-   */
-  public async getUserByEmail(email: string) {
-    const user = await this.userCoreService.findUserByEmail(email);
-
-    if (!user) {
-      throw new UserNotFoundException('Cannot find user');
-    }
-
-    return UserEntity.fromModel(user);
-  }
-
-  /**
    * 회원탈퇴 하기
    *
    * @author jochongs
