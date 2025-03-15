@@ -52,7 +52,10 @@ export class UserInterestCoreRepository {
    *
    * @param idx 사용자 식별자
    */
-  public async insertInterestStyle(idx: number, styleList: Style[]) {
+  public async insertInterestStyle(
+    idx: number,
+    styleList: Style[],
+  ): Promise<void> {
     await this.txHost.tx.interestStyle.createMany({
       data: styleList.map((styleIdx) => ({
         styleIdx,
