@@ -179,7 +179,7 @@ export class BannerCoreRepository {
   }
 
   /**
-   * SOFT DELETE banner WHERE idx = $1
+   * SOFT DELETE banner_tb WHERE idx = $1
    *
    * @author jochongs
    */
@@ -187,6 +187,17 @@ export class BannerCoreRepository {
     await this.txHost.tx.banner.update({
       where: { idx, deletedAt: null },
       data: { deletedAt: new Date() },
+    });
+  }
+
+  /**
+   * DELETE active_banner_tb WHERE idx = $1
+   *
+   * @author jochongs
+   */
+  public async deleteActiveBannerByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.activeBanner.delete({
+      where: { idx },
     });
   }
 }
