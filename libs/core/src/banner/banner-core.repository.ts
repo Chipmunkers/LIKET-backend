@@ -158,7 +158,7 @@ export class BannerCoreRepository {
   }
 
   /**
-   * UPDATE banner_tb
+   * UPDATE banner_tb WHERE idx = $1
    *
    * @author jochongs
    *
