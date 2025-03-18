@@ -8,7 +8,7 @@ import { BannerSelectField } from 'libs/core/banner/model/prisma/banner-select.f
 import { ActiveBannerSelectField } from 'libs/core/banner/model/prisma/active-banner-select-field';
 import { FindActiveBannerAllInput } from 'libs/core/banner/input/find-active-banner-all.input';
 import { CreateBannerInput } from 'libs/core/banner/input/create-banner.input';
-import { BannerUpdateInput } from 'libs/core/banner/input/banner-update.input';
+import { UpdateBannerInput } from 'libs/core/banner/input/update-banner.input';
 
 @Injectable()
 export class BannerCoreRepository {
@@ -166,7 +166,7 @@ export class BannerCoreRepository {
    */
   public async updateBannerByIdx(
     idx: number,
-    input: BannerUpdateInput,
+    input: UpdateBannerInput,
   ): Promise<void> {
     await this.txHost.tx.banner.update({
       where: { idx, deletedAt: null },

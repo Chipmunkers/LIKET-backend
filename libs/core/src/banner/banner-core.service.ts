@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { BannerCoreRepository } from 'libs/core/banner/banner-core.repository';
 import { FindActiveBannerAllInput } from 'libs/core/banner/input/find-active-banner-all.input';
 import { FindBannerAllInput } from 'libs/core/banner/input/find-banner-all.input';
+import { UpdateBannerInput } from 'libs/core/banner/input/update-banner.input';
 import { ActiveBannerModel } from 'libs/core/banner/model/active-banner.model';
 import { BannerModel } from 'libs/core/banner/model/banner.model';
 
@@ -50,5 +51,20 @@ export class BannerCoreService {
     const banner = await this.bannerCoreRepository.selectBannerByIdx(idx);
 
     return banner && BannerModel.fromPrisma(banner);
+  }
+
+  /**
+   * 배너 수정하기
+   *
+   * @author jochongs
+   *
+   * @param idx 배너 식별자
+   */
+  @Transactional()
+  public async updateBannerByIdx(
+    idx: number,
+    input: UpdateBannerInput,
+  ): Promise<void> {
+    return await this.bannerCoreRepository.updateBannerByIdx(idx, input);
   }
 }

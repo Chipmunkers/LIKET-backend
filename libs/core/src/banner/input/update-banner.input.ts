@@ -4,4 +4,4 @@ import { CreateBannerInput } from 'libs/core/banner/input/create-banner.input';
 /**
  * @author jochongs
  */
-export class BannerUpdateInput extends PartialType(CreateBannerInput) {}
+export class UpdateBannerInput extends PartialType(CreateBannerInput) {}
