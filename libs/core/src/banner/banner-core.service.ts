@@ -1,3 +1,4 @@
+import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { BannerCoreRepository } from 'libs/core/banner/banner-core.repository';
 import { FindBannerAllInput } from 'libs/core/banner/input/find-banner-all.input';
@@ -13,6 +14,7 @@ export class BannerCoreService {
    *
    * @author jochongs
    */
+  @Transactional()
   public async findBannerAll(
     input: FindBannerAllInput,
   ): Promise<BannerModel[]> {
@@ -26,6 +28,7 @@ export class BannerCoreService {
    *
    * @author jochongs
    */
+  @Transactional()
   public async findActiveBannerAll(
     input: FindActiveBannerAllInput,
   ): Promise<ActiveBannerModel[]> {
@@ -41,6 +44,7 @@ export class BannerCoreService {
    *
    * @param idx 배너 식별자
    */
+  @Transactional()
   public async findBannerByIdx(idx: number): Promise<BannerModel | null> {
     const banner = await this.bannerCoreRepository.selectBannerByIdx(idx);
 
