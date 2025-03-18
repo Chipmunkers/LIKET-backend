@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BannerCoreRepository } from 'libs/core/banner/banner-core.repository';
 import { FindBannerAllInput } from 'libs/core/banner/input/find-banner-all.input';
+import { ActiveBannerModel } from 'libs/core/banner/model/active-banner.model';
 import { BannerModel } from 'libs/core/banner/model/banner.model';
 
 @Injectable()
@@ -17,6 +18,19 @@ export class BannerCoreService {
   ): Promise<BannerModel[]> {
     return (await this.bannerCoreRepository.selectBannerAll(input)).map(
       BannerModel.fromPrisma,
+    );
+  }
+
+  /**
+   * 활성화 배너 목록 보기
+   *
+   * @author jochongs
+   */
+  public async findActiveBannerAll(
+    input: FindActiveBannerAllInput,
+  ): Promise<ActiveBannerModel[]> {
+    return (await this.bannerCoreRepository.selectActiveBannerAll(input)).map(
+      ActiveBannerModel.fromPrisma,
     );
   }
 }
