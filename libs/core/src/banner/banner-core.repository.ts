@@ -177,4 +177,16 @@ export class BannerCoreRepository {
       },
     });
   }
+
+  /**
+   * SOFT DELETE banner WHERE idx = $1
+   *
+   * @author jochongs
+   */
+  public async softDeleteBannerByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.banner.update({
+      where: { idx, deletedAt: null },
+      data: { deletedAt: new Date() },
+    });
+  }
 }
