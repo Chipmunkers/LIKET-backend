@@ -665,7 +665,7 @@ export class CultureContentCoreRepository {
         },
         positionY: {
           gte: input.bottomY,
-          lte: input.bottomX,
+          lte: input.topY,
         },
       },
     };
