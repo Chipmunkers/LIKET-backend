@@ -16,7 +16,7 @@ export class BannerCoreRepository {
   ) {}
 
   /**
-   * SELECT active_banner_tb
+   * SELECT banner_tb
    *
    * @author jochongs
    */
@@ -51,10 +51,20 @@ export class BannerCoreRepository {
     });
   }
 
+  /**
+   * 정렬 필드명을 가져오는 메서드
+   *
+   * @author jochongs
+   */
   private getOrderByFieldName(orderBy: 'time'): 'idx' {
     return 'idx';
   }
 
+  /**
+   * SELECT active_banner_tb
+   *
+   * @author jochongs
+   */
   public async selectActiveBannerAll({
     page,
     row,

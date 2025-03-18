@@ -1,5 +1,8 @@
 import { Prisma } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 const BANNER_SELECT_FIELD = Prisma.validator<Prisma.BannerDefaultArgs>()({
   select: {
     idx: true,
@@ -16,6 +19,9 @@ const BANNER_SELECT_FIELD = Prisma.validator<Prisma.BannerDefaultArgs>()({
   },
 });
 
+/**
+ * @author jochongs
+ */
 export type BannerSelectField = Prisma.BannerGetPayload<
   typeof BANNER_SELECT_FIELD
 >;

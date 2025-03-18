@@ -1,5 +1,8 @@
 import { Prisma } from '@prisma/client';
 
+/**
+ * @author jochongs
+ */
 const ACTIVE_BANNER_SELECT_FIELD =
   Prisma.validator<Prisma.ActiveBannerDefaultArgs>()({
     select: {
@@ -19,6 +22,9 @@ const ACTIVE_BANNER_SELECT_FIELD =
     },
   });
 
+/**
+ * @author jochongs
+ */
 export type ActiveBannerSelectField = Prisma.ActiveBannerGetPayload<
   typeof ACTIVE_BANNER_SELECT_FIELD
 >;
