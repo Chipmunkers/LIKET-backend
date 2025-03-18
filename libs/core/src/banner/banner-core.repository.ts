@@ -234,4 +234,22 @@ export class BannerCoreRepository {
       },
     });
   }
+
+  /**
+   * UPDATE active_banner_tb SET order = $2 WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 배너 식별자
+   * @param order 변경 시킬 순서
+   */
+  public async updateBannerOrderByIdx(
+    idx: number,
+    order: number,
+  ): Promise<void> {
+    await this.txHost.tx.activeBanner.update({
+      where: { idx },
+      data: { order },
+    });
+  }
 }
