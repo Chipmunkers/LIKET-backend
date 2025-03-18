@@ -37,6 +37,7 @@ export class BannerCoreRepository {
         ActiveBanner: {
           select: {
             activatedAt: true,
+            order: true,
           },
         },
       },

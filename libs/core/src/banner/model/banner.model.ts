@@ -25,6 +25,9 @@ export class BannerModel {
   /** 배너 활성화 날짜 */
   public readonly activatedAt: Date | null;
 
+  /** 정렬 순서 */
+  public readonly order: number | null;
+
   constructor(data: BannerModel) {
     Object.assign(this, data);
   }
@@ -38,6 +41,7 @@ export class BannerModel {
       name: banner.name,
       updatedAt: banner.updatedAt,
       activatedAt: banner.ActiveBanner?.activatedAt || null,
+      order: banner.ActiveBanner?.order || null,
     });
   }
 }

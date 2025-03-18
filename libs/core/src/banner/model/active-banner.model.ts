@@ -28,6 +28,7 @@ export class ActiveBannerModel {
         ...activeBanner.Banner,
         ActiveBanner: {
           activatedAt: activeBanner.activatedAt,
+          order: activeBanner.order,
         },
       }),
     });

@@ -14,6 +14,7 @@ const BANNER_SELECT_FIELD = Prisma.validator<Prisma.BannerDefaultArgs>()({
     ActiveBanner: {
       select: {
         activatedAt: true,
+        order: true,
       },
     },
   },
