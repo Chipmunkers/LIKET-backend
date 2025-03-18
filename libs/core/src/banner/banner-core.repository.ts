@@ -93,4 +93,33 @@ export class BannerCoreRepository {
       skip: (page - 1) * row,
     });
   }
+
+  /**
+   * SELECT banner_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 배너 식별자
+   */
+  public async selectBannerByIdx(
+    idx: number,
+  ): Promise<BannerSelectField | null> {
+    return await this.txHost.tx.banner.findUnique({
+      select: {
+        idx: true,
+        imgPath: true,
+        name: true,
+        link: true,
+        updatedAt: true,
+        createdAt: true,
+        ActiveBanner: {
+          select: {
+            activatedAt: true,
+            order: true,
+          },
+        },
+      },
+      where: { idx, deletedAt: null },
+    });
+  }
 }

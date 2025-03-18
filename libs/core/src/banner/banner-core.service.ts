@@ -33,4 +33,17 @@ export class BannerCoreService {
       ActiveBannerModel.fromPrisma,
     );
   }
+
+  /**
+   * idx로 배너 가져오기
+   *
+   * @author jochongs
+   *
+   * @param idx 배너 식별자
+   */
+  public async findBannerByIdx(idx: number): Promise<BannerModel | null> {
+    const banner = await this.bannerCoreRepository.selectBannerByIdx(idx);
+
+    return banner && BannerModel.fromPrisma(banner);
+  }
 }
