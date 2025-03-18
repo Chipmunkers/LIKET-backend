@@ -4,6 +4,7 @@ import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { CultureContentSeedHelper } from 'libs/testing';
 import { MapContentEntity } from 'apps/user-server/src/api/map/entity/map-content.entity';
 import { STYLE } from 'libs/core/tag-root/style/constant/style';
+import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
 
 describe('Map (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -279,6 +280,59 @@ describe('Map (e2e)', () => {
 
       expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
         [cuteContent.idx, artisticContent.idx].sort(),
+      );
+    });
+
+    it('Success: culture content genre filter test', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+
+      const [popupContent, festivalContent, exhibitionContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            location: {
+              positionX: 127.2,
+              positionY: 35.8,
+            },
+            genreIdx: GENRE.POPUP_STORE,
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            location: {
+              positionX: 127.2,
+              positionY: 35.8,
+            },
+            genreIdx: GENRE.FESTIVAL,
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            location: {
+              positionX: 127.2,
+              positionY: 35.8,
+            },
+            genreIdx: GENRE.EXHIBITION,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get(`/map/culture-content/all`)
+        .query({
+          'top-x': 127,
+          'top-y': 36,
+          'bottom-x': 128,
+          'bottom-y': 35,
+          genre: GENRE.POPUP_STORE,
+        })
+        .expect(200);
+
+      const { contentList }: { contentList: MapContentEntity[] } =
+        response.body;
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [popupContent.idx].sort(),
       );
     });
   });
