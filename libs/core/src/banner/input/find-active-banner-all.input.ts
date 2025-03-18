@@ -1,7 +1,7 @@
 /**
  * @author jochongs
  */
-class FindActiveBannerAllInput {
+export class FindActiveBannerAllInput {
   /** 페이지네이션 번호 (1부터 시작) */
   public readonly page: number;
 

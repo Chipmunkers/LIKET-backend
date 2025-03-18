@@ -1,6 +1,7 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { BannerCoreRepository } from 'libs/core/banner/banner-core.repository';
+import { FindActiveBannerAllInput } from 'libs/core/banner/input/find-active-banner-all.input';
 import { FindBannerAllInput } from 'libs/core/banner/input/find-banner-all.input';
 import { ActiveBannerModel } from 'libs/core/banner/model/active-banner.model';
 import { BannerModel } from 'libs/core/banner/model/banner.model';

@@ -6,6 +6,8 @@ import { PrismaProvider } from 'libs/modules';
 import { FindBannerAllInput } from 'libs/core/banner/input/find-banner-all.input';
 import { BannerSelectField } from 'libs/core/banner/model/prisma/banner-select.field';
 import { ActiveBannerSelectField } from 'libs/core/banner/model/prisma/active-banner-select-field';
+import { FindActiveBannerAllInput } from 'libs/core/banner/input/find-active-banner-all.input';
+import { CreateBannerInput } from 'libs/core/banner/input/create-banner.input';
 
 @Injectable()
 export class BannerCoreRepository {
@@ -120,6 +122,37 @@ export class BannerCoreRepository {
         },
       },
       where: { idx, deletedAt: null },
+    });
+  }
+
+  /**
+   * INSERT banner_tb
+   *
+   * @author jochongs
+   */
+  public async insertBanner(
+    input: CreateBannerInput,
+  ): Promise<BannerSelectField> {
+    return await this.txHost.tx.banner.create({
+      select: {
+        idx: true,
+        imgPath: true,
+        name: true,
+        link: true,
+        updatedAt: true,
+        createdAt: true,
+        ActiveBanner: {
+          select: {
+            activatedAt: true,
+            order: true,
+          },
+        },
+      },
+      data: {
+        name: input.name,
+        imgPath: input.imgPath,
+        link: input.link,
+      },
     });
   }
 }
