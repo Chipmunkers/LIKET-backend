@@ -200,4 +200,38 @@ export class BannerCoreRepository {
       where: { idx },
     });
   }
+
+  /**
+   * UPDATE active_banner_tb SET order = $2 WHERE order
+   *
+   * @author jochongs
+   *
+   * @param where 초과, 이상, 미만, 이하 조건
+   * @param order where 조건절의 수치
+   * @param amount 어떤 수치 만큼 업데이트 시킬지
+   *
+   * @example
+   * ```ts
+   * // order가 2초과인 모든 활성 배너 순서를 1만큼 상승 시키는 방법
+   * updateManyBannerOrder('gt', 2, 1);
+   * ```
+   */
+  public async updateManyBannerOrder(
+    where: 'gt' | 'gte' | 'lt' | 'lte',
+    order: number,
+    amount: number,
+  ): Promise<void> {
+    await this.txHost.tx.activeBanner.updateMany({
+      where: {
+        order: {
+          [where]: order,
+        },
+      },
+      data: {
+        order: {
+          increment: amount,
+        },
+      },
+    });
+  }
 }
