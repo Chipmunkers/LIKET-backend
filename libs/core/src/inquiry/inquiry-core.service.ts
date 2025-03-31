@@ -63,4 +63,15 @@ export class InquiryCoreService {
   ): Promise<void> {
     return await this.inquiryCoreRepository.updateInquiryIdx(idx, input);
   }
+
+  /**
+   * 문의 삭제하기
+   *
+   * @author jochongs
+   *
+   * @param idx 문의 식별자
+   */
+  public async deleteInquiryByIdx(idx: number): Promise<void> {
+    return await this.inquiryCoreRepository.softDeleteInquiryByIdx(idx);
+  }
 }
