@@ -9,6 +9,7 @@ const INQUIRY_ANSWER_SELECT_FIELD =
       idx: true,
       contents: true,
       createdAt: true,
+      inquiryIdx: true,
     },
   });
 
