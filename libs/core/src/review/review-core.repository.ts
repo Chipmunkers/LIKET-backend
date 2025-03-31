@@ -7,6 +7,7 @@ import { Prisma } from '@prisma/client';
 import { CreateReviewInput } from 'libs/core/review/input/create-review.input';
 import { UpdateReviewInput } from 'libs/core/review/input/update-review.input';
 import { Injectable } from '@nestjs/common';
+import { UpdateInquiryInput } from 'libs/core/inquiry/input/update-inquiry.input';
 
 @Injectable()
 export class ReviewCoreRepository {
@@ -542,6 +543,33 @@ export class ReviewCoreRepository {
       data: {
         deletedAt: new Date(),
       },
+    });
+  }
+
+  /**
+   * UPDATE inquiry WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @params idx 문의 식별자
+   */
+  public async updateInquiryIdx(
+    idx: number,
+    input: UpdateInquiryInput,
+  ): Promise<void> {
+    await this.txHost.tx.inquiry.update({
+      data: {
+        title: input.title,
+        contents: input.contents,
+        typeIdx: input.typeIdx,
+        InquiryImg: input.imgPathList && {
+          updateMany: { data: { deletedAt: new Date() }, where: {} },
+          createMany: {
+            data: input.imgPathList.map((imgPath) => ({ imgPath })),
+          },
+        },
+      },
+      where: { idx, deletedAt: null },
     });
   }
 }
