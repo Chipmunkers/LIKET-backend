@@ -40,6 +40,34 @@ export class InquiryAnswerCoreRepository {
   }
 
   /**
+   * SELECT answer_tb WHERE inquiry_idx = $1
+   *
+   * @author jochongs
+   *
+   * @param inquiryIdx 문의 식별자
+   */
+  public async selectAnswerByInquiryIdx(
+    inquiryIdx: number,
+  ): Promise<InquiryAnswerSelectField[]> {
+    return await this.txHost.tx.answer.findMany({
+      select: {
+        idx: true,
+        contents: true,
+        createdAt: true,
+        inquiryIdx: true,
+      },
+      where: {
+        inquiryIdx,
+        deletedAt: null,
+        Inquiry: { deletedAt: null, User: { deletedAt: null } },
+      },
+      orderBy: {
+        idx: 'desc',
+      },
+    });
+  }
+
+  /**
    * INSERT answer_tb
    *
    * @author jochongs

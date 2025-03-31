@@ -13,6 +13,9 @@ export class InquiryAnswerModel {
   /** 답변 시간 */
   public readonly createdAt: Date;
 
+  /** 문의 인덱스 */
+  public readonly inquiryIdx: number;
+
   constructor(data: InquiryAnswerModel) {
     return Object.assign(this, data);
   }
@@ -24,6 +27,7 @@ export class InquiryAnswerModel {
       idx: answer.idx,
       contents: answer.contents,
       createdAt: answer.createdAt,
+      inquiryIdx: answer.inquiryIdx,
     });
   }
 }
