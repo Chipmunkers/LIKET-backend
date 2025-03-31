@@ -64,6 +64,12 @@ export class InquiryCoreRepository {
             createdAt: true,
             inquiryIdx: true,
           },
+          orderBy: {
+            idx: 'desc',
+          },
+          where: {
+            deletedAt: null,
+          },
         },
       },
       where: {
@@ -121,6 +127,9 @@ export class InquiryCoreRepository {
         Answer: {
           select: {
             idx: true,
+          },
+          where: {
+            deletedAt: null,
           },
         },
       },
@@ -263,6 +272,12 @@ export class InquiryCoreRepository {
             contents: true,
             createdAt: true,
             inquiryIdx: true,
+          },
+          orderBy: {
+            idx: 'desc',
+          },
+          where: {
+            deletedAt: null,
           },
         },
       },
