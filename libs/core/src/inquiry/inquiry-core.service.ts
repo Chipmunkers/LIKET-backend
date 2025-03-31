@@ -20,4 +20,15 @@ export class InquiryCoreService {
       SummaryInquiryModel.fromPrisma,
     );
   }
+
+  /**
+   * 식별자로 문의 찾기
+   *
+   * @author jochongs
+   */
+  public async findInquiryByIdx(idx: number): Promise<InquiryModel | null> {
+    const inquiry = await this.inquiryCoreRepository.selectInquiryByIdx(idx);
+
+    return inquiry && InquiryModel.fromPrisma(inquiry);
+  }
 }
