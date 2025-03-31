@@ -551,7 +551,7 @@ export class ReviewCoreRepository {
    *
    * @author jochongs
    *
-   * @params idx 문의 식별자
+   * @param idx 문의 식별자
    */
   public async updateInquiryIdx(
     idx: number,
@@ -570,6 +570,20 @@ export class ReviewCoreRepository {
         },
       },
       where: { idx, deletedAt: null },
+    });
+  }
+
+  /**
+   * SOFT DELETE inquiry_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 문의 식별자
+   */
+  public async softDeleteInquiryByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.inquiry.update({
+      where: { idx, deletedAt: null },
+      data: { deletedAt: new Date() },
     });
   }
 }
