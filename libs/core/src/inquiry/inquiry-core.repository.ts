@@ -7,6 +7,7 @@ import { SummaryInquirySelectField } from 'libs/core/inquiry/model/prisma/summar
 import { FindInquiryAllInput } from 'libs/core/inquiry/input/find-inquiry-all.input';
 import { Prisma } from '@prisma/client';
 import { InquiryType } from 'libs/core/inquiry/constant/inquiry-type';
+import { CreateInquiryInput } from 'libs/core/inquiry/input/create-inquiry.input';
 
 @Injectable()
 export class InquiryCoreRepository {
@@ -212,5 +213,67 @@ export class InquiryCoreRepository {
     }
 
     return { userIdx };
+  }
+
+  /**
+   * INSERT INTO inquiry_tb
+   *
+   * @author jochongs
+   *
+   * @param userIdx 작성자 식별자
+   */
+  public async createInquiry(
+    userIdx: number,
+    input: CreateInquiryInput,
+  ): Promise<InquirySelectField> {
+    return await this.txHost.tx.inquiry.create({
+      select: {
+        idx: true,
+        title: true,
+        contents: true,
+        createdAt: true,
+        InquiryType: {
+          select: {
+            idx: true,
+            name: true,
+          },
+        },
+        InquiryImg: {
+          select: {
+            idx: true,
+            imgPath: true,
+            createdAt: true,
+          },
+          orderBy: { idx: 'asc' },
+          where: { deletedAt: null },
+        },
+        User: {
+          select: {
+            idx: true,
+            nickname: true,
+            email: true,
+            profileImgPath: true,
+          },
+        },
+        Answer: {
+          select: {
+            idx: true,
+            contents: true,
+            createdAt: true,
+          },
+        },
+      },
+      data: {
+        title: input.title,
+        contents: input.contents,
+        InquiryImg: {
+          createMany: {
+            data: input.imgPathList.map((imgPath) => ({ imgPath })),
+          },
+        },
+        typeIdx: input.typeIdx,
+        userIdx,
+      },
+    });
   }
 }
