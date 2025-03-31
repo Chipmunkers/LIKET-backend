@@ -73,4 +73,15 @@ export class InquiryAnswerCoreService {
   ): Promise<void> {
     return await this.inquiryAnswerCoreRepository.updateAnswerByIdx(idx, input);
   }
+
+  /**
+   * 문의 답변 삭제하기
+   *
+   * @author jochongs
+   *
+   * @param idx 답변 식별자
+   */
+  public async deleteInquiryAnswerByIdx(idx: number): Promise<void> {
+    return await this.inquiryAnswerCoreRepository.deleteAnswerByIdx(idx);
+  }
 }
