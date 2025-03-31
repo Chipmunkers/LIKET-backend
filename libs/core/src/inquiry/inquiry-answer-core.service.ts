@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateInquiryAnswerInput } from 'libs/core/inquiry/input/create-inquiry-answer.input';
+import { UpdateInquiryAnswerInput } from 'libs/core/inquiry/input/update-inquiry-answer.input';
 import { InquiryAnswerCoreRepository } from 'libs/core/inquiry/inquiry-answer-core.repository';
 import { InquiryAnswerModel } from 'libs/core/inquiry/model/inquiry-answer.model';
 import { InquiryModel } from 'libs/core/inquiry/model/inquiry.model';
@@ -57,5 +58,19 @@ export class InquiryAnswerCoreService {
     return InquiryAnswerModel.fromPrisma(
       await this.inquiryAnswerCoreRepository.insertAnswer(inquiryIdx, input),
     );
+  }
+
+  /**
+   * 문의 답변 수정하기
+   *
+   * @author jochongs
+   *
+   * @param idx 답변 식별자
+   */
+  public async updateInquiryAnswerByIdx(
+    idx: number,
+    input: UpdateInquiryAnswerInput,
+  ): Promise<void> {
+    return await this.inquiryAnswerCoreRepository.updateAnswerByIdx(idx, input);
   }
 }
