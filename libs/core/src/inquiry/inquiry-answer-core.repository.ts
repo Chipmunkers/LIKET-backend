@@ -68,6 +68,8 @@ export class InquiryAnswerCoreRepository {
   /**
    * UPDATE answer_tb WHERE idx = $1
    *
+   * @author jochongs
+   *
    * @param idx 답변 식별자
    */
   public async updateAnswerByIdx(
@@ -85,6 +87,29 @@ export class InquiryAnswerCoreRepository {
       },
       data: {
         contents: input.contents,
+      },
+    });
+  }
+
+  /**
+   * SOFT DELETE answer_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 답변 식별자
+   */
+  public async deleteAnswerByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.answer.update({
+      where: {
+        idx,
+        deletedAt: null,
+        Inquiry: {
+          deletedAt: null,
+          User: { deletedAt: null },
+        },
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
   }
