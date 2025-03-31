@@ -8,6 +8,7 @@ import { FindInquiryAllInput } from 'libs/core/inquiry/input/find-inquiry-all.in
 import { Prisma } from '@prisma/client';
 import { InquiryType } from 'libs/core/inquiry/constant/inquiry-type';
 import { CreateInquiryInput } from 'libs/core/inquiry/input/create-inquiry.input';
+import { UpdateInquiryInput } from 'libs/core/inquiry/input/update-inquiry.input';
 
 @Injectable()
 export class InquiryCoreRepository {
@@ -274,6 +275,47 @@ export class InquiryCoreRepository {
         typeIdx: input.typeIdx,
         userIdx,
       },
+    });
+  }
+
+  /**
+   * UPDATE inquiry WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 문의 식별자
+   */
+  public async updateInquiryIdx(
+    idx: number,
+    input: UpdateInquiryInput,
+  ): Promise<void> {
+    await this.txHost.tx.inquiry.update({
+      data: {
+        title: input.title,
+        contents: input.contents,
+        typeIdx: input.typeIdx,
+        InquiryImg: input.imgPathList && {
+          updateMany: { data: { deletedAt: new Date() }, where: {} },
+          createMany: {
+            data: input.imgPathList.map((imgPath) => ({ imgPath })),
+          },
+        },
+      },
+      where: { idx, deletedAt: null },
+    });
+  }
+
+  /**
+   * SOFT DELETE inquiry_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 문의 식별자
+   */
+  public async softDeleteInquiryByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.inquiry.update({
+      where: { idx, deletedAt: null },
+      data: { deletedAt: new Date() },
     });
   }
 }
