@@ -33,6 +33,8 @@ const INQUIRY_SELECT_FIELD = Prisma.validator<Prisma.InquiryDefaultArgs>()({
     Answer: {
       select: {
         idx: true,
+        contents: true,
+        createdAt: true,
       },
     },
   },
