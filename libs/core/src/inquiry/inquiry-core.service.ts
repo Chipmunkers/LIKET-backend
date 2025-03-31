@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CreateInquiryInput } from 'libs/core/inquiry/input/create-inquiry.input';
 import { FindInquiryAllInput } from 'libs/core/inquiry/input/find-inquiry-all.input';
 import { InquiryCoreRepository } from 'libs/core/inquiry/inquiry-core.repository';
 import { InquiryModel } from 'libs/core/inquiry/model/inquiry.model';
@@ -30,5 +31,21 @@ export class InquiryCoreService {
     const inquiry = await this.inquiryCoreRepository.selectInquiryByIdx(idx);
 
     return inquiry && InquiryModel.fromPrisma(inquiry);
+  }
+
+  /**
+   * 문의 생성하기
+   *
+   * @author jochongs
+   *
+   * @param userIdx 작성자 식별자
+   */
+  public async createInquiry(
+    userIdx: number,
+    input: CreateInquiryInput,
+  ): Promise<InquiryModel> {
+    return InquiryModel.fromPrisma(
+      await this.inquiryCoreRepository.createInquiry(userIdx, input),
+    );
   }
 }
