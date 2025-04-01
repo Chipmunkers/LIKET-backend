@@ -115,7 +115,7 @@ export class CultureContentController {
   }
 
   /**
-   * 인기 스타일 컨텐츠 목록보기
+   * 인기 스타일 컨텐츠 목록보기 (랜덤 스타일 컨텐츠 목록으로 변경)
    *
    * @author jochongs
    */
@@ -123,11 +123,13 @@ export class CultureContentController {
   public async getHotStyleCultureContentAll(
     @User() loginUser?: LoginUser,
   ): Promise<GetHotContentResponseDto> {
-    return await this.cultureContentService.getHotContentByStyle(loginUser);
+    return await this.cultureContentService.getHotContentByRandomStyle(
+      loginUser,
+    );
   }
 
   /**
-   * 인기 스타일 컨텐츠 목록보기 (랜덤)
+   * 인기 스타일 컨텐츠 목록보기 (랜덤 스타일 컨텐츠로 변경)
    *
    * @author jochongs
    */

@@ -247,36 +247,6 @@ export class CultureContentService {
   }
 
   /**
-   * 인기 스타일 컨텐츠 목록보기
-   *
-   * @author jochongs
-   */
-  public async getHotContentByStyle(
-    loginUser?: LoginUser,
-  ): Promise<{ contentList: SummaryContentEntity[]; style: TagEntity }> {
-    const hotStyle = await this.contentTagRepository.selectHotStyle();
-
-    return {
-      contentList: (
-        await this.cultureContentCoreService.findCultureContentAll(
-          {
-            page: 1,
-            row: 5,
-            styleList: [hotStyle.idx as Style], // TODO: hotStyle 자체를 변경해야함.
-            orderBy: 'like',
-            order: 'desc',
-          },
-          loginUser?.idx,
-        )
-      ).map(SummaryContentEntity.fromModel),
-      style: {
-        idx: hotStyle.idx,
-        name: hotStyle.name,
-      },
-    };
-  }
-
-  /**
    * 인기 스타일 컨텐츠 목록보기 (랜덤)
    *
    * @author jochongs
