@@ -113,7 +113,7 @@ export class InquiryEntity {
       contents: inquiryModel.contents,
       type: InquiryTypeEntity.fromModel(inquiryModel.type),
       answerList: inquiryModel.answerList.map(AnswerEntity.fromModel),
-      author: InquiryAuthorModel.fromModel(inquiryModel.author),
+      author: InquiryAuthorEntity.fromModel(inquiryModel.author),
       imgList: inquiryModel.imgList.map(({ path }) => path),
       thumbnail: inquiryModel.imgList[0]?.path || null,
       createdAt: inquiryModel.createdAt,
