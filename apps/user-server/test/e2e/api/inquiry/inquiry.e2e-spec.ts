@@ -1,5 +1,7 @@
+import { InquiryTypeEntity } from 'apps/user-server/src/api/inquiry/entity/inquiry-type.entity';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { INQUIRY_TYPE } from 'libs/core/inquiry/constant/inquiry-type';
 import { InquirySeedHelper } from 'libs/testing';
 import * as request from 'supertest';
 
@@ -339,6 +341,25 @@ describe('Inquiry (e2e)', () => {
         .delete(`/inquiry/${createdInquiry.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
+    });
+  });
+
+  describe('GET /inquiry/type/all', () => {
+    it('Success -field check', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const response = await request(test.getServer())
+        .get('/inquiry/type/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const typeList: InquiryTypeEntity[] = response.body.typeList;
+
+      expect(typeList.length).toBe(Object.values(INQUIRY_TYPE).length);
+    });
+
+    it('Fail - no token', async () => {
+      await request(test.getServer()).get('/inquiry/type/all').expect(401);
     });
   });
 });
