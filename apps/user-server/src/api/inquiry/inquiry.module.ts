@@ -6,9 +6,10 @@ import { InquiryTypeService } from './inquiry-type.service';
 import { InquiryTypeRepository } from './inquiry-type.repository';
 import { InquiryRepository } from './inquiry.repository';
 import { PrismaModule } from 'libs/modules';
+import { InquiryCoreModule } from 'libs/core/inquiry/inquiry-core.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, InquiryCoreModule],
   providers: [
     InquiryService,
     InquiryTypeService,

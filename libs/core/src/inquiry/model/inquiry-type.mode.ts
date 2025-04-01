@@ -4,6 +4,9 @@ import { InquiryTypeSelectField } from 'libs/core/inquiry/model/prisma/inquiry-t
  * @author jochongs
  */
 export class InquiryTypeModel {
+  public readonly idx: number;
+  public readonly name: string;
+
   constructor(data: InquiryTypeModel) {
     Object.assign(this, data);
   }

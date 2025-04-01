@@ -16,7 +16,7 @@ export class InquiryAuthorModel extends PickType(UserModel, [
     Object.assign(this, data);
   }
 
-  public static fromPrisma(user: InquiryAuthorSelectField): InquiryAuthorModel {
+  public static fromModel(user: InquiryAuthorSelectField): InquiryAuthorModel {
     return new InquiryAuthorModel({
       idx: user.idx,
       nickname: user.nickname,
