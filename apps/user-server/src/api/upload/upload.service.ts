@@ -48,7 +48,7 @@ export class UploadService {
   public async uploadFilesToS3(
     files: Express.Multer.File[],
     option: {
-      destinaion: string;
+      destination: string;
       grouping: FILE_GROUPING;
     },
     userIdx?: number,
@@ -57,7 +57,7 @@ export class UploadService {
     return await Promise.all(
       files.map((file) =>
         this.uploadToS3(file, {
-          destination: option.destinaion,
+          destination: option.destination,
         }),
       ),
     );
