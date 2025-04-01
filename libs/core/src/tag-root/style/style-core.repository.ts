@@ -21,8 +21,8 @@ export class StyleCoreRepository {
    * @author jochongs
    */
   public async selectStyleAll({
-    orderBy,
-    order,
+    orderBy = 'idx',
+    order = 'desc',
   }: FindManyStyleInput): Promise<StyleSelectField[]> {
     return await this.txHost.tx.style.findMany({
       select: {
@@ -43,7 +43,7 @@ export class StyleCoreRepository {
    *
    * @author jochongs
    */
-  public async selectStyleByIdx(idx: Style): Promise<StyleSelectField | null> {
+  public async selectStyleByIdx(idx: number): Promise<StyleSelectField | null> {
     return await this.txHost.tx.style.findUnique({
       select: {
         idx: true,

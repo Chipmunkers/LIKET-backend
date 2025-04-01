@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { ContentPagerbleDto } from './dto/content-pagerble.dto';
@@ -16,6 +16,8 @@ import { ContentAuthService } from 'apps/user-server/src/api/culture-content/con
 import { Style } from 'libs/core/tag-root/style/constant/style';
 import { AGE, Age } from 'libs/core/tag-root/age/constant/age';
 import { UserCoreService } from 'libs/core/user/user-core.service';
+import { AgeCoreService } from 'libs/core/tag-root/age/age-core.service';
+import { StyleCoreService } from 'libs/core/tag-root/style/style-core.service';
 
 @Injectable()
 export class CultureContentService {
@@ -25,6 +27,8 @@ export class CultureContentService {
     private readonly cultureContentCoreService: CultureContentCoreService,
     private readonly cultureContentLikeCoreService: CultureContentLikeCoreService,
     private readonly cultureContentAuthService: ContentAuthService,
+    private readonly ageCoreService: AgeCoreService,
+    private readonly styleCoreService: StyleCoreService,
   ) {}
 
   /**
@@ -180,7 +184,11 @@ export class CultureContentService {
   ): Promise<{ contentList: SummaryContentEntity[]; age: TagEntity }> {
     const ageIdx = await this.getLoginUserAgeIdx(loginUser);
 
-    const age = await this.contentTagRepository.selectAgeByIdx(ageIdx);
+    const age = await this.ageCoreService.findAgeByIdx(ageIdx);
+
+    if (!age) {
+      throw new InternalServerErrorException(`Age not found | age = ${ageIdx}`);
+    }
 
     return {
       contentList: (
@@ -197,7 +205,7 @@ export class CultureContentService {
           loginUser?.idx,
         )
       ).map(SummaryContentEntity.fromModel),
-      age,
+      age: TagEntity.fromModel(age),
     };
   }
 
@@ -276,34 +284,7 @@ export class CultureContentService {
   public async getHotContentByRandomStyle(
     loginUser?: LoginUser,
   ): Promise<{ contentList: SummaryContentEntity[]; style: TagEntity }> {
-    const hotStyles =
-      await this.contentTagRepository.selectStylesWithContentCount();
-
-    if (hotStyles[0].count <= 5) {
-      const hotStyle = hotStyles[0];
-
-      const contentList =
-        await this.cultureContentCoreService.findCultureContentAll({
-          page: 1,
-          row: 5,
-          accept: true,
-          order: 'desc',
-          orderBy: 'like',
-          styleList: [hotStyle.idx as Style],
-        });
-
-      return {
-        contentList: contentList.map(SummaryContentEntity.fromModel),
-        style: {
-          idx: hotStyle.idx,
-          name: hotStyle.name,
-        },
-      };
-    }
-
-    const styles = hotStyles.filter((style) => style.count >= 5);
-
-    const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+    const randomStyleModel = await this.styleCoreService.getRandomStyle();
 
     const contentList =
       await this.cultureContentCoreService.findCultureContentAll({
@@ -312,15 +293,12 @@ export class CultureContentService {
         accept: true,
         order: 'desc',
         orderBy: 'like',
-        styleList: [randomStyle.idx as Style],
+        styleList: [randomStyleModel.idx as Style],
       });
 
     return {
       contentList: contentList.map(SummaryContentEntity.fromModel),
-      style: {
-        idx: randomStyle.idx,
-        name: randomStyle.name,
-      },
+      style: TagEntity.fromModel(randomStyleModel),
     };
   }
 
