@@ -1,4 +1,4 @@
-import { SelectBannerFieldPrisma } from 'apps/user-server/src/api/banner/entity/prisma/select-banner-field';
+import { ActiveBannerModel } from 'libs/core/banner/model/active-banner.model';
 
 /**
  * @author jochongs
@@ -43,15 +43,13 @@ export class BannerEntity {
     Object.assign(this, data);
   }
 
-  static createActiveBannerEntity(
-    banner: SelectBannerFieldPrisma,
-  ): BannerEntity {
+  public static fromModel(model: ActiveBannerModel): BannerEntity {
     return new BannerEntity({
-      idx: banner.idx,
-      name: banner.Banner.name,
-      link: banner.Banner.link,
-      imgPath: banner.Banner.imgPath,
-      order: banner.order,
+      idx: model.idx,
+      imgPath: model.banner.imgPath,
+      link: model.banner.link,
+      name: model.banner.name,
+      order: model.order,
     });
   }
 }
