@@ -1,16 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InquiryTypeEntity } from './entity/inquiry-type.entity';
 import { InquiryTypeNotFoundException } from './exception/InquiryTypeNotFoundException';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { InquiryTypeRepository } from './inquiry-type.repository';
 
 @Injectable()
 export class InquiryTypeService {
-  constructor(
-    private readonly inquiryTypeRepository: InquiryTypeRepository,
-    @Logger(InquiryTypeService.name) private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly inquiryTypeRepository: InquiryTypeRepository) {}
 
   /**
    * 문의 유형 모두 가져오기
@@ -32,10 +27,6 @@ export class InquiryTypeService {
     const type = await this.inquiryTypeRepository.selectInquiryByIdx(idx);
 
     if (!type) {
-      this.logger.warn(
-        this.getTypeByIdx,
-        'Attempt to find non-existent inquiry type',
-      );
       throw new InquiryTypeNotFoundException('Cannot find inquiry type');
     }
 
