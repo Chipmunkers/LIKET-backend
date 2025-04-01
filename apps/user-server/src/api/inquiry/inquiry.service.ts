@@ -8,11 +8,13 @@ import { LoginUser } from '../auth/model/login-user';
 import { PagerbleDto } from '../../common/dto/pagerble.dto';
 import { SummaryInquiryEntity } from './entity/summary-inquiry.entity';
 import { InquiryRepository } from './inquiry.repository';
+import { InquiryCoreService } from 'libs/core/inquiry/inquiry-core.service';
 
 @Injectable()
 export class InquiryService {
   constructor(
     private readonly inquiryRepository: InquiryRepository,
+    private readonly inquiryCoreService: InquiryCoreService,
     @Logger(InquiryService.name) private readonly logger: LoggerService,
   ) {}
 
@@ -27,15 +29,16 @@ export class InquiryService {
   ): Promise<{
     inquiryList: SummaryInquiryEntity[];
   }> {
-    const inquiryList = await this.inquiryRepository.selectInquiryByUserIdx(
-      loginUser.idx,
-      pagerble,
-    );
+    const inquiryList = await this.inquiryCoreService.findInquiryAll({
+      page: pagerble.page,
+      order: pagerble.order,
+      orderBy: 'idx',
+      user: loginUser.idx,
+      row: 10,
+    });
 
     return {
-      inquiryList: inquiryList.map((inquiry) =>
-        SummaryInquiryEntity.createEntity(inquiry),
-      ),
+      inquiryList: inquiryList.map(SummaryInquiryEntity.fromModel),
     };
   }
 

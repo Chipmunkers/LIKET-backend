@@ -1,4 +1,5 @@
 import { InquiryTypeEntity } from 'apps/user-server/src/api/inquiry/entity/inquiry-type.entity';
+import { SummaryInquiryEntity } from 'apps/user-server/src/api/inquiry/entity/summary-inquiry.entity';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { INQUIRY_TYPE } from 'libs/core/inquiry/constant/inquiry-type';
@@ -59,6 +60,28 @@ describe('Inquiry (e2e)', () => {
       expect(response.body?.inquiryList).toBeDefined();
       expect(Array.isArray(response.body.inquiryList)).toBe(true);
       expect(response.body.inquiryList.length).toBe(0);
+    });
+
+    it('Success- field check', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const [inquirySeed] = await inquirySeedHelper.seedAll([
+        { userIdx: loginUser.idx },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/inquiry/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const inquiryResponse: SummaryInquiryEntity[] = response.body.inquiryList;
+
+      expect(inquiryResponse[0]).not.toBeNull();
+      expect(inquiryResponse[0].idx).toBe(inquirySeed.idx);
+      expect(inquiryResponse[0].title).toBe(inquirySeed.title);
+      expect(inquiryResponse[0].type.idx).toBe(inquirySeed.typeIdx);
+      expect(inquiryResponse[0].author.idx).toBe(inquirySeed.userIdx);
+      expect(inquiryResponse[0].thumbnail).toBe(inquirySeed.imgList[0]);
     });
 
     it('No token', async () => {
