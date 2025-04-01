@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { CreateInquiryDto } from './dto/create-inquiry.dto';
 import { InquiryNotFoundException } from './exception/InquiryNotFoundException';
 import { InquiryEntity } from './entity/inquiry.entity';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { LoginUser } from '../auth/model/login-user';
 import { PagerbleDto } from '../../common/dto/pagerble.dto';
 import { SummaryInquiryEntity } from './entity/summary-inquiry.entity';
@@ -15,7 +13,6 @@ export class InquiryService {
   constructor(
     private readonly inquiryRepository: InquiryRepository,
     private readonly inquiryCoreService: InquiryCoreService,
-    @Logger(InquiryService.name) private readonly logger: LoggerService,
   ) {}
 
   /**
