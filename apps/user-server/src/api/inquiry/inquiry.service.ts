@@ -48,17 +48,13 @@ export class InquiryService {
    * @author jochongs
    */
   public async getInquiryByIdx(idx: number): Promise<InquiryEntity> {
-    const inquiry = await this.inquiryRepository.selectInquiryByIdx(idx);
+    const inquiry = await this.inquiryCoreService.findInquiryByIdx(idx);
 
     if (!inquiry) {
-      this.logger.warn(
-        this.getInquiryByIdx,
-        'Attempt to find non-existent inquiry',
-      );
       throw new InquiryNotFoundException('Cannot find inquiry');
     }
 
-    return InquiryEntity.createEntity(inquiry);
+    return InquiryEntity.fromModel(inquiry);
   }
 
   /**

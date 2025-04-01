@@ -81,7 +81,7 @@ describe('Inquiry (e2e)', () => {
       expect(inquiryResponse[0].title).toBe(inquirySeed.title);
       expect(inquiryResponse[0].type.idx).toBe(inquirySeed.typeIdx);
       expect(inquiryResponse[0].author.idx).toBe(inquirySeed.userIdx);
-      expect(inquiryResponse[0].thumbnail).toBe(inquirySeed.imgList[0]);
+      expect(inquiryResponse[0].thumbnail).toBe(inquirySeed.imgList[0] || null);
     });
 
     it('No token', async () => {
