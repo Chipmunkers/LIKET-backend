@@ -4,6 +4,7 @@ import { PrismaProvider } from 'libs/modules';
 import { Injectable } from '@nestjs/common';
 import { AgeSelectField } from 'libs/core/tag-root/age/model/prisma/age-select-field';
 import { GetAllAgeInput } from 'libs/core/tag-root/age/input/get-all-age.input';
+import { Age } from '@prisma/client';
 
 @Injectable()
 export class AgeCoreRepository {
@@ -33,6 +34,22 @@ export class AgeCoreRepository {
       orderBy: {
         [orderBy]: order,
       },
+    });
+  }
+
+  /**
+   * SELECT age_tb WHERE idx = $1
+   *
+   * @author jochongs
+   */
+  public async selectAgeByIdx(idx: number): Promise<AgeSelectField | null> {
+    return await this.txHost.tx.age.findUnique({
+      select: {
+        idx: true,
+        name: true,
+        createdAt: true,
+      },
+      where: { idx },
     });
   }
 }
