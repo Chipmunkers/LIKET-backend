@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { CultureContentController } from './culture-content.controller';
 import { CultureContentService } from './culture-content.service';
 import { ContentAuthService } from './content-auth.service';
-import { CultureContentRepository } from './culture-content.repository';
 import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { ContentViewService } from './content-view.service';
 import { PrismaModule } from 'libs/modules';
@@ -15,11 +14,9 @@ import { UserCoreModule } from 'libs/core/user/user-core.module';
   providers: [
     CultureContentService,
     ContentAuthService,
-    CultureContentRepository,
     ContentTagRepository,
     CultureContentService,
     ContentViewService,
   ],
-  exports: [CultureContentRepository],
 })
 export class CultureContentModule {}
