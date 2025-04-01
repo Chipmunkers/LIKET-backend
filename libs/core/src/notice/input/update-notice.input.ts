@@ -1,5 +1,5 @@
 import { PartialType, PickType } from '@nestjs/swagger';
-import { CreateNoticeInput } from 'libs/core/notice/model/input/create-notice.input';
+import { CreateNoticeInput } from 'libs/core/notice/input/create-notice.input';
 
 /**
  * @author jochongs
