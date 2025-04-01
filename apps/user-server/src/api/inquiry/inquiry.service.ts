@@ -62,16 +62,18 @@ export class InquiryService {
   public async createInquiry(
     userIdx: number,
     createDto: CreateInquiryDto,
-  ): Promise<number> {
-    const createdInquiry = await this.inquiryRepository.insertInquiry({
-      title: createDto.title,
-      contents: createDto.contents,
+  ): Promise<InquiryEntity> {
+    const createdInquiry = await this.inquiryCoreService.createInquiry(
       userIdx,
-      imgPathList: createDto.imgList,
-      typeIdx: createDto.typeIdx,
-    });
+      {
+        title: createDto.title,
+        contents: createDto.contents,
+        imgPathList: createDto.imgList,
+        typeIdx: createDto.typeIdx,
+      },
+    );
 
-    return createdInquiry.idx;
+    return InquiryEntity.fromModel(createdInquiry);
   }
 
   /**

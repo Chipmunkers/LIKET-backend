@@ -279,7 +279,7 @@ describe('Inquiry (e2e)', () => {
         .post('/inquiry')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
-        .expect(500);
+        .expect(400);
     });
   });
 
