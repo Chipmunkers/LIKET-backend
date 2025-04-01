@@ -331,6 +331,25 @@ describe('Inquiry (e2e)', () => {
         .expect(201);
     });
 
+    it('Success - deleting check', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const inquiry = await inquirySeedHelper.seed({
+        userIdx: loginUser.idx,
+      });
+
+      await request(test.getServer())
+        .delete(`/inquiry/${inquiry.idx}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const findInquiry = await test.getPrisma().inquiry.findUniqueOrThrow({
+        where: { idx: inquiry.idx },
+      });
+
+      expect(findInquiry.deletedAt).not.toBeNull();
+    });
+
     it('No token', async () => {
       await request(test.getServer())
         .delete(`/inquiry/1`)

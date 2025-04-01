@@ -82,6 +82,6 @@ export class InquiryService {
    * @author jochongs
    */
   public async deleteInquiry(idx: number): Promise<void> {
-    await this.inquiryRepository.deleteInquiryByIdx(idx);
+    await this.inquiryCoreService.deleteInquiryByIdx(idx);
   }
 }

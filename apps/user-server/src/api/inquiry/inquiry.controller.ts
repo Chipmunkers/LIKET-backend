@@ -105,7 +105,5 @@ export class InquiryController {
     }
 
     await this.inquiryService.deleteInquiry(inquiryIdx);
-
-    return;
   }
 }
