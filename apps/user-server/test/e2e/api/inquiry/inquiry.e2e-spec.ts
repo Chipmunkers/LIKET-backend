@@ -1,3 +1,4 @@
+import { InquiryEntity } from 'apps/admin-server/src/api/inquiry/entity/inquiry.entity';
 import { InquiryTypeEntity } from 'apps/user-server/src/api/inquiry/entity/inquiry-type.entity';
 import { SummaryInquiryEntity } from 'apps/user-server/src/api/inquiry/entity/summary-inquiry.entity';
 import { AppModule } from 'apps/user-server/src/app.module';
@@ -190,6 +191,29 @@ describe('Inquiry (e2e)', () => {
         .set('Authorization', `Bearer ${null}`)
         .send(createDto)
         .expect(401);
+    });
+
+    it('Success - field check', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const createDto = {
+        title: 'test-title',
+        contents: 'test-contents',
+        imgList: ['/inquiry/img-1.png', '/inquiry/img-2.png'],
+        typeIdx: INQUIRY_TYPE.ETC,
+      };
+
+      const response = await request(test.getServer())
+        .post('/inquiry')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send(createDto)
+        .expect(200);
+
+      const inquiry: InquiryEntity = response.body;
+
+      expect(inquiry.title).toBe(createDto.title);
+      expect(inquiry.contents).toBe(createDto.contents);
+      expect(inquiry.imgList).toEqual(createDto.imgList);
+      expect(inquiry.type.idx).toBe(createDto.typeIdx);
     });
 
     it('Invalid DTO - title', async () => {
