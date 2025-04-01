@@ -4,6 +4,7 @@ import { InquiryAnswerCoreService } from 'libs/core/inquiry/inquiry-answer-core.
 import { InquiryCoreRepository } from 'libs/core/inquiry/inquiry-core.repository';
 import { InquiryCoreService } from 'libs/core/inquiry/inquiry-core.service';
 import { InquiryTypeCoreRepository } from 'libs/core/inquiry/inquiry-type-core.repository';
+import { InquiryTypeCoreService } from 'libs/core/inquiry/inquiry-type-core.service';
 
 @Module({
   imports: [],
@@ -13,7 +14,12 @@ import { InquiryTypeCoreRepository } from 'libs/core/inquiry/inquiry-type-core.r
     InquiryAnswerCoreRepository,
     InquiryAnswerCoreService,
     InquiryTypeCoreRepository,
+    InquiryTypeCoreService,
   ],
-  exports: [InquiryCoreService, InquiryAnswerCoreService],
+  exports: [
+    InquiryCoreService,
+    InquiryAnswerCoreService,
+    InquiryTypeCoreService,
+  ],
 })
 export class InquiryCoreModule {}
