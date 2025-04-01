@@ -14,6 +14,9 @@ const NOTICE_SELECT_FIELD = Prisma.validator<Prisma.NoticeDefaultArgs>()({
   },
 });
 
+/**
+ * @author jochongs
+ */
 export type NoticeSelectField = Prisma.NoticeGetPayload<
   typeof NOTICE_SELECT_FIELD
 >;
