@@ -22,7 +22,6 @@ import { ContentEntity } from './entity/content.entity';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { ApiTags } from '@nestjs/swagger';
-import { ContentAuthService } from './content-auth.service';
 import { LoginUser } from '../auth/model/login-user';
 import { GetHotContentResponseDto } from './dto/response/get-hot-style-content.dto';
 import { GetHotAgeContentResponseDto } from './dto/response/get-hot-age-content.dto';

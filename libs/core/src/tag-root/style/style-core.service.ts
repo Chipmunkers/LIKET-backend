@@ -7,6 +7,20 @@ export class StyleCoreService {
   constructor(private readonly styleCoreRepository: StyleCoreRepository) {}
 
   /**
+   * 스타일 목록 가져오기
+   *
+   * @author jochongs
+   */
+  public async selectStyleAll(): Promise<StyleModel[]> {
+    return (
+      await this.styleCoreRepository.selectStyleAll({
+        order: 'asc',
+        orderBy: 'idx',
+      })
+    ).map(StyleModel.fromPrisma);
+  }
+
+  /**
    * 스타일 가져오기
    *
    * @author jochongs

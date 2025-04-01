@@ -7,7 +7,23 @@ export class AgeCoreService {
   constructor(private readonly ageCoreRepository: AgeCoreRepository) {}
 
   /**
+   * 연령대 목록 가져오기
+   *
+   * @author jochongs
+   */
+  public async findAgeAll(): Promise<AgeModel[]> {
+    return (
+      await this.ageCoreRepository.selectAgeAll({
+        order: 'asc',
+        orderBy: 'idx',
+      })
+    ).map(AgeModel.fromPrisma);
+  }
+
+  /**
    * 연령대 가져오기
+   *
+   * @author jochongs
    *
    * @param idx 연령대 식별자
    */

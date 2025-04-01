@@ -6,7 +6,6 @@ import { ContentNotFoundException } from './exception/ContentNotFound';
 import { ContentEntity } from './entity/content.entity';
 import { SummaryContentEntity } from './entity/summary-content.entity';
 import { LoginUser } from '../auth/model/login-user';
-import { ContentTagRepository } from '../content-tag/content-tag.repository';
 import { TagEntity } from '../content-tag/entity/tag.entity';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
@@ -22,7 +21,6 @@ import { StyleCoreService } from 'libs/core/tag-root/style/style-core.service';
 @Injectable()
 export class CultureContentService {
   constructor(
-    private readonly contentTagRepository: ContentTagRepository,
     private readonly userCoreService: UserCoreService,
     private readonly cultureContentCoreService: CultureContentCoreService,
     private readonly cultureContentLikeCoreService: CultureContentLikeCoreService,
