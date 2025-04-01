@@ -5,15 +5,11 @@ import { InquiryEntity } from './entity/inquiry.entity';
 import { LoginUser } from '../auth/model/login-user';
 import { PagerbleDto } from '../../common/dto/pagerble.dto';
 import { SummaryInquiryEntity } from './entity/summary-inquiry.entity';
-import { InquiryRepository } from './inquiry.repository';
 import { InquiryCoreService } from 'libs/core/inquiry/inquiry-core.service';
 
 @Injectable()
 export class InquiryService {
-  constructor(
-    private readonly inquiryRepository: InquiryRepository,
-    private readonly inquiryCoreService: InquiryCoreService,
-  ) {}
+  constructor(private readonly inquiryCoreService: InquiryCoreService) {}
 
   /**
    * 문의 목록 보기
