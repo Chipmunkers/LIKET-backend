@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CreateNoticeInput } from 'libs/core/notice/input/create-notice.input';
 import { FindNoticeAllInput } from 'libs/core/notice/input/find-notice-all.input';
 import { NoticeModel } from 'libs/core/notice/model/notice.model';
 import { SummaryNoticeModel } from 'libs/core/notice/model/summary-notice.model';
@@ -32,5 +33,16 @@ export class NoticeCoreService {
     const notice = await this.noticeCoreRepository.selectNoticeByIdx(idx);
 
     return notice && NoticeModel.fromPrisma(notice);
+  }
+
+  /**
+   * 공지사항 추가하기
+   *
+   * @author jochongs
+   */
+  public async createNotice(input: CreateNoticeInput): Promise<NoticeModel> {
+    return NoticeModel.fromPrisma(
+      await this.noticeCoreRepository.insertNotice(input),
+    );
   }
 }
