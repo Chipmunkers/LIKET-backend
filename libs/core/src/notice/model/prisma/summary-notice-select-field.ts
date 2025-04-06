@@ -5,7 +5,6 @@ const SUMMARY_NOTICE_SELECT_FIELD =
     select: {
       idx: true,
       title: true,
-      contents: true,
       pinnedAt: true,
       activatedAt: true,
       createdAt: true,
