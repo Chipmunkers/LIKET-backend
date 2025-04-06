@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AlreadyActivatedNoticeException } from 'libs/core/notice/exception/AlreadyActivatedNoticeException';
+import { AlreadyDeactivatedNoticeException } from 'libs/core/notice/exception/AlreadyDeactivatedNoticeException';
 import { NoticeNotFoundException } from 'libs/core/notice/exception/NoticeNotFoundException';
 import { CreateNoticeInput } from 'libs/core/notice/input/create-notice.input';
 import { FindNoticeAllInput } from 'libs/core/notice/input/find-notice-all.input';
@@ -98,6 +99,33 @@ export class NoticeCoreService {
     return await this.noticeCoreRepository.updateNoticeActivatedAtByIdx(
       idx,
       new Date(),
+    );
+  }
+
+  /**
+   * 공지사항 비활성화하기
+   *
+   * @author jochongs
+   *
+   * @param idx 비활성화할 공지사항
+   *
+   * @throws {NoticeNotFoundException} 404 - 공지사항이 존재하지 않는 경우
+   * @throws {AlreadyDeactivatedNoticeException} 409 - 공지사항이 이미 비활성화 되어있는 경우
+   */
+  public async deactivateNoticeByIdx(idx: number): Promise<void> {
+    const notice = await this.noticeCoreRepository.selectNoticeByIdx(idx);
+
+    if (!notice) {
+      throw new NoticeNotFoundException('Cannot find notice');
+    }
+
+    if (!notice.activatedAt) {
+      throw new AlreadyDeactivatedNoticeException('Already deactivated notice');
+    }
+
+    return await this.noticeCoreRepository.updateNoticeActivatedAtByIdx(
+      idx,
+      null,
     );
   }
 }
