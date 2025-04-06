@@ -212,4 +212,24 @@ export class NoticeCoreRepository {
       },
     });
   }
+
+  /**
+   * UPDATE notice_tb SET pinned_at = $2 WHERE idx = $!
+   *
+   * @author jochongs
+   *
+   * @param idx 업데이트할 공지사항 식별자
+   * @param date 고정 날짜
+   */
+  public async updateNoticePinnedAtByIdx(
+    idx: number,
+    date: Date,
+  ): Promise<void> {
+    await this.txHost.tx.notice.update({
+      where: { idx, deletedAt: null },
+      data: {
+        pinnedAt: date,
+      },
+    });
+  }
 }
