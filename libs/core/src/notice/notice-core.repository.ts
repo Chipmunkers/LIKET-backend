@@ -10,6 +10,7 @@ import {
 } from 'libs/core/notice/input/find-notice-all.input';
 import { Prisma } from '@prisma/client';
 import { CreateNoticeInput } from 'libs/core/notice/input/create-notice.input';
+import { UpdateNoticeDto } from 'apps/admin-server/src/api/notice/dto/request/update-notice.dto';
 
 @Injectable()
 export class NoticeCoreRepository {
@@ -139,6 +140,29 @@ export class NoticeCoreRepository {
         pinnedAt: true,
         activatedAt: true,
         createdAt: true,
+      },
+      data: {
+        title: input.title,
+        contents: input.contents,
+      },
+    });
+  }
+
+  /**
+   * UPDATE notice_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 수정할 공지사항 식별자
+   */
+  public async updateNoticeByIdx(
+    idx: number,
+    input: UpdateNoticeDto,
+  ): Promise<void> {
+    await this.txHost.tx.notice.update({
+      where: {
+        idx,
+        deletedAt: null,
       },
       data: {
         title: input.title,
