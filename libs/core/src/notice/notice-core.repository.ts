@@ -170,4 +170,23 @@ export class NoticeCoreRepository {
       },
     });
   }
+
+  /**
+   * SOFT DELETE notice_tb WHERE idx = $!
+   *
+   * @author jochongs
+   *
+   * @param idx 삭제할 공지사항 식별자
+   */
+  public async softDeleteNoticeByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.notice.update({
+      where: {
+        idx,
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
 }
