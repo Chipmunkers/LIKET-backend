@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AlreadyActivatedNoticeException } from 'libs/core/notice/exception/AlreadyActivatedNoticeException';
 import { AlreadyDeactivatedNoticeException } from 'libs/core/notice/exception/AlreadyDeactivatedNoticeException';
+import { AlreadyPinnedNoticeException } from 'libs/core/notice/exception/AlreadyPinnedNoticeException';
 import { NoticeNotFoundException } from 'libs/core/notice/exception/NoticeNotFoundException';
 import { CreateNoticeInput } from 'libs/core/notice/input/create-notice.input';
 import { FindNoticeAllInput } from 'libs/core/notice/input/find-notice-all.input';
@@ -126,6 +127,33 @@ export class NoticeCoreService {
     return await this.noticeCoreRepository.updateNoticeActivatedAtByIdx(
       idx,
       null,
+    );
+  }
+
+  /**
+   * 공지사항 고정하기
+   *
+   * @author jochongs
+   *
+   * @param idx 고정할 공지사항
+   *
+   * @throws {NoticeNotFoundException} 404 - 공지사항이 존재하지 않는 경우
+   * @throws {AlreadyPinnedNoticeException} 409 - 이미 고정된 공지사항인 경우
+   */
+  public async pinNoticeByIdx(idx: number): Promise<void> {
+    const notice = await this.noticeCoreRepository.selectNoticeByIdx(idx);
+
+    if (!notice) {
+      throw new NoticeNotFoundException('Cannot find notice');
+    }
+
+    if (notice.pinnedAt) {
+      throw new AlreadyPinnedNoticeException('Already pinned notice');
+    }
+
+    return await this.noticeCoreRepository.updateNoticePinnedAtByIdx(
+      idx,
+      new Date(),
     );
   }
 }
