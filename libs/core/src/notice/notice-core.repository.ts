@@ -9,6 +9,7 @@ import {
   FindNoticeOrderByInput,
 } from 'libs/core/notice/input/find-notice-all.input';
 import { Prisma } from '@prisma/client';
+import { CreateNoticeInput } from 'libs/core/notice/input/create-notice.input';
 
 @Injectable()
 export class NoticeCoreRepository {
@@ -118,6 +119,30 @@ export class NoticeCoreRepository {
       where: {
         idx,
         deletedAt: null,
+      },
+    });
+  }
+
+  /**
+   * INSERT notice_tb
+   *
+   * @author jochongs
+   */
+  public async insertNotice(
+    input: CreateNoticeInput,
+  ): Promise<NoticeSelectField> {
+    return await this.txHost.tx.notice.create({
+      select: {
+        idx: true,
+        title: true,
+        contents: true,
+        pinnedAt: true,
+        activatedAt: true,
+        createdAt: true,
+      },
+      data: {
+        title: input.title,
+        contents: input.contents,
       },
     });
   }
