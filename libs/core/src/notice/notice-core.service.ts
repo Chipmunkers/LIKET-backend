@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AlreadyActivatedNoticeException } from 'libs/core/notice/exception/AlreadyActivatedNoticeException';
 import { AlreadyDeactivatedNoticeException } from 'libs/core/notice/exception/AlreadyDeactivatedNoticeException';
 import { AlreadyPinnedNoticeException } from 'libs/core/notice/exception/AlreadyPinnedNoticeException';
+import { AlreadyUnpinnedNoticeException } from 'libs/core/notice/exception/AlreadyUnpinnedNoticeException';
 import { NoticeNotFoundException } from 'libs/core/notice/exception/NoticeNotFoundException';
 import { CreateNoticeInput } from 'libs/core/notice/input/create-notice.input';
 import { FindNoticeAllInput } from 'libs/core/notice/input/find-notice-all.input';
@@ -155,5 +156,29 @@ export class NoticeCoreService {
       idx,
       new Date(),
     );
+  }
+
+  /**
+   * 공지사항 고정 해제하기
+   *
+   * @author jochongs
+   *
+   * @param idx 고정 해제할 공지사항
+   *
+   * @throws {NoticeNotFoundException} 404 - 공지사항이 존재하지 않는 경우
+   * @throws {AlreadyUnpinnedNoticeException} 409 - 이미 고정 해제된 공지사항인 경우
+   */
+  public async unpinNoticeByIdx(idx: number): Promise<void> {
+    const notice = await this.noticeCoreRepository.selectNoticeByIdx(idx);
+
+    if (!notice) {
+      throw new NoticeNotFoundException('Cannot find notice');
+    }
+
+    if (!notice.pinnedAt) {
+      throw new AlreadyUnpinnedNoticeException('Already unpinned notice');
+    }
+
+    return await this.noticeCoreRepository.updateNoticePinnedAtByIdx(idx, null);
   }
 }

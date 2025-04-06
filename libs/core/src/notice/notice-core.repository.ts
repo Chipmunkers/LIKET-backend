@@ -223,7 +223,7 @@ export class NoticeCoreRepository {
    */
   public async updateNoticePinnedAtByIdx(
     idx: number,
-    date: Date,
+    date: Date | null,
   ): Promise<void> {
     await this.txHost.tx.notice.update({
       where: { idx, deletedAt: null },
