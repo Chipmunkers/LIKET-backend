@@ -10,7 +10,7 @@ import {
 } from 'libs/core/notice/input/find-notice-all.input';
 import { Prisma } from '@prisma/client';
 import { CreateNoticeInput } from 'libs/core/notice/input/create-notice.input';
-import { UpdateNoticeDto } from 'apps/admin-server/src/api/notice/dto/request/update-notice.dto';
+import { UpdateNoticeInput } from 'libs/core/notice/input/update-notice.input';
 
 @Injectable()
 export class NoticeCoreRepository {
@@ -157,7 +157,7 @@ export class NoticeCoreRepository {
    */
   public async updateNoticeByIdx(
     idx: number,
-    input: UpdateNoticeDto,
+    input: UpdateNoticeInput,
   ): Promise<void> {
     await this.txHost.tx.notice.update({
       where: {

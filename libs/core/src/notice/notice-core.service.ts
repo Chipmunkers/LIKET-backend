@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateNoticeInput } from 'libs/core/notice/input/create-notice.input';
 import { FindNoticeAllInput } from 'libs/core/notice/input/find-notice-all.input';
+import { UpdateNoticeInput } from 'libs/core/notice/input/update-notice.input';
 import { NoticeModel } from 'libs/core/notice/model/notice.model';
 import { SummaryNoticeModel } from 'libs/core/notice/model/summary-notice.model';
 import { NoticeCoreRepository } from 'libs/core/notice/notice-core.repository';
@@ -44,5 +45,30 @@ export class NoticeCoreService {
     return NoticeModel.fromPrisma(
       await this.noticeCoreRepository.insertNotice(input),
     );
+  }
+
+  /**
+   * 공지사항 수정하기
+   *
+   * @author jochongs
+   *
+   * @param idx 수정할 공지사항
+   */
+  public async updateNoticeByIdx(
+    idx: number,
+    input: UpdateNoticeInput,
+  ): Promise<void> {
+    return await this.noticeCoreRepository.updateNoticeByIdx(idx, input);
+  }
+
+  /**
+   * 공지사항 삭제하기
+   *
+   * @author jochongs
+   *
+   * @param idx 삭제할 공지사항
+   */
+  public async deleteNoticeByIdx(idx: number): Promise<void> {
+    return await this.noticeCoreRepository.softDeleteNoticeByIdx(idx);
   }
 }
