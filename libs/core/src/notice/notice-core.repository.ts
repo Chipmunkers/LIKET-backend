@@ -189,4 +189,27 @@ export class NoticeCoreRepository {
       },
     });
   }
+
+  /**
+   * UPDATE notice_tb SET activated_at = $2 WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 업데이트할 공지사항 식별자
+   * @param date 활성화 날짜
+   */
+  public async updateNoticeActivatedAtByIdx(
+    idx: number,
+    date: Date | null,
+  ): Promise<void> {
+    await this.txHost.tx.notice.update({
+      where: {
+        idx,
+        deletedAt: null,
+      },
+      data: {
+        activatedAt: date,
+      },
+    });
+  }
 }
