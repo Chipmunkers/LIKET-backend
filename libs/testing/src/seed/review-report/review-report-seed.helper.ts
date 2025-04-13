@@ -1,9 +1,8 @@
+import { DeepRequired, getRandomValueFromConstant } from 'libs/common';
 import {
-  DeepRequired,
-  getRandomValueFromConstant,
+  REVIEW_REPORT_TYPE,
   ReviewReportType,
-} from 'libs/common';
-import { REVIEW_REPORT_TYPE } from 'libs/core/review/constant/review-report-type';
+} from 'libs/core/review/constant/review-report-type';
 import { ISeedHelper } from 'libs/testing/interface/seed-helper.interface';
 import { ReviewReportInput } from 'libs/testing/seed/review-report/type/review-report.input';
 import { ReviewReportOutput } from 'libs/testing/seed/review-report/type/review-report.output';

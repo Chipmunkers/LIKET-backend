@@ -1,5 +1,5 @@
 export type FindNoticeOrderByInput = {
-  by: 'idx' | 'pin';
+  by: 'idx' | 'pin' | 'activated';
   order: 'desc' | 'asc';
 };
 

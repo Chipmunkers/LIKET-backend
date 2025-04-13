@@ -84,18 +84,33 @@ export class NoticeCoreRepository {
   ):
     | Prisma.NoticeOrderByWithRelationInput
     | Prisma.NoticeOrderByWithRelationInput[] {
-    if (!orderByList.length)
-      return {
-        idx: 'desc',
-      };
+    if (!orderByList.length) {
+      return { idx: 'desc' };
+    }
 
-    const idxOrder = orderByList.find(({ by }) => by === 'idx')?.order || null;
-    const pinOrder = orderByList.find(({ by }) => by === 'pin')?.order || null;
+    return orderByList.map(
+      ({ by, order }): Prisma.NoticeOrderByWithRelationInput => {
+        if (by === 'idx') {
+          return {
+            idx: order,
+          };
+        }
 
-    return [
-      idxOrder ? { idx: idxOrder } : {},
-      pinOrder ? { pinnedAt: pinOrder } : {},
-    ].filter((data) => Object.keys(data).length);
+        if (by === 'activated') {
+          return {
+            activatedAt: order,
+          };
+        }
+
+        // pin
+        return {
+          pinnedAt: {
+            sort: order,
+            nulls: 'last',
+          },
+        };
+      },
+    );
   }
 
   /**
