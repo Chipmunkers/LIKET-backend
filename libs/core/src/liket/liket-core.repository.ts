@@ -234,4 +234,23 @@ export class LiketCoreRepository {
       },
     });
   }
+
+  /**
+   * SOFT DELETE liket_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 라이켓 식별자
+   */
+  public async softDeleteLiketByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.liket.update({
+      where: {
+        idx,
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
 }
