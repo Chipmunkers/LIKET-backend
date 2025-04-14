@@ -205,11 +205,14 @@ export class LiketCoreRepository {
         cardImgPath: input.cardImgPath,
         description: input.description,
         size: input.size,
-        textShape: input.textShape
-          ? {
-              ...input.textShape,
-            }
-          : undefined,
+        textShape:
+          input.textShape !== undefined
+            ? {
+                ...input.textShape,
+              }
+            : input.textShape === null
+              ? {}
+              : undefined,
         bgImgInfo: input.bgImgInfo
           ? {
               ...input.bgImgInfo,

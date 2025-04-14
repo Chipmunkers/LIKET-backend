@@ -19,7 +19,7 @@ export class CreateLiketInput {
   /**
    * 라이켓 텍스트
    */
-  public readonly textShape?: CreateLiketTextShapeInput;
+  public readonly textShape?: CreateLiketTextShapeInput | null;
 
   /**
    * 카드 꾸미기 이미지 목록
