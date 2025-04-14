@@ -35,4 +35,9 @@ export class CreateLiketInput {
    * 리뷰 텍스트
    */
   public readonly description: string;
+
+  /**
+   * 배경 이미지 경로
+   */
+  public readonly bgImgPath: string;
 }

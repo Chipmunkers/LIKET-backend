@@ -9,6 +9,7 @@ const LIKET_SELECT_FIELD = Prisma.validator<Prisma.LiketDefaultArgs>()({
     cardImgPath: true,
     size: true,
     textShape: true,
+    bgImgPath: true,
     LiketImgShape: {
       select: {
         imgShape: true,

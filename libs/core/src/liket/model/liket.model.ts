@@ -32,9 +32,14 @@ export class LikeModel {
   public readonly imgShapes: LiketImgShapeModel[];
 
   /**
+   * 라이켓 카드 배경 이미지 정보
+   */
+  public readonly bgImgInfo: LiketBgImgInfoModel;
+
+  /**
    * 라이켓 카드 배경 이미지 경로
    */
-  public readonly bgImgPath: LiketBgImgInfoModel;
+  public readonly bgImgPath: string;
 
   /**
    * 연결된 컨텐츠 정보
@@ -62,7 +67,8 @@ export class LikeModel {
       size: liket.size as 1 | 2 | 3,
       textShape: LiketTextShapeModel.fromPrisma(liket.textShape),
       imgShapes: liket.LiketImgShape.map(LiketImgShapeModel.fromPrisma),
-      bgImgPath: LiketBgImgInfoModel.fromPrisma(liket.bgImgInfo),
+      bgImgPath: liket.bgImgPath,
+      bgImgInfo: LiketBgImgInfoModel.fromPrisma(liket.bgImgInfo),
       author: LiketAuthorModel.fromPrisma(liket.Review.User),
       review: LiketReviewModel.fromPrisma(liket.Review),
       cultureContent: LiketCultureContentModel.fromPrisma(
