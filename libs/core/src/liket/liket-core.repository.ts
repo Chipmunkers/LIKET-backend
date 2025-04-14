@@ -4,6 +4,7 @@ import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-pr
 import { PrismaProvider } from 'libs/modules';
 import { LiketSelectField } from 'libs/core/liket/model/prisma/liket-select-field';
 import { CreateLiketInput } from 'libs/core/liket/input/create-liket.input';
+import { UpdateLiketInput } from 'libs/core/liket/input/update-liket.input';
 
 @Injectable()
 export class LiketCoreRepository {
@@ -95,6 +96,8 @@ export class LiketCoreRepository {
    * INSERT liket_tb
    *
    * @author jochongs
+   *
+   * @param reviewIdx 리뷰 식별자
    */
   public async insertLiket(
     reviewIdx: number,
@@ -178,6 +181,53 @@ export class LiketCoreRepository {
             })),
           },
         },
+      },
+    });
+  }
+
+  /**
+   * UPDATE liket_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 라이켓 식별자
+   */
+  public async updateLiketByIdx(
+    idx: number,
+    input: UpdateLiketInput,
+  ): Promise<void> {
+    await this.txHost.tx.liket.update({
+      where: {
+        idx,
+        deletedAt: null,
+      },
+      data: {
+        cardImgPath: input.cardImgPath,
+        description: input.description,
+        size: input.size,
+        textShape: input.textShape
+          ? {
+              ...input.textShape,
+            }
+          : undefined,
+        bgImgInfo: input.bgImgInfo
+          ? {
+              ...input.bgImgInfo,
+            }
+          : undefined,
+        bgImgPath: input.bgImgPath ? input.bgImgPath : undefined,
+        LiketImgShape: input.imgShapes
+          ? {
+              deleteMany: {},
+              createMany: {
+                data: input.imgShapes.map((imgShape) => ({
+                  imgShape: {
+                    ...imgShape,
+                  },
+                })),
+              },
+            }
+          : undefined,
       },
     });
   }
