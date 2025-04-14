@@ -34,7 +34,7 @@ export class LiketTextShapeModel {
     Object.assign(this, data);
   }
 
-  public static fromPrisma(data: LiketTextShapeModel) {
+  public static fromPrisma(data: any) {
     return new LiketTextShapeModel({
       fill: data.fill,
       text: data.text,

@@ -1,8 +1,10 @@
 import { LiketAuthorModel } from 'libs/core/liket/model/liket-author.model';
+import { LiketBgImgInfoModel } from 'libs/core/liket/model/liket-bg-img-info.model';
 import { LiketCultureContentModel } from 'libs/core/liket/model/liket-culture-content.model';
 import { LiketImgShapeModel } from 'libs/core/liket/model/liket-img-shape.model';
 import { LiketReviewModel } from 'libs/core/liket/model/liket-review.model';
 import { LiketTextShapeModel } from 'libs/core/liket/model/liket-text-shape.model';
+import { LiketSelectField } from 'libs/core/liket/model/prisma/liket-select-field';
 
 /**
  * @author jochongs
@@ -22,7 +24,7 @@ export class LikeModel {
   /**
    * 카드의 텍스트 꾸미기 정보
    */
-  public readonly textShape?: LiketTextShapeModel;
+  public readonly textShape: LiketTextShapeModel | null;
 
   /**
    * 카드 꾸미는 스티커 정보
@@ -32,7 +34,7 @@ export class LikeModel {
   /**
    * 라이켓 카드 배경 이미지 경로
    */
-  public readonly bgImgPath: string;
+  public readonly bgImgPath: LiketBgImgInfoModel;
 
   /**
    * 연결된 컨텐츠 정보
@@ -53,5 +55,19 @@ export class LikeModel {
     Object.assign(this, data);
   }
 
-  public fromPrisma() {}
+  public static fromPrisma(liket: LiketSelectField): LikeModel {
+    return new LikeModel({
+      idx: liket.idx,
+      cardImgPath: liket.cardImgPath,
+      size: liket.size as 1 | 2 | 3,
+      textShape: LiketTextShapeModel.fromPrisma(liket.textShape),
+      imgShapes: liket.LiketImgShape.map(LiketImgShapeModel.fromPrisma),
+      bgImgPath: LiketBgImgInfoModel.fromPrisma(liket.bgImgInfo),
+      author: LiketAuthorModel.fromPrisma(liket.Review.User),
+      review: LiketReviewModel.fromPrisma(liket.Review),
+      cultureContent: LiketCultureContentModel.fromPrisma(
+        liket.Review.CultureContent,
+      ),
+    });
+  }
 }

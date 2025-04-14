@@ -43,7 +43,6 @@ export class BgImgInfoEntity {
    *
    * @example 54.75638762191013
    */
-
   @IsNumber()
   public offsetY: number;
 
