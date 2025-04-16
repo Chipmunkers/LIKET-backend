@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CreateLiketInput } from 'libs/core/liket/input/create-liket.input';
 import { FindLiketAllInput } from 'libs/core/liket/input/find-liket-all.input';
 import { LiketCoreRepository } from 'libs/core/liket/liket-core.repository';
 import { LiketModel } from 'libs/core/liket/model/liket.model';
@@ -32,5 +33,24 @@ export class LiketCoreService {
     const liket = await this.liketCoreRepository.selectLiketByIdx(idx);
 
     return liket && LiketModel.fromPrisma(liket);
+  }
+
+  /**
+   * 라이켓 생성하기
+   *
+   * @author jochongs
+   *
+   * @param reviewIdx 연결된 리뷰 식별자
+   */
+  public async createLiket(
+    reviewIdx: number,
+    input: CreateLiketInput,
+  ): Promise<LiketModel> {
+    const createdLiket = await this.liketCoreRepository.insertLiket(
+      reviewIdx,
+      input,
+    );
+
+    return LiketModel.fromPrisma(createdLiket);
   }
 }
