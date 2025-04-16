@@ -9,9 +9,9 @@ import { LiketPageableDto } from './dto/liket-pageable.dto';
 import { CreateLiketDto } from './dto/create-liket.dto';
 import { LiketRepository } from './liket.repository';
 import { SummaryLiketEntity } from './entity/summary-liket.entity';
-import { TextShapeEntity } from './entity/textShape.entity';
-import { ImgShapeEntity } from './entity/imgShape.entity';
-import { BgImgInfoEntity } from './entity/bgImgInfo.entity';
+import { TextShapeEntity } from './entity/text-shape.entity';
+import { ImgShapeEntity } from './entity/img-shape.entity';
+import { BgImgInfoEntity } from './entity/bg-img-info.entity';
 import { LiketCoreService } from 'libs/core/liket/liket-core.service';
 
 @Injectable()

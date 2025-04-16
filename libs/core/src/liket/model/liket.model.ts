@@ -56,6 +56,16 @@ export class LiketModel {
    */
   public readonly author: LiketAuthorModel;
 
+  /**
+   * 작성일
+   */
+  public readonly createdAt: Date;
+
+  /**
+   * 설명
+   */
+  public readonly description: string;
+
   constructor(data: LiketModel) {
     Object.assign(this, data);
   }
@@ -74,6 +84,8 @@ export class LiketModel {
       cultureContent: LiketCultureContentModel.fromPrisma(
         liket.Review.CultureContent,
       ),
+      createdAt: liket.createdAt,
+      description: liket.description,
     });
   }
 }

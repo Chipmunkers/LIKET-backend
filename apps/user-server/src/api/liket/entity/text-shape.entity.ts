@@ -1,4 +1,5 @@
 import { IsNumber, IsString, Length, Matches } from 'class-validator';
+import { LiketTextShapeModel } from 'libs/core/liket/model/liket-text-shape.model';
 
 /**
  * @author wherehows
@@ -66,5 +67,14 @@ export class TextShapeEntity {
     const hasY = typeof y === 'number';
 
     return hasFill && hasText && hasX && hasY;
+  }
+
+  public static fromModel(model: LiketTextShapeModel): TextShapeEntity {
+    return new TextShapeEntity({
+      fill: model.fill,
+      text: model.text,
+      x: model.x,
+      y: model.y,
+    });
   }
 }

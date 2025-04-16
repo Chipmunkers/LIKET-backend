@@ -1,4 +1,5 @@
 import { IsInt, IsNumber, Max, Min } from 'class-validator';
+import { LiketImgShapeModel } from 'libs/core/liket/model/liket-img-shape.model';
 
 /**
  * @author wherehows
@@ -101,5 +102,17 @@ export class ImgShapeEntity {
       stickerNumber >= 1 &&
       stickerNumber <= 13
     );
+  }
+
+  public static fromModel(model: LiketImgShapeModel): ImgShapeEntity {
+    return new ImgShapeEntity({
+      code: model.code,
+      stickerNumber: model.stickerNumber,
+      width: model.width,
+      height: model.height,
+      rotation: model.rotation,
+      x: model.x,
+      y: model.y,
+    });
   }
 }

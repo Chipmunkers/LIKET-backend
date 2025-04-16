@@ -15,26 +15,17 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { TextShapeEntity } from './textShape.entity';
-import { ImgShapeEntity } from './imgShape.entity';
-import { ReviewEntity } from '../../review/entity/review.entity';
+import { TextShapeEntity } from './text-shape.entity';
+import { ImgShapeEntity } from './img-shape.entity';
 import { ContentEntity } from '../../culture-content/entity/content.entity';
 import { PickType } from '@nestjs/swagger';
-import { BgImgInfoEntity } from './bgImgInfo.entity';
+import { BgImgInfoEntity } from './bg-img-info.entity';
 import { LiketWithInclude } from './prisma-type/liket-with-include';
 import { Type } from 'class-transformer';
-
-class LiketReviewEntity extends PickType(ReviewEntity, [
-  'visitTime',
-  'starRating',
-]) {}
-
-class LiketContentEntity extends PickType(ContentEntity, [
-  'idx',
-  'title',
-  'location',
-  'genre',
-]) {}
+import { LiketModel } from 'libs/core/liket/model/liket.model';
+import { LiketReviewEntity } from 'apps/user-server/src/api/liket/entity/liket-review.entity';
+import { LiketAuthorEntity } from 'apps/user-server/src/api/liket/entity/liket-author.entity';
+import { LiketCultureContentEntity } from 'apps/user-server/src/api/liket/entity/liket-culture-content.entity';
 
 /**
  * @author wherehows
@@ -104,7 +95,7 @@ export class LiketEntity {
   /**
    * 컨텐
    */
-  public cultureContent: LiketContentEntity;
+  public cultureContent: LiketCultureContentEntity;
 
   /**
    * 리뷰
@@ -114,7 +105,7 @@ export class LiketEntity {
   /**
    * 작성자
    */
-  public author: UserProfileEntity;
+  public author: LiketAuthorEntity;
 
   /**
    * 리뷰 텍스트
@@ -177,6 +168,25 @@ export class LiketEntity {
         provider: User.provider,
       },
       createdAt: data.createdAt,
+    });
+  }
+
+  public static fromModel(model: LiketModel): LiketEntity {
+    return new LiketEntity({
+      idx: model.idx,
+      cardImgPath: model.cardImgPath,
+      bgImgPath: model.bgImgPath,
+      size: model.size,
+      review: LiketReviewEntity.fromModel(model.review),
+      author: LiketAuthorEntity.fromModel(model.author),
+      bgImgInfo: BgImgInfoEntity.fromModel(model.bgImgInfo),
+      cultureContent: LiketCultureContentEntity.fromModel(model.cultureContent),
+      createdAt: model.createdAt,
+      description: model.description,
+      imgShapes: model.imgShapes.map(ImgShapeEntity.fromModel),
+      textShape: model.textShape
+        ? TextShapeEntity.fromModel(model.textShape)
+        : undefined,
     });
   }
 }

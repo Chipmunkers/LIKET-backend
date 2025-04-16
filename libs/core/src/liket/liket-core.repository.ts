@@ -33,6 +33,7 @@ export class LiketCoreRepository {
       select: {
         idx: true,
         cardImgPath: true,
+        createdAt: true,
         Review: {
           select: {
             User: {
@@ -98,6 +99,7 @@ export class LiketCoreRepository {
         size: true,
         textShape: true,
         bgImgPath: true,
+        createdAt: true,
         LiketImgShape: {
           select: {
             imgShape: true,
@@ -178,6 +180,7 @@ export class LiketCoreRepository {
         size: true,
         textShape: true,
         bgImgPath: true,
+        createdAt: true,
         LiketImgShape: {
           select: {
             imgShape: true,

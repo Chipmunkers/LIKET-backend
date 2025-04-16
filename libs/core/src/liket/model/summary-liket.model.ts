@@ -10,6 +10,7 @@ export class SummaryLiketModel extends PickType(LiketModel, [
   'idx',
   'cardImgPath',
   'author',
+  'createdAt',
 ] as const) {
   constructor(data: SummaryLiketModel) {
     super();
@@ -21,6 +22,7 @@ export class SummaryLiketModel extends PickType(LiketModel, [
       idx: liket.idx,
       author: LiketAuthorModel.fromPrisma(liket.Review.User),
       cardImgPath: liket.cardImgPath,
+      createdAt: liket.createdAt,
     });
   }
 }

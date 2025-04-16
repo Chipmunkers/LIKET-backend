@@ -7,6 +7,7 @@ const SUMMARY_LIKET_SELECT_FIELD = Prisma.validator<Prisma.LiketDefaultArgs>()({
   select: {
     idx: true,
     cardImgPath: true,
+    createdAt: true,
     Review: {
       select: {
         User: {

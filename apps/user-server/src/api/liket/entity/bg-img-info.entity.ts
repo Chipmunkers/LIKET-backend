@@ -1,4 +1,5 @@
 import { IsNumber, Max, Min } from 'class-validator';
+import { LiketBgImgInfoModel } from 'libs/core/liket/model/liket-bg-img-info.model';
 
 /**
  * @author wherehows
@@ -95,5 +96,17 @@ export class BgImgInfoEntity {
       typeof x === 'number' &&
       typeof y === 'number'
     );
+  }
+
+  public static fromModel(model: LiketBgImgInfoModel): BgImgInfoEntity {
+    return new BgImgInfoEntity({
+      rotation: model.rotation,
+      width: model.width,
+      height: model.height,
+      offsetX: model.offsetX,
+      offsetY: model.offsetY,
+      x: model.x,
+      y: model.y,
+    });
   }
 }

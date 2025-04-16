@@ -1,5 +1,5 @@
-import { BgImgInfoEntity } from 'apps/user-server/src/api/liket/entity/bgImgInfo.entity';
-import { ImgShapeEntity } from 'apps/user-server/src/api/liket/entity/imgShape.entity';
+import { BgImgInfoEntity } from 'apps/user-server/src/api/liket/entity/bg-img-info.entity';
+import { ImgShapeEntity } from 'apps/user-server/src/api/liket/entity/img-shape.entity';
 
 /**
  * @author jochongs
