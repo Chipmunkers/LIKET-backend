@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FindLiketAllInput } from 'libs/core/liket/input/find-liket-all.input';
 import { LiketCoreRepository } from 'libs/core/liket/liket-core.repository';
+import { LiketModel } from 'libs/core/liket/model/liket.model';
 import { SummaryLiketModel } from 'libs/core/liket/model/summary-liket.model';
 
 @Injectable()
@@ -18,5 +19,18 @@ export class LiketCoreService {
     return (await this.liketCoreRepository.selectLiketAll(input)).map(
       SummaryLiketModel.fromPrisma,
     );
+  }
+
+  /**
+   * 라이켓 자세히보기
+   *
+   * @author jochongs
+   *
+   * @param idx 라이켓 식별자
+   */
+  public async findLiketByIdx(idx: number): Promise<LiketModel | null> {
+    const liket = await this.liketCoreRepository.selectLiketByIdx(idx);
+
+    return liket && LiketModel.fromPrisma(liket);
   }
 }
