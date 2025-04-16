@@ -9,7 +9,7 @@ import { LiketSelectField } from 'libs/core/liket/model/prisma/liket-select-fiel
 /**
  * @author jochongs
  */
-export class LikeModel {
+export class LiketModel {
   /** 라이켓 식별자 */
   public readonly idx: number;
 
@@ -56,12 +56,12 @@ export class LikeModel {
    */
   public readonly author: LiketAuthorModel;
 
-  constructor(data: LikeModel) {
+  constructor(data: LiketModel) {
     Object.assign(this, data);
   }
 
-  public static fromPrisma(liket: LiketSelectField): LikeModel {
-    return new LikeModel({
+  public static fromPrisma(liket: LiketSelectField): LiketModel {
+    return new LiketModel({
       idx: liket.idx,
       cardImgPath: liket.cardImgPath,
       size: liket.size as 1 | 2 | 3,

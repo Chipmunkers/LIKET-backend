@@ -5,6 +5,9 @@ import { PrismaProvider } from 'libs/modules';
 import { LiketSelectField } from 'libs/core/liket/model/prisma/liket-select-field';
 import { CreateLiketInput } from 'libs/core/liket/input/create-liket.input';
 import { UpdateLiketInput } from 'libs/core/liket/input/update-liket.input';
+import { FindLiketAllInput } from 'libs/core/liket/input/find-liket-all.input';
+import { SummaryLiketSelectField } from 'libs/core/liket/model/prisma/summary-liket-select-field';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class LiketCoreRepository {
@@ -13,6 +16,74 @@ export class LiketCoreRepository {
       TransactionalAdapterPrisma<PrismaProvider>
     >,
   ) {}
+
+  /**
+   * SELECT liket_tb
+   *
+   * @author jochongs
+   */
+  public async selectLiketAll({
+    page,
+    row,
+    userIdx,
+    orderBy = 'idx',
+    order = 'desc',
+  }: FindLiketAllInput): Promise<SummaryLiketSelectField[]> {
+    return await this.txHost.tx.liket.findMany({
+      select: {
+        idx: true,
+        cardImgPath: true,
+        Review: {
+          select: {
+            User: {
+              select: {
+                idx: true,
+                profileImgPath: true,
+                nickname: true,
+                provider: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        deletedAt: null,
+        Review: {
+          deletedAt: null,
+        },
+        AND: [this.getUserFilterWhereClause(userIdx)],
+      },
+      orderBy: this.getOrderByField(orderBy, order),
+      take: row,
+      skip: (page - 1) * row,
+    });
+  }
+
+  /**
+   * @author jochongs
+   */
+  private getUserFilterWhereClause(userIdx?: number): Prisma.LiketWhereInput {
+    if (userIdx === undefined) {
+      return {};
+    }
+
+    return {
+      Review: { userIdx },
+    };
+  }
+
+  /**
+   * @author jochongs
+   */
+  private getOrderByField(
+    orderBy: 'idx',
+    order: 'desc' | 'asc',
+  ): Prisma.LiketOrderByWithRelationInput {
+    // orderBy == 'idx'
+    return {
+      idx: order,
+    };
+  }
 
   /**
    * SELECT liket_tb WHERE idx = $1
@@ -83,10 +154,7 @@ export class LiketCoreRepository {
         idx,
         deletedAt: null,
         Review: {
-          User: {
-            deletedAt: null,
-            blockedAt: null,
-          },
+          deletedAt: null,
         },
       },
     });
