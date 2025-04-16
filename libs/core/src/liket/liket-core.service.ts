@@ -68,4 +68,15 @@ export class LiketCoreService {
   ): Promise<void> {
     return await this.liketCoreRepository.updateLiketByIdx(idx, input);
   }
+
+  /**
+   * 라이켓 삭제하기
+   *
+   * @author jochongs
+   *
+   * @param idx 삭제할 라이켓 식별자
+   */
+  public async deleteLiketByIdx(idx: number): Promise<void> {
+    return await this.liketCoreRepository.softDeleteLiketByIdx(idx);
+  }
 }
