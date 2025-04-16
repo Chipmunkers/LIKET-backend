@@ -20,6 +20,7 @@ import { LiketService } from './liket.service';
 import { LiketPageableDto } from './dto/liket-pageable.dto';
 import { LiketAuthService } from './liket-auth.service';
 import { UpdateLiketDto } from './dto/update-liket.dto';
+import { GetLiketAllResponseDto } from 'apps/user-server/src/api/liket/dto/response/get-liket-all-response.dto';
 
 @Controller()
 @ApiTags('Liket')
@@ -41,9 +42,9 @@ export class LiketController {
   public async getLiketAll(
     @Query() pageable: LiketPageableDto,
     @User() loginUser: LoginUser,
-  ) {
+  ): Promise<GetLiketAllResponseDto> {
     await this.liketAuthService.checkReadAllPermissions(pageable, loginUser);
-    return await this.liketService.getLiketAll(pageable);
+    return { liketList: await this.liketService.getLiketAll(pageable) };
   }
 
   /**

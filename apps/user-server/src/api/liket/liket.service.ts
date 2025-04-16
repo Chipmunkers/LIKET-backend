@@ -27,14 +27,17 @@ export class LiketService {
    *
    * @author wherehows
    */
-  public async getLiketAll(pageable: LiketPageableDto) {
-    const liketList = await this.liketRepository.selectLiketAll(pageable);
+  public async getLiketAll(
+    pageable: LiketPageableDto,
+  ): Promise<SummaryLiketEntity[]> {
+    const liketList = await this.liketCoreService.findLiketAll({
+      page: pageable.page,
+      row: 10,
+      order: pageable.order,
+      orderBy: pageable.orderby === 'time' ? 'idx' : 'idx',
+    });
 
-    return {
-      liketList: liketList.map((liket) =>
-        SummaryLiketEntity.createEntity(liket),
-      ),
-    };
+    return liketList.map(SummaryLiketEntity.fromModel);
   }
 
   /**
