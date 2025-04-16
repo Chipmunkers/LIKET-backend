@@ -35,6 +35,7 @@ export class LiketService {
       row: 10,
       order: pageable.order,
       orderBy: pageable.orderby === 'time' ? 'idx' : 'idx',
+      userIdx: pageable.user,
     });
 
     return liketList.map(SummaryLiketEntity.fromModel);
