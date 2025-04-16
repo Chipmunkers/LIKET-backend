@@ -99,6 +99,7 @@ export class LiketCoreRepository {
         size: true,
         textShape: true,
         bgImgPath: true,
+        description: true,
         createdAt: true,
         LiketImgShape: {
           select: {
@@ -181,6 +182,7 @@ export class LiketCoreRepository {
         textShape: true,
         bgImgPath: true,
         createdAt: true,
+        description: true,
         LiketImgShape: {
           select: {
             imgShape: true,
