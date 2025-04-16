@@ -12,13 +12,71 @@ import { SummaryLiketEntity } from './entity/summary-liket.entity';
 import { TextShapeEntity } from './entity/textShape.entity';
 import { ImgShapeEntity } from './entity/imgShape.entity';
 import { BgImgInfoEntity } from './entity/bgImgInfo.entity';
+import { LiketCoreService } from 'libs/core/liket/liket-core.service';
 
 @Injectable()
 export class LiketService {
   constructor(
+    private readonly liketCoreService: LiketCoreService,
     private readonly liketRepository: LiketRepository,
     @Logger(LiketService.name) private readonly logger: LoggerService,
   ) {}
+
+  /**
+   * 라이켓 리스트 조회
+   *
+   * @author wherehows
+   */
+  public async getLiketAll(pageable: LiketPageableDto) {
+    const liketList = await this.liketRepository.selectLiketAll(pageable);
+
+    return {
+      liketList: liketList.map((liket) =>
+        SummaryLiketEntity.createEntity(liket),
+      ),
+    };
+  }
+
+  /**
+   * 라이켓 자세히보기
+   *
+   * @author wherehows
+   */
+  public async getLiketByIdx(idx: number) {
+    const liket = await this.liketRepository.selectLiketByIdx(idx);
+
+    if (!liket) {
+      throw new LiketNotFoundException('Cannot find liket');
+    }
+
+    const { textShape, bgImgInfo, LiketImgShape } = liket;
+
+    if (!this.isValidTextShapeEntity(textShape)) {
+      this.logger.warn(this.getLiketByIdx, 'invalid liket text shape');
+    }
+
+    if (!this.isValidBgImgInfoEntity(bgImgInfo)) {
+      this.logger.warn(
+        this.getLiketByIdx,
+        'invalid liket background img information',
+      );
+    }
+
+    const imgShapes = LiketImgShape.map(({ imgShape }) => {
+      return imgShape;
+    });
+
+    if (!this.isValidImgShapeEntity(imgShapes)) {
+      this.logger.warn(this.getLiketByIdx, 'invalid liket img shape');
+    }
+
+    return LiketEntity.createEntity(
+      liket,
+      bgImgInfo as any,
+      imgShapes as any,
+      textShape as any,
+    );
+  }
 
   /**
    * 라이켓 생성
@@ -58,68 +116,12 @@ export class LiketService {
   }
 
   /**
-   * 라이켓 리스트 조회
-   *
-   * @author wherehows
-   */
-  public async getLiketAll(pageable: LiketPageableDto) {
-    const liketList = await this.liketRepository.selectLiketAll(pageable);
-
-    return {
-      liketList: liketList.map((liket) =>
-        SummaryLiketEntity.createEntity(liket),
-      ),
-    };
-  }
-
-  /**
    * 업데이트 라이켓
    *
    * @author wherehows
    */
   public async updateLiket(idx: number, updateDto: UpdateLiketDto) {
     return await this.liketRepository.updateLiketByIdx(idx, updateDto);
-  }
-
-  /**
-   *라이켓 자세히보기
-
-   @author wherehows
-   */
-  public async getLiketByIdx(idx: number) {
-    const liket = await this.liketRepository.selectLiketByIdx(idx);
-
-    if (!liket) {
-      throw new LiketNotFoundException('Cannot find liket');
-    }
-
-    const { textShape, bgImgInfo, LiketImgShape } = liket;
-
-    if (!this.isValidTextShapeEntity(textShape)) {
-      this.logger.warn(this.getLiketByIdx, 'invalid liket text shape');
-    }
-
-    if (!this.isValidBgImgInfoEntity(bgImgInfo)) {
-      this.logger.warn(
-        this.getLiketByIdx,
-        'invalid liket background img information',
-      );
-    }
-
-    const imgShapes = LiketImgShape.map(({ imgShape }) => {
-      return imgShape;
-    });
-
-    if (!this.isValidImgShapeEntity(imgShapes)) {
-      this.logger.warn(this.getLiketByIdx, 'invalid liket img shape');
-    }
-
-    return LiketEntity.createEntity(
-      liket,
-      bgImgInfo as any,
-      imgShapes as any,
-      textShape as any,
-    );
   }
 
   /**
