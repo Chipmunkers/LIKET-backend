@@ -47,39 +47,35 @@ export class LiketService {
    * @author wherehows
    */
   public async getLiketByIdx(idx: number) {
-    const liket = await this.liketRepository.selectLiketByIdx(idx);
+    const liket = await this.liketCoreService.findLiketByIdx(idx);
 
     if (!liket) {
       throw new LiketNotFoundException('Cannot find liket');
     }
 
-    const { textShape, bgImgInfo, LiketImgShape } = liket;
+    // TODO: Check the below comments is necessary
+    // const { textShape, bgImgInfo, LiketImgShape } = liket;
 
-    if (!this.isValidTextShapeEntity(textShape)) {
-      this.logger.warn(this.getLiketByIdx, 'invalid liket text shape');
-    }
+    // if (!this.isValidTextShapeEntity(textShape)) {
+    //   this.logger.warn(this.getLiketByIdx, 'invalid liket text shape');
+    // }
 
-    if (!this.isValidBgImgInfoEntity(bgImgInfo)) {
-      this.logger.warn(
-        this.getLiketByIdx,
-        'invalid liket background img information',
-      );
-    }
+    // if (!this.isValidBgImgInfoEntity(bgImgInfo)) {
+    //   this.logger.warn(
+    //     this.getLiketByIdx,
+    //     'invalid liket background img information',
+    //   );
+    // }
 
-    const imgShapes = LiketImgShape.map(({ imgShape }) => {
-      return imgShape;
-    });
+    // const imgShapes = LiketImgShape.map(({ imgShape }) => {
+    //   return imgShape;
+    // });
 
-    if (!this.isValidImgShapeEntity(imgShapes)) {
-      this.logger.warn(this.getLiketByIdx, 'invalid liket img shape');
-    }
+    // if (!this.isValidImgShapeEntity(imgShapes)) {
+    //   this.logger.warn(this.getLiketByIdx, 'invalid liket img shape');
+    // }
 
-    return LiketEntity.createEntity(
-      liket,
-      bgImgInfo as any,
-      imgShapes as any,
-      textShape as any,
-    );
+    return LiketEntity.fromModel(liket);
   }
 
   /**

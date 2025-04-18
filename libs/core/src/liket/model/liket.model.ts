@@ -75,7 +75,9 @@ export class LiketModel {
       idx: liket.idx,
       cardImgPath: liket.cardImgPath,
       size: liket.size as 1 | 2 | 3,
-      textShape: LiketTextShapeModel.fromPrisma(liket.textShape),
+      textShape: liket.textShape
+        ? LiketTextShapeModel.fromPrisma(liket.textShape)
+        : null,
       imgShapes: liket.LiketImgShape.map(LiketImgShapeModel.fromPrisma),
       bgImgPath: liket.bgImgPath,
       bgImgInfo: LiketBgImgInfoModel.fromPrisma(liket.bgImgInfo),
