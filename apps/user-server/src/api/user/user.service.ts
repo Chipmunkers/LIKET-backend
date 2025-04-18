@@ -106,6 +106,7 @@ export class UserService {
         orderBy: 'time',
       })
     ).map(ReviewEntity.fromModel);
+
     const reviewCount =
       await this.userCoreService.getReviewCountByUserIdx(userIdx);
 

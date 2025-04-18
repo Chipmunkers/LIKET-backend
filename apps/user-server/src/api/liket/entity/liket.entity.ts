@@ -125,52 +125,6 @@ export class LiketEntity {
     Object.assign(this, data);
   }
 
-  /**
-   * @deprecated
-   */
-  static createEntity(
-    data: LiketWithInclude,
-    bgImgInfo: BgImgInfoEntity,
-    imgShapes: ImgShapeEntity[],
-    textShape?: TextShapeEntity,
-  ) {
-    const review = data.Review;
-    const content = review.CultureContent;
-    const User = review.User;
-
-    return new LiketEntity({
-      idx: data.idx,
-      cardImgPath: data.cardImgPath,
-      bgImgPath: data.bgImgPath,
-      size: data.size as any,
-      review: {
-        starRating: review.starRating,
-        visitTime: review.visitTime,
-      },
-      textShape: textShape
-        ? TextShapeEntity.createEntity(textShape)
-        : undefined,
-      imgShapes: imgShapes.map((imgShape) => {
-        return ImgShapeEntity.createEntity(imgShape);
-      }),
-      bgImgInfo: BgImgInfoEntity.createEntity(bgImgInfo),
-      description: data.description,
-      cultureContent: {
-        idx: content.idx,
-        title: content.title,
-        genre: TagEntity.createEntity(content.Genre),
-        location: LocationEntity.createEntity(content.Location),
-      },
-      author: {
-        idx: User.idx,
-        nickname: User.nickname,
-        profileImgPath: User.profileImgPath,
-        provider: User.provider,
-      },
-      createdAt: data.createdAt,
-    });
-  }
-
   public static fromModel(model: LiketModel): LiketEntity {
     return new LiketEntity({
       idx: model.idx,

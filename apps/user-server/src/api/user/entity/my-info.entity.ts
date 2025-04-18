@@ -59,33 +59,6 @@ export class MyInfoEntity extends PickType(UserEntity, [
     Object.assign(this, data);
   }
 
-  /**
-   * `CoreModule`이 도입됨에 따라 deprecated되었습니다.
-   * 대신, `fromModel`을 사용하십시오.
-   */
-  static createEntity(
-    user: UserWithInclude,
-    liketList: SummaryLiketEntity[],
-    liketCount: number,
-    reviewList: ReviewEntity[],
-  ): MyInfoEntity {
-    return new MyInfoEntity({
-      idx: user.idx,
-      profileImgPath: user.profileImgPath || null,
-      nickname: user.nickname,
-      provider: user.provider,
-      gender: user.gender,
-      email: user.email,
-      birth: user.birth,
-      createdAt: user.createdAt,
-      reviewCount: user._count.Review,
-      reviewList,
-      liketCount,
-      liketList,
-      likeCount: user._count.ContentLike,
-    });
-  }
-
   public static fromModel(
     user: UserModel,
     liketList: SummaryLiketEntity[],
