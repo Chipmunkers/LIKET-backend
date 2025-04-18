@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UpdateLiketDto } from './dto/update-liket.dto';
 import { LiketEntity } from './entity/liket.entity';
 import { Prisma } from '@prisma/client';
