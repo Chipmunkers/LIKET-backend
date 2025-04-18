@@ -7,6 +7,7 @@ import { LiketRepository } from './liket.repository';
 import { ReviewRepository } from '../review/review.repository';
 import { ReviewNotFoundException } from '../review/exception/ReviewNotFoundException';
 import { AlreadyExistLiketException } from './exception/AlreadyExistLiketException';
+import { ReviewModel } from 'libs/core/review/model/review.model';
 
 @Injectable()
 export class LiketAuthService {
@@ -18,24 +19,24 @@ export class LiketAuthService {
   /**
    * @author wherehows
    */
-  public async checkCreatePermission(reviewIdx: number, userIdx: number) {
-    const review = await this.reviewRepository.selectReviewByIdx(reviewIdx);
-
-    const liket = await this.liketRepository.selectLiketByReviewIdx(reviewIdx);
-
-    if (liket) {
-      throw new AlreadyExistLiketException('Already exist LIKET');
-    }
-
-    if (!review) {
-      throw new ReviewNotFoundException('Cannot find review');
-    }
-
-    if (review.userIdx !== userIdx) {
-      throw new PermissionDeniedException('Permission denied');
+  public checkReadAllPermissions(
+    pageable: LiketPageableDto,
+    loginUser: LoginUser,
+  ) {
+    if (pageable.user !== loginUser.idx) {
+      throw new PermissionDeniedException();
     }
 
     return;
+  }
+
+  /**
+   * @author wherehows
+   */
+  public checkCreatePermission(reviewModel: ReviewModel, loginUser: LoginUser) {
+    if (reviewModel.author.idx !== loginUser.idx) {
+      throw new PermissionDeniedException();
+    }
   }
 
   /**
@@ -50,20 +51,6 @@ export class LiketAuthService {
 
     if (liket.Review.userIdx !== loginUser.idx) {
       throw new PermissionDeniedException('Permission denied');
-    }
-
-    return;
-  }
-
-  /**
-   * @author wherehows
-   */
-  public checkReadAllPermissions(
-    pageable: LiketPageableDto,
-    loginUser: LoginUser,
-  ) {
-    if (pageable.user !== loginUser.idx) {
-      throw new PermissionDeniedException();
     }
 
     return;

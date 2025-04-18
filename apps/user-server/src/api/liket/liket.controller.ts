@@ -44,7 +44,9 @@ export class LiketController {
     @User() loginUser: LoginUser,
   ): Promise<GetLiketAllResponseDto> {
     await this.liketAuthService.checkReadAllPermissions(pageable, loginUser);
-    return { liketList: await this.liketService.getLiketAll(pageable) };
+    return {
+      liketList: await this.liketService.getLiketAll(pageable, loginUser),
+    };
   }
 
   /**
@@ -62,10 +64,9 @@ export class LiketController {
   public async createLiket(
     @Body() createDto: CreateLiketDto,
     @Param('idx', ParseIntPipe) reviewIdx: number,
-    @User() LoginUser: LoginUser,
+    @User() loginUser: LoginUser,
   ) {
-    await this.liketAuthService.checkCreatePermission(reviewIdx, LoginUser.idx);
-    return await this.liketService.createLiket(reviewIdx, createDto);
+    return await this.liketService.createLiket(reviewIdx, createDto, loginUser);
   }
 
   /**

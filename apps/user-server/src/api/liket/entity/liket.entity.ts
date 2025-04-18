@@ -5,6 +5,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsDateString,
+  IsIn,
   IsInt,
   IsObject,
   IsOptional,
@@ -48,9 +49,8 @@ export class LiketEntity {
    * @example 3
    */
   @IsInt()
-  @Min(1)
-  @Max(3)
-  public size: number;
+  @IsIn([1, 2, 3])
+  public size: 1 | 2 | 3;
 
   /**
    * 카드를 꾸미는 텍스트 정보
@@ -142,7 +142,7 @@ export class LiketEntity {
       idx: data.idx,
       cardImgPath: data.cardImgPath,
       bgImgPath: data.bgImgPath,
-      size: data.size,
+      size: data.size as any,
       review: {
         starRating: review.starRating,
         visitTime: review.visitTime,

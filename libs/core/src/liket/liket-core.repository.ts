@@ -164,6 +164,85 @@ export class LiketCoreRepository {
   }
 
   /**
+   * SELECT liket_tb WHERE review_idx = $1
+   *
+   * @author jochongs
+   */
+  public async selectLiketByReviewIdx(
+    reviewIdx: number,
+  ): Promise<LiketSelectField | null> {
+    return await this.txHost.tx.liket.findFirst({
+      select: {
+        idx: true,
+        cardImgPath: true,
+        size: true,
+        textShape: true,
+        bgImgPath: true,
+        description: true,
+        createdAt: true,
+        LiketImgShape: {
+          select: {
+            imgShape: true,
+          },
+        },
+        bgImgInfo: true,
+        Review: {
+          select: {
+            idx: true,
+            visitTime: true,
+            starRating: true,
+            CultureContent: {
+              select: {
+                idx: true,
+                title: true,
+                Genre: {
+                  select: {
+                    idx: true,
+                    name: true,
+                    createdAt: true,
+                  },
+                },
+                Location: {
+                  select: {
+                    idx: true,
+                    address: true,
+                    detailAddress: true,
+                    region1Depth: true,
+                    region2Depth: true,
+                    hCode: true,
+                    bCode: true,
+                    positionX: true,
+                    positionY: true,
+                    sidoCode: true,
+                    sggCode: true,
+                    legCode: true,
+                    riCode: true,
+                  },
+                },
+              },
+            },
+            User: {
+              select: {
+                idx: true,
+                profileImgPath: true,
+                nickname: true,
+                provider: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        reviewIdx,
+        deletedAt: null,
+        Review: {
+          deletedAt: null,
+        },
+      },
+    });
+  }
+
+  /**
    * INSERT liket_tb
    *
    * @author jochongs
