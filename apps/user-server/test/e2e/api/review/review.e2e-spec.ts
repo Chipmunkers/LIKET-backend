@@ -2,13 +2,18 @@ import { LiketService } from 'apps/user-server/src/api/liket/liket.service';
 import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
-import { CultureContentSeedHelper, ReviewSeedHelper } from 'libs/testing';
+import {
+  CultureContentSeedHelper,
+  LiketSeedHelper,
+  ReviewSeedHelper,
+} from 'libs/testing';
 import * as request from 'supertest';
 
 describe('Review (e2e)', () => {
   const test = TestHelper.create(AppModule);
   const contentSeedHelper = test.seedHelper(CultureContentSeedHelper);
   const reviewSeedHelper = test.seedHelper(ReviewSeedHelper);
+  const liketSeedHelper = test.seedHelper(LiketSeedHelper);
 
   beforeEach(async () => {
     await test.init();
@@ -312,18 +317,9 @@ describe('Review (e2e)', () => {
           userIdx: loginUser.idx,
         },
       ]);
-
-      const createdLiket = await test
-        .get(LiketService)
-        .createLiket(reviewWithLiket.idx, {
-          bgImgInfo: {} as any,
-          bgImgPath: '/path/image.png',
-          cardImgPath: '/path2/image.png',
-          description: 'hi',
-          imgShapes: [],
-          size: 1,
-          textShape: {} as any,
-        });
+      const createdLiket = await liketSeedHelper.seed({
+        reviewIdx: reviewWithLiket.idx,
+      });
 
       const { body } = await request(test.getServer())
         .get('/review/all')
