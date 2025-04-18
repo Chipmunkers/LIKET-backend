@@ -13,7 +13,6 @@ import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { LoginToken } from '../auth/model/login-token';
 import { LoginUser } from '../auth/model/login-user';
 import { WithdrawalDto } from './dto/withdrawal.dto';
-import { LiketRepository } from '../liket/liket.repository';
 import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
 import { UserCoreService } from 'libs/core/user/user-core.service';
 import { ReviewCoreService } from 'libs/core/review/review-core.service';
