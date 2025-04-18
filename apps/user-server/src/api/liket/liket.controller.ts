@@ -115,8 +115,6 @@ export class LiketController {
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) liketIdx: number,
   ) {
-    await this.liketAuthService.checkDeletePermission(loginUser, liketIdx);
-    await this.liketService.deleteLiket(liketIdx);
-    return;
+    await this.liketService.deleteLiket(liketIdx, loginUser);
   }
 }

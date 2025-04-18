@@ -19,7 +19,7 @@ export class LiketService {
   constructor(
     private readonly liketCoreService: LiketCoreService,
     private readonly reviewCoreService: ReviewCoreService,
-    private readonly liketAuthPermission: LiketAuthService,
+    private readonly liketAuthService: LiketAuthService,
   ) {}
 
   /**
@@ -31,7 +31,7 @@ export class LiketService {
     pageable: LiketPageableDto,
     loginUser: LoginUser,
   ): Promise<SummaryLiketEntity[]> {
-    this.liketAuthPermission.checkReadAllPermissions(pageable, loginUser);
+    this.liketAuthService.checkReadAllPermissions(pageable, loginUser);
 
     const liketList = await this.liketCoreService.findLiketAll({
       page: pageable.page,
@@ -100,7 +100,7 @@ export class LiketService {
       throw new ReviewNotFoundException('review does not exist');
     }
 
-    this.liketAuthPermission.checkCreatePermission(reviewModel, loginUser);
+    this.liketAuthService.checkCreatePermission(reviewModel, loginUser);
 
     const liket = await this.liketCoreService.createLiket(reviewIdx, createDto);
 
@@ -137,6 +137,12 @@ export class LiketService {
     idx: number,
     updateDto: UpdateLiketDto,
   ): Promise<void> {
+    const liket = await this.liketCoreService.findLiketByIdx(idx);
+
+    if (!liket) {
+      throw new LiketNotFoundException('cannot find liket');
+    }
+
     return await this.liketCoreService.updateLiketByIdx(idx, updateDto);
   }
 
@@ -145,7 +151,15 @@ export class LiketService {
    *
    * @author wherehows
    */
-  public async deleteLiket(liketIdx: number) {
+  public async deleteLiket(liketIdx: number, loginUser: LoginUser) {
+    const liketModel = await this.liketCoreService.findLiketByIdx(liketIdx);
+
+    if (!liketModel) {
+      throw new LiketNotFoundException('Cannot find liket');
+    }
+
+    this.liketAuthService.checkDeletePermission(loginUser, liketModel);
+
     return await this.liketCoreService.deleteLiketByIdx(liketIdx);
   }
 
