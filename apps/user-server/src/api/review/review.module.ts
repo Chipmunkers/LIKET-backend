@@ -9,6 +9,5 @@ import { CultureContentCoreModule } from 'libs/core/culture-content/culture-cont
   imports: [ReviewCoreModule, CultureContentCoreModule],
   controllers: [ReviewController],
   providers: [ReviewService, ReviewAuthService],
-  exports: [],
 })
 export class ReviewModule {}
