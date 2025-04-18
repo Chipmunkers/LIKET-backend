@@ -7,11 +7,11 @@ import { SocialLoginUserService } from './social-login-user.service';
 import { LoginJwtModule } from '../../common/module/login-jwt/login-jwt.module';
 import { SocialLoginJwtModule } from '../../common/module/social-login-jwt/social-login-jwt.module';
 import { UserPwService } from './user-pw.service';
-import { LiketRepository } from '../liket/liket.repository';
 import { PrismaModule } from 'libs/modules';
 import { UserCoreModule } from 'libs/core/user/user-core.module';
 import { ReviewCoreModule } from 'libs/core/review/review-core.module';
 import { HashModule } from 'libs/modules/hash/hash.module';
+import { LiketCoreModule } from 'libs/core/liket/liket-core.module';
 
 @Module({
   imports: [
@@ -23,14 +23,10 @@ import { HashModule } from 'libs/modules/hash/hash.module';
     SocialLoginJwtModule,
     UserCoreModule,
     ReviewCoreModule,
+    LiketCoreModule,
   ],
   controllers: [UserController],
-  providers: [
-    UserService,
-    SocialLoginUserService,
-    UserPwService,
-    LiketRepository,
-  ],
+  providers: [UserService, SocialLoginUserService, UserPwService],
   exports: [SocialLoginUserService],
 })
 export class UserModule {}

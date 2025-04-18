@@ -262,6 +262,25 @@ export class UserCoreRepository {
   }
 
   /**
+   * SELECT COUNT(*) FROM liket_tb WHERE user_idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  public async selectLiketCountByUserIdx(idx: number): Promise<number> {
+    return await this.txHost.tx.liket.count({
+      where: {
+        deletedAt: null,
+        Review: {
+          userIdx: idx,
+          deletedAt: null,
+        },
+      },
+    });
+  }
+
+  /**
    * SELECT COUNT(*) FROM content_like_tb WHERE user_idx = $1
    *
    * @author jochongs

@@ -177,6 +177,18 @@ export class UserCoreService {
   }
 
   /**
+   * 사용자가 작성한 라이켓 개수 가져오기
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  @Transactional()
+  public async getLiketCountByUserIdx(idx: number): Promise<number> {
+    return await this.userCoreRepository.selectLiketCountByUserIdx(idx);
+  }
+
+  /**
    * 사용자가 누른 좋아요 개수 가져오기
    *
    * @author jochongs

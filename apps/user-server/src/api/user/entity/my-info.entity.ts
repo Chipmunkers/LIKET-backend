@@ -76,7 +76,7 @@ export class MyInfoEntity extends PickType(UserEntity, [
       email: user.email,
       birth: user.birth,
       createdAt: user.createdAt,
-      reviewCount: 0,
+      reviewCount,
       reviewList,
       liketCount,
       liketList,

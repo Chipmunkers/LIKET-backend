@@ -18,15 +18,16 @@ import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
 import { UserCoreService } from 'libs/core/user/user-core.service';
 import { ReviewCoreService } from 'libs/core/review/review-core.service';
 import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
+import { LiketCoreService } from 'libs/core/liket/liket-core.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly emailJwtService: EmailJwtService,
     private readonly loginJwtService: LoginJwtService,
-    private readonly liketRepository: LiketRepository,
     private readonly userCoreService: UserCoreService,
     private readonly reviewCoreService: ReviewCoreService,
+    private readonly liketCoreService: LiketCoreService,
   ) {}
 
   /**
@@ -86,16 +87,17 @@ export class UserService {
     }
 
     const liketList = (
-      await this.liketRepository.selectLiketAll({
-        user: userIdx,
-        orderby: 'time',
+      await this.liketCoreService.findLiketAll({
+        userIdx,
         order: 'desc',
+        orderBy: 'idx',
         page: 1,
+        row: 10,
       })
-    ).map((liket) => SummaryLiketEntity.createEntity(liket));
+    ).map(SummaryLiketEntity.fromModel);
 
     const liketCount =
-      await this.liketRepository.selectLiketCountByUserIdx(userIdx);
+      await this.userCoreService.getLiketCountByUserIdx(userIdx);
 
     const reviewList = (
       await this.reviewCoreService.findReviewAll({
