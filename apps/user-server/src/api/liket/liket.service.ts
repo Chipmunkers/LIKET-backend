@@ -13,7 +13,6 @@ import { LoginUser } from 'apps/user-server/src/api/auth/model/login-user';
 import { ReviewCoreService } from 'libs/core/review/review-core.service';
 import { LiketAuthService } from 'apps/user-server/src/api/liket/liket-auth.service';
 import { ReviewNotFoundException } from 'apps/user-server/src/api/review/exception/ReviewNotFoundException';
-import { AlreadyExistLiketException } from 'apps/user-server/src/api/liket/exception/AlreadyExistLiketException';
 
 @Injectable()
 export class LiketService {

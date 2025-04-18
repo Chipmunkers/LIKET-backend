@@ -4,17 +4,11 @@ import { LoginUser } from '../auth/model/login-user';
 import { LiketPageableDto } from './dto/liket-pageable.dto';
 import { LiketNotFoundException } from './exception/LiketNotFoundException';
 import { LiketRepository } from './liket.repository';
-import { ReviewRepository } from '../review/review.repository';
-import { ReviewNotFoundException } from '../review/exception/ReviewNotFoundException';
-import { AlreadyExistLiketException } from './exception/AlreadyExistLiketException';
 import { ReviewModel } from 'libs/core/review/model/review.model';
 
 @Injectable()
 export class LiketAuthService {
-  constructor(
-    private readonly liketRepository: LiketRepository,
-    private readonly reviewRepository: ReviewRepository,
-  ) {}
+  constructor(private readonly liketRepository: LiketRepository) {}
 
   /**
    * @author wherehows
