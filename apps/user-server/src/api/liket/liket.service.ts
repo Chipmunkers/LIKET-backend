@@ -136,12 +136,15 @@ export class LiketService {
   public async updateLiket(
     idx: number,
     updateDto: UpdateLiketDto,
+    loginUser: LoginUser,
   ): Promise<void> {
     const liket = await this.liketCoreService.findLiketByIdx(idx);
 
     if (!liket) {
       throw new LiketNotFoundException('cannot find liket');
     }
+
+    this.liketAuthService.checkUpdatePermission(loginUser, liket);
 
     return await this.liketCoreService.updateLiketByIdx(idx, updateDto);
   }

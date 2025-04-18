@@ -96,8 +96,7 @@ export class LiketController {
     @Param('idx', ParseIntPipe) reviewIdx: number,
     @Body() updateDto: UpdateLiketDto,
   ) {
-    await this.liketAuthService.checkUpdatePermission(loginUser, reviewIdx);
-    return await this.liketService.updateLiket(reviewIdx, updateDto);
+    return await this.liketService.updateLiket(reviewIdx, updateDto, loginUser);
   }
 
   /**

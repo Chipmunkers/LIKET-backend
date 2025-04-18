@@ -2,14 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PermissionDeniedException } from '../../common/exception/PermissionDeniedException';
 import { LoginUser } from '../auth/model/login-user';
 import { LiketPageableDto } from './dto/liket-pageable.dto';
-import { LiketNotFoundException } from './exception/LiketNotFoundException';
-import { LiketRepository } from './liket.repository';
 import { ReviewModel } from 'libs/core/review/model/review.model';
 import { LiketModel } from 'libs/core/liket/model/liket.model';
 
 @Injectable()
 export class LiketAuthService {
-  constructor(private readonly liketRepository: LiketRepository) {}
+  constructor() {}
 
   /**
    * @author wherehows
@@ -40,14 +38,11 @@ export class LiketAuthService {
   /**
    * @author wherehows
    */
-  public async checkUpdatePermission(loginUser: LoginUser, liketIdx: number) {
-    const liket = await this.liketRepository.selectLiketByIdx(liketIdx);
-
-    if (!liket) {
-      throw new LiketNotFoundException('Cannot find liket');
-    }
-
-    if (liket.Review.userIdx !== loginUser.idx) {
+  public checkUpdatePermission(
+    loginUser: LoginUser,
+    liketModel: LiketModel,
+  ): void {
+    if (liketModel.author.idx !== loginUser.idx) {
       throw new PermissionDeniedException('Permission denied');
     }
 
