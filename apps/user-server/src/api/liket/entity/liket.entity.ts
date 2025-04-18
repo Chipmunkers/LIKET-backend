@@ -1,6 +1,5 @@
 import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { LocationEntity } from '../../culture-content/entity/location.entity';
-import { UserProfileEntity } from '../../user/entity/user-profile.entity';
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -17,8 +16,6 @@ import {
 } from 'class-validator';
 import { TextShapeEntity } from './text-shape.entity';
 import { ImgShapeEntity } from './img-shape.entity';
-import { ContentEntity } from '../../culture-content/entity/content.entity';
-import { PickType } from '@nestjs/swagger';
 import { BgImgInfoEntity } from './bg-img-info.entity';
 import { LiketWithInclude } from './prisma-type/liket-with-include';
 import { Type } from 'class-transformer';
@@ -128,6 +125,9 @@ export class LiketEntity {
     Object.assign(this, data);
   }
 
+  /**
+   * @deprecated
+   */
   static createEntity(
     data: LiketWithInclude,
     bgImgInfo: BgImgInfoEntity,
