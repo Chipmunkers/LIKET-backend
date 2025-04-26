@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { LocationEntity } from 'apps/batch-server/src/content-cron/culture-content/entity/location.entity';
-import { TempContentEntity } from 'apps/batch-server/src/content-cron/culture-content/entity/temp-content.entity';
+import { LocationEntity } from 'apps/batch-server/src/content-cron/entity/location.entity';
+import { TempContentEntity } from 'apps/batch-server/src/content-cron/entity/temp-content.entity';
 import { FacilityEntity } from 'apps/batch-server/src/content-cron/external-apis/kopis/entity/facility.entity';
 import { PerformEntity } from 'apps/batch-server/src/content-cron/external-apis/kopis/entity/perform.entity';
 import { KopisFacilityProvider } from 'apps/batch-server/src/content-cron/external-apis/kopis/provider/kopis.facility.provider';

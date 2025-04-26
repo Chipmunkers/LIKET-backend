@@ -7,7 +7,7 @@ import { LocationEntity } from './location.entity';
  * @author jochongs
  */
 export class TempContentEntity {
-  /** 공연 ID */
+  /** 공연 ID, content key가 붙어있지 않음에 주의 */
   id: string;
 
   /** 공연 장소 주소 데이터 */

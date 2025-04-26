@@ -1,5 +1,7 @@
 /**
  * @author jochongs
+ *
+ * TODO: LocationModel 상속 받도록 변경
  */
 export class LocationEntity {
   /**

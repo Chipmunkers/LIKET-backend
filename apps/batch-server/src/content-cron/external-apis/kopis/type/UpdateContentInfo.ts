@@ -1,4 +1,4 @@
-import { TempContentEntity } from 'apps/batch-server/src/content-cron/culture-content/entity/temp-content.entity';
+import { TempContentEntity } from 'apps/batch-server/src/content-cron/entity/temp-content.entity';
 
 export type UpdateContentInfo = Pick<
   TempContentEntity,

@@ -1,9 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CultureContentRepository } from 'apps/batch-server/src/content-cron/culture-content/culture-content.repository';
 import { InsertContentDto } from 'apps/batch-server/src/content-cron/dto/insert-content.dto';
 import { SignContentTokenDto } from 'apps/batch-server/src/content-cron/dto/sign-content-token.dto';
-import { AlreadyExistContentException } from 'apps/batch-server/src/content-cron/exception/AlreadyExistContentException';
 import {
   EXTERNAL_APIs,
   ExternalAPIs,
@@ -15,6 +13,10 @@ import { CronStatistical } from 'apps/batch-server/src/content-cron/type/cron-st
 import { ContentTokenService } from 'apps/batch-server/src/content-token/content-token.service';
 import { GET_MODE, MODE, Mode } from 'libs/common';
 import { SERVER_TYPE } from 'libs/common/constants/server-type';
+import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
+import { Age } from 'libs/core/tag-root/age/constant/age';
+import { Genre } from 'libs/core/tag-root/genre/constant/genre';
+import { Style } from 'libs/core/tag-root/style/constant/style';
 import { DiscordService } from 'libs/modules/discord/discord.service';
 
 @Injectable()
@@ -27,11 +29,11 @@ export class ContentCronService {
   constructor(
     private readonly logger: Logger,
     private readonly kopisPerformApiService: KopisPerformApiService,
-    private readonly cultureContentRepository: CultureContentRepository,
     private readonly tourApiService: TourApiService,
     private readonly discordService: DiscordService,
     private readonly contentTokenService: ContentTokenService,
     private readonly configService: ConfigService,
+    private readonly cultureContentCoreService: CultureContentCoreService,
   ) {
     this.externalApiMap = {
       [EXTERNAL_APIs.KOPIS_PERFORM]: this.kopisPerformApiService,
@@ -65,37 +67,65 @@ export class ContentCronService {
             const contentId = this.getContentId(performId, externalApiKey);
 
             const alreadyExistContent =
-              await this.cultureContentRepository.selectCultureContentById(
+              await this.cultureContentCoreService.findCultureContentById(
                 contentId,
               );
 
             const externalApiAdapter = externalApiService.getAdapter();
 
-            const detailPerform = await externalApiService.getDetail(
-              summaryPerform,
-            );
+            const detailPerform =
+              await externalApiService.getDetail(summaryPerform);
 
             if (alreadyExistContent) {
               data.count[externalApiKey].updateCount += 1;
-              const updateInfo = await externalApiAdapter.extractUpdateData(
-                detailPerform,
+              const updateInfo =
+                await externalApiAdapter.extractUpdateData(detailPerform);
+
+              await this.cultureContentCoreService.updateCultureContentByIdx(
+                alreadyExistContent.idx,
+                {
+                  description: updateInfo.description,
+                  openTime: updateInfo.openTime,
+                  startDate: updateInfo.startDate,
+                  endDate: updateInfo.endDate,
+                  location: updateInfo.location,
+                },
               );
 
-              await this.cultureContentRepository.updateContentById(
-                updateInfo,
-                contentId,
-              );
               continue;
             }
 
-            const tempContent = await externalApiAdapter.transform(
-              detailPerform,
-            );
+            const tempContent =
+              await externalApiAdapter.transform(detailPerform);
 
-            await this.cultureContentRepository.insertCultureContentWithContentId(
-              tempContent,
-              contentId,
-            );
+            await this.cultureContentCoreService.createCultureContent({
+              id: contentId,
+              genreIdx: tempContent.genreIdx as Genre,
+              location: {
+                address: tempContent.location.address,
+                detailAddress: tempContent.location.detailAddress,
+                bCode: tempContent.location.bCode,
+                hCode: tempContent.location.hCode,
+                positionX: tempContent.location.positionX,
+                positionY: tempContent.location.positionY,
+                region1Depth: tempContent.location.region1Depth,
+                region2Depth: tempContent.location.region2Depth,
+              },
+              ageIdx: tempContent.ageIdx as Age,
+              authorIdx: 1, // TODO: admin enum으로 관리해야함
+              styleIdxList: tempContent.styleIdxList as Style[],
+              title: tempContent.title,
+              imgList: tempContent.imgList,
+              description: tempContent.description,
+              websiteLink: tempContent.websiteLink,
+              startDate: tempContent.startDate,
+              endDate: tempContent.endDate,
+              openTime: tempContent.openTime,
+              isFee: tempContent.isFee,
+              isReservation: tempContent.isReservation,
+              isParking: tempContent.isParking,
+              isPet: tempContent.isPet,
+            });
 
             data.count[externalApiKey].insertCount += 1;
           } catch (err) {
@@ -177,20 +207,25 @@ export class ContentCronService {
     const contentId = this.getContentId(performId, externalApiKey);
 
     const alreadyExistContent =
-      await this.cultureContentRepository.selectCultureContentById(contentId);
+      await this.cultureContentCoreService.findCultureContentById(contentId);
 
     const detailPerform = await externalApiService.getDetailById(performId);
 
     const externalApiAdapter = externalApiService.getAdapter();
 
     if (alreadyExistContent) {
-      const updateInfo = await externalApiAdapter.extractUpdateData(
-        detailPerform,
-      );
+      const updateInfo =
+        await externalApiAdapter.extractUpdateData(detailPerform);
 
-      await this.cultureContentRepository.updateContentById(
-        updateInfo,
-        contentId,
+      await this.cultureContentCoreService.updateCultureContentByIdx(
+        alreadyExistContent.idx,
+        {
+          description: updateInfo.description,
+          openTime: updateInfo.openTime,
+          startDate: updateInfo.startDate,
+          endDate: updateInfo.endDate,
+          location: updateInfo.location,
+        },
       );
 
       return 'update';
@@ -198,10 +233,34 @@ export class ContentCronService {
 
     const tempContent = await externalApiAdapter.transform(detailPerform);
 
-    await this.cultureContentRepository.insertCultureContentWithContentId(
-      tempContent,
-      contentId,
-    );
+    await this.cultureContentCoreService.createCultureContent({
+      id: contentId,
+      genreIdx: tempContent.genreIdx as Genre,
+      location: {
+        address: tempContent.location.address,
+        detailAddress: tempContent.location.detailAddress,
+        bCode: tempContent.location.bCode,
+        hCode: tempContent.location.hCode,
+        positionX: tempContent.location.positionX,
+        positionY: tempContent.location.positionY,
+        region1Depth: tempContent.location.region1Depth,
+        region2Depth: tempContent.location.region2Depth,
+      },
+      ageIdx: tempContent.ageIdx as Age,
+      authorIdx: 1, // TODO: admin enum으로 관리해야함
+      styleIdxList: tempContent.styleIdxList as Style[],
+      title: tempContent.title,
+      imgList: tempContent.imgList,
+      description: tempContent.description,
+      websiteLink: tempContent.websiteLink,
+      startDate: tempContent.startDate,
+      endDate: tempContent.endDate,
+      openTime: tempContent.openTime,
+      isFee: tempContent.isFee,
+      isReservation: tempContent.isReservation,
+      isParking: tempContent.isParking,
+      isPet: tempContent.isPet,
+    });
 
     return 'insert';
   }
@@ -227,49 +286,13 @@ export class ContentCronService {
   }
 
   /**
-   * DB에 저장된 컨텐츠를 다시 cron 하는 메서드
-   *
-   * @author jochongs
-   */
-  public async recronKPContentsAll() {
-    const kopisContents =
-      await this.cultureContentRepository.selectCultureContentByExternalApiKey(
-        EXTERNAL_APIs.KOPIS_PERFORM,
-      );
-
-    for (let i = 0; i < kopisContents.length; i++) {
-      const kopisContent = kopisContents[i];
-      try {
-        if (!kopisContent.id) {
-          this.logger.error('Cannot find kopis content');
-          continue;
-        }
-
-        const result = await this.upsertContentById(
-          EXTERNAL_APIs.KOPIS_PERFORM,
-          kopisContent.id.split('-')[1],
-        );
-
-        console.log(
-          `(${i + 1} / ${kopisContents.length}) ${result}: ${kopisContent.id}`,
-        );
-      } catch (err) {
-        await this.handlingError(
-          'content recron error',
-          `ID: ${kopisContent.id}`,
-          err,
-        );
-      }
-    }
-  }
-
-  /**
    * 통계 핸들링
    *
    * @author jochongs
    */
   private async handlingStatistical(data: CronStatistical): Promise<void> {
     if (this.MODE !== MODE.PRODUCT) {
+      console.log(data);
       return;
     }
 
