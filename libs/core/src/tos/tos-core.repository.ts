@@ -7,6 +7,7 @@ import { FindTosAllInput } from 'libs/core/tos/input/find-tos-all.input';
 import { SummaryTosSelectField } from 'libs/core/tos/model/prisma/summary-tos-select-field';
 import { Prisma } from '@prisma/client';
 import { CreateTosInput } from 'libs/core/tos/input/create-tos.input';
+import { UpdateTosInput } from 'libs/core/tos/input/update-tos.input';
 
 @Injectable()
 export class TosCoreRepository {
@@ -95,6 +96,30 @@ export class TosCoreRepository {
         isEssential: true,
         createdAt: true,
         updatedAt: true,
+      },
+      data: {
+        title: input.title,
+        contents: input.contents,
+        isEssential: input.isEssential,
+      },
+    });
+  }
+
+  /**
+   * UPDATE tos_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 수정할 약관 식별자
+   */
+  public async updateTosByIdx(
+    idx: number,
+    input: UpdateTosInput,
+  ): Promise<void> {
+    await this.txHost.tx.tos.update({
+      where: {
+        idx,
+        deletedAt: null,
       },
       data: {
         title: input.title,
