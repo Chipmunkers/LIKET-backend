@@ -6,6 +6,7 @@ import { TosSelectField } from 'libs/core/tos/model/prisma/tos-select-field';
 import { FindTosAllInput } from 'libs/core/tos/input/find-tos-all.input';
 import { SummaryTosSelectField } from 'libs/core/tos/model/prisma/summary-tos-select-field';
 import { Prisma } from '@prisma/client';
+import { CreateTosInput } from 'libs/core/tos/input/create-tos.input';
 
 @Injectable()
 export class TosCoreRepository {
@@ -76,6 +77,29 @@ export class TosCoreRepository {
       where: {
         idx,
         deletedAt: null,
+      },
+    });
+  }
+
+  /**
+   * INSERT tos_tb
+   *
+   * @author jochongs
+   */
+  public async insertTos(input: CreateTosInput): Promise<TosSelectField> {
+    return await this.txHost.tx.tos.create({
+      select: {
+        idx: true,
+        title: true,
+        contents: true,
+        isEssential: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      data: {
+        title: input.title,
+        contents: input.contents,
+        isEssential: input.isEssential,
       },
     });
   }
