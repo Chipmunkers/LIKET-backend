@@ -1,3 +1,4 @@
+import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { TosModel } from 'libs/core/tos/model/tos.model';
 import { TosCoreRepository } from 'libs/core/tos/tos-core.repository';
@@ -13,6 +14,7 @@ export class TosCoreService {
    *
    * @param idx 약관 식별자
    */
+  @Transactional()
   public async findTosByIdx(idx: number): Promise<TosModel | null> {
     const tos = await this.tosCoreRepository.selectTosByIdx(idx);
 
