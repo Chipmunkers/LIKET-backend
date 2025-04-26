@@ -3,6 +3,9 @@ import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { PrismaProvider } from 'libs/modules';
 import { TosSelectField } from 'libs/core/tos/model/prisma/tos-select-field';
+import { FindTosAllInput } from 'libs/core/tos/input/find-tos-all.input';
+import { SummaryTosSelectField } from 'libs/core/tos/model/prisma/summary-tos-select-field';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TosCoreRepository {
@@ -11,6 +14,47 @@ export class TosCoreRepository {
       TransactionalAdapterPrisma<PrismaProvider>
     >,
   ) {}
+
+  /**
+   * SELECT tos_tb
+   *
+   * @author jochongs
+   */
+  public async selectTosAll({
+    page,
+    row,
+    order = 'desc',
+    orderBy = 'idx',
+  }: FindTosAllInput): Promise<SummaryTosSelectField[]> {
+    return await this.txHost.tx.tos.findMany({
+      select: {
+        idx: true,
+        title: true,
+        isEssential: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      where: {
+        deletedAt: null,
+      },
+      orderBy: this.getOrderByField(orderBy, order),
+      take: row,
+      skip: (page - 1) * row,
+    });
+  }
+
+  /**
+   * @author jochongs
+   */
+  private getOrderByField(
+    orderBy: 'idx',
+    order: 'desc' | 'asc',
+  ): Prisma.TosOrderByWithRelationInput {
+    // orderBy === "idx"
+    return {
+      idx: order,
+    };
+  }
 
   /**
    * SELECT tos_tb WHERE idx = $1
