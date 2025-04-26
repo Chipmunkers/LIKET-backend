@@ -14,6 +14,7 @@ export class TosCoreService {
    *
    * @author jochongs
    */
+  @Transactional()
   public async findTosAll(input: FindTosAllInput): Promise<SummaryTosModel[]> {
     return (await this.tosCoreRepository.selectTosAll(input)).map(
       SummaryTosModel.fromPrisma,
