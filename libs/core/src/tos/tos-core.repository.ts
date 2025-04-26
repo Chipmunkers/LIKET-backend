@@ -128,4 +128,23 @@ export class TosCoreRepository {
       },
     });
   }
+
+  /**
+   * DELETE tos_tb WHERE idx = $1
+   *
+   * @author jochongs
+   *
+   * @param idx 삭제할 약관 식별자
+   */
+  public async deleteTosByIdx(idx: number): Promise<void> {
+    await this.txHost.tx.tos.update({
+      where: {
+        idx,
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
 }
