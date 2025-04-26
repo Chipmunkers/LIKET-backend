@@ -1,16 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { SummaryTosEntity } from './entity/summary-tos.entity';
 import { TosEntity } from './entity/tos.entity';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { TosRepository } from './tos.repository';
 
 @Injectable()
 export class TosService {
-  constructor(
-    private readonly tosRepository: TosRepository,
-    @Logger(TosService.name) private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly tosRepository: TosRepository) {}
 
   /**
    * 약관 목록 가져오기
@@ -32,10 +27,6 @@ export class TosService {
     const tos = await this.tosRepository.selectTosByIdx(idx);
 
     if (!tos) {
-      this.logger.warn(
-        this.getTosByIdx,
-        'Attempt to find non-existent Terms of service',
-      );
       throw new NotFoundException('Cannot find terms Of Service');
     }
 
