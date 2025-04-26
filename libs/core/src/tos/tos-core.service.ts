@@ -1,5 +1,6 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
+import { CreateTosInput } from 'libs/core/tos/input/create-tos.input';
 import { FindTosAllInput } from 'libs/core/tos/input/find-tos-all.input';
 import { SummaryTosModel } from 'libs/core/tos/model/summary-tos.model';
 import { TosModel } from 'libs/core/tos/model/tos.model';
@@ -33,5 +34,15 @@ export class TosCoreService {
     const tos = await this.tosCoreRepository.selectTosByIdx(idx);
 
     return tos && TosModel.fromPrisma(tos);
+  }
+
+  /**
+   * 약관 생성하기
+   *
+   * @author jochongs
+   */
+  @Transactional()
+  public async createTos(input: CreateTosInput): Promise<TosModel> {
+    return TosModel.fromPrisma(await this.tosCoreRepository.insertTos(input));
   }
 }
