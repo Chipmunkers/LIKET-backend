@@ -59,4 +59,14 @@ export class TosCoreService {
   ): Promise<void> {
     return await this.tosCoreRepository.updateTosByIdx(idx, input);
   }
+
+  /**
+   * 약관 삭제하기
+   *
+   * @author jochongs
+   */
+  @Transactional()
+  public async deleteTosByIdx(idx: number): Promise<void> {
+    return await this.tosCoreRepository.deleteTosByIdx(idx);
+  }
 }
