@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TosService } from './tos.service';
 import { TosController } from './tos.controller';
-import { TosRepository } from './tos.repository';
 import { PrismaModule } from 'libs/modules';
+import { TosCoreModule } from 'libs/core/tos/tos-core.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [TosCoreModule],
   controllers: [TosController],
-  providers: [TosService, TosRepository],
+  providers: [TosService],
 })
 export class TosModule {}

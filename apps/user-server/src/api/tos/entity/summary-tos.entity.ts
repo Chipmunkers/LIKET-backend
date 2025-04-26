@@ -1,6 +1,7 @@
 import { OmitType } from '@nestjs/swagger';
 import { Tos } from '@prisma/client';
 import { TosEntity } from './tos.entity';
+import { TosModel } from 'libs/core/tos/model/tos.model';
 
 /**
  * @author jochongs
@@ -18,6 +19,14 @@ export class SummaryTosEntity extends OmitType(TosEntity, [
       idx: data.idx,
       title: data.title,
       isEssential: data.isEssential,
+    });
+  }
+
+  public static fromModel(model: TosModel): SummaryTosEntity {
+    return new SummaryTosEntity({
+      idx: model.idx,
+      isEssential: model.isEssential,
+      title: model.title,
     });
   }
 }
