@@ -221,14 +221,6 @@ describe('Culture Content (e2e)', () => {
 
       const contentList: SummaryContentEntity[] = response.body.contentList;
 
-      console.log(
-        contentList.map((content) => ({
-          idx: content.idx,
-          startDate: content.startDate,
-          endDate: content.endDate,
-        })),
-      );
-
       expect(contentList.length).toBe(1);
       expect(contentList[0].idx).toBe(content4.idx);
     });
