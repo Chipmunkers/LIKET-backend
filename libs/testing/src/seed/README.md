@@ -74,3 +74,7 @@
 
    1. nullable한 값은 모두, null이 될 수 있도록 구현합니다.
    2. optional한 값은 전부, 랜덤하게 들어갈 수 있도록 구현합니다.
+
+6. **export 명시**
+
+   `src/seed/index.ts`에서 export하십시오.
