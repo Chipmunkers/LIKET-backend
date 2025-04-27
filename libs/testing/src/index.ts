@@ -6,3 +6,4 @@ export * from './seed/inquiry/inquiry-seed.helper';
 export * from './seed/tos/tos-seed.helper';
 export * from './seed/review/review-seed.helper';
 export * from './seed/liket/liket-seed.helper';
+export * from './seed/user/user-seed.helper';

@@ -1,4 +1,4 @@
-import { ReviewReportType } from 'libs/common';
+import { ReviewReportType } from 'libs/core/review/constant/review-report-type';
 
 /**
  * @author jochongs
