@@ -148,7 +148,7 @@ export class UserCoreRepository {
       data: {
         email: createUserInput.email,
         birth: createUserInput.birth,
-        pw: createUserInput.encryptedPw,
+        pw: createUserInput.encryptedPw || 'social',
         nickname: createUserInput.nickname,
         gender: createUserInput.gender,
         profileImgPath: createUserInput.profileImgPath,

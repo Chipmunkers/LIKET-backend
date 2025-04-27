@@ -366,7 +366,7 @@ model User {
   idx              Int                @id @default(autoincrement())
   isAdmin          Boolean            @default(false) @map("is_admin")
   email            String             @db.VarChar
-  pw               String?            @db.VarChar
+  pw               String             @db.VarChar
   nickname         String             @db.VarChar
   gender           Int?               @db.SmallInt
   reportCount      Int                @default(0) @map("report_count")
