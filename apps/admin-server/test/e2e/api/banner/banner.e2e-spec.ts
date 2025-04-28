@@ -226,5 +226,16 @@ describe('Banner (e2e', () => {
         .set(`Authorization`, `Bearer ${adminUser.accessToken}`)
         .expect(404);
     });
+
+    it('Fail - invalid banner idx', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const invalidBannerIdx = 'invalid-banner-idx';
+
+      await request(test.getServer())
+        .get(`/banner/${invalidBannerIdx}`)
+        .set(`Authorization`, `Bearer ${adminUser.accessToken}`)
+        .expect(400);
+    });
   });
 });
