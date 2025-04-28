@@ -598,5 +598,13 @@ describe('Banner (e2e', () => {
 
       expect(selectedBanner.deletedAt).not.toBeUndefined();
     });
+
+    it('Fail - no token', async () => {
+      const seedBanner = await bannerSeedHelper.seed({});
+
+      await request(test.getServer())
+        .delete(`/banner/${seedBanner.idx}`)
+        .expect(401);
+    });
   });
 });
