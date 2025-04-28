@@ -505,7 +505,8 @@ describe('Banner (e2e', () => {
       await request(test.getServer())
         .put(`/banner/${seedBanner.idx}`)
         .set('Authorization', `Bearer ${adminUser.accessToken}`)
-        .send(dto);
+        .send(dto)
+        .expect(201);
 
       const bannerAfterUpdate = await test
         .getPrisma()
@@ -516,6 +517,25 @@ describe('Banner (e2e', () => {
       expect(bannerAfterUpdate.name).toBe(dto.name);
       expect(bannerAfterUpdate.imgPath).toBe(dto.file.path);
       expect(bannerAfterUpdate.link).toBe(dto.link);
+    });
+
+    it('Fail - no token', async () => {
+      const seedBanner = await bannerSeedHelper.seed({
+        deletedAt: null,
+      });
+
+      const dto: UpdateBannerDto = {
+        name: 'banner-name',
+        file: {
+          path: '/banner/img_0001.png',
+        },
+        link: 'https://banner-test.url.test',
+      };
+
+      await request(test.getServer())
+        .put(`/banner/${seedBanner.idx}`)
+        .send(dto)
+        .expect(401);
     });
   });
 });
