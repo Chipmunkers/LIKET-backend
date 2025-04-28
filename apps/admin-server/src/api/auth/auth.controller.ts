@@ -14,7 +14,8 @@ export class AuthController {
   @Post('/')
   @HttpCode(200)
   @ApiTags('Auth')
-  @ApiResponse({ status: 401, description: 'Invalid email or password' })
+  @ApiResponse({ status: 400, description: 'email, password validation fail' })
+  @ApiResponse({ status: 401, description: 'Wrong email or password' })
   @ApiResponse({ status: 403, description: 'No admin permission' })
   async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     const token = await this.authService.login(loginDto);
