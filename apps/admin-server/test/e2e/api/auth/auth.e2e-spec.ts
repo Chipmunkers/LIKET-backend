@@ -41,5 +41,26 @@ describe('Auth (e2e)', () => {
 
       expect(responseBody.token).not.toBeUndefined();
     });
+
+    it('Fail - no admin auth', async () => {
+      const pw = 'aa12341234**';
+      const email = 'admin_account@gmail.com';
+
+      const hashService = new HashService();
+
+      const adminUser = await userSeedHelper.seed({
+        email: email,
+        pw: await hashService.hashPw(pw),
+        isAdmin: false, // ! no admin auth
+      });
+
+      const response = await request(test.getServer())
+        .post('/auth')
+        .send({
+          email: adminUser.email,
+          pw: pw,
+        })
+        .expect(403);
+    });
   });
 });
