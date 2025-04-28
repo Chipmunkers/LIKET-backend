@@ -91,13 +91,14 @@ export class BannerController {
   @Put('/:idx')
   @HttpCode(201)
   @ApiTags('Banner')
+  @ApiResponse({ status: 400, description: 'Invalid body or path parameter' })
   @ApiResponse({ status: 404, description: 'Cannot find banner image' })
   @LoginAuth()
   async updateBanner(
     @Param('idx', ParseIntPipe) idx: number,
-    @Body() udpateDto: UpdateBannerDto,
+    @Body() updateDto: UpdateBannerDto,
   ): Promise<void> {
-    await this.bannerService.updateBanner(idx, udpateDto);
+    await this.bannerService.updateBanner(idx, updateDto);
 
     return;
   }

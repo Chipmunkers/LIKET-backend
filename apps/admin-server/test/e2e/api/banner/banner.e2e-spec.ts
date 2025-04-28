@@ -6,6 +6,7 @@ import { TestHelper } from 'apps/admin-server/test/e2e/setup/test.helper';
 import { BannerSeedHelper } from 'libs/testing';
 import * as request from 'supertest';
 import { faker } from '@faker-js/faker';
+import { UpdateBannerDto } from 'apps/admin-server/src/api/banner/dto/request/update-banner.dto';
 
 describe('Banner (e2e', () => {
   const test = TestHelper.create(AppModule);
@@ -470,6 +471,51 @@ describe('Banner (e2e', () => {
         .set('Authorization', `Bearer ${adminUser.accessToken}`)
         .send(dto)
         .expect(400);
+    });
+
+    it('Fail - no token', async () => {
+      const dto = {
+        name: 'banner-name',
+        file: {
+          path: '/banner/img_test_001.png',
+        },
+        link: 'https://banner-test.url.test',
+      };
+
+      await request(test.getServer()).post('/banner').send(dto).expect(401);
+    });
+  });
+
+  describe('PUT /banner/:idx', () => {
+    it('Success - field check', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const seedBanner = await bannerSeedHelper.seed({
+        deletedAt: null,
+      });
+
+      const dto: UpdateBannerDto = {
+        name: 'banner-name',
+        file: {
+          path: '/banner/img_0001.png',
+        },
+        link: 'https://banner-test.url.test',
+      };
+
+      await request(test.getServer())
+        .put(`/banner/${seedBanner.idx}`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto);
+
+      const bannerAfterUpdate = await test
+        .getPrisma()
+        .banner.findUniqueOrThrow({
+          where: { idx: seedBanner.idx },
+        });
+
+      expect(bannerAfterUpdate.name).toBe(dto.name);
+      expect(bannerAfterUpdate.imgPath).toBe(dto.file.path);
+      expect(bannerAfterUpdate.link).toBe(dto.link);
     });
   });
 });
