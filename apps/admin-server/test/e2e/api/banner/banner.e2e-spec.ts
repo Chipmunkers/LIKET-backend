@@ -1,3 +1,4 @@
+import { ActiveBannerEntity } from 'apps/admin-server/src/api/banner/entity/active-banner.entity';
 import { BannerEntity } from 'apps/admin-server/src/api/banner/entity/banner.entity';
 import { AppModule } from 'apps/admin-server/src/app.module';
 import { TestHelper } from 'apps/admin-server/test/e2e/setup/test.helper';
@@ -236,6 +237,43 @@ describe('Banner (e2e', () => {
         .get(`/banner/${invalidBannerIdx}`)
         .set(`Authorization`, `Bearer ${adminUser.accessToken}`)
         .expect(400);
+    });
+  });
+
+  describe('/GET /banner/active/all', () => {
+    it('Success - field check', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [firstBanner] = await bannerSeedHelper.seedAll([
+        { order: 1 },
+        { order: 2 },
+        { order: 3 },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/banner/active/all')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`);
+
+      const bannerList: ActiveBannerEntity[] = response.body.bannerList;
+      expect(bannerList.length).toBe(3);
+
+      const selectBanner = await test.getPrisma().banner.findUniqueOrThrow({
+        include: { ActiveBanner: true },
+        where: { idx: firstBanner.idx },
+      });
+      const banner = bannerList[0];
+
+      expect(banner.banner.idx).toBe(selectBanner.idx);
+      expect(banner.banner.name).toBe(selectBanner.name);
+      expect(banner.banner.link).toBe(selectBanner.link);
+      expect(banner.banner.imgPath).toBe(selectBanner.imgPath);
+      expect(banner.order).toBe(selectBanner.ActiveBanner?.order);
+      expect(banner.banner.activatedAt).toBe(
+        selectBanner.ActiveBanner?.activatedAt.toISOString(),
+      );
+      expect(banner.banner.createdAt).toBe(
+        selectBanner.createdAt.toISOString(),
+      );
     });
   });
 });
