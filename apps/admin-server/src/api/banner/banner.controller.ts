@@ -34,7 +34,9 @@ export class BannerController {
   @ApiTags('Banner')
   @ApiResponse({ status: 400, description: 'Invalid querystring' })
   @LoginAuth()
-  async getBannerAll(@Query() pagerble: GetBannerAllPagerbleDto): Promise<GetBannerAllResponseDto> {
+  async getBannerAll(
+    @Query() pagerble: GetBannerAllPagerbleDto,
+  ): Promise<GetBannerAllResponseDto> {
     return await this.bannerService.getBannerAll(pagerble);
   }
 
@@ -44,9 +46,12 @@ export class BannerController {
   @Get('/:idx')
   @HttpCode(200)
   @ApiTags('Banner')
+  @ApiResponse({ status: 400, description: 'fail to validate banner idx' })
   @ApiResponse({ status: 404, description: 'Cannot find banner' })
   @LoginAuth()
-  async getBannerByIdx(@Param('idx', ParseIntPipe) idx: number): Promise<GetBannerResponseDto> {
+  async getBannerByIdx(
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<GetBannerResponseDto> {
     const banner = await this.bannerService.getBannerByIdx(idx);
 
     return { banner };
@@ -71,7 +76,9 @@ export class BannerController {
   @ApiTags('Banner')
   @ApiResponse({ status: 404, description: 'Cannot find banner image' })
   @LoginAuth()
-  async createBanner(@Body() createDto: CreateBannerDto): Promise<CreateBannerResponseDto> {
+  async createBanner(
+    @Body() createDto: CreateBannerDto,
+  ): Promise<CreateBannerResponseDto> {
     const idx = await this.bannerService.createBanner(createDto);
 
     return { idx };
@@ -136,7 +143,9 @@ export class BannerController {
   @ApiResponse({ status: 404, description: 'Cannot find banner' })
   @ApiResponse({ status: 409, description: 'Already deactivate banner' })
   @LoginAuth()
-  async deactivateBanner(@Param('idx', ParseIntPipe) idx: number): Promise<void> {
+  async deactivateBanner(
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<void> {
     await this.bannerService.getBannerByIdx(idx);
 
     await this.bannerService.deactivateBanner(idx);

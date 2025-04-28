@@ -203,5 +203,28 @@ describe('Banner (e2e', () => {
 
       expect(banner.activatedAt).not.toBeNull();
     });
+
+    it('Fail - no token', async () => {
+      const bannerSeed = await bannerSeedHelper.seed({
+        name: 'banner-seed-test',
+        imgPath: '/banner/test-banner.field-check.png',
+        link: 'https://for-banner-field-check.test',
+      });
+
+      await request(test.getServer())
+        .get(`/banner/${bannerSeed.idx}`)
+        .expect(401);
+    });
+
+    it('Fail - not found banner', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const neverExistBannerIdx = -1;
+
+      await request(test.getServer())
+        .get(`/banner/${neverExistBannerIdx}`)
+        .set(`Authorization`, `Bearer ${adminUser.accessToken}`)
+        .expect(404);
+    });
   });
 });
