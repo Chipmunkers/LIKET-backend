@@ -617,5 +617,35 @@ describe('Banner (e2e', () => {
         .set('Authorization', `Bearer ${adminUser.accessToken}`)
         .expect(404);
     });
+
+    it('Fail - delete activated banner, order field check', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [order1Banner, order2Banner, order3Banner] =
+        await bannerSeedHelper.seedAll([
+          { order: 1 },
+          { order: 2 },
+          { order: 3 },
+        ]);
+
+      await request(test.getServer())
+        .delete(`/banner/${order2Banner.idx}`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(201);
+
+      const order3BannerAfterDelete = await test
+        .getPrisma()
+        .activeBanner.findUniqueOrThrow({
+          where: { idx: order3Banner.idx },
+        });
+      expect(order3BannerAfterDelete.order).toBe(2);
+
+      const order1BannerAfterDelete = await test
+        .getPrisma()
+        .activeBanner.findUniqueOrThrow({
+          where: { idx: order1Banner.idx },
+        });
+      expect(order1BannerAfterDelete.order).toBe(1);
+    });
   });
 });
