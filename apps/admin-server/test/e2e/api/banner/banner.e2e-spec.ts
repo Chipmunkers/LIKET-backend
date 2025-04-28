@@ -647,5 +647,50 @@ describe('Banner (e2e', () => {
         });
       expect(order1BannerAfterDelete.order).toBe(1);
     });
+
+    it('Fail - attempt to delete a banner which is already deleted', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const alreadyDeletedBanner = await bannerSeedHelper.seed({
+        deletedAt: new Date(),
+      });
+
+      await request(test.getServer())
+        .delete(`/banner/${alreadyDeletedBanner.idx}`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(404);
+    });
+  });
+
+  describe('POST /banner/:idx/activate', () => {
+    it('Success - order field check', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const bannerSeed = await bannerSeedHelper.seed({
+        order: null,
+        deletedAt: null,
+      });
+
+      const selectedBannerBeforeActivating = await test
+        .getPrisma()
+        .activeBanner.findUnique({
+          where: { idx: bannerSeed.idx },
+        });
+
+      expect(selectedBannerBeforeActivating).toBeNull();
+
+      await request(test.getServer())
+        .post(`/banner/${bannerSeed.idx}/activate`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(201);
+
+      const selectedBanner = await test
+        .getPrisma()
+        .activeBanner.findUniqueOrThrow({
+          where: { idx: bannerSeed.idx },
+        });
+
+      expect(selectedBanner.order).toBe(1);
+    });
   });
 });
