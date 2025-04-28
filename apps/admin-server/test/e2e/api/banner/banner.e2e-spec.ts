@@ -606,5 +606,16 @@ describe('Banner (e2e', () => {
         .delete(`/banner/${seedBanner.idx}`)
         .expect(401);
     });
+
+    it('Fail - banner not found', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const neverExistBannerIdx = -1;
+
+      await request(test.getServer())
+        .delete(`/banner/${neverExistBannerIdx}`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(404);
+    });
   });
 });
