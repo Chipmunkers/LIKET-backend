@@ -242,7 +242,7 @@ describe('Banner (e2e', () => {
     });
   });
 
-  describe('/GET /banner/active/all', () => {
+  describe('GET /banner/active/all', () => {
     it('Success - field check', async () => {
       const adminUser = test.getLoginHelper().getAdminUser1();
 
