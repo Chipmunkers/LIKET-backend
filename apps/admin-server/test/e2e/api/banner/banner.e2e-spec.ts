@@ -275,5 +275,32 @@ describe('Banner (e2e', () => {
         selectBanner.createdAt.toISOString(),
       );
     });
+
+    it('Success - deactivated banner test', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [firstBanner, deactivatedBanner, thirdBanner] =
+        await bannerSeedHelper.seedAll([
+          { order: 1 },
+          { order: null },
+          { order: 2 },
+          { order: null, deletedAt: null },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/banner/active/all')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(200);
+
+      const responseBannerList: ActiveBannerEntity[] = response.body.bannerList;
+
+      expect(
+        responseBannerList.map(({ banner: { idx } }) => idx),
+      ).toStrictEqual([firstBanner.idx, thirdBanner.idx]);
+    });
+
+    it('Fail - no token', async () => {
+      await request(test.getServer()).get('/banner/active/all').expect(401);
+    });
   });
 });
