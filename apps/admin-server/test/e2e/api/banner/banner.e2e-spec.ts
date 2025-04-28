@@ -578,4 +578,25 @@ describe('Banner (e2e', () => {
         .expect(400);
     });
   });
+
+  describe('DELETE /banner/:idx', () => {
+    it('Success - deleted_at check', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const seedBanner = await bannerSeedHelper.seed({});
+
+      await request(test.getServer())
+        .delete(`/banner/${seedBanner.idx}`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(201);
+
+      const selectedBanner = await test.getPrisma().banner.findUniqueOrThrow({
+        where: {
+          idx: seedBanner.idx,
+        },
+      });
+
+      expect(selectedBanner.deletedAt).not.toBeUndefined();
+    });
+  });
 });
