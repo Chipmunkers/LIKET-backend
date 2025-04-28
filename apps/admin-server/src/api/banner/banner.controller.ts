@@ -74,6 +74,7 @@ export class BannerController {
   @Post('/')
   @HttpCode(200)
   @ApiTags('Banner')
+  @ApiResponse({ status: 400, description: 'Invalid body' })
   @ApiResponse({ status: 404, description: 'Cannot find banner image' })
   @LoginAuth()
   async createBanner(

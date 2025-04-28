@@ -1,3 +1,4 @@
+import { CreateBannerDto } from 'apps/admin-server/src/api/banner/dto/request/create-banner.dto';
 import { ActiveBannerEntity } from 'apps/admin-server/src/api/banner/entity/active-banner.entity';
 import { BannerEntity } from 'apps/admin-server/src/api/banner/entity/banner.entity';
 import { AppModule } from 'apps/admin-server/src/app.module';
@@ -329,6 +330,37 @@ describe('Banner (e2e', () => {
 
     it('Fail - no token', async () => {
       await request(test.getServer()).get('/banner/active/all').expect(401);
+    });
+  });
+
+  describe('POST /banner', () => {
+    it('Success', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const dto: CreateBannerDto = {
+        name: 'banner-test',
+        file: {
+          path: '/banner/img_test_001.png',
+        },
+        link: 'https://banner-test.linkg.url',
+      };
+
+      const response = await request(test.getServer())
+        .post('/banner')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto)
+        .expect(200);
+
+      const createdBannerIdx = response.body.idx;
+
+      const banner = await test
+        .getPrisma()
+        .banner.findUniqueOrThrow({ where: { idx: createdBannerIdx } });
+
+      expect(banner.name).toBe(dto.name);
+      expect(banner.link).toBe(dto.link);
+      expect(banner.imgPath).toBe(dto.file.path);
+      expect(banner.deletedAt).toBeNull();
     });
   });
 });
