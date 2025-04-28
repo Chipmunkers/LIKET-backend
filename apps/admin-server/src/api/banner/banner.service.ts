@@ -125,6 +125,14 @@ export class BannerService {
     bannerIdx: number,
     updateDto: UpdateBannerDto,
   ) => Promise<void> = async (bannerIdx, updateDto) => {
+    const banner = await this.prisma.banner.findUnique({
+      where: { idx: bannerIdx, deletedAt: null },
+    });
+
+    if (!banner) {
+      throw new BannerNotFoundException('Cannot find banner');
+    }
+
     await this.prisma.banner.update({
       where: {
         idx: bannerIdx,

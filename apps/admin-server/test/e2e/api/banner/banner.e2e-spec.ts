@@ -537,5 +537,45 @@ describe('Banner (e2e', () => {
         .send(dto)
         .expect(401);
     });
+
+    it('Fail - banner not found', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const neverExistBannerIdx = -1;
+
+      const dto: UpdateBannerDto = {
+        name: 'banner-name',
+        file: {
+          path: '/banner/img_0001.png',
+        },
+        link: 'https://banner-test.url.test',
+      };
+
+      await request(test.getServer())
+        .put(`/banner/${neverExistBannerIdx}`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto)
+        .expect(404);
+    });
+
+    it('Fail - invalid banner idx', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const invalidBannerIdx = 'invalid-banner-idx';
+
+      const dto: UpdateBannerDto = {
+        name: 'banner-name',
+        file: {
+          path: '/banner/img_0001.png',
+        },
+        link: 'https://baner-test.url.test',
+      };
+
+      await request(test.getServer())
+        .put(`/banner/${invalidBannerIdx}`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto)
+        .expect(400);
+    });
   });
 });
