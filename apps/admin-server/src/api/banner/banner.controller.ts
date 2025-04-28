@@ -15,7 +15,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { CreateBannerDto } from './dto/request/create-banner.dto';
 import { CreateBannerResponseDto } from './dto/response/create-banner-response.dto';
-import { UpadteBannerDto } from './dto/request/update-banner.dto';
+import { UpdateBannerDto } from './dto/request/update-banner.dto';
 import { UpdateBannerOrderDto } from './dto/request/update-banner-order.dto';
 import { GetBannerAllResponseDto } from './dto/response/get-banner-all-response.dto';
 import { GetBannerAllPagerbleDto } from './dto/request/get-banner-all-pagerble.dto';
@@ -94,7 +94,7 @@ export class BannerController {
   @LoginAuth()
   async updateBanner(
     @Param('idx', ParseIntPipe) idx: number,
-    @Body() udpateDto: UpadteBannerDto,
+    @Body() udpateDto: UpdateBannerDto,
   ): Promise<void> {
     await this.bannerService.updateBanner(idx, udpateDto);
 

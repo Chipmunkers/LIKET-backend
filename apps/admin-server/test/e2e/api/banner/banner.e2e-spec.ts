@@ -284,7 +284,7 @@ describe('Banner (e2e', () => {
           { order: 1 },
           { order: null },
           { order: 2 },
-          { order: null, deletedAt: null },
+          { order: null, deletedAt: new Date() },
         ]);
 
       const response = await request(test.getServer())
@@ -297,6 +297,34 @@ describe('Banner (e2e', () => {
       expect(
         responseBannerList.map(({ banner: { idx } }) => idx),
       ).toStrictEqual([firstBanner.idx, thirdBanner.idx]);
+    });
+
+    it('Success - order test', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [order2Banner, order3Banner, order1Banner, order4Banner] =
+        await bannerSeedHelper.seedAll([
+          { order: 2 },
+          { order: 3 },
+          { order: 1 },
+          { order: 4 },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/banner/active/all')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(200);
+
+      const responseBannerList: ActiveBannerEntity[] = response.body.bannerList;
+
+      expect(
+        responseBannerList.map(({ banner: { idx } }) => idx),
+      ).toStrictEqual([
+        order1Banner.idx,
+        order2Banner.idx,
+        order3Banner.idx,
+        order4Banner.idx,
+      ]);
     });
 
     it('Fail - no token', async () => {
