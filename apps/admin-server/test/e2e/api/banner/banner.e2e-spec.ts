@@ -5,6 +5,7 @@ import { AppModule } from 'apps/admin-server/src/app.module';
 import { TestHelper } from 'apps/admin-server/test/e2e/setup/test.helper';
 import { BannerSeedHelper } from 'libs/testing';
 import * as request from 'supertest';
+import { faker } from '@faker-js/faker';
 
 describe('Banner (e2e', () => {
   const test = TestHelper.create(AppModule);
@@ -361,6 +362,114 @@ describe('Banner (e2e', () => {
       expect(banner.link).toBe(dto.link);
       expect(banner.imgPath).toBe(dto.file.path);
       expect(banner.deletedAt).toBeNull();
+    });
+
+    it('Fail - invalid name length', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const dto: CreateBannerDto = {
+        name: faker.string.alpha(31),
+        file: {
+          path: '/banner/img_test_001.png',
+        },
+        link: 'https://banner-test.linkg.url',
+      };
+
+      await request(test.getServer())
+        .post('/banner')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto)
+        .expect(400);
+    });
+
+    it('Fail - name as null', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const dto = {
+        name: null,
+        file: {
+          path: '/banner/img_test_001.png',
+        },
+        link: 'https://banner-test.linkg.url',
+      };
+
+      await request(test.getServer())
+        .post('/banner')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto)
+        .expect(400);
+    });
+
+    it('Fail - name is empty string', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const dto = {
+        name: '',
+        file: {
+          path: '/banner/img_test_001.png',
+        },
+        link: 'https://banner-test.linkg.url',
+      };
+
+      await request(test.getServer())
+        .post('/banner')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto)
+        .expect(400);
+    });
+
+    it('Fail - path is empty string', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const dto = {
+        name: 'banner-name',
+        file: {
+          path: '',
+        },
+        link: 'https://banner-test.linkg.url',
+      };
+
+      await request(test.getServer())
+        .post('/banner')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto)
+        .expect(400);
+    });
+
+    it('Fail - link is empty string', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const dto = {
+        name: 'banner-name',
+        file: {
+          path: '/banner/img_test_001.png',
+        },
+        link: '',
+      };
+
+      await request(test.getServer())
+        .post('/banner')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto)
+        .expect(400);
+    });
+
+    it('Fail - invalid link length', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const dto = {
+        name: 'banner-name',
+        file: {
+          path: '/banner/img_test_001.png',
+        },
+        link: faker.string.alpha(2001),
+      };
+
+      await request(test.getServer())
+        .post('/banner')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto)
+        .expect(400);
     });
   });
 });
