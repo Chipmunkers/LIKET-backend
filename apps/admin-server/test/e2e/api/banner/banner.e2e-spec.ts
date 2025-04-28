@@ -63,5 +63,91 @@ describe('Banner (e2e', () => {
       expect((firstBanner as BannerEntity).link).toBe(firstBannerSeed.link);
       expect((firstBanner as BannerEntity).name).toBe(firstBannerSeed.name);
     });
+
+    it('Success - page test', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const bannerSeedList = await bannerSeedHelper.seedAll([
+        { name: 'first banner' },
+        { name: 'second banner' },
+        { name: 'third banner' },
+        { name: 'fourth banner' },
+        { name: 'fifth banner' },
+        { name: 'sixth banner' },
+        { name: 'seventh banner' },
+        { name: 'eighth banner' },
+        { name: 'ninth banner' },
+        { name: 'tenth banner' },
+        { name: 'eleven banner' },
+      ]);
+
+      expect(bannerSeedList.length).toBe(11);
+
+      const response = await request(test.getServer())
+        .get('/banner/all')
+        .set(`Authorization`, `Bearer ${adminUser.accessToken}`)
+        .query({
+          page: 2,
+        })
+        .expect(200);
+
+      const responseBannerList: BannerEntity[] = response.body.bannerList;
+
+      expect(responseBannerList.length).toBe(1);
+    });
+
+    it('Success - order by desc test', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [firstBanner, secondBanner, thirdBanner] =
+        await bannerSeedHelper.seedAll([
+          { name: 'first banner' }, // created first
+          { name: 'second banner' }, // created second
+          { name: 'third banner' }, // created third
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/banner/all')
+        .set(`Authorization`, `Bearer ${adminUser.accessToken}`)
+        .query({
+          order: 'desc',
+        })
+        .expect(200);
+
+      const responseBannerList: BannerEntity[] = response.body.bannerList;
+
+      expect(responseBannerList.map(({ idx }) => idx)).toStrictEqual([
+        thirdBanner.idx,
+        secondBanner.idx,
+        firstBanner.idx,
+      ]);
+    });
+
+    it('Success - order by asc test', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [firstBanner, secondBanner, thirdBanner] =
+        await bannerSeedHelper.seedAll([
+          { name: 'first banner' }, // created first
+          { name: 'second banner' }, // created second
+          { name: 'third banner' }, // created third
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/banner/all')
+        .set(`Authorization`, `Bearer ${adminUser.accessToken}`)
+        .query({
+          order: 'asc',
+        })
+        .expect(200);
+
+      const responseBannerList: BannerEntity[] = response.body.bannerList;
+
+      expect(responseBannerList.map(({ idx }) => idx)).toStrictEqual([
+        firstBanner.idx,
+        secondBanner.idx,
+        thirdBanner.idx,
+      ]);
+    });
   });
 });
