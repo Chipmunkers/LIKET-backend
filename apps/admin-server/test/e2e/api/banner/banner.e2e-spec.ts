@@ -96,6 +96,10 @@ describe('Banner (e2e', () => {
       expect(responseBannerList.length).toBe(1);
     });
 
+    it('fail - no access token', async () => {
+      await request(test.getServer()).get('/banner/all').expect(401);
+    });
+
     it('Success - order by desc test', async () => {
       const adminUser = test.getLoginHelper().getAdminUser1();
 
@@ -148,6 +152,56 @@ describe('Banner (e2e', () => {
         secondBanner.idx,
         thirdBanner.idx,
       ]);
+    });
+  });
+
+  describe('GET /banner/:idx', () => {
+    it('Success - field check with deactivated banner', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const bannerSeed = await bannerSeedHelper.seed({
+        name: 'banner-seed-test',
+        imgPath: '/banner/test-banner.field-check.png',
+        link: 'https://for-banner-field-check.test',
+      });
+
+      const response = await request(test.getServer())
+        .get(`/banner/${bannerSeed.idx}`)
+        .set(`Authorization`, `Bearer ${adminUser.accessToken}`)
+        .expect(200);
+
+      const selectBanner = await test.getPrisma().banner.findUniqueOrThrow({
+        where: { idx: bannerSeed.idx },
+      });
+
+      const banner: BannerEntity = response.body.banner;
+      expect(banner.idx).toBe(selectBanner.idx);
+      expect(banner.name).toBe(selectBanner.name);
+      expect(banner.link).toBe(selectBanner.link);
+      expect(banner.imgPath).toBe(selectBanner.imgPath);
+      expect(banner.activatedAt).toBe(null);
+      expect(banner.createdAt).toBe(selectBanner.createdAt.toISOString());
+    });
+
+    it('Success - field check with activated banner', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const bannerSeed = await bannerSeedHelper.seed({
+        order: 1,
+      });
+
+      const response = await request(test.getServer())
+        .get(`/banner/${bannerSeed.idx}`)
+        .set(`Authorization`, `Bearer ${adminUser.accessToken}`)
+        .expect(200);
+
+      const selectBanner = await test.getPrisma().banner.findUniqueOrThrow({
+        where: { idx: bannerSeed.idx },
+      });
+
+      const banner: BannerEntity = response.body.banner;
+
+      expect(banner.activatedAt).not.toBeNull();
     });
   });
 });
