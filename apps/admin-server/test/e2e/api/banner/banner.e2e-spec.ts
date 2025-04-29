@@ -736,5 +736,16 @@ describe('Banner (e2e', () => {
         .post(`/banner/${bannerSeed.idx}/activate`)
         .expect(401);
     });
+
+    it('Fail - banner not found', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const neverExistBannerIdx = -1;
+
+      await request(test.getServer())
+        .post(`/banner/${neverExistBannerIdx}/activate`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(404);
+    });
   });
 });
