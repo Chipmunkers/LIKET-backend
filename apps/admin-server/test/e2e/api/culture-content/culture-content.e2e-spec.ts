@@ -346,5 +346,16 @@ describe('Culture Content (e2e)', () => {
         .set('Authorization', `Bearer ${adminUser.accessToken}`)
         .expect(404);
     });
+
+    it('Fail - invalid content idx', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const invalidContentIdx = 'invalid-content-idx';
+
+      await request(test.getServer())
+        .get(`/culture-content/${invalidContentIdx}`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(400);
+    });
   });
 });
