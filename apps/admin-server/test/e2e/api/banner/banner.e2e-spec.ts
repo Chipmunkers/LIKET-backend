@@ -728,5 +728,13 @@ describe('Banner (e2e', () => {
         .set('Authorization', `Bearer ${adminUser.accessToken}`)
         .expect(409);
     });
+
+    it('Fail - no token', async () => {
+      const bannerSeed = await bannerSeedHelper.seed({ order: null });
+
+      await request(test.getServer())
+        .post(`/banner/${bannerSeed.idx}/activate`)
+        .expect(401);
+    });
   });
 });
