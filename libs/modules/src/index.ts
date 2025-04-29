@@ -8,3 +8,6 @@ export * from './s3/entity/uploaded-file.entity';
 export * from './openAI/openAI.module';
 export * from './openAI/openAI.service';
 export * from './openAI/openAI.provider';
+
+export * from './retry-util/retry-util.module';
+export * from './retry-util/retry-util.service';
