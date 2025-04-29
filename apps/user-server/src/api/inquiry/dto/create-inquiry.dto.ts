@@ -2,10 +2,15 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsIn,
   IsInt,
   IsString,
   Length,
 } from 'class-validator';
+import {
+  INQUIRY_TYPE,
+  InquiryType,
+} from 'libs/core/inquiry/constant/inquiry-type';
 
 /**
  * @author jochongs
@@ -27,5 +32,6 @@ export class CreateInquiryDto {
   imgList: string[];
 
   @IsInt()
-  typeIdx: number;
+  @IsIn(Object.values(INQUIRY_TYPE))
+  typeIdx: InquiryType;
 }

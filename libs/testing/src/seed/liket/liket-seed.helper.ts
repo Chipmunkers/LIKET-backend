@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { BgImgInfoEntity } from 'apps/user-server/src/api/liket/entity/bgImgInfo.entity';
+import { BgImgInfoEntity } from 'apps/user-server/src/api/liket/entity/bg-img-info.entity';
 import { DeepRequired } from 'libs/common';
 import { ISeedHelper } from 'libs/testing/interface/seed-helper.interface';
 import { LiketInput } from 'libs/testing/seed/liket/type/liket.input';

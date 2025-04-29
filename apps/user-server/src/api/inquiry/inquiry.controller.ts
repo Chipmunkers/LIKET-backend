@@ -80,15 +80,8 @@ export class InquiryController {
   public async createInquiry(
     @User() loginUser: LoginUser,
     @Body() createDto: CreateInquiryDto,
-  ): Promise<CreateInquiryResponseDto> {
-    const idx = await this.inquiryService.createInquiry(
-      loginUser.idx,
-      createDto,
-    );
-
-    return {
-      idx,
-    };
+  ): Promise<InquiryEntity> {
+    return await this.inquiryService.createInquiry(loginUser.idx, createDto);
   }
 
   /**
@@ -112,7 +105,5 @@ export class InquiryController {
     }
 
     await this.inquiryService.deleteInquiry(inquiryIdx);
-
-    return;
   }
 }

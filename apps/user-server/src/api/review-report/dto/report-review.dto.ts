@@ -1,4 +1,8 @@
-import { IsInt } from 'class-validator';
+import { IsIn, IsInt } from 'class-validator';
+import {
+  REVIEW_REPORT_TYPE,
+  ReviewReportType,
+} from 'libs/core/review/constant/review-report-type';
 
 /**
  * @author jochongs
@@ -10,5 +14,6 @@ export class ReportReviewDto {
    * @example 1
    */
   @IsInt()
-  typeIdx: number;
+  @IsIn(Object.values(REVIEW_REPORT_TYPE))
+  typeIdx: ReviewReportType;
 }

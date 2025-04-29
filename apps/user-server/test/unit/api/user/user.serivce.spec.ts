@@ -1,11 +1,8 @@
-import { PrismaService } from '../../../../src/common/module/prisma/prisma.service';
-import { HashService } from '../../../../src/common/module/hash/hash.service';
 import { EmailJwtService } from '../../../../src/api/email-cert/email-jwt.service';
 import { LoginJwtService } from '../../../../src/common/module/login-jwt/login-jwt.service';
 import { SocialLoginJwtService } from '../../../../src/common/module/social-login-jwt/social-login-jwt.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../../../../src/api/user/user.service';
-import { AuthService } from '../../../../src/api/auth/auth.service';
 import { LoggerService } from '../../../../src/common/module/logger/logger.service';
 import { SignUpDto } from '../../../../src/api/user/dto/sign-up.dto';
 import { Gender } from '../../../../src/api/user/model/Gender';
@@ -13,11 +10,14 @@ import { JwtService } from '@nestjs/jwt';
 import { LoggerModule } from '../../../../src/common/module/logger/logger.module';
 import { LoginJwtRepository } from '../../../../src/common/module/login-jwt/login-jwt.repository';
 import { EmailCertType } from '../../../../src/api/email-cert/model/email-cert-type';
+import { PrismaProvider } from 'libs/modules';
 
+/**
+ * ! 주의: 단위 테스트는 현재 관리되고 있지 않습니다.
+ */
 describe('UserService', () => {
   let userService: UserService;
-  let prisma: PrismaService;
-  let hashService: HashService;
+  let prisma: PrismaProvider;
   let emailJwtService: EmailJwtService;
   let loginJwtService: LoginJwtService;
   let socialLoginJwtService: SocialLoginJwtService;
@@ -28,8 +28,7 @@ describe('UserService', () => {
       imports: [LoggerModule.forRoot()],
       providers: [
         UserService,
-        PrismaService,
-        HashService,
+        PrismaProvider,
         EmailJwtService,
         LoginJwtService,
         SocialLoginJwtService,
@@ -39,8 +38,7 @@ describe('UserService', () => {
     }).compile();
 
     userService = module.get(UserService);
-    prisma = module.get(PrismaService);
-    hashService = module.get(HashService);
+    prisma = module.get(PrismaProvider);
     emailJwtService = module.get(EmailJwtService);
     loginJwtService = module.get(LoginJwtService);
     socialLoginJwtService = module.get(SocialLoginJwtService);
@@ -73,9 +71,9 @@ describe('UserService', () => {
 
       // 3. 비밀번호 해싱
       const hashedPw = 'skdlfjalksadfjdsaklfjadsfklj';
-      const hashServiceHashPwMock = jest
-        .spyOn(hashService, 'hashPw')
-        .mockReturnValue(hashedPw);
+      // const hashServiceHashPwMock = jest
+      //   .spyOn(hashService, 'hashPw')
+      //   .mockReturnValue(hashedPw);
 
       // 4. INSERT user
       const signUpUser = {
@@ -96,7 +94,7 @@ describe('UserService', () => {
       };
       const prismaUserCreateMock = jest
         .spyOn(prisma.user, 'create')
-        .mockResolvedValue(signUpUser);
+        .mockResolvedValue(signUpUser as any);
 
       // 5. 로그인 토큰 생성
       const accessToken = 'this.is.accessToken';

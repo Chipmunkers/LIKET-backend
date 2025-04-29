@@ -1,24 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
 import { PermissionDeniedException } from '../../common/exception/PermissionDeniedException';
 import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
 import { LoginUser } from '../auth/model/login-user';
-import { PrismaProvider } from 'libs/modules';
+import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
+import { ReviewModel } from 'libs/core/review/model/review.model';
 
 @Injectable()
 export class ReviewAuthService {
-  constructor(private readonly prisma: PrismaProvider) {}
+  constructor(
+    private readonly cultureContentCoreService: CultureContentCoreService,
+  ) {}
 
   /**
+   * 목록보기 권한 확인 메서드
+   *
    * @author jochongs
    */
-  public checkReadAllPermission: (
+  public async checkReadAllPermission(
     pageable: ReviewPageableDto,
     loginUser?: LoginUser,
-  ) => Promise<void> = async (pageable, loginUser) => {
+  ): Promise<void> {
     if (!pageable.user && !pageable.content) {
       throw new PermissionDeniedException();
     }
@@ -28,105 +32,62 @@ export class ReviewAuthService {
     }
 
     if (pageable.content) {
-      const content = await this.prisma.cultureContent.findUnique({
-        select: {
-          idx: true,
-          userIdx: true,
-          acceptedAt: true,
-        },
-        where: {
-          idx: pageable.content,
-          deletedAt: null,
-          User: {
-            deletedAt: null,
-          },
-        },
-      });
+      const content =
+        await this.cultureContentCoreService.findCultureContentByIdx(
+          pageable.content,
+          loginUser?.idx,
+        );
 
       if (!content) {
         throw new ContentNotFoundException('Cannot find content');
       }
 
       // 수락되지 않은 컨텐츠의 리뷰는 작성자만 볼 수 있음
-      if (!content.acceptedAt && content.userIdx !== loginUser?.idx) {
+      if (!content.acceptedAt && content.author.idx !== loginUser?.idx) {
         throw new PermissionDeniedException();
       }
     }
 
     return;
-  };
+  }
 
   /**
    * @author jochongs
    */
-  public checkWritePermission: (
+  public async checkWritePermission(
     loginUser: LoginUser,
     contentIdx: number,
     createDto: CreateReviewDto,
-  ) => Promise<void> = async (loginUser, contentIdx, createDto) => {
+  ): Promise<void> {
     return;
-  };
+  }
 
   /**
    * @author jochongs
    */
-  public checkUpdatePermission: (
+  public async checkUpdatePermission(
     loginUser: LoginUser,
-    reviewIdx: number,
     updateDto: UpdateReviewDto,
-  ) => Promise<void> = async (loginUser, reviewIdx, updateDto) => {
-    const review = await this.prisma.review.findUnique({
-      where: {
-        idx: reviewIdx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-        CultureContent: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!review) {
-      throw new ReviewNotFoundException('Cannot find review');
-    }
-
-    if (review.userIdx !== loginUser.idx) {
+    reviewModel: ReviewModel,
+  ): Promise<void> {
+    if (reviewModel.author.idx !== loginUser.idx) {
       throw new PermissionDeniedException('Permission denied');
     }
 
     return;
-  };
+  }
 
   /**
    * @author jochongs
    */
-  public checkDeletePermission: (
+  public async checkDeletePermission(
     loginUser: LoginUser,
-    reviewIdx: number,
-  ) => Promise<void> = async (loginUser, reviewIdx) => {
-    const review = await this.prisma.review.findUnique({
-      where: {
-        idx: reviewIdx,
-        deletedAt: null,
-        User: {
-          deletedAt: null,
-        },
-        CultureContent: {
-          deletedAt: null,
-        },
-      },
-    });
-
-    if (!review) {
-      throw new ReviewNotFoundException('Cannot find review');
-    }
-
-    if (review.userIdx !== loginUser.idx) {
+    reviewModel: ReviewModel,
+  ): Promise<void> {
+    if (reviewModel.author.idx !== loginUser.idx) {
       throw new PermissionDeniedException('Permission denied');
     }
 
     return;
-  };
+  }
 }

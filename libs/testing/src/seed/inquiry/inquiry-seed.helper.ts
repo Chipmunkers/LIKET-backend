@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { DeepRequired, getRandomValueFromConstant } from 'libs/common';
-import { INQUIRY_TYPE } from 'libs/common/constants/inquiry-type';
+import { INQUIRY_TYPE } from 'libs/core/inquiry/constant/inquiry-type';
 import { ISeedHelper } from 'libs/testing/interface/seed-helper.interface';
 import { InquiryInput } from 'libs/testing/seed/inquiry/type/inquiry.input';
 import { InquiryOutput } from 'libs/testing/seed/inquiry/type/inquiry.output';

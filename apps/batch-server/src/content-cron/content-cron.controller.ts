@@ -58,30 +58,4 @@ export class ContentCronController {
       console.log(err);
     }
   }
-
-  /**
-   * !주의: Kopis 컨텐츠 전부 꺼내서 다시 API로 데이터 업데이트하는 메서드입니다. 절대 쓰지마세요.
-   *
-   * @author jochongs
-   */
-  @Post('/recron/kopis/all')
-  public async recronAllKopisContents(
-    @Res({ passthrough: true }) res: Response,
-    @Body()
-    startContentCronDto: StartContentCronDto,
-  ) {
-    if (
-      !startContentCronDto.pw ||
-      startContentCronDto.pw !== 'liket-password0908'
-    ) {
-      throw new BadRequestException('invalid password');
-    }
-
-    res.end();
-    try {
-      await this.contentCronService.recronKPContentsAll();
-    } catch (err) {
-      console.log(err);
-    }
-  }
 }

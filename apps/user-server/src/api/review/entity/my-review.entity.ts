@@ -4,7 +4,12 @@ import { MyReviewWithInclude } from './prisma-type/my-review-with-include';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
 
 /**
+ * ReviewEntity를 사용하기로하여 deprecated되었습니다.
+ * ReviewEntity를 사용하십시오.
+ *
  * @author jochongs
+ *
+ * @deprecated
  */
 export class MyReviewEntity extends PickType(ReviewEntity, [
   'idx',

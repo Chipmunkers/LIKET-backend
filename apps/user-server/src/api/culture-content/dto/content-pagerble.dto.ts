@@ -12,6 +12,9 @@ import {
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ToBoolean } from '../../../common/decorator/to-boolean.decorator';
+import { GENRE, Genre } from 'libs/core/tag-root/genre/constant/genre';
+import { AGE, Age } from 'libs/core/tag-root/age/constant/age';
+import { Style, STYLE } from 'libs/core/tag-root/style/constant/style';
 
 /**
  * @author jochongs
@@ -48,7 +51,8 @@ export class ContentPagerbleDto extends PickType(PagerbleDto, [
   @Type(() => Number)
   @IsInt()
   @IsOptional()
-  genre?: number;
+  @IsIn(Object.values(GENRE), { each: true })
+  genre?: Genre;
 
   /**
    * 필터링 할 연령대 인덱스
@@ -58,7 +62,8 @@ export class ContentPagerbleDto extends PickType(PagerbleDto, [
   @Type(() => Number)
   @IsInt()
   @IsOptional()
-  age?: number;
+  @IsIn(Object.values(AGE), { each: true })
+  age?: Age;
 
   /**
    * 법정동 코드
@@ -76,14 +81,14 @@ export class ContentPagerbleDto extends PickType(PagerbleDto, [
    * @example 3
    */
   @Type(() => Number)
-  @IsInt({ each: true })
+  @IsIn(Object.values(STYLE), { each: true })
   @IsArray()
   @IsOptional()
   @ArrayMaxSize(3)
   @Transform(({ value }) => (Array.isArray(value) ? value : [value]), {
     toClassOnly: true,
   })
-  style?: number[];
+  style?: Style[];
 
   /**
    * 오픈 여부. false는 현재 작동하지 않음

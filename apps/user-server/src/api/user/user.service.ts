@@ -2,41 +2,31 @@ import { Injectable } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
 import { MyInfoEntity } from './entity/my-info.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { HashService } from '../../common/module/hash/hash.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
 import { UserEntity } from './entity/user.entity';
 import { UploadedFileEntity } from '../upload/entity/uploaded-file.entity';
 import { EmailJwtService } from '../email-cert/email-jwt.service';
 import { EmailCertType } from '../email-cert/model/email-cert-type';
 import { LoginJwtService } from '../../common/module/login-jwt/login-jwt.service';
-import { SocialSignUpDto } from './dto/social-sign-up.dto';
-import { SocialLoginJwtService } from '../../common/module/social-login-jwt/social-login-jwt.service';
 import { EmailDuplicateException } from './exception/EmailDuplicateException';
 import { EmailDuplicateCheckDto } from './dto/email-duplicate-check.dto';
 import { LoginToken } from '../auth/model/login-token';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { LoginUser } from '../auth/model/login-user';
 import { WithdrawalDto } from './dto/withdrawal.dto';
-import { UserRepository } from './user.repository';
-import { LiketRepository } from '../liket/liket.repository';
-import { ReviewRepository } from '../review/review.repository';
 import { SummaryLiketEntity } from '../liket/entity/summary-liket.entity';
-import { MyReviewEntity } from '../review/entity/my-review.entity';
-import { PrismaProvider } from 'libs/modules';
+import { UserCoreService } from 'libs/core/user/user-core.service';
+import { ReviewCoreService } from 'libs/core/review/review-core.service';
+import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
+import { LiketCoreService } from 'libs/core/liket/liket-core.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly prisma: PrismaProvider,
-    private readonly hashService: HashService,
     private readonly emailJwtService: EmailJwtService,
     private readonly loginJwtService: LoginJwtService,
-    private readonly socialLoginJwtService: SocialLoginJwtService,
-    private readonly userRepository: UserRepository,
-    private readonly liketRepository: LiketRepository,
-    private readonly reviewRepository: ReviewRepository,
-    @Logger(UserService.name) private readonly logger: LoggerService,
+    private readonly userCoreService: UserCoreService,
+    private readonly reviewCoreService: ReviewCoreService,
+    private readonly liketCoreService: LiketCoreService,
   ) {}
 
   /**
@@ -53,17 +43,16 @@ export class UserService {
       EmailCertType.SIGN_UP,
     );
 
-    await this.checkEmailDuplicate({ email });
-
-    const signUpUser = await this.userRepository.insertUser({
+    const signUpUser = await this.userCoreService.createUser({
       email,
-      pw: this.hashService.hashPw(signUpDto.pw),
+      pw: signUpDto.pw,
       nickname: signUpDto.nickname,
       birth: signUpDto.birth || null,
       profileImgPath: profileImg?.filePath || null,
       gender: signUpDto.gender || null,
       snsId: null,
       provider: 'local',
+      isAdmin: false,
     });
 
     const accessToken = this.loginJwtService.sign(
@@ -74,53 +63,7 @@ export class UserService {
       signUpUser.idx,
       signUpUser.isAdmin,
     );
-
-    await this.userRepository.updateUserLastLoginByIdx(signUpUser.idx);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  /**
-   * 소셜 회원가입 하기
-   *
-   * 원터치 회원가입으로 변경됨에따라 deprecated 되었습니다.
-   *
-   * @deprecated
-   */
-  public async socialUserSignUp(
-    signUpDto: SocialSignUpDto,
-    profileImg?: UploadedFileEntity,
-  ): Promise<LoginToken> {
-    const socialUser = await this.socialLoginJwtService.verify(signUpDto.token);
-
-    this.logger.log(
-      this.socialUserSignUp,
-      `duplicate check | email = ${socialUser.email}`,
-    );
-    await this.checkEmailDuplicate({ email: socialUser.email });
-
-    const signUpUser = await this.userRepository.insertUser({
-      email: socialUser.email,
-      pw: 'social',
-      nickname: signUpDto.nickname,
-      snsId: socialUser.id,
-      birth: signUpDto.birth || null,
-      gender: signUpDto.gender || null,
-      profileImgPath: profileImg?.filePath || null,
-      provider: socialUser.provider,
-    });
-
-    const accessToken = this.loginJwtService.sign(
-      signUpUser.idx,
-      signUpUser.isAdmin,
-    );
-    const refreshToken = await this.loginJwtService.signRefreshToken(
-      signUpUser.idx,
-      signUpUser.isAdmin,
-    );
+    await this.userCoreService.updateUserLastLoginByIdx(signUpUser.idx);
 
     return {
       accessToken,
@@ -136,34 +79,49 @@ export class UserService {
    * @param userIdx 로그인 사용자 인덱스
    */
   public async getMyInfo(userIdx: number): Promise<MyInfoEntity> {
-    const user = await this.userRepository.selectMyUser(userIdx);
+    const userModel = await this.userCoreService.findUserByIdx(userIdx);
 
-    if (!user) {
-      this.logger.warn(
-        this.getMyInfo,
-        `Attempt to find non-existent user ${userIdx}`,
-      );
+    if (!userModel) {
       throw new UserNotFoundException('Cannot find user');
     }
 
     const liketList = (
-      await this.liketRepository.selectLiketAll({
-        user: userIdx,
-        orderby: 'time',
+      await this.liketCoreService.findLiketAll({
+        userIdx,
         order: 'desc',
+        orderBy: 'idx',
         page: 1,
+        row: 10,
       })
-    ).map((liket) => SummaryLiketEntity.createEntity(liket));
+    ).map(SummaryLiketEntity.fromModel);
 
-    const liketCount = await this.liketRepository.selectLiketCountByUserIdx(
-      userIdx,
-    );
+    const liketCount =
+      await this.userCoreService.getLiketCountByUserIdx(userIdx);
 
     const reviewList = (
-      await this.reviewRepository.selectReviewForMyInfo(userIdx)
-    ).map((review) => MyReviewEntity.createEntity(review));
+      await this.reviewCoreService.findReviewAll({
+        page: 1,
+        row: 10,
+        userIdx,
+        order: 'desc',
+        orderBy: 'time',
+      })
+    ).map(ReviewEntity.fromModel);
 
-    return MyInfoEntity.createEntity(user, liketList, liketCount, reviewList);
+    const reviewCount =
+      await this.userCoreService.getReviewCountByUserIdx(userIdx);
+
+    const contentLikeCount =
+      await this.userCoreService.getContentLikeCountByUserIdx(userIdx);
+
+    return MyInfoEntity.fromModel(
+      userModel,
+      liketList,
+      liketCount,
+      reviewList,
+      reviewCount,
+      contentLikeCount,
+    );
   }
 
   /**
@@ -171,11 +129,13 @@ export class UserService {
    *
    * @author jochongs
    */
-  public async updateProfileImg(loginUser: LoginUser, profileImgPath?: string) {
-    await this.userRepository.updateProfileImgByUserIdx(
-      loginUser.idx,
-      profileImgPath,
-    );
+  public async updateProfileImg(
+    loginUser: LoginUser,
+    profileImgPath: string | null,
+  ) {
+    await this.userCoreService.updateUserByIdx(loginUser.idx, {
+      profileImgPath: profileImgPath,
+    });
   }
 
   /**
@@ -184,17 +144,13 @@ export class UserService {
    * @author jochongs
    */
   public async getUserByIdx(userIdx: number): Promise<UserEntity> {
-    const user = await this.userRepository.selectUserByIdx(userIdx);
+    const user = await this.userCoreService.findUserByIdx(userIdx);
 
     if (!user) {
-      this.logger.warn(
-        this.getUserByIdx,
-        `Attempt to find non-existent user ${userIdx}`,
-      );
       throw new UserNotFoundException('Cannot find user');
     }
 
-    return UserEntity.createEntity(user);
+    return UserEntity.fromModel(user);
   }
 
   /**
@@ -206,10 +162,10 @@ export class UserService {
     idx: number,
     updateDto: UpdateProfileDto,
   ): Promise<void> {
-    await this.userRepository.updateUserByIdx(idx, {
+    await this.userCoreService.updateUserByIdx(idx, {
       nickname: updateDto.nickname,
-      gender: updateDto.gender || null,
-      birth: updateDto.birth || null,
+      gender: updateDto.gender,
+      birth: updateDto.birth,
       profileImgPath: updateDto.profileImg || null,
     });
   }
@@ -218,34 +174,19 @@ export class UserService {
    * 이메일 중복 검사 확인하기
    *
    * @author jochongs
+   *
+   * @throws {EmailDuplicateException} 409 - 이미 해당 계정으로 가입된 계정이 존재하는 경우
    */
   public async checkEmailDuplicate(
     checkDto: EmailDuplicateCheckDto,
   ): Promise<void> {
-    try {
-      await this.getUserByEmail(checkDto.email);
-    } catch (err) {
-      return;
+    const user = await this.userCoreService.findUserByEmail(checkDto.email);
+
+    if (user) {
+      throw new EmailDuplicateException('duplicated email');
     }
 
-    throw new EmailDuplicateException('duplicated email');
-  }
-
-  /**
-   * @author jochongs
-   */
-  public async getUserByEmail(email: string) {
-    const user = await this.userRepository.selectUserByEmail(email);
-
-    if (!user) {
-      this.logger.warn(
-        this.getUserByEmail,
-        `Attempt to find non-existent user ${email}`,
-      );
-      throw new UserNotFoundException('Cannot find user');
-    }
-
-    return UserEntity.createEntity(user);
+    return;
   }
 
   /**
@@ -257,17 +198,9 @@ export class UserService {
     loginUser: LoginUser,
     withdrawalDto: WithdrawalDto,
   ): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
-      await this.userRepository.deleteUserByIdx(loginUser.idx, tx);
-
-      // TODO: repository 패턴으로 변경 필요
-      await this.prisma.deleteUserReason.create({
-        data: {
-          idx: loginUser.idx,
-          contents: withdrawalDto.contents,
-          typeIdx: withdrawalDto.type,
-        },
-      });
+    await this.userCoreService.withdrawalUserByIdx(loginUser.idx, {
+      typeIdx: withdrawalDto.type,
+      contents: withdrawalDto.contents,
     });
   }
 }

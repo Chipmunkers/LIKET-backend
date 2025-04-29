@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { LocationEntity } from 'apps/batch-server/src/content-cron/culture-content/entity/location.entity';
-import { TempContentEntity } from 'apps/batch-server/src/content-cron/culture-content/entity/temp-content.entity';
+import { LocationEntity } from 'apps/batch-server/src/content-cron/entity/location.entity';
+import { TempContentEntity } from 'apps/batch-server/src/content-cron/entity/temp-content.entity';
 import { FestivalEntity } from 'apps/batch-server/src/content-cron/external-apis/tour/entity/festival.entity';
 import { IExternalApiAdapterService } from 'apps/batch-server/src/content-cron/interface/external-api-adapter.service';
 import { KakaoAddressEntity } from 'libs/modules/kakao-address/entity/kakao-address.entity';
 import { KakaoRoadAddressEntity } from 'libs/modules/kakao-address/entity/kakao-road-address.entity';
 import { KakaoAddressService } from 'libs/modules/kakao-address/kakao-address.service';
-import { GENRE } from 'libs/common';
 import { OpenAIService, S3Service, UploadedFileEntity } from 'libs/modules';
 import * as uuid from 'uuid';
 import { UpdateContentInfo } from 'apps/batch-server/src/content-cron/external-apis/kopis/type/UpdateContentInfo';
+import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
 
 @Injectable()
 export class TourApiAdapter

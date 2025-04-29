@@ -1,16 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/module/prisma/prisma.service';
 import { BannerEntity } from './entity/banner.entity';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
-import { BannerRepository } from './banner.repository';
+import { BannerCoreService } from 'libs/core/banner/banner-core.service';
 
 @Injectable()
 export class BannerService {
-  constructor(
-    private readonly bannerRepository: BannerRepository,
-    @Logger(BannerService.name) private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly bannerCoreService: BannerCoreService) {}
 
   /**
    * 배너 가져오기
@@ -18,10 +12,11 @@ export class BannerService {
    * @author jochongs
    */
   public async getBannerAll(): Promise<BannerEntity[]> {
-    const bannerList = await this.bannerRepository.selectBannerAll();
+    const bannerList2 = await this.bannerCoreService.findActiveBannerAll({
+      page: 1,
+      row: 10,
+    });
 
-    return bannerList.map((banner) =>
-      BannerEntity.createActiveBannerEntity(banner),
-    );
+    return bannerList2.map(BannerEntity.fromModel);
   }
 }

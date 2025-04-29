@@ -1,10 +1,14 @@
-import { CreateContentRequestDto } from 'apps/user-server/src/api/culture-content/dto/create-content-request.dto';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
-import { GENRE } from 'libs/common';
 import { CultureContentSeedHelper } from 'libs/testing';
 import * as request from 'supertest';
 import invalidCreateContentRequest from './invalid-create-content-request';
+import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
+import { SummaryContentEntity } from 'apps/user-server/src/api/culture-content/entity/summary-content.entity';
+import { AGE } from 'libs/core/tag-root/age/constant/age';
+import { STYLE } from 'libs/core/tag-root/style/constant/style';
+import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
+import { TagEntity } from 'apps/user-server/src/api/content-tag/entity/tag.entity';
 
 describe('Culture Content (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -32,6 +36,81 @@ describe('Culture Content (e2e)', () => {
 
       expect(response.body?.contentList).toBeDefined();
       expect(Array.isArray(response.body?.contentList)).toBe(true);
+    });
+
+    it('Success: correct field test', async () => {
+      const loginUser = test.getLoginUsers().user2;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx).idx;
+
+      const [firstContent, secondContent, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList.length).toBe(3);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [thirdContent.idx, secondContent.idx, firstContent.idx].sort(),
+      );
+
+      expect(contentList[2].idx).toBe(thirdContent.idx);
+      expect(contentList[2].age.idx).toBe(thirdContent.ageIdx);
+      expect(contentList[2].genre.idx).toBe(thirdContent.genreIdx);
+      expect(contentList[2].title).toBe(thirdContent.title);
+      expect(contentList[2].thumbnail).toBe(thirdContent.imgList[0]);
+      expect(contentList[2].style.map(({ idx }) => idx).sort()).toStrictEqual(
+        thirdContent.styleIdxList.sort(),
+      );
+      expect(contentList[2].endDate?.toISOString()).toBe(
+        thirdContent.endDate?.toISOString(),
+      );
+      expect(contentList[2].startDate).toBe(
+        thirdContent.startDate?.toISOString(),
+      );
+      expect(contentList[2].acceptedAt).toBe(
+        thirdContent.acceptedAt?.toISOString(),
+      );
+      expect(contentList[2].location.address).toBe(
+        thirdContent.location.address,
+      );
+      expect(contentList[2].location.detailAddress).toBe(
+        thirdContent.location.detailAddress,
+      );
+      expect(contentList[2].location.region1Depth).toBe(
+        thirdContent.location.region1Depth,
+      );
+      expect(contentList[2].location.region2Depth).toBe(
+        thirdContent.location.region2Depth,
+      );
+      expect(contentList[2].location.bCode).toBe(thirdContent.location.bCode);
+      expect(contentList[2].location.hCode).toBe(thirdContent.location.hCode);
+      expect(contentList[2].location.positionY).toBe(
+        thirdContent.location.positionY,
+      );
+      expect(contentList[2].location.positionX).toBe(
+        thirdContent.location.positionX,
+      );
     });
 
     it('Success: get my contents', async () => {
@@ -182,7 +261,7 @@ describe('Culture Content (e2e)', () => {
       const [content1, content2] = await contentSeedHelper.seedAll([
         { userIdx: loginUser.idx, acceptedAt: null },
         { userIdx: loginUser.idx, acceptedAt: null },
-        { userIdx: otherUser.idx, acceptedAt: null },
+        { userIdx: otherUser.idx, acceptedAt: null }, // other user
         { userIdx: loginUser.idx, acceptedAt: null, deletedAt: new Date() },
       ]);
 
@@ -206,18 +285,54 @@ describe('Culture Content (e2e)', () => {
 
     it('Success: genre filter', async () => {
       const loginUser = test.getLoginUsers().user1;
+      const authorUser = test.getLoginUsers().not(loginUser.idx);
+
+      const [
+        musicalContent,
+        festivalContent,
+        festivalContent2,
+        notAcceptedContent,
+      ] = await contentSeedHelper.seedAll([
+        {
+          userIdx: authorUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.MUSICAL,
+        },
+        {
+          userIdx: authorUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.FESTIVAL,
+        },
+        {
+          userIdx: authorUser.idx,
+          acceptedAt: new Date(),
+          genreIdx: GENRE.FESTIVAL,
+        },
+        {
+          userIdx: authorUser.idx,
+          acceptedAt: null,
+          genreIdx: GENRE.MUSICAL,
+        },
+      ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
-          genre: 1,
+          genre: GENRE.FESTIVAL,
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.length).toBe(2);
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [festivalContent.idx, festivalContent2.idx].sort(),
+      );
     });
 
     it('Success: genre filter without login token', async () => {
@@ -274,56 +389,229 @@ describe('Culture Content (e2e)', () => {
 
     it('Success: age filter', async () => {
       const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [
+        allAgeContent,
+        allAgeContent2,
+        childrenContent,
+        fortiesContent,
+        thirtiesContent,
+      ] = await contentSeedHelper.seedAll([
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+          ageIdx: AGE.ALL,
+        },
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+          ageIdx: AGE.ALL,
+        },
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+          ageIdx: AGE.CHILDREN,
+        },
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+          ageIdx: AGE.FORTIES_FIFTIES,
+        },
+        {
+          userIdx: contentAuthor.idx,
+          acceptedAt: new Date(),
+          ageIdx: AGE.THIRTIES,
+        },
+      ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
-          genre: 1,
-          age: 2,
+          age: AGE.ALL,
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [allAgeContent.idx, allAgeContent2.idx].sort(),
+      );
     });
 
     it('Success: style filter', async () => {
       const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [cuteContent, cuteContent2, cuteContent3] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE, STYLE.ARTISTIC],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE, STYLE.DETECTIVE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.FUN, STYLE.DETECTIVE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.GOODS, STYLE.HEALING],
+          },
+        ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
-          genre: 1,
-          age: 2,
-          style: 3,
+          style: [STYLE.CUTE],
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [cuteContent.idx, cuteContent2.idx, cuteContent3.idx].sort(),
+      );
+    });
+
+    it('Success: style filter - 2', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [cuteContent, cuteContent2, cuteContent3, detectiveContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE, STYLE.ARTISTIC],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.CUTE, STYLE.DETECTIVE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.FUN, STYLE.DETECTIVE],
+          },
+          {
+            userIdx: contentAuthor.idx,
+            acceptedAt: new Date(),
+            styleIdxList: [STYLE.GOODS, STYLE.HEALING],
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          style: [STYLE.CUTE, STYLE.DETECTIVE],
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [
+          cuteContent.idx,
+          cuteContent2.idx,
+          cuteContent3.idx,
+          detectiveContent.idx,
+        ].sort(),
+      );
     });
 
     it('Success: region filter', async () => {
       const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [content1, content2] = await contentSeedHelper.seedAll([
+        {
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          location: {
+            bCode: '1012341234',
+          },
+        },
+        {
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          location: {
+            bCode: '1012341234',
+          },
+        },
+        {
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          location: {
+            bCode: '1112341234',
+          },
+        },
+        {
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          location: {
+            bCode: '1212341234',
+          },
+        },
+        {
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          location: {
+            bCode: '1312341234',
+          },
+        },
+      ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
-          genre: 1,
-          age: 2,
-          style: 3,
-          region: '11',
+          region: '10',
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [content1.idx, content2.idx].sort(),
+      );
     });
 
     it('Success: open filter', async () => {
@@ -346,25 +634,353 @@ describe('Culture Content (e2e)', () => {
       expect(Array.isArray(response.body?.contentList)).toBe(true);
     });
 
-    it('Success: orderby', async () => {
+    it('Success: orderby - time: desc', async () => {
       const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const getDaysAgo = (dateNum: number): Date => {
+        const date = new Date();
+
+        date.setDate(date.getDate() - dateNum);
+
+        return date;
+      };
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: getDaysAgo(1), // 하루 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(2), // 이틀 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(3), // 사흘 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(4), // 나흘 전 승인
+            userIdx: contentAuthor.idx,
+          },
+        ]);
 
       const response = await request(test.getServer())
         .get('/culture-content/all')
         .query({
           accept: true,
-          genre: 1,
-          age: 2,
-          style: 3,
-          region: '11',
-          open: true,
-          orderby: 'create',
+          orderby: 'time',
+          order: 'desc',
         })
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(200);
 
-      expect(response.body?.contentList).toBeDefined();
-      expect(Array.isArray(response.body?.contentList)).toBe(true);
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content1.idx,
+        content2.idx,
+        content3.idx,
+        content4.idx,
+      ]);
+    });
+
+    it('Success: orderby - time: asc', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const getDaysAgo = (dateNum: number): Date => {
+        const date = new Date();
+
+        date.setDate(date.getDate() - dateNum);
+
+        return date;
+      };
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: getDaysAgo(1), // 하루 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(2), // 이틀 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(3), // 사흘 전 승인
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: getDaysAgo(4), // 나흘 전 승인
+            userIdx: contentAuthor.idx,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          orderby: 'time',
+          order: 'asc',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content4.idx,
+        content3.idx,
+        content2.idx,
+        content1.idx,
+      ]);
+    });
+
+    it('Success: orderby - like: desc', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 5,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 4,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 2,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 3,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          orderby: 'like',
+          order: 'desc',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content1.idx,
+        content2.idx,
+        content4.idx,
+        content3.idx,
+      ]);
+    });
+
+    it('Success: orderby - like: asc', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 5,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 4,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 2,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 3,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          orderby: 'like',
+          order: 'asc',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content3.idx,
+        content4.idx,
+        content2.idx,
+        content1.idx,
+      ]);
+    });
+
+    it('Success: orderby - create desc', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          orderby: 'create',
+          order: 'desc',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content4.idx,
+        content3.idx,
+        content2.idx,
+        content1.idx,
+      ]);
+    });
+
+    it('Success: orderby - create asc', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          orderby: 'create',
+          order: 'asc',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        content1.idx,
+        content2.idx,
+        content3.idx,
+        content4.idx,
+      ]);
+    });
+
+    it('Success: user filtering', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().not(loginUser.idx);
+
+      const [content1, content2, content3, content4] =
+        await contentSeedHelper.seedAll([
+          {
+            acceptedAt: new Date(),
+            userIdx: loginUser.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: loginUser.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: otherUser.idx,
+          },
+          {
+            acceptedAt: new Date(),
+            userIdx: otherUser.idx,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          user: loginUser.idx,
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [content1.idx, content2.idx].sort(),
+      );
     });
 
     it('No token', async () => {
@@ -722,17 +1338,33 @@ describe('Culture Content (e2e)', () => {
       const oneMonthAfter = new Date();
       oneMonthAfter.setMonth(oneMonthAfter.getMonth() + 1);
 
-      await contentSeedHelper.seedAll([
+      const twoMonthAfter = new Date();
+      twoMonthAfter.setMonth(twoMonthAfter.getMonth() + 2);
+
+      const threeMonthAfter = new Date();
+      threeMonthAfter.setMonth(threeMonthAfter.getMonth() + 3);
+
+      const [
+        contentOpenAfterTwoMonth,
+        contentOpenAfterThreeMonth,
+        contentOpenAfterOneMonth,
+      ] = await contentSeedHelper.seedAll([
         {
           userIdx: test.getLoginUsers().user1.idx,
-          startDate: oneMonthAfter,
+          startDate: twoMonthAfter,
+          endDate: twoMonthAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: threeMonthAfter,
           endDate: null,
           acceptedAt: new Date(),
         },
         {
           userIdx: test.getLoginUsers().user1.idx,
           startDate: oneMonthAfter,
-          endDate: oneMonthAfter,
+          endDate: null,
           acceptedAt: new Date(),
         },
         {
@@ -748,9 +1380,15 @@ describe('Culture Content (e2e)', () => {
         '/culture-content/soon-open/all',
       );
 
-      const { contentList } = response.body;
+      const contentList: SummaryContentEntity[] = response.body.contentList;
 
-      expect(contentList.length).toBe(2);
+      expect(contentList.length).toBe(3);
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        contentOpenAfterOneMonth.idx,
+        contentOpenAfterTwoMonth.idx,
+        contentOpenAfterThreeMonth.idx,
+      ]);
     });
   });
 
@@ -783,39 +1421,79 @@ describe('Culture Content (e2e)', () => {
       const oneDateAfter = new Date();
       oneDateAfter.setDate(oneDateAfter.getDate() + 1);
 
-      await contentSeedHelper.seedAll([
+      const twoDateAfter = new Date();
+      twoDateAfter.setDate(twoDateAfter.getDate() + 2);
+
+      const threeDateAfter = new Date();
+      threeDateAfter.setDate(threeDateAfter.getDate() + 3);
+
+      const [
+        contentNeverEnd,
+        contentEndAfterOneDate,
+        contentEndAfterTwoDate,
+        contentEndAfterThreeDate,
+      ] = await contentSeedHelper.seedAll([
         {
+          // content never end
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo,
+          endDate: null,
+          acceptedAt: new Date(),
+        },
+        {
+          // content open after 1 day
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo,
+          endDate: oneDateAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          // content open after 2 day
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo, // -30 ~ +2
+          endDate: twoDateAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          // content open after 3 day
+          userIdx: test.getLoginUsers().user1.idx,
+          startDate: oneMonthAgo,
+          endDate: threeDateAfter,
+          acceptedAt: new Date(),
+        },
+        {
+          // not open content
           userIdx: test.getLoginUsers().user1.idx,
           startDate: oneDateAfter,
           endDate: oneDateAfter,
           acceptedAt: new Date(),
         },
         {
+          // not open content
           userIdx: test.getLoginUsers().user1.idx,
-          startDate: new Date(),
-          endDate: null,
-          acceptedAt: new Date(),
-        },
-        {
-          // open state content
-          userIdx: test.getLoginUsers().user1.idx,
-          startDate: new Date(),
-          endDate: null,
+          startDate: oneMonthAgo,
+          endDate: oneMonthAgo,
           acceptedAt: new Date(),
         },
       ]);
 
       const response = await request(test.getServer()).get(
-        '/culture-content/soon-open/all',
+        '/culture-content/soon-end/all',
       );
 
-      const { contentList } = response.body;
+      const contentList: SummaryContentEntity[] = response.body.contentList;
 
-      expect(contentList.length).toBe(1);
+      expect(contentList.length).toBe(4);
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        contentEndAfterOneDate.idx,
+        contentEndAfterTwoDate.idx,
+        contentEndAfterThreeDate.idx,
+        contentNeverEnd.idx,
+      ]);
     });
   });
 
-  describe('GET /culture-content/all', () => {
+  describe('GET /culture-content/hot/all', () => {
     it('Success with no token', async () => {
       const response = await request(test.getServer())
         .get('/culture-content/hot/all')
@@ -841,6 +1519,168 @@ describe('Culture Content (e2e)', () => {
       for (const genre of response.body) {
         expect(Array.isArray(genre.contentList)).toBe(true);
       }
+    });
+
+    it('Success: genre all exist test', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const response = await request(test.getServer())
+        .get('/culture-content/hot/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const genreWithHotContentList: GenreWithHotContentEntity[] =
+        response.body;
+
+      expect(genreWithHotContentList.map(({ idx }) => idx)).toStrictEqual(
+        Object.values(GENRE).sort((prev, next) => prev - next),
+      );
+    });
+
+    it('Success: each genre has correct contents', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+
+      const [
+        festivalContent,
+        concertContent,
+        musicalContent,
+        theaterContent,
+        exhibitionContent,
+        popupStoreContent,
+      ] = await contentSeedHelper.seedAll([
+        {
+          genreIdx: GENRE.FESTIVAL,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+        {
+          genreIdx: GENRE.CONCERT,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+        {
+          genreIdx: GENRE.MUSICAL,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+        {
+          genreIdx: GENRE.THEATER,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+        {
+          genreIdx: GENRE.EXHIBITION,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+        {
+          genreIdx: GENRE.POPUP_STORE,
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          likeCount: 1,
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/hot/all')
+        .expect(200);
+
+      const genreWithHotContentList: GenreWithHotContentEntity[] =
+        response.body;
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.FESTIVAL)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([festivalContent.idx]);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.CONCERT)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([concertContent.idx]);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.MUSICAL)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([musicalContent.idx]);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.THEATER)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([theaterContent.idx]);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.EXHIBITION)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([exhibitionContent.idx]);
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.POPUP_STORE)
+          .map(({ contentList: [{ idx }] }) => idx)
+          .sort(),
+      ).toStrictEqual([popupStoreContent.idx]);
+    });
+
+    it('Success: like contents order test', async () => {
+      const contentAuthor = test.getLoginUsers().user1;
+
+      const [like0Contents, like2Contents, like1Contents] =
+        await contentSeedHelper.seedAll([
+          {
+            genreIdx: GENRE.FESTIVAL,
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 0,
+          },
+          {
+            genreIdx: GENRE.FESTIVAL,
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 2,
+          },
+          {
+            genreIdx: GENRE.FESTIVAL,
+            acceptedAt: new Date(),
+            userIdx: contentAuthor.idx,
+            likeCount: 1,
+          },
+          {
+            genreIdx: GENRE.FESTIVAL,
+            acceptedAt: null,
+            userIdx: contentAuthor.idx,
+            likeCount: 100,
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/hot/all')
+        .expect(200);
+
+      const genreWithHotContentList: GenreWithHotContentEntity[] =
+        response.body;
+
+      expect(
+        genreWithHotContentList
+          .filter(({ idx }) => idx === GENRE.FESTIVAL)
+          .flatMap(({ contentList }) =>
+            contentList.map((content) => content.idx),
+          ),
+      ).toStrictEqual([like2Contents.idx, like1Contents.idx]);
     });
   });
 
@@ -864,6 +1704,49 @@ describe('Culture Content (e2e)', () => {
 
       expect(response.body).toBeDefined();
       expect(Array.isArray(response.body.contentList)).toBe(true);
+    });
+
+    it('Success: default age test (no token)', async () => {
+      const author = test.getLoginUsers().user1;
+
+      const [twentiesContent1, twentiesContent2, allContent, fortiesContent] =
+        await contentSeedHelper.seedAll([
+          {
+            ageIdx: AGE.TWENTIES,
+            userIdx: author.idx,
+            acceptedAt: new Date(),
+            likeCount: 3,
+          },
+          {
+            ageIdx: AGE.TWENTIES,
+            userIdx: author.idx,
+            acceptedAt: new Date(),
+            likeCount: 1,
+          },
+          {
+            ageIdx: AGE.ALL,
+            userIdx: author.idx,
+            acceptedAt: new Date(),
+          },
+          {
+            ageIdx: AGE.FORTIES_FIFTIES,
+            userIdx: author.idx,
+            acceptedAt: new Date(),
+          },
+        ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/hot-age/all')
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+      const age: TagEntity = response.body.age;
+
+      expect(age.idx).toBe(AGE.TWENTIES);
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        twentiesContent1.idx,
+        twentiesContent2.idx,
+      ]);
     });
   });
 
@@ -1116,9 +1999,9 @@ describe('Culture Content (e2e)', () => {
           address: '전북 익산시 부송동 100',
           region1Depth: '서울',
           region2Depth: '강동구',
-          positionX: 126.99597295767953,
+          positionX: 126.9959729576795,
           positionY: 35.97664845766847,
-          hCode: '4514069000',
+          hCode: '1231231231',
           bCode: '4514013400',
         },
         isFee: true,
@@ -1134,7 +2017,72 @@ describe('Culture Content (e2e)', () => {
         .send(createDto)
         .expect(200);
 
-      expect(response.body?.idx).toBeDefined();
+      const createdContentIdx: number = response.body.idx;
+
+      expect(createdContentIdx).toBeDefined();
+
+      const content = await test.getPrisma().cultureContent.findUniqueOrThrow({
+        include: {
+          Style: {
+            include: {
+              Style: {
+                select: {
+                  idx: true,
+                },
+              },
+            },
+          },
+          Location: true,
+        },
+        where: { idx: createdContentIdx },
+      });
+
+      expect(content.idx).toBe(createdContentIdx);
+      expect(content.title).toBe(createDto.title);
+      expect(content.description).toBe(createDto.description);
+      expect(content.websiteLink).toBe(createDto.websiteLink);
+      expect(content.startDate.toISOString()).toBe(
+        createDto.startDate.toISOString(),
+      );
+      expect(content.endDate?.toISOString()).toBe(
+        createDto.endDate?.toISOString(),
+      );
+      expect(content.openTime).toBe(createDto.openTime);
+      expect(content.genreIdx).toBe(createDto.genreIdx);
+      expect(
+        content.Style.map(({ styleIdx }) => styleIdx).sort(),
+      ).toStrictEqual(createDto.styleIdxList.sort());
+      expect(content.ageIdx).toBe(createDto.ageIdx);
+      expect(content.Location.address).toBe(createDto.location.address);
+      expect(content.Location.detailAddress).toBe(
+        createDto.location.detailAddress,
+      );
+      expect(content.Location.region1Depth).toBe(
+        createDto.location.region1Depth,
+      );
+      expect(content.Location.region2Depth).toBe(
+        createDto.location.region2Depth,
+      );
+      expect(content.Location.positionX).toBe(createDto.location.positionX);
+      expect(content.Location.positionY).toBe(createDto.location.positionY);
+      expect(content.Location.hCode).toBe(createDto.location.hCode);
+      expect(content.Location.bCode).toBe(createDto.location.bCode);
+      expect(content.Location.sidoCode).toBe(
+        createDto.location.bCode.substring(0, 2),
+      );
+      expect(content.Location.sggCode).toBe(
+        createDto.location.bCode.substring(2, 5),
+      );
+      expect(content.Location.legCode).toBe(
+        createDto.location.bCode.substring(5, 8),
+      );
+      expect(content.Location.riCode).toBe(
+        createDto.location.bCode.substring(8, 10),
+      );
+      expect(content.isFee).toBe(createDto.isFee);
+      expect(content.isPet).toBe(createDto.isPet);
+      expect(content.isReservation).toBe(createDto.isReservation);
+      expect(content.isParking).toBe(createDto.isParking);
     });
 
     it('No token', async () => {
@@ -1224,6 +2172,152 @@ describe('Culture Content (e2e)', () => {
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
         .expect(201);
+    });
+
+    it('Success - check updated field', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const content = await contentSeedHelper.seed({
+        userIdx: loginUser.idx,
+        acceptedAt: null,
+      });
+
+      const contentBeforeUpdate = await test
+        .getPrisma()
+        .cultureContent.findUniqueOrThrow({
+          include: {
+            Style: { include: { Style: true } },
+            ContentImg: true,
+            Location: true,
+          },
+          where: { idx: content.idx },
+        });
+
+      expect(contentBeforeUpdate.idx).toBe(content.idx);
+      expect(contentBeforeUpdate.title).toBe(content.title);
+      expect(contentBeforeUpdate.description).toBe(content.description);
+      expect(
+        contentBeforeUpdate.ContentImg.map((img) => img.imgPath).sort(),
+      ).toStrictEqual(content.imgList.sort());
+
+      expect(contentBeforeUpdate.startDate).toStrictEqual(content.startDate);
+      expect(contentBeforeUpdate.endDate).toStrictEqual(content.endDate);
+      expect(contentBeforeUpdate.openTime).toBe(content.openTime);
+      expect(contentBeforeUpdate.genreIdx).toBe(content.genreIdx);
+      expect(contentBeforeUpdate.ageIdx).toBe(content.ageIdx);
+      expect(
+        contentBeforeUpdate.Style.map(({ styleIdx }) => styleIdx).sort(),
+      ).toStrictEqual(content.styleIdxList.sort());
+      expect(contentBeforeUpdate.Location.address).toBe(
+        content.location.address,
+      );
+      expect(contentBeforeUpdate.Location.detailAddress).toBe(
+        content.location.detailAddress,
+      );
+      expect(contentBeforeUpdate.Location.region1Depth).toBe(
+        content.location.region1Depth,
+      );
+      expect(contentBeforeUpdate.Location.region2Depth).toBe(
+        content.location.region2Depth,
+      );
+      expect(contentBeforeUpdate.Location.bCode).toBe(content.location.bCode);
+      expect(contentBeforeUpdate.Location.hCode).toBe(content.location.hCode);
+      expect(contentBeforeUpdate.Location.positionX).toBe(
+        content.location.positionX,
+      );
+      expect(contentBeforeUpdate.Location.positionY).toBe(
+        content.location.positionY,
+      );
+
+      expect(contentBeforeUpdate.isFee).toBe(content.isFee);
+      expect(contentBeforeUpdate.isReservation).toBe(content.isReservation);
+      expect(contentBeforeUpdate.isParking).toBe(content.isParking);
+      expect(contentBeforeUpdate.isPet).toBe(content.isPet);
+      expect(contentBeforeUpdate.acceptedAt).toStrictEqual(content.acceptedAt);
+
+      const updateDto = {
+        title: '도라에몽 팝업 스토어',
+        description: '도라에몽 팝업 스토어 입니다.',
+        websiteLink: 'liket.site',
+        imgList: ['/content/test.img'],
+        startDate: new Date(),
+        endDate: new Date(),
+        openTime: '평일 6 ~ 12시',
+        genreIdx: 1,
+        styleIdxList: [1, 2, 3],
+        ageIdx: 1,
+        location: {
+          detailAddress: 'LH아파트 1250호',
+          address: '전북 익산시 부송동 100',
+          region1Depth: '서울',
+          region2Depth: '강동구',
+          positionX: 126.9959729576795,
+          positionY: 35.9766484576684,
+          hCode: '4514069000',
+          bCode: '4514013400',
+        },
+        isFee: true,
+        isReservation: true,
+        isParking: true,
+        isPet: true,
+      };
+
+      await request(test.getServer())
+        .put(`/culture-content/request/${content.idx}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send(updateDto)
+        .expect(201);
+
+      const contentAfterUpdate = await test
+        .getPrisma()
+        .cultureContent.findUniqueOrThrow({
+          include: {
+            Style: { include: { Style: true } },
+            ContentImg: true,
+            Location: true,
+          },
+          where: { idx: content.idx },
+        });
+
+      expect(contentAfterUpdate.title).toBe(updateDto.title);
+      expect(contentAfterUpdate.description).toBe(updateDto.description);
+      expect(
+        contentAfterUpdate.ContentImg.map((img) => img.imgPath).sort(),
+      ).toStrictEqual(updateDto.imgList.sort());
+
+      expect(contentAfterUpdate.startDate).toStrictEqual(updateDto.startDate);
+      expect(contentAfterUpdate.endDate).toStrictEqual(updateDto.endDate);
+      expect(contentAfterUpdate.openTime).toBe(updateDto.openTime);
+      expect(contentAfterUpdate.genreIdx).toBe(updateDto.genreIdx);
+      expect(contentAfterUpdate.ageIdx).toBe(updateDto.ageIdx);
+      expect(
+        contentAfterUpdate.Style.map(({ styleIdx }) => styleIdx).sort(),
+      ).toStrictEqual(updateDto.styleIdxList.sort());
+      expect(contentAfterUpdate.Location.address).toBe(
+        updateDto.location.address,
+      );
+      expect(contentAfterUpdate.Location.detailAddress).toBe(
+        updateDto.location.detailAddress,
+      );
+      expect(contentAfterUpdate.Location.region1Depth).toBe(
+        updateDto.location.region1Depth,
+      );
+      expect(contentAfterUpdate.Location.region2Depth).toBe(
+        updateDto.location.region2Depth,
+      );
+      expect(contentAfterUpdate.Location.bCode).toBe(updateDto.location.bCode);
+      expect(contentAfterUpdate.Location.hCode).toBe(updateDto.location.hCode);
+      expect(contentAfterUpdate.Location.positionX).toBe(
+        updateDto.location.positionX,
+      );
+      expect(contentAfterUpdate.Location.positionY).toBe(
+        updateDto.location.positionY,
+      );
+
+      expect(contentAfterUpdate.isFee).toBe(updateDto.isFee);
+      expect(contentAfterUpdate.isReservation).toBe(updateDto.isReservation);
+      expect(contentAfterUpdate.isParking).toBe(updateDto.isParking);
+      expect(contentAfterUpdate.isPet).toBe(updateDto.isPet);
     });
 
     it('Non author update content', async () => {
@@ -1359,6 +2453,14 @@ describe('Culture Content (e2e)', () => {
         .delete(`/culture-content/request/${content.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
+
+      const selectedContent = await test
+        .getPrisma()
+        .cultureContent.findUniqueOrThrow({
+          where: { idx: content.idx },
+        });
+
+      expect(selectedContent.deletedAt).not.toBeNull();
     });
 
     it('Non author delete content', async () => {
@@ -1415,6 +2517,238 @@ describe('Culture Content (e2e)', () => {
       await request(test.getServer())
         .delete(`/culture-content/request/${idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(400);
+    });
+  });
+
+  describe('GET /culture-content/like/all', () => {
+    it('Success', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().user2;
+
+      const [content, secondContent, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+        ]);
+
+      // like first content
+      await request(test.getServer())
+        .post(`/culture-content/${content.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      // like second content
+      await request(test.getServer())
+        .post(`/culture-content/${secondContent.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({ onlyopen: false })
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [content.idx, secondContent.idx].sort(),
+      );
+    });
+
+    it('Success with genre filtering', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().user2;
+
+      const [content, secondContent, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            genreIdx: GENRE.CONCERT,
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            genreIdx: GENRE.MUSICAL,
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            genreIdx: GENRE.POPUP_STORE,
+          },
+        ]);
+
+      // like first content
+      await request(test.getServer())
+        .post(`/culture-content/${content.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      // like second content
+      await request(test.getServer())
+        .post(`/culture-content/${secondContent.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({ onlyopen: false, genre: GENRE.CONCERT }) // genre filtering
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [content.idx].sort(),
+      );
+    });
+
+    it('Success with onlyopen filtering', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().user2;
+
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+      const [endContent, openContents, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            startDate: threeDaysAgo,
+            endDate: threeDaysAgo, // end contents
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            startDate: threeDaysAgo,
+            endDate: null, // open contents
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+            startDate: threeDaysAgo,
+            endDate: null, // open contents
+          },
+        ]);
+
+      // like first content
+      await request(test.getServer())
+        .post(`/culture-content/${endContent.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      // like second content
+      await request(test.getServer())
+        .post(`/culture-content/${openContents.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({
+          onlyopen: true, // only open filtering
+        })
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [openContents.idx].sort(),
+      );
+    });
+
+    it('Success: orderby test', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const otherUser = test.getLoginUsers().user2;
+
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+      const [secondLikeContents, firstLikeContent, thirdContent] =
+        await contentSeedHelper.seedAll([
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+          {
+            userIdx: otherUser.idx,
+            acceptedAt: new Date(),
+          },
+        ]);
+
+      // like first content
+      await request(test.getServer())
+        .post(`/culture-content/${firstLikeContent.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      // like second content
+      await request(test.getServer())
+        .post(`/culture-content/${secondLikeContents.idx}/like`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({ onlyopen: false })
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList.map(({ idx }) => idx)).toStrictEqual([
+        secondLikeContents.idx, // 최근에 좋아요한 순서대로 가져옴
+        firstLikeContent.idx,
+      ]);
+    });
+
+    it('fail - no token', async () => {
+      await request(test.getServer())
+        .get('/culture-content/like/all')
+        .query({ onlyopen: false })
+        .expect(401);
+    });
+
+    it('fail - invalid onlyopen', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({
+          onlyopen: null, // invalid only open
+        })
+        .expect(400);
+    });
+
+    it('fail - invalid genre', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      await request(test.getServer())
+        .get('/culture-content/like/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .query({
+          onlyopen: false,
+          genre: 100, // genre does not exist
+        })
         .expect(400);
     });
   });

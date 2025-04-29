@@ -1,6 +1,7 @@
 import { User } from '@prisma/client';
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, Matches, Max, Min } from 'class-validator';
+import { UserModel } from 'libs/core/user/model/user.model';
 
 /**
  * @author jochongs
@@ -86,6 +87,19 @@ export class UserEntity {
       email: user.email,
       birth: user.birth,
       createdAt: user.createdAt,
+    });
+  }
+
+  public static fromModel(userModel: UserModel): UserEntity {
+    return new UserEntity({
+      idx: userModel.idx,
+      birth: userModel.birth,
+      gender: userModel.gender,
+      profileImgPath: userModel.profileImgPath,
+      createdAt: userModel.createdAt,
+      nickname: userModel.nickname,
+      email: userModel.email,
+      provider: userModel.provider,
     });
   }
 }

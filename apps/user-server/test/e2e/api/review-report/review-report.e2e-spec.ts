@@ -4,7 +4,7 @@ import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
 import { ReportReviewDto } from 'apps/user-server/src/api/review-report/dto/report-review.dto';
 import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
 import { CultureContentSeedHelper, ReviewSeedHelper } from 'libs/testing';
-import { REVIEW_REPORT_TYPE } from 'libs/common';
+import { REVIEW_REPORT_TYPE } from 'libs/core/review/constant/review-report-type';
 
 describe('Review Report(e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -235,7 +235,7 @@ describe('Review Report(e2e)', () => {
         contentIdx: content.idx,
       });
 
-      const reportDto: ReportReviewDto = {
+      const reportDto = {
         typeIdx: 99999, // 존재하지 않는 타입
       };
 
@@ -243,7 +243,7 @@ describe('Review Report(e2e)', () => {
         .post(`/review/${review.idx}/report`)
         .send(reportDto)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
-        .expect(500);
+        .expect(400);
     });
 
     it('Select review test after reporting a review', async () => {

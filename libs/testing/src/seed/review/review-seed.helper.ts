@@ -30,6 +30,7 @@ export class ReviewSeedHelper extends ISeedHelper<ReviewInput, ReviewOutput> {
         visitTime: filledInput.visitTime,
         deletedAt: filledInput.deletedAt,
         firstReportedAt: filledInput.firstReportedAt,
+        createdAt: filledInput.createdAt,
       },
     });
 
@@ -45,6 +46,7 @@ export class ReviewSeedHelper extends ISeedHelper<ReviewInput, ReviewOutput> {
       visitTime: review.visitTime,
       deletedAt: review.deletedAt,
       firstReportedAt: review.firstReportedAt,
+      createdAt: review.createdAt,
     };
   }
 
@@ -62,6 +64,7 @@ export class ReviewSeedHelper extends ISeedHelper<ReviewInput, ReviewOutput> {
       visitTime: input.visitTime ?? this.getRandomVisitDate(),
       deletedAt: input.deletedAt ?? null,
       firstReportedAt: input.firstReportedAt ?? null,
+      createdAt: input.createdAt || new Date(),
     };
   }
 

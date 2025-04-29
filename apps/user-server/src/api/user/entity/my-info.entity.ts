@@ -2,7 +2,9 @@ import { PickType } from '@nestjs/swagger';
 import { UserEntity } from './user.entity';
 import { UserWithInclude } from './prisma-type/user-with-include';
 import { SummaryLiketEntity } from '../../liket/entity/summary-liket.entity';
-import { MyReviewEntity } from '../../review/entity/my-review.entity';
+import { ReviewEntity } from 'apps/user-server/src/api/review/entity/review.entity';
+import { UserModel } from 'libs/core/user/model/user.model';
+import { ReviewModel } from 'libs/core/review/model/review.model';
 
 class MyLiket extends PickType(SummaryLiketEntity, [
   'idx',
@@ -33,7 +35,7 @@ export class MyInfoEntity extends PickType(UserEntity, [
   /**
    * 리뷰 목록
    */
-  public reviewList: MyReviewEntity[];
+  public reviewList: ReviewEntity[];
 
   /**
    * 라이켓 개수
@@ -57,11 +59,13 @@ export class MyInfoEntity extends PickType(UserEntity, [
     Object.assign(this, data);
   }
 
-  static createEntity(
-    user: UserWithInclude,
+  public static fromModel(
+    user: UserModel,
     liketList: SummaryLiketEntity[],
     liketCount: number,
-    reviewList: MyReviewEntity[],
+    reviewList: ReviewEntity[],
+    reviewCount: number,
+    contentLikeCount: number,
   ): MyInfoEntity {
     return new MyInfoEntity({
       idx: user.idx,
@@ -72,11 +76,11 @@ export class MyInfoEntity extends PickType(UserEntity, [
       email: user.email,
       birth: user.birth,
       createdAt: user.createdAt,
-      reviewCount: user._count.Review,
+      reviewCount,
       reviewList,
       liketCount,
       liketList,
-      likeCount: user._count.ContentLike,
+      likeCount: contentLikeCount,
     });
   }
 }

@@ -1,5 +1,9 @@
+import { InquiryEntity } from 'apps/admin-server/src/api/inquiry/entity/inquiry.entity';
+import { InquiryTypeEntity } from 'apps/user-server/src/api/inquiry/entity/inquiry-type.entity';
+import { SummaryInquiryEntity } from 'apps/user-server/src/api/inquiry/entity/summary-inquiry.entity';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { INQUIRY_TYPE } from 'libs/core/inquiry/constant/inquiry-type';
 import { InquirySeedHelper } from 'libs/testing';
 import * as request from 'supertest';
 
@@ -57,6 +61,28 @@ describe('Inquiry (e2e)', () => {
       expect(response.body?.inquiryList).toBeDefined();
       expect(Array.isArray(response.body.inquiryList)).toBe(true);
       expect(response.body.inquiryList.length).toBe(0);
+    });
+
+    it('Success- field check', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const [inquirySeed] = await inquirySeedHelper.seedAll([
+        { userIdx: loginUser.idx },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/inquiry/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const inquiryResponse: SummaryInquiryEntity[] = response.body.inquiryList;
+
+      expect(inquiryResponse[0]).not.toBeNull();
+      expect(inquiryResponse[0].idx).toBe(inquirySeed.idx);
+      expect(inquiryResponse[0].title).toBe(inquirySeed.title);
+      expect(inquiryResponse[0].type.idx).toBe(inquirySeed.typeIdx);
+      expect(inquiryResponse[0].author.idx).toBe(inquirySeed.userIdx);
+      expect(inquiryResponse[0].thumbnail).toBe(inquirySeed.imgList[0] || null);
     });
 
     it('No token', async () => {
@@ -167,6 +193,29 @@ describe('Inquiry (e2e)', () => {
         .expect(401);
     });
 
+    it('Success - field check', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const createDto = {
+        title: 'test-title',
+        contents: 'test-contents',
+        imgList: ['/inquiry/img-1.png', '/inquiry/img-2.png'],
+        typeIdx: INQUIRY_TYPE.ETC,
+      };
+
+      const response = await request(test.getServer())
+        .post('/inquiry')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send(createDto)
+        .expect(200);
+
+      const inquiry: InquiryEntity = response.body;
+
+      expect(inquiry.title).toBe(createDto.title);
+      expect(inquiry.contents).toBe(createDto.contents);
+      expect(inquiry.imgList).toEqual(createDto.imgList);
+      expect(inquiry.type.idx).toBe(createDto.typeIdx);
+    });
+
     it('Invalid DTO - title', async () => {
       const loginUser = test.getLoginUsers().user1;
       const createDto = {
@@ -254,7 +303,7 @@ describe('Inquiry (e2e)', () => {
         .post('/inquiry')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(createDto)
-        .expect(500);
+        .expect(400);
     });
   });
 
@@ -280,6 +329,25 @@ describe('Inquiry (e2e)', () => {
         .delete(`/inquiry/${createdInquiry.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(201);
+    });
+
+    it('Success - deleting check', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const inquiry = await inquirySeedHelper.seed({
+        userIdx: loginUser.idx,
+      });
+
+      await request(test.getServer())
+        .delete(`/inquiry/${inquiry.idx}`)
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(201);
+
+      const findInquiry = await test.getPrisma().inquiry.findUniqueOrThrow({
+        where: { idx: inquiry.idx },
+      });
+
+      expect(findInquiry.deletedAt).not.toBeNull();
     });
 
     it('No token', async () => {
@@ -339,6 +407,25 @@ describe('Inquiry (e2e)', () => {
         .delete(`/inquiry/${createdInquiry.idx}`)
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .expect(404);
+    });
+  });
+
+  describe('GET /inquiry/type/all', () => {
+    it('Success -field check', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const response = await request(test.getServer())
+        .get('/inquiry/type/all')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const typeList: InquiryTypeEntity[] = response.body.typeList;
+
+      expect(typeList.length).toBe(Object.values(INQUIRY_TYPE).length);
+    });
+
+    it('Fail - no token', async () => {
+      await request(test.getServer()).get('/inquiry/type/all').expect(401);
     });
   });
 });

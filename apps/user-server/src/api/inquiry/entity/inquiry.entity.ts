@@ -2,6 +2,9 @@ import { Prisma } from '@prisma/client';
 import { AnswerEntity } from './answer.entity';
 import { InquiryTypeEntity } from './inquiry-type.entity';
 import { UserProfileEntity } from '../../user/entity/user-profile.entity';
+import { InquiryModel } from 'libs/core/inquiry/model/inquiry.model';
+import { InquiryAuthorModel } from 'libs/core/inquiry/model/inquiry-author.model';
+import { InquiryAuthorEntity } from 'apps/user-server/src/api/inquiry/entity/inquiry-author.entity';
 
 const inquiryWithInclude = Prisma.validator<Prisma.InquiryDefaultArgs>()({
   include: {
@@ -47,7 +50,7 @@ export class InquiryEntity {
   /**
    * 문의 작성자
    */
-  public author: UserProfileEntity;
+  public author: InquiryAuthorEntity;
 
   /**
    * 내용
@@ -77,6 +80,12 @@ export class InquiryEntity {
     Object.assign(this, data);
   }
 
+  /**
+   * `InquiryCoreModule`이 개발됨에 따라 deprecated되었습니다.
+   * 대신, `fromModel` 정적 메서드를 사용하십시오.
+   *
+   * @deprecated
+   */
   static createEntity(inquiry: InquiryWithInclude) {
     return new InquiryEntity({
       idx: inquiry.idx,
@@ -92,9 +101,22 @@ export class InquiryEntity {
         idx: inquiry.User.idx,
         profileImgPath: inquiry.User.profileImgPath,
         nickname: inquiry.User.nickname,
-        provider: inquiry.User.provider,
       },
       createdAt: inquiry.createdAt,
+    });
+  }
+
+  public static fromModel(inquiryModel: InquiryModel): InquiryEntity {
+    return new InquiryEntity({
+      idx: inquiryModel.idx,
+      title: inquiryModel.title,
+      contents: inquiryModel.contents,
+      type: InquiryTypeEntity.fromModel(inquiryModel.type),
+      answerList: inquiryModel.answerList.map(AnswerEntity.fromModel),
+      author: InquiryAuthorEntity.fromModel(inquiryModel.author),
+      imgList: inquiryModel.imgList.map(({ path }) => path),
+      thumbnail: inquiryModel.imgList[0]?.path || null,
+      createdAt: inquiryModel.createdAt,
     });
   }
 }

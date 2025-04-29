@@ -3,7 +3,7 @@ import { BannerEntity } from './entity/banner.entity';
 import { GetBannerAllPagerbleDto } from './dto/request/get-banner-all-pagerble.dto';
 import { BannerNotFoundException } from './exception/BannerNotFoundException';
 import { CreateBannerDto } from './dto/request/create-banner.dto';
-import { UpadteBannerDto } from './dto/request/update-banner.dto';
+import { UpdateBannerDto } from './dto/request/update-banner.dto';
 import { AlreadyActiveBannerException } from './exception/AlreadyActiveBannerExcepion';
 import { AlreadyDeactiveBannerException } from './exception/AlreadyDeactiveBannerException';
 import { UpdateBannerOrderDto } from './dto/request/update-banner-order.dto';
@@ -123,8 +123,16 @@ export class BannerService {
 
   public updateBanner: (
     bannerIdx: number,
-    updateDto: UpadteBannerDto,
+    updateDto: UpdateBannerDto,
   ) => Promise<void> = async (bannerIdx, updateDto) => {
+    const banner = await this.prisma.banner.findUnique({
+      where: { idx: bannerIdx, deletedAt: null },
+    });
+
+    if (!banner) {
+      throw new BannerNotFoundException('Cannot find banner');
+    }
+
     await this.prisma.banner.update({
       where: {
         idx: bannerIdx,
@@ -337,7 +345,7 @@ export class BannerService {
 
         if (updateOrderDto.order > lastActiveBanner.order) {
           throw new BannerOrderOutOfRangeException(
-            'Cannot be exeeded the maximum order',
+            'Cannot be exceeded the maximum order',
           );
         }
 

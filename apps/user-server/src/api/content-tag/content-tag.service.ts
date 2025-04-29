@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { TagEntity } from './entity/tag.entity';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
-import { ContentTagRepository } from './content-tag.repository';
+import { GenreCoreService } from 'libs/core/tag-root/genre/genre-core.service';
+import { AgeCoreService } from 'libs/core/tag-root/age/age-core.service';
+import { StyleCoreService } from 'libs/core/tag-root/style/style-core.service';
 
 @Injectable()
 export class ContentTagService {
-  constructor(private readonly contentTagRepository: ContentTagRepository) {}
+  constructor(
+    private readonly genreCoreService: GenreCoreService,
+    private readonly ageCoreService: AgeCoreService,
+    private readonly styleCoreService: StyleCoreService,
+  ) {}
 
   /**
    * 장르 목록 가져오기
@@ -16,11 +20,9 @@ export class ContentTagService {
   public async getGenreAll(): Promise<{
     tagList: TagEntity[];
   }> {
-    const genreList = await this.contentTagRepository.selectGenreAll();
+    const genreList = await this.genreCoreService.findGenreAll();
 
-    return {
-      tagList: genreList.map((tag) => TagEntity.createEntity(tag)),
-    };
+    return { tagList: genreList.map(TagEntity.fromModel) };
   }
 
   /**
@@ -31,11 +33,9 @@ export class ContentTagService {
   public async getAgeAll(): Promise<{
     tagList: TagEntity[];
   }> {
-    const ageList = await this.contentTagRepository.selectAgeAll();
+    const ageList = await this.ageCoreService.findAgeAll();
 
-    return {
-      tagList: ageList.map((age) => TagEntity.createEntity(age)),
-    };
+    return { tagList: ageList.map(TagEntity.fromModel) };
   }
 
   /**
@@ -46,10 +46,8 @@ export class ContentTagService {
   public async getStyleAll(): Promise<{
     tagList: TagEntity[];
   }> {
-    const styleList = await this.contentTagRepository.selectStyleAll();
+    const styleList = await this.styleCoreService.selectStyleAll();
 
-    return {
-      tagList: styleList.map((style) => TagEntity.createEntity(style)),
-    };
+    return { tagList: styleList.map(TagEntity.fromModel) };
   }
 }

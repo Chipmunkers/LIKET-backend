@@ -6,6 +6,9 @@ import {
   IsNumber,
   IsOptional,
 } from 'class-validator';
+import { Age, AGE } from 'libs/core/tag-root/age/constant/age';
+import { Genre, GENRE } from 'libs/core/tag-root/genre/constant/genre';
+import { Style, STYLE } from 'libs/core/tag-root/style/constant/style';
 
 /**
  * @author jochongs
@@ -69,7 +72,8 @@ export class MapPagerbleDto {
   @IsNumber({}, { each: true })
   @IsOptional()
   @ArrayMaxSize(3)
-  styles: number[] = [];
+  @IsIn(Object.values(STYLE), { each: true })
+  styles: Style[] = [];
 
   /**
    * 장르 필터링
@@ -78,7 +82,8 @@ export class MapPagerbleDto {
    */
   @Type(() => Number)
   @IsOptional()
-  genre?: number;
+  @IsIn(Object.values(GENRE))
+  genre?: Genre;
 
   /**
    * 연령대 필터링
@@ -87,5 +92,6 @@ export class MapPagerbleDto {
    */
   @Type(() => Number)
   @IsOptional()
-  age?: number;
+  @IsIn(Object.values(AGE))
+  age?: Age;
 }

@@ -1,4 +1,5 @@
 import { Tos } from '@prisma/client';
+import { TosModel } from 'libs/core/tos/model/tos.model';
 
 /**
  * @author jochongs
@@ -42,6 +43,15 @@ export class TosEntity {
       title: data.title,
       isEssential: data.isEssential,
       contents: data.contents,
+    });
+  }
+
+  public static fromModel(model: TosModel): TosEntity {
+    return new TosEntity({
+      idx: model.idx,
+      isEssential: model.isEssential,
+      title: model.title,
+      contents: model.contents,
     });
   }
 }

@@ -18,5 +18,5 @@ export class UpdateProfileDto extends PickType(SignUpDto, [
   @IsOptional()
   @IsString()
   @Length(1, 100)
-  public profileImg?: string;
+  public profileImg?: string | null;
 }

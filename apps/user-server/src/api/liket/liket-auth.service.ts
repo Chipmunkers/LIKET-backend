@@ -2,58 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PermissionDeniedException } from '../../common/exception/PermissionDeniedException';
 import { LoginUser } from '../auth/model/login-user';
 import { LiketPageableDto } from './dto/liket-pageable.dto';
-import { LiketNotFoundException } from './exception/LiketNotFoundException';
-import { LiketRepository } from './liket.repository';
-import { ReviewRepository } from '../review/review.repository';
-import { ReviewNotFoundException } from '../review/exception/ReviewNotFoundException';
-import { AlreadyExistLiketException } from './exception/AlreadyExistLiketException';
+import { ReviewModel } from 'libs/core/review/model/review.model';
+import { LiketModel } from 'libs/core/liket/model/liket.model';
 
 @Injectable()
 export class LiketAuthService {
-  constructor(
-    private readonly liketRepository: LiketRepository,
-    private readonly reviewRepository: ReviewRepository,
-  ) {}
-
-  /**
-   * @author wherehows
-   */
-  public async checkCreatePermission(reviewIdx: number, userIdx: number) {
-    const review = await this.reviewRepository.selectReviewByIdx(reviewIdx);
-
-    const liket = await this.liketRepository.selectLiketByReviewIdx(reviewIdx);
-
-    if (liket) {
-      throw new AlreadyExistLiketException('Already exist LIKET');
-    }
-
-    if (!review) {
-      throw new ReviewNotFoundException('Cannot find review');
-    }
-
-    if (review.userIdx !== userIdx) {
-      throw new PermissionDeniedException('Permission denied');
-    }
-
-    return;
-  }
-
-  /**
-   * @author wherehows
-   */
-  public async checkDeletePermission(loginUser: LoginUser, liketIdx: number) {
-    const liket = await this.liketRepository.selectLiketByIdx(liketIdx);
-
-    if (!liket) {
-      throw new LiketNotFoundException('Cannot find liket');
-    }
-
-    if (liket.Review.userIdx !== loginUser.idx) {
-      throw new PermissionDeniedException('Permission denied');
-    }
-
-    return;
-  }
+  constructor() {}
 
   /**
    * @author wherehows
@@ -61,7 +15,7 @@ export class LiketAuthService {
   public checkReadAllPermissions(
     pageable: LiketPageableDto,
     loginUser: LoginUser,
-  ) {
+  ): void {
     if (pageable.user !== loginUser.idx) {
       throw new PermissionDeniedException();
     }
@@ -72,14 +26,34 @@ export class LiketAuthService {
   /**
    * @author wherehows
    */
-  public async checkUpdatePermission(loginUser: LoginUser, liketIdx: number) {
-    const liket = await this.liketRepository.selectLiketByIdx(liketIdx);
+  public checkCreatePermission(
+    reviewModel: ReviewModel,
+    loginUser: LoginUser,
+  ): void {
+    if (reviewModel.author.idx !== loginUser.idx) {
+      throw new PermissionDeniedException();
+    }
+  }
 
-    if (!liket) {
-      throw new LiketNotFoundException('Cannot find liket');
+  /**
+   * @author wherehows
+   */
+  public checkUpdatePermission(
+    loginUser: LoginUser,
+    liketModel: LiketModel,
+  ): void {
+    if (liketModel.author.idx !== loginUser.idx) {
+      throw new PermissionDeniedException('Permission denied');
     }
 
-    if (liket.Review.userIdx !== loginUser.idx) {
+    return;
+  }
+
+  /**
+   * @author wherehows
+   */
+  public checkDeletePermission(loginUser: LoginUser, liket: LiketModel): void {
+    if (liket.author.idx !== loginUser.idx) {
       throw new PermissionDeniedException('Permission denied');
     }
 

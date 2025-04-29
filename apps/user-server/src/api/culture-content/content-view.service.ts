@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { RedisService } from '../../common/module/redis/redis.service';
-import { CultureContentRepository } from './culture-content.repository';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
+import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
 
 @Injectable()
 export class ContentViewService {
@@ -35,8 +33,7 @@ export class ContentViewService {
 
   constructor(
     private readonly redisService: RedisService,
-    private readonly cultureContentRepository: CultureContentRepository,
-    @Logger(ContentViewService.name) private readonly logger: LoggerService,
+    private readonly cultureContentCoreService: CultureContentCoreService,
   ) {}
 
   /**
@@ -70,17 +67,13 @@ export class ContentViewService {
 
           delete ContentViewService.EVENT_ID_MAP[contentIdx];
 
-          await this.cultureContentRepository.increaseContentViewCountByIdx(
+          await this.cultureContentCoreService.increaseViewCountByIdx(
             contentIdx,
             viewCount,
           );
         } catch (err) {
           // TODO: 에러 발생 시, 보상 트랜잭션 확인 필요
-          this.logger.error(
-            this.increaseViewCount,
-            'increase view count event error',
-            err,
-          );
+          console.error(err);
         }
       }, ContentViewService.UPDATE_TIME);
     }
