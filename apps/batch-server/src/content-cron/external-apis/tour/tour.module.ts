@@ -6,7 +6,7 @@ import { TourApiProvider } from 'apps/batch-server/src/content-cron/external-api
 import { TourApiAdapter } from 'apps/batch-server/src/content-cron/external-apis/tour/tour-api.adapter';
 import { TourApiService } from 'apps/batch-server/src/content-cron/external-apis/tour/tour-api.service';
 import { KakaoAddressModule } from 'libs/modules/kakao-address/kakao-address.module';
-import { OpenAIModule, S3Module } from 'libs/modules';
+import { OpenAIModule, RetryUtilModule, S3Module } from 'libs/modules';
 
 @Module({
   imports: [
@@ -15,6 +15,7 @@ import { OpenAIModule, S3Module } from 'libs/modules';
     S3Module,
     OpenAIModule,
     KakaoAddressModule,
+    RetryUtilModule,
   ],
   providers: [TourApiProvider, TourApiService, TourApiAdapter, Logger],
   exports: [TourApiService],
