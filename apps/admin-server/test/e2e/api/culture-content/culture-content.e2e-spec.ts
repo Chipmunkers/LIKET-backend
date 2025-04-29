@@ -323,5 +323,17 @@ describe('Culture Content (e2e)', () => {
       expect(content.isParking).toBe(contentData.isParking);
       expect(content.id).toBe(contentData.id);
     });
+
+    it('Fail - no token', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const contentSeed = await contentSeedHelper.seed({
+        userIdx: adminUser.idx,
+      });
+
+      await request(test.getServer())
+        .get(`/culture-content/${contentSeed.idx}`)
+        .expect(401);
+    });
   });
 });
