@@ -1,4 +1,4 @@
-import { IsInt } from 'class-validator';
+import { IsInt, Min } from 'class-validator';
 
 export class UpdateBannerOrderDto {
   /**
@@ -7,5 +7,6 @@ export class UpdateBannerOrderDto {
    * @example 3
    */
   @IsInt()
+  @Min(1)
   order: number;
 }

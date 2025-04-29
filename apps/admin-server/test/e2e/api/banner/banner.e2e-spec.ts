@@ -1062,6 +1062,24 @@ describe('Banner (e2e', () => {
         .expect(409);
     });
 
-    // TODO: order -1 에 대한 테스트 케이스 필요
+    it('Fail - attempt to update order with minus order', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const bannerSeed = await bannerSeedHelper.seed({
+        order: 1,
+      });
+
+      await request(test.getServer())
+        .put(`/banner/${bannerSeed.idx}/order`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send({ order: -1 })
+        .expect(400);
+
+      await request(test.getServer())
+        .put(`/banner/${bannerSeed.idx}/order`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send({ order: 0 })
+        .expect(400);
+    });
   });
 });
