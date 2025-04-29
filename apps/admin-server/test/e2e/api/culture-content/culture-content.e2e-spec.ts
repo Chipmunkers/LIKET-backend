@@ -1,7 +1,11 @@
+import { CreateCultureContentDto } from 'apps/admin-server/src/api/culture-content/dto/request/create-culture-content.dto';
 import { ContentEntity } from 'apps/admin-server/src/api/culture-content/entity/content.entity';
 import { SummaryContentEntity } from 'apps/admin-server/src/api/culture-content/entity/summary-content.entity';
 import { AppModule } from 'apps/admin-server/src/app.module';
 import { TestHelper } from 'apps/admin-server/test/e2e/setup/test.helper';
+import { AGE } from 'libs/core/tag-root/age/constant/age';
+import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
+import { STYLE } from 'libs/core/tag-root/style/constant/style';
 import { CultureContentSeedHelper } from 'libs/testing';
 import * as request from 'supertest';
 
@@ -356,6 +360,96 @@ describe('Culture Content (e2e)', () => {
         .get(`/culture-content/${invalidContentIdx}`)
         .set('Authorization', `Bearer ${adminUser.accessToken}`)
         .expect(400);
+    });
+  });
+
+  describe('POST /culture-content', () => {
+    it('Success - create content', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const dto: CreateCultureContentDto = {
+        title: 'test',
+        description: 'test',
+        websiteLink: 'test',
+        imgList: [
+          {
+            path: 'test',
+          },
+        ],
+        genreIdx: GENRE.CONCERT,
+        ageIdx: AGE.ALL,
+        styleIdxList: [STYLE.CARTOON, STYLE.ELEGANT],
+        location: {
+          address: 'address-field-test',
+          bCode: '1234545678',
+          hCode: '1234545679',
+          detailAddress: 'detail address field test',
+          region1Depth: 'region 1',
+          region2Depth: 'region 2',
+          positionX: 123.456,
+          positionY: 23.456,
+        },
+        startDate: new Date().toISOString(),
+        endDate: new Date().toISOString(),
+        openTime: 'open time test',
+        isFee: true,
+        isReservation: false,
+        isPet: false,
+        isParking: true,
+      };
+
+      await request(test.getServer())
+        .post('/culture-content')
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send(dto)
+        .expect(201);
+
+      const contentData = await test
+        .getPrisma()
+        .cultureContent.findFirstOrThrow({
+          include: {
+            User: {
+              include: {
+                BlockReason: true,
+              },
+            },
+            Location: true,
+            Style: {
+              include: { Style: true },
+            },
+            Age: true,
+            Genre: true,
+            ContentImg: true,
+          },
+          orderBy: { idx: 'desc' },
+        });
+
+      expect(dto.title).toBe(contentData.title);
+      expect(dto.description).toBe(contentData.description);
+      expect(dto.websiteLink).toBe(contentData.websiteLink);
+      expect(dto.imgList[0].path).toBe(contentData.ContentImg[0].imgPath);
+      expect(dto.genreIdx).toBe(contentData.Genre.idx);
+      expect(dto.ageIdx).toBe(contentData.Age.idx);
+      expect(dto.styleIdxList.sort()).toStrictEqual(
+        contentData.Style.map(({ Style: { idx } }) => idx).sort(),
+      );
+      expect(dto.location.address).toBe(contentData.Location.address);
+      expect(dto.location.bCode).toBe(contentData.Location.bCode);
+      expect(dto.location.hCode).toBe(contentData.Location.hCode);
+      expect(dto.location.detailAddress).toBe(
+        contentData.Location.detailAddress,
+      );
+      expect(dto.location.region1Depth).toBe(contentData.Location.region1Depth);
+      expect(dto.location.region2Depth).toBe(contentData.Location.region2Depth);
+      expect(dto.location.positionX).toBe(contentData.Location.positionX);
+      expect(dto.location.positionY).toBe(contentData.Location.positionY);
+      expect(dto.startDate).toBe(contentData.startDate.toISOString());
+      expect(dto.endDate).toBe(contentData.endDate?.toISOString() || null);
+      expect(dto.openTime).toBe(contentData.openTime);
+      expect(dto.isFee).toBe(contentData.isFee);
+      expect(dto.isReservation).toBe(contentData.isReservation);
+      expect(dto.isPet).toBe(contentData.isPet);
+      expect(dto.isParking).toBe(contentData.isParking);
     });
   });
 });
