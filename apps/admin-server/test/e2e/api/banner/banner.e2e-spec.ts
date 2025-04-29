@@ -828,5 +828,40 @@ describe('Banner (e2e', () => {
         .post(`/banner/${bannerSeed.idx}/deactivate`)
         .expect(401);
     });
+
+    it('Fail - banner not found', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const neverExistBannerIdx = -1;
+
+      await request(test.getServer())
+        .post(`/banner/${neverExistBannerIdx}/deactivate`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(404);
+    });
+
+    it('Fail - invalid banner idx', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const invalidBannerIdx = 'invalid-banner-idx';
+
+      await request(test.getServer())
+        .post(`/banner/${invalidBannerIdx}/deactivate`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(400);
+    });
+
+    it('Fail - attempt to deactivate banner which is already deactivated', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const alreadyDeactivatedBanner = await bannerSeedHelper.seed({
+        order: null,
+      });
+
+      await request(test.getServer())
+        .post(`/banner/${alreadyDeactivatedBanner.idx}/deactivate`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(409);
+    });
   });
 });
