@@ -820,5 +820,13 @@ describe('Banner (e2e', () => {
       expect(order2BannerAfterDeactivating.order).toBe(2);
       expect(order4BannerAfterDeactivating.order).toBe(3);
     });
+
+    it('Fail - no token', async () => {
+      const bannerSeed = await bannerSeedHelper.seed({});
+
+      await request(test.getServer())
+        .post(`/banner/${bannerSeed.idx}/deactivate`)
+        .expect(401);
+    });
   });
 });
