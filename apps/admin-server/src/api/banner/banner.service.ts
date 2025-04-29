@@ -345,7 +345,7 @@ export class BannerService {
 
         if (updateOrderDto.order > lastActiveBanner.order) {
           throw new BannerOrderOutOfRangeException(
-            'Cannot be exeeded the maximum order',
+            'Cannot be exceeded the maximum order',
           );
         }
 

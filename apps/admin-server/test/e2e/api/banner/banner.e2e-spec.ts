@@ -864,4 +864,190 @@ describe('Banner (e2e', () => {
         .expect(409);
     });
   });
+
+  describe('PUT /banner/:idx/order', () => {
+    it('Success - field check after updating (2 -> 4)', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [order1Banner, order2Banner, order3Banner, order4Banner] =
+        await bannerSeedHelper.seedAll([
+          { order: 1 },
+          { order: 2 },
+          { order: 3 },
+          { order: 4 },
+        ]);
+
+      expect(order1Banner.order).toBe(1);
+      expect(order2Banner.order).toBe(2);
+      expect(order3Banner.order).toBe(3);
+      expect(order4Banner.order).toBe(4);
+
+      await request(test.getServer())
+        .put(`/banner/${order2Banner.idx}/order`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send({
+          order: 4,
+        })
+        .expect(201);
+
+      const prisma = test.getPrisma();
+
+      const [
+        order1BannerAfterUpdating,
+        order2BannerAfterUpdating,
+        order3BannerAfterUpdating,
+        order4BannerAfterUpdating,
+      ] = await Promise.all([
+        prisma.activeBanner.findUniqueOrThrow({
+          where: { idx: order1Banner.idx },
+        }),
+        prisma.activeBanner.findUniqueOrThrow({
+          where: { idx: order2Banner.idx },
+        }),
+        prisma.activeBanner.findUniqueOrThrow({
+          where: { idx: order3Banner.idx },
+        }),
+        prisma.activeBanner.findUniqueOrThrow({
+          where: { idx: order4Banner.idx },
+        }),
+      ]);
+
+      expect(order1BannerAfterUpdating.order).toBe(1);
+      expect(order2BannerAfterUpdating.order).toBe(4);
+      expect(order3BannerAfterUpdating.order).toBe(2);
+      expect(order4BannerAfterUpdating.order).toBe(3);
+    });
+
+    it('Success - field check after updating (4 -> 2)', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [order1Banner, order2Banner, order3Banner, order4Banner] =
+        await bannerSeedHelper.seedAll([
+          { order: 1 },
+          { order: 2 },
+          { order: 3 },
+          { order: 4 },
+        ]);
+
+      expect(order1Banner.order).toBe(1);
+      expect(order2Banner.order).toBe(2);
+      expect(order3Banner.order).toBe(3);
+      expect(order4Banner.order).toBe(4);
+
+      await request(test.getServer())
+        .put(`/banner/${order4Banner.idx}/order`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send({
+          order: 2,
+        })
+        .expect(201);
+
+      const prisma = test.getPrisma();
+
+      const [
+        order1BannerAfterUpdating,
+        order2BannerAfterUpdating,
+        order3BannerAfterUpdating,
+        order4BannerAfterUpdating,
+      ] = await Promise.all([
+        prisma.activeBanner.findUniqueOrThrow({
+          where: { idx: order1Banner.idx },
+        }),
+        prisma.activeBanner.findUniqueOrThrow({
+          where: { idx: order2Banner.idx },
+        }),
+        prisma.activeBanner.findUniqueOrThrow({
+          where: { idx: order3Banner.idx },
+        }),
+        prisma.activeBanner.findUniqueOrThrow({
+          where: { idx: order4Banner.idx },
+        }),
+      ]);
+
+      expect(order1BannerAfterUpdating.order).toBe(1);
+      expect(order2BannerAfterUpdating.order).toBe(3);
+      expect(order3BannerAfterUpdating.order).toBe(4);
+      expect(order4BannerAfterUpdating.order).toBe(2);
+    });
+
+    it('Fail - no token', async () => {
+      const [bannerSeed] = await bannerSeedHelper.seedAll([
+        { order: 1 },
+        { order: 2 },
+      ]);
+
+      await request(test.getServer())
+        .put(`/banner/${bannerSeed.idx}/order`)
+        .send({
+          order: 1,
+        })
+        .expect(401);
+    });
+
+    it('Fail - invalid path parameter', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const invalidBannerIdx = 'invalid-banner-idx';
+
+      await request(test.getServer())
+        .put(`/banner/${invalidBannerIdx}/order`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send({
+          order: 1,
+        })
+        .expect(400);
+    });
+
+    it('Fail - invalid order (not integer)', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const bannerSeed = await bannerSeedHelper.seed({ order: 1 });
+
+      await request(test.getServer())
+        .put(`/banner/${bannerSeed.idx}/order`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send({
+          order: 'null',
+        })
+        .expect(400);
+    });
+
+    it('Fail - attempt to update order with exceeded order', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [bannerSeed] = await bannerSeedHelper.seedAll([
+        { order: 1 },
+        { order: 2 },
+      ]);
+
+      const exceededOrder = 3;
+
+      await request(test.getServer())
+        .put(`/banner/${bannerSeed.idx}/order`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send({
+          order: exceededOrder,
+        })
+        .expect(400);
+    });
+
+    it('Fail - attempt to update order with same order', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [bannerSeed] = await bannerSeedHelper.seedAll([
+        { order: 1 },
+        { order: 2 },
+      ]);
+
+      await request(test.getServer())
+        .put(`/banner/${bannerSeed.idx}/order`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send({
+          order: bannerSeed.order,
+        })
+        .expect(409);
+    });
+
+    // TODO: order -1 에 대한 테스트 케이스 필요
+  });
 });
