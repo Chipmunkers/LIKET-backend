@@ -717,5 +717,16 @@ describe('Banner (e2e', () => {
 
       expect(deactivatedBannerAfterActivating.order).toBe(4);
     });
+
+    it('Fail - attempt to activate a banner which is already activated', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const alreadyActivatedBanner = await bannerSeedHelper.seed({ order: 1 });
+
+      await request(test.getServer())
+        .post(`/banner/${alreadyActivatedBanner.idx}/activate`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(409);
+    });
   });
 });
