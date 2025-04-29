@@ -781,5 +781,44 @@ describe('Banner (e2e', () => {
 
       expect(activatedBannerAfterDeactivating).toBeNull();
     });
+
+    it('Success - check order field of other banners', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [order1Banner, order2Banner, order3Banner, order4Banner] =
+        await bannerSeedHelper.seedAll([
+          { order: 1 },
+          { order: 2 },
+          { order: 3 },
+          { order: 3 },
+        ]);
+
+      await request(test.getServer())
+        .post(`/banner/${order3Banner.idx}/deactivate`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(201);
+
+      const order1BannerAfterDeactivating = await test
+        .getPrisma()
+        .activeBanner.findUniqueOrThrow({
+          where: { idx: order1Banner.idx },
+        });
+
+      const order2BannerAfterDeactivating = await test
+        .getPrisma()
+        .activeBanner.findUniqueOrThrow({
+          where: { idx: order2Banner.idx },
+        });
+
+      const order4BannerAfterDeactivating = await test
+        .getPrisma()
+        .activeBanner.findUniqueOrThrow({
+          where: { idx: order4Banner.idx },
+        });
+
+      expect(order1BannerAfterDeactivating.order).toBe(1);
+      expect(order2BannerAfterDeactivating.order).toBe(2);
+      expect(order4BannerAfterDeactivating.order).toBe(3);
+    });
   });
 });
