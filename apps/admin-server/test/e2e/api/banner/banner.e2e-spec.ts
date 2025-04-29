@@ -747,5 +747,16 @@ describe('Banner (e2e', () => {
         .set('Authorization', `Bearer ${adminUser.accessToken}`)
         .expect(404);
     });
+
+    it('Fail - invalid path parameter', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const invalidBannerIdx = 'banner-idx-that-is-not-integer';
+
+      await request(test.getServer())
+        .post(`/banner/${invalidBannerIdx}/activate`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(400);
+    });
   });
 });
