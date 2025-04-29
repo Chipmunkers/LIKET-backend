@@ -984,6 +984,20 @@ describe('Banner (e2e', () => {
         .expect(401);
     });
 
+    it('Fail - banner not found', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const neverExistBannerIdx = -1;
+
+      await request(test.getServer())
+        .put(`/banner/${neverExistBannerIdx}/order`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .send({
+          order: 1,
+        })
+        .expect(404);
+    });
+
     it('Fail - invalid path parameter', async () => {
       const adminUser = test.getLoginHelper().getAdminUser1();
 
