@@ -663,7 +663,7 @@ describe('Banner (e2e', () => {
   });
 
   describe('POST /banner/:idx/activate', () => {
-    it('Success - order field check', async () => {
+    it('Success - check whether order field is changed', async () => {
       const adminUser = test.getLoginHelper().getAdminUser1();
 
       const bannerSeed = await bannerSeedHelper.seed({
@@ -691,6 +691,31 @@ describe('Banner (e2e', () => {
         });
 
       expect(selectedBanner.order).toBe(1);
+    });
+
+    it('Success - check order field', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const [order1Banner, order2Banner, order3Banner, deactivatedBanner] =
+        await bannerSeedHelper.seedAll([
+          { order: 1 },
+          { order: 2 },
+          { order: 3 },
+          { order: null },
+        ]);
+
+      await request(test.getServer())
+        .post(`/banner/${deactivatedBanner.idx}/activate`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(201);
+
+      const deactivatedBannerAfterActivating = await test
+        .getPrisma()
+        .activeBanner.findUniqueOrThrow({
+          where: { idx: deactivatedBanner.idx },
+        });
+
+      expect(deactivatedBannerAfterActivating.order).toBe(4);
     });
   });
 });
