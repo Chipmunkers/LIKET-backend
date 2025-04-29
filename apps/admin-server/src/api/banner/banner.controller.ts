@@ -143,6 +143,7 @@ export class BannerController {
   @Post('/:idx/deactivate')
   @HttpCode(201)
   @ApiTags('Banner')
+  @ApiResponse({ status: 400, description: 'Invalid path parameter' })
   @ApiResponse({ status: 404, description: 'Cannot find banner' })
   @ApiResponse({ status: 409, description: 'Already deactivate banner' })
   @LoginAuth()

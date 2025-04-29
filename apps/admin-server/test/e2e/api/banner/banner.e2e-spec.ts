@@ -759,4 +759,27 @@ describe('Banner (e2e', () => {
         .expect(400);
     });
   });
+
+  describe('POST /banner/:idx/deactivate', () => {
+    it('Success - order field check', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const activatedBanner = await bannerSeedHelper.seed({
+        order: 1,
+      });
+
+      await request(test.getServer())
+        .post(`/banner/${activatedBanner.idx}/deactivate`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(201);
+
+      const activatedBannerAfterDeactivating = await test
+        .getPrisma()
+        .activeBanner.findUnique({
+          where: { idx: activatedBanner.idx },
+        });
+
+      expect(activatedBannerAfterDeactivating).toBeNull();
+    });
+  });
 });
