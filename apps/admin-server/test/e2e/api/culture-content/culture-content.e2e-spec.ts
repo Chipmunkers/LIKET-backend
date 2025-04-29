@@ -335,5 +335,16 @@ describe('Culture Content (e2e)', () => {
         .get(`/culture-content/${contentSeed.idx}`)
         .expect(401);
     });
+
+    it('Fail - no content', async () => {
+      const adminUser = test.getLoginHelper().getAdminUser1();
+
+      const neverExistContentIdx = 99999999;
+
+      await request(test.getServer())
+        .get(`/culture-content/${neverExistContentIdx}`)
+        .set('Authorization', `Bearer ${adminUser.accessToken}`)
+        .expect(404);
+    });
   });
 });
