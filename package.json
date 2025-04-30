@@ -8,7 +8,8 @@
     "apps/user-server",
     "apps/batch-server",
     "apps/admin-server",
-    "libs/modules"
+    "libs/modules",
+    "libs/core"
   ],
   "scripts": {
     "build": "nest build",
