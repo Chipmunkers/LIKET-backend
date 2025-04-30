@@ -1,0 +1,58 @@
+{
+  "title": "Find Your Microbiome",
+  "genre": "1",
+  "address": "서울시 성동구 성수동 2가 275-21",
+  "openTime": "11:00AM ~ 20:00PM",
+  "openDate": "2025-04-25",
+  "openEndDate": "2025-05-01",
+  "detailedAddress": "",
+  "isFee": false,
+  "isReservation": true,
+  "isParking": false,
+  "isPet": false,
+  "images": [
+    "https://liket-for-dev.s3.ap-northeast-2.amazonaws.com/instagram/02ea1569-bec0-4275-9ab7-ab3ce1a7454b",
+    "https://liket-for-dev.s3.ap-northeast-2.amazonaws.com/instagram/273deafb-fdb9-4b05-b216-917f60954549",
+    "https://liket-for-dev.s3.ap-northeast-2.amazonaws.com/instagram/8248ab10-a13b-4fd6-8307-b663eff1e7ad",
+    "https://liket-for-dev.s3.ap-northeast-2.amazonaws.com/instagram/c1357042-5df8-4344-ba23-575911273e44"
+  ],
+  "styleIdxList": [6, 11, 14],
+  "ageIdx": 4,
+  "documents": [
+    {
+      "address": {
+        "address_name": "서울 성동구 성수동2가 275-21",
+        "b_code": "1120011500",
+        "h_code": "1120069000",
+        "main_address_no": "275",
+        "mountain_yn": "N",
+        "region_1depth_name": "서울",
+        "region_2depth_name": "성동구",
+        "region_3depth_h_name": "성수2가3동",
+        "region_3depth_name": "성수동2가",
+        "sub_address_no": "21",
+        "x": "127.06113370016",
+        "y": "37.5409689683813"
+      },
+      "address_name": "서울 성동구 성수동2가 275-21",
+      "address_type": "REGION_ADDR",
+      "road_address": {
+        "address_name": "서울 성동구 연무장17길 2",
+        "building_name": "",
+        "main_building_no": "2",
+        "region_1depth_name": "서울",
+        "region_2depth_name": "성동구",
+        "region_3depth_name": "성수동2가",
+        "road_name": "연무장17길",
+        "sub_building_no": "",
+        "underground_yn": "N",
+        "x": "127.061057060068",
+        "y": "37.5409241382461",
+        "zone_no": "04787"
+      },
+      "x": "127.06113370016",
+      "y": "37.5409689683813"
+    }
+  ],
+  "meta": { "is_end": true, "pageable_count": 1, "total_count": 1 }
+}

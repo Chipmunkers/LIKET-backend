@@ -5,6 +5,7 @@ import { IgApiClient } from 'instagram-private-api';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { urlSegmentToInstagramId } from 'instagram-id-to-url-segment';
 import { MediaNotFoundException } from 'libs/modules/instagram/exception/MediaNotFoundException';
+import { InstagramFeedEntity } from 'libs/modules/instagram/entity/instagram-feed.entity';
 
 @Injectable()
 export class InstagramService {

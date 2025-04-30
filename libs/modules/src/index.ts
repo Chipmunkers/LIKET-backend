@@ -11,3 +11,8 @@ export * from './openAI/openAI.provider';
 
 export * from './retry-util/retry-util.module';
 export * from './retry-util/retry-util.service';
+
+export * from './instagram/instagram.module';
+export * from './instagram/instagram.service';
+export * from './instagram/exception/MediaNotFoundException';
+export * from './instagram/entity/instagram-feed.entity';

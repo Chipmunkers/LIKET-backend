@@ -1,4 +1,4 @@
-class InstagramFeedEntity {
+export class InstagramFeedEntity {
   /**
    * 피드 내용
    */

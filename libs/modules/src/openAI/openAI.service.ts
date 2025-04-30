@@ -239,6 +239,174 @@ export class OpenAIService {
   }
 
   /**
+   * 본문과 이미지 URL을 기반으로 컨텐츠의 제목, 장르, 주소, 오픈 시간, 오픈 날짜, 오픈 종료 날짜를 반환하는 메서드
+   *
+   * @author jochongs
+   */
+  public async extractContentInfo(
+    data: object,
+    imgList: string[] = [],
+  ): Promise<{
+    title: string;
+    genre: string;
+    address: string;
+    openTime: string;
+    openDate: string;
+    openEndDate: string;
+  }> {
+    // if (this.MODE !== MODE.PRODUCT) {
+    //   return {
+    //     title: '제목',
+    //     genre: '장르',
+    //     address: '주소',
+    //     openTime: '오픈 시간',
+    //     openDate: '오픈 날짜',
+    //     openEndDate: '오픈 종료 날짜',
+    //   };
+    // }
+
+    return await this.retryUtilService.executeWithRetry(
+      async () => {
+        try {
+          const completion = await this.openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  {
+                    type: 'text',
+                    text: `당신은 문화 콘텐츠 데이터를 분석하여 제목, 장르, 주소, 오픈 시간, 오픈 날짜, 오픈 종료 날짜를 결정하는 역할을 맡고 있습니다. 아래는 미리 정의된 스타일과 연령대 목록입니다:
+    
+                    다음 문화생활컨텐츠를 참고하십시오.
+                    ${JSON.stringify(data)}
+      
+                    아래 질문에 답변하세요:
+                    1. 제목: 문화생활컨텐츠가 팝업이나 전시회일 경우 팝업스토어의 이름을 의미합니다.
+                    2. 장르
+                    3. 주소: 카카오 주소 검색 API로 검색할 수 있는 주소를 의미합니다.
+                    4. 오픈 시간: 단순히 시간만을 의미합니다. HH:MM.AM ~ HH:MM.PM 형식이 좋고 요일별 날짜가 주어진 경우 요일별 날짜가 표시될 수 있도록 하십시오. 
+                    5. 오픈 날짜
+                    6. 오픈 종료 날짜
+                    7. 자세한 주소: 건물이나 상호명 등, 보행자가 찾아올 수 있는 주소를 의미합니다.
+                    8. 입장료 여부
+                    9. 예약 여부
+                    10. 주차 여부
+                    11. 반려동물 동반 여부
+
+                    반드시 주소와 자세한 주소는 구분되어야합니다. 주소는 카카오 주소 검색 API로 검색할 수 있는 주소를 의미합니다.
+                    
+                    예시. 이미지나 주어진 참고할 문화생활컨텐츠 데이터에 '- 장소 : SHIFT.G 성수 팝업 스토어 (서울시 성동구 연무장길 35, STAGE 35)'라는 텍스트가 있다면,
+                    주소는 '서울시 성동구 연무장길 35'이고, 자세한 주소는 'STAGE 35'입니다. 물론 자세한 주소도 명시되어있지 않을 경우 빈 텍스트로 리턴해.
+                    
+                    입장료, 예약, 주차, 반려동물 동반 여부는 true, false로 구분되어야하며, 명시되어있지 않을 경우 false로 설정하십시오.
+
+                    장르는 반드시 아래 목록 중 하나로 선택해야 합니다: 1~6
+                    {
+                      /** 팝업 스토어 */
+                      POPUP_STORE: 1,
+                      /** 전시회 */
+                      EXHIBITION: 2,
+                      /** 연극 */
+                      THEATER: 3,
+                      /** 뮤지컬 */
+                      MUSICAL: 4,
+                      /** 콘서트 */
+                      CONCERT: 5,
+                      /** 페스티벌 */
+                      FESTIVAL: 6,
+                    } as const;
+      
+                    아래 JSON 형식으로 응답을 제공하세요:
+                    {
+                      "title": "제목", <!-- 컨텐츠의 이름을 의미합니다. -->
+                      "genre": "장르",
+                      "address": "주소",
+                      "openTime": "오픈 시간", <!-- YYYY-MM-DD -->
+                      "openDate": "오픈 날짜", <!-- YYYY-MM-DD -->
+                      "openEndDate": "오픈 종료 날짜",
+                      "detailedAddress": "자세한 주소" <!-- 건물이나 상호명 등, 보행자가 찾아올 수 있는 주소를 의미합니다. -->
+                      "isFee": true, <!-- 입장료 여부 -->
+                      "isReservation": true, <!-- 예약 여부 -->
+                      "isParking": true, <!-- 주차 여부 -->
+                      "isPet": true <!-- 반려동물 동반 여부 -->
+                    }
+                      
+                    만약, 이미지와 본문 속에 제목, 주소, 오픈시간, 오픈 날짜, 오픈 종료 날짜가 포함되어 있지 않다면 비어있는 문자열을 리턴하도록 해.
+                    그러나, 장르는 필수로 포함되어야 해.
+
+                    이미지나 컨텐츠 데이터에 오픈 날짜와 오픈 종료 날짜가 명시되어 있더라도 연도가 포함되어있지 않을 수 있다.
+                    이런 경우, 연도는 반드시 요청하는 현재 시간이 ${new Date().toISOString()}임을 참고하여 작성해.
+
+                    만약 오픈 날짜가 12월 31일이고 오픈 종료 날짜가 1월 1일이며 연도가 명시되어있지 않은 경우,
+                    오픈 날짜는 올해인 ${new Date().getFullYear()}년 12월 31일이지만 오픈 종료 날짜는 내년인 ${new Date().getFullYear() + 1}년 1월 1일로 작성해.
+                    오픈 날짜와 오픈 종료 날짜가 같은 경우, 오픈 날짜와 오픈 종료 날짜는 반드시 같은 연도로 작성해야 해.
+                    `,
+                  },
+                  ...imgList.map(
+                    (imgUrl) =>
+                      ({
+                        type: 'image_url',
+                        image_url: {
+                          url: imgUrl,
+                          detail: 'low',
+                        },
+                      }) as const,
+                  ),
+                ],
+              },
+            ],
+            response_format: {
+              type: 'json_schema',
+              json_schema: {
+                name: 'content_info_schema',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    title: { type: 'number' },
+                    genre: { type: 'string' },
+                    address: { type: 'string' },
+                    openTime: { type: 'string' },
+                    openDate: { type: 'string' },
+                    openEndDate: { type: 'string' },
+                    detailedAddress: { type: 'string' },
+                    isFee: { type: 'boolean' },
+                    isReservation: { type: 'boolean' },
+                    isParking: { type: 'boolean' },
+                    isPet: { type: 'boolean' },
+                  },
+                  required: [
+                    'title',
+                    'genre',
+                    'address',
+                    'openTime',
+                    'openDate',
+                    'openEndDate',
+                    'detailedAddress',
+                    'isFee',
+                    'isReservation',
+                    'isParking',
+                    'isPet',
+                  ],
+                  additionalProperties: false,
+                },
+              },
+            },
+          });
+
+          return JSON.parse(completion.choices[0].message.content || '');
+        } catch (err) {
+          throw err;
+        }
+      },
+      {
+        retry: 3,
+        delay: 500,
+      },
+    );
+  }
+
+  /**
    * !아래 메서드를 사용하지 않는 것을 권장드립니다.
    *
    * @author jochongs
