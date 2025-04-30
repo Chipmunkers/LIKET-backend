@@ -9,6 +9,7 @@ import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { LocationEntity } from './location.entity';
 import { Type } from 'class-transformer';
 import { SelectContentFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-content-field';
+import { CultureContentModel } from 'libs/core/culture-content/model/culture-content.model';
 
 /**
  * @author jochongs
@@ -196,6 +197,12 @@ export class ContentEntity {
     Object.assign(this, data);
   }
 
+  /**
+   * `CultureContentCoreModule`이 만들어짐에따라 deprecated 되었습니다.
+   * 대신 fromModel 정적 메서드를 사용하십시오.
+   *
+   * @deprecated
+   */
   static createEntity(data: SelectContentFieldPrisma, totalSumStar?: number) {
     return new ContentEntity({
       idx: data.idx,
@@ -222,6 +229,47 @@ export class ContentEntity {
       createdAt: data.createdAt,
       acceptedAt: data.acceptedAt,
       avgStarRating: totalSumStar ? totalSumStar / data._count.Review : 0,
+    });
+  }
+
+  /**
+   *
+   * @author jochongs
+   *
+   * @param model
+   * @param reviewCount 리뷰 개수
+   * @param avgStar 평균 별점
+   */
+  public static fromModel(
+    model: CultureContentModel,
+    reviewCount: number,
+    avgStar?: number,
+  ): ContentEntity {
+    return new ContentEntity({
+      idx: model.idx,
+      title: model.title,
+      thumbnail: model.imgList[0].imgPath || '',
+      genre: TagEntity.fromModel(model.genre),
+      style: model.styleList.map(TagEntity.fromModel),
+      age: TagEntity.fromModel(model.age),
+      location: LocationEntity.fromModel(model.location),
+      startDate: model.startDate,
+      endDate: model.endDate,
+      likeState: model.likeState,
+      createdAt: model.createdAt,
+      acceptedAt: model.acceptedAt,
+      avgStarRating: avgStar ?? 0,
+      description: model.description,
+      imgList: model.imgList.map(({ imgPath }) => imgPath),
+      isFee: model.isFee,
+      isReservation: model.isReservation,
+      isParking: model.isParking,
+      isPet: model.isPet,
+      likeCount: model.likeCount,
+      openTime: model.openTime,
+      reviewCount: reviewCount,
+      viewCount: model.viewCount,
+      websiteLink: model.websiteLink,
     });
   }
 }

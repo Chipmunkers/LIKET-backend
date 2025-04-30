@@ -20,6 +20,7 @@ import { LiketService } from './liket.service';
 import { LiketPageableDto } from './dto/liket-pageable.dto';
 import { LiketAuthService } from './liket-auth.service';
 import { UpdateLiketDto } from './dto/update-liket.dto';
+import { GetLiketAllResponseDto } from 'apps/user-server/src/api/liket/dto/response/get-liket-all-response.dto';
 
 @Controller()
 @ApiTags('Liket')
@@ -41,9 +42,11 @@ export class LiketController {
   public async getLiketAll(
     @Query() pageable: LiketPageableDto,
     @User() loginUser: LoginUser,
-  ) {
+  ): Promise<GetLiketAllResponseDto> {
     await this.liketAuthService.checkReadAllPermissions(pageable, loginUser);
-    return await this.liketService.getLiketAll(pageable);
+    return {
+      liketList: await this.liketService.getLiketAll(pageable, loginUser),
+    };
   }
 
   /**
@@ -61,10 +64,9 @@ export class LiketController {
   public async createLiket(
     @Body() createDto: CreateLiketDto,
     @Param('idx', ParseIntPipe) reviewIdx: number,
-    @User() LoginUser: LoginUser,
+    @User() loginUser: LoginUser,
   ) {
-    await this.liketAuthService.checkCreatePermission(reviewIdx, LoginUser.idx);
-    return await this.liketService.createLiket(reviewIdx, createDto);
+    return await this.liketService.createLiket(reviewIdx, createDto, loginUser);
   }
 
   /**
@@ -94,8 +96,7 @@ export class LiketController {
     @Param('idx', ParseIntPipe) reviewIdx: number,
     @Body() updateDto: UpdateLiketDto,
   ) {
-    await this.liketAuthService.checkUpdatePermission(loginUser, reviewIdx);
-    return await this.liketService.updateLiket(reviewIdx, updateDto);
+    return await this.liketService.updateLiket(reviewIdx, updateDto, loginUser);
   }
 
   /**
@@ -113,8 +114,6 @@ export class LiketController {
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) liketIdx: number,
   ) {
-    await this.liketAuthService.checkDeletePermission(loginUser, liketIdx);
-    await this.liketService.deleteLiket(liketIdx);
-    return;
+    await this.liketService.deleteLiket(liketIdx, loginUser);
   }
 }

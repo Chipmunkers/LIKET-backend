@@ -7,6 +7,7 @@ import { UtilService } from '../../common/module/util/util.service';
 import { FILE_GROUPING } from './file-grouping';
 import { UploadedFileEntity } from './entity/uploaded-file.entity';
 
+// TODO: lib 에 s3 모듈로 변경해야함.
 @Injectable()
 export class UploadService {
   private s3Client: S3Client;
@@ -47,7 +48,7 @@ export class UploadService {
   public async uploadFilesToS3(
     files: Express.Multer.File[],
     option: {
-      destinaion: string;
+      destination: string;
       grouping: FILE_GROUPING;
     },
     userIdx?: number,
@@ -56,7 +57,7 @@ export class UploadService {
     return await Promise.all(
       files.map((file) =>
         this.uploadToS3(file, {
-          destination: option.destinaion,
+          destination: option.destination,
         }),
       ),
     );

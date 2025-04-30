@@ -3,25 +3,21 @@ import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ContentNotFoundException } from '../culture-content/exception/ContentNotFound';
-import { AlreadyLikeReviewException } from './exception/AlreadyLikeReviewException';
-import { AlreadyNotLikeReviewException } from './exception/AlreadyNotLikeReviewException';
 import { ReviewEntity } from './entity/review.entity';
 import { LoginUser } from '../auth/model/login-user';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { ReviewNotFoundException } from './exception/ReviewNotFoundException';
-import { ReviewRepository } from './review.repository';
-import { ReviewLikeRepository } from './review-like.repository';
-import { CultureContentRepository } from '../culture-content/culture-content.repository';
-import { ReviewWithInclude } from './entity/prisma-type/review-with-include';
+import { ReviewAuthService } from 'apps/user-server/src/api/review/review-auth.service';
+import { ReviewCoreService } from 'libs/core/review/review-core.service';
+import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
+import { ReviewLikeCoreService } from 'libs/core/review/review-like-core.service';
 
 @Injectable()
 export class ReviewService {
   constructor(
-    private readonly reviewRepository: ReviewRepository,
-    private readonly reviewLikeRepository: ReviewLikeRepository,
-    private readonly cultureContentRepository: CultureContentRepository,
-    @Logger(ReviewService.name) private readonly logger: LoggerService,
+    private readonly cultureContentCoreService: CultureContentCoreService,
+    private readonly reviewLikeCoreService: ReviewLikeCoreService,
+    private readonly reviewAuthService: ReviewAuthService,
+    private readonly reviewCoreService: ReviewCoreService,
   ) {}
 
   /**
@@ -30,37 +26,55 @@ export class ReviewService {
    * @author jochongs
    */
   public async getReviewAll(
-    pagerble: ReviewPageableDto,
-    userIdx?: number,
+    pageable: ReviewPageableDto,
+    loginUser?: LoginUser,
   ): Promise<{
     reviewList: ReviewEntity[];
   }> {
-    const reviewList: ReviewWithInclude[] = [];
-    if (pagerble.review && pagerble.page === 1) {
-      const firstReview = await this.reviewRepository.selectReviewByIdx(
-        pagerble.review,
-        userIdx,
+    await this.reviewAuthService.checkReadAllPermission(pageable, loginUser);
+
+    const reviewList: ReviewEntity[] = [];
+
+    if (pageable.review && pageable.page === 1) {
+      const firstReview = await this.reviewCoreService.findReviewByIdx(
+        pageable.review,
+        loginUser?.idx,
       );
 
       if (firstReview) {
-        reviewList.push(firstReview);
+        reviewList.push(ReviewEntity.fromModel(firstReview));
       }
     }
 
     reviewList.push(
-      ...(await this.reviewRepository.selectReviewAll(pagerble, userIdx)),
+      ...(
+        await this.reviewCoreService.findReviewAll(
+          {
+            page: pageable.page,
+            row: 10,
+            cultureContentIdx: pageable.content,
+            order: pageable.order,
+            orderBy: pageable.orderby,
+            isLiketCreated: pageable.liket,
+            withOutReviewList: pageable.review ? [pageable.review] : [],
+            userIdx: pageable.user,
+          },
+          loginUser?.idx,
+        )
+      ).map(ReviewEntity.fromModel),
     );
 
-    return {
-      reviewList: reviewList.map((review) => ReviewEntity.createEntity(review)),
-    };
+    return { reviewList };
   }
 
   /**
    * 리뷰 자세히보기
    */
-  public async getReviewByIdx(idx: number, loginUser?: LoginUser) {
-    const review = await this.reviewRepository.selectReviewByIdx(
+  public async getReviewByIdx(
+    idx: number,
+    loginUser?: LoginUser,
+  ): Promise<ReviewEntity> {
+    const review = await this.reviewCoreService.findReviewByIdx(
       idx,
       loginUser?.idx,
     );
@@ -69,18 +83,27 @@ export class ReviewService {
       throw new ReviewNotFoundException('Cannot find review');
     }
 
-    return ReviewEntity.createEntity(review);
+    return ReviewEntity.fromModel(review);
   }
 
   /**
    * 인기 리뷰 가져오기
    */
   public async getHotReviewAll(loginUser?: LoginUser): Promise<ReviewEntity[]> {
-    const reviewList = await this.reviewRepository.selectHotReviewAll(
+    const reviewList = await this.reviewCoreService.findReviewAll(
+      {
+        page: 1,
+        row: 5,
+        from: 7,
+        order: 'desc',
+        orderBy: 'like',
+        isOnlyAcceptedCultureContent: true,
+        isOnlyOpenCultureContent: true,
+      },
       loginUser?.idx,
     );
 
-    return reviewList.map((review) => ReviewEntity.createEntity(review));
+    return reviewList.map((review) => ReviewEntity.fromModel(review));
   }
 
   /**
@@ -88,36 +111,41 @@ export class ReviewService {
    */
   public async createReview(
     contentIdx: number,
-    userIdx: number,
+    loginUser: LoginUser,
     createDto: CreateReviewDto,
-  ): Promise<void> {
+  ): Promise<ReviewEntity> {
+    await this.reviewAuthService.checkWritePermission(
+      loginUser,
+      contentIdx,
+      createDto,
+    );
+
     const content =
-      await this.cultureContentRepository.selectCultureContentByIdx(contentIdx);
+      await this.cultureContentCoreService.findCultureContentByIdx(
+        contentIdx,
+        loginUser.idx,
+      );
 
     if (!content) {
-      this.logger.warn(
-        this.createReview,
-        `Attempt to create review with non-existent content ${contentIdx}`,
-      );
       throw new ContentNotFoundException('Cannot find content');
     }
 
     if (!content.acceptedAt) {
-      this.logger.warn(
-        this.createReview,
-        `Attempt to create review with not accepted content ${contentIdx}`,
-      );
       throw new ContentNotFoundException('Cannot find content');
     }
 
-    await this.reviewRepository.insertReview({
-      userIdx,
-      contentIdx: content.idx,
-      starRating: createDto.starRating,
-      description: createDto.description,
-      imgList: createDto.imgList,
-      visitTime: new Date(createDto.visitTime),
-    });
+    const createdReviewModel = await this.reviewCoreService.createReview(
+      {
+        starRating: createDto.starRating,
+        imgList: createDto.imgList,
+        description: createDto.description,
+        visitTime: createDto.visitTime,
+      },
+      loginUser.idx,
+      contentIdx,
+    );
+
+    return ReviewEntity.fromModel(createdReviewModel);
   }
 
   /**
@@ -126,62 +154,69 @@ export class ReviewService {
   public async updateReview(
     idx: number,
     updateDto: UpdateReviewDto,
+    loginUser: LoginUser,
   ): Promise<void> {
-    await this.reviewRepository.updateReviewByIdx(idx, updateDto);
+    const reviewModel = await this.reviewCoreService.findReviewByIdx(
+      idx,
+      loginUser.idx,
+    );
+
+    if (!reviewModel) {
+      throw new ReviewNotFoundException('Cannot find review');
+    }
+
+    await this.reviewAuthService.checkUpdatePermission(
+      loginUser,
+      updateDto,
+      reviewModel,
+    );
+
+    await this.reviewCoreService.updateReviewByIdx(idx, {
+      description: updateDto.description,
+      imgList: updateDto.imgList,
+      starRating: updateDto.starRating,
+      visitTime: updateDto.visitTime,
+    });
   }
 
   /**
    * 리뷰 삭제하기
    */
-  public async deleteReview(idx: number): Promise<void> {
-    await this.reviewRepository.deleteReviewByIdx(idx);
+  public async deleteReview(idx: number, loginUser: LoginUser): Promise<void> {
+    const reviewModel = await this.reviewCoreService.findReviewByIdx(
+      idx,
+      loginUser.idx,
+    );
+
+    if (!reviewModel) {
+      throw new ReviewNotFoundException('Cannot find review');
+    }
+
+    await this.reviewAuthService.checkDeletePermission(loginUser, reviewModel);
+
+    await this.reviewCoreService.deleteReviewByIdx(idx);
   }
 
   /**
    * 리뷰 좋아요 누르기
    */
-  public async likeReview(userIdx: number, reviewIdx: number): Promise<void> {
-    await this.getReviewByIdx(reviewIdx);
-
-    const reviewLike = await this.reviewLikeRepository.selectReviewLike(
-      userIdx,
-      reviewIdx,
-    );
-
-    if (reviewLike) {
-      this.logger.warn(this.likeReview, 'Attempt to like already liked review');
-      throw new AlreadyLikeReviewException('Already like review');
-    }
-
-    await this.reviewLikeRepository.increaseReviewLike(userIdx, reviewIdx);
-
-    return;
+  public async likeReview(
+    loginUser: LoginUser,
+    reviewIdx: number,
+  ): Promise<void> {
+    await this.reviewLikeCoreService.likeReviewByIdx(loginUser.idx, reviewIdx);
   }
 
   /**
    * 좋아요 취소하기
    */
   public async cancelToLikeReview(
-    userIdx: number,
+    loginUser: LoginUser,
     reviewIdx: number,
   ): Promise<void> {
-    await this.getReviewByIdx(reviewIdx);
-
-    const reviewLike = await this.reviewLikeRepository.selectReviewLike(
-      userIdx,
+    await this.reviewLikeCoreService.cancelToLikeReviewByIdx(
+      loginUser.idx,
       reviewIdx,
     );
-
-    if (!reviewLike) {
-      this.logger.log(
-        this.cancelToLikeReview,
-        `Attempt to cancel to like non liked review ${reviewIdx}`,
-      );
-      throw new AlreadyNotLikeReviewException('Already do not like review');
-    }
-
-    await this.reviewLikeRepository.decreaseReviewLike(userIdx, reviewIdx);
-
-    return;
   }
 }

@@ -16,6 +16,9 @@ export class MapController {
 
   /**
    * 클러스터링해서 데이터 가져오기
+   * !주의: 이 API는 더 이상 사용되지 않습니다.
+   *
+   * @deprecated
    *
    * @author jochongs
    */
@@ -25,9 +28,8 @@ export class MapController {
     @Query() pagerbleDto: MapPagerbleDto,
   ): Promise<ClusteredContentAllResponseDto> {
     return {
-      clusteredContentList: await this.mapService.getClusteredContentsAllForMap(
-        pagerbleDto,
-      ),
+      clusteredContentList:
+        await this.mapService.getClusteredContentsAllForMap(pagerbleDto),
     };
   }
 

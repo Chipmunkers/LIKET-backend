@@ -30,9 +30,23 @@ import { UnknownExceptionFilter } from 'apps/user-server/src/common/filter/unkno
 import { DiscordModule } from 'libs/modules/discord/discord.module';
 import { AddressModule } from 'apps/user-server/src/api/address/address.module';
 import { UserInterestModule } from 'apps/user-server/src/api/user-interest/user-interest.module';
+import { ClsModule } from 'nestjs-cls';
+import { ClsPluginTransactional } from '@nestjs-cls/transactional';
+import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
+import { PrismaModule, PrismaProvider } from 'libs/modules';
 
 @Module({
   imports: [
+    ClsModule.forRoot({
+      plugins: [
+        new ClsPluginTransactional({
+          imports: [PrismaModule],
+          adapter: new TransactionalAdapterPrisma({
+            prismaInjectionToken: PrismaProvider,
+          }),
+        }),
+      ],
+    }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule.forFeature(modeConfig)],
       useFactory: (configService: ConfigService): ThrottlerModuleOptions => {

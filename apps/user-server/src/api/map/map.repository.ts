@@ -17,6 +17,11 @@ export class MapRepository {
    * 레벨 2: 시/군/구 로 클러스터링
    * 레벨 3: 읍/면/동 으로 클러스터링
    *
+   * 클러스터링 로직이 변경됨에 따라 deprecated 되었습니다.
+   * 대신, getContentAllFromMap 메서드를 사용하십시오.
+   *
+   * @deprecated
+   *
    * @author jochongs
    */
   public async getContentCountFromMapLevel(

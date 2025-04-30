@@ -1,4 +1,5 @@
 import { Notice } from '@prisma/client';
+import { NoticeModel } from 'libs/core/notice/model/notice.model';
 
 /**
  * @author jochongs
@@ -43,6 +44,12 @@ export class NoticeEntity {
     Object.assign(this, data);
   }
 
+  /**
+   * `CoreModule`이 개발됨에 따라, deprecated 되었습니다.
+   * 대신, `fromModel`을 사용합시오.
+   *
+   * @deprecated
+   */
   static createEntity(notice: Notice) {
     return new NoticeEntity({
       idx: notice.idx,
@@ -50,6 +57,16 @@ export class NoticeEntity {
       contents: notice.contents,
       pinnedAt: notice.pinnedAt,
       createdAt: notice.createdAt,
+    });
+  }
+
+  public static fromModel(notice: NoticeModel): NoticeEntity {
+    return new NoticeEntity({
+      idx: notice.idx,
+      title: notice.title,
+      contents: notice.contents,
+      createdAt: notice.createdAt,
+      pinnedAt: notice.pinnedAt,
     });
   }
 }

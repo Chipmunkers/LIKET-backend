@@ -22,9 +22,7 @@ import { ContentEntity } from './entity/content.entity';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { Exception } from '../../common/decorator/exception.decorator';
 import { ApiTags } from '@nestjs/swagger';
-import { ContentAuthService } from './content-auth.service';
 import { LoginUser } from '../auth/model/login-user';
-import { HotCultureContentEntity } from './entity/hot-content.entity';
 import { GetHotContentResponseDto } from './dto/response/get-hot-style-content.dto';
 import { GetHotAgeContentResponseDto } from './dto/response/get-hot-age-content.dto';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
@@ -37,7 +35,6 @@ import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-cont
 export class CultureContentController {
   constructor(
     private readonly cultureContentService: CultureContentService,
-    private readonly contentAuthService: ContentAuthService,
     private readonly contentViewService: ContentViewService,
   ) {}
 
@@ -51,17 +48,10 @@ export class CultureContentController {
   @Exception(400, 'Invalid querystring')
   @Exception(403, 'Permission denied')
   public async getCultureContentAll(
-    @Query() pagerble: ContentPagerbleDto,
+    @Query() pageable: ContentPagerbleDto,
     @User() loginUser?: LoginUser,
   ): Promise<GetCultureContentAllResponseDto> {
-    await this.contentAuthService.checkReadAllPermission(pagerble, loginUser);
-
-    const result = await this.cultureContentService.getContentAll(
-      pagerble,
-      loginUser?.idx,
-    );
-
-    return result;
+    return await this.cultureContentService.getContentAll(pageable, loginUser);
   }
 
   /**
@@ -124,7 +114,7 @@ export class CultureContentController {
   }
 
   /**
-   * 인기 스타일 컨텐츠 목록보기
+   * 인기 스타일 컨텐츠 목록보기 (랜덤 스타일 컨텐츠 목록으로 변경)
    *
    * @author jochongs
    */
@@ -132,11 +122,13 @@ export class CultureContentController {
   public async getHotStyleCultureContentAll(
     @User() loginUser?: LoginUser,
   ): Promise<GetHotContentResponseDto> {
-    return await this.cultureContentService.getHotContentByStyle(loginUser);
+    return await this.cultureContentService.getHotContentByRandomStyle(
+      loginUser,
+    );
   }
 
   /**
-   * 인기 스타일 컨텐츠 목록보기 (랜덤)
+   * 인기 스타일 컨텐츠 목록보기 (랜덤 스타일 컨텐츠로 변경)
    *
    * @author jochongs
    */
@@ -162,11 +154,9 @@ export class CultureContentController {
     @Param('idx', ParseIntPipe) contentIdx: number,
     @User() loginUser?: LoginUser,
   ): Promise<ContentEntity> {
-    await this.contentAuthService.checkReadPermission(contentIdx, loginUser);
-
     const content = await this.cultureContentService.getContentByIdx(
       contentIdx,
-      loginUser?.idx,
+      loginUser,
     );
 
     if (loginUser) {
@@ -233,7 +223,7 @@ export class CultureContentController {
     @User() loginUser: LoginUser,
   ): Promise<CreateContentRequestResponseDto> {
     const contentIdx = await this.cultureContentService.createContentRequest(
-      loginUser.idx,
+      loginUser,
       createDto,
     );
 
@@ -258,16 +248,10 @@ export class CultureContentController {
     @Param('idx', ParseIntPipe) contentIdx: number,
     @Body() updateDto: UpdateContentDto,
   ): Promise<void> {
-    await this.contentAuthService.checkUpdatePermission(
-      loginUser,
-      contentIdx,
-      updateDto,
-    );
-
     await this.cultureContentService.updateContentRequest(
       contentIdx,
       updateDto,
-      loginUser.idx,
+      loginUser,
     );
 
     return;
@@ -288,9 +272,10 @@ export class CultureContentController {
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) contentIdx: number,
   ): Promise<void> {
-    await this.contentAuthService.checkDeletePermission(loginUser, contentIdx);
-
-    await this.cultureContentService.deleteContentRequest(contentIdx);
+    await this.cultureContentService.deleteContentRequest(
+      contentIdx,
+      loginUser,
+    );
 
     return;
   }

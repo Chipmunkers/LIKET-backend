@@ -2,19 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { SocialLoginUser } from '../auth/model/social-login-user';
 import { SocialProvider } from '../auth/strategy/social-provider.enum';
 import { UserEntity } from './entity/user.entity';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { UserNotFoundException } from './exception/UserNotFoundException';
-import { UserRepository } from './user.repository';
 import { adjectives } from './data/adjectives';
 import { animals } from './data/animals';
+import { UserCoreService } from 'libs/core/user/user-core.service';
+import { UserModel } from 'libs/core/user/model/user.model';
 
 @Injectable()
 export class SocialLoginUserService {
-  constructor(
-    private readonly userRepository: UserRepository,
-    @Logger(SocialLoginUserService.name) private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly userCoreService: UserCoreService) {}
 
   /**
    * 소셜사 제공 id로 사용자 찾기
@@ -25,20 +21,16 @@ export class SocialLoginUserService {
     socialUser: SocialLoginUser,
     provider: SocialProvider,
   ): Promise<UserEntity> {
-    const user = await this.userRepository.selectUserBySnsId(
+    const user = await this.userCoreService.findUserBySnsId(
       socialUser.id,
       provider,
     );
 
     if (!user) {
-      this.logger.warn(
-        this.getUserBySocialId,
-        `Attempt to find non-existent social user`,
-      );
       throw new UserNotFoundException('Cannot find user');
     }
 
-    return UserEntity.createEntity(user);
+    return UserEntity.fromModel(user);
   }
 
   /**
@@ -46,8 +38,10 @@ export class SocialLoginUserService {
    *
    * @author jochongs
    */
-  public async signUpSocialUser(socialUser: SocialLoginUser) {
-    return await this.userRepository.insertUser({
+  public async signUpSocialUser(
+    socialUser: SocialLoginUser,
+  ): Promise<UserModel> {
+    return await this.userCoreService.createUser({
       email: socialUser.email,
       provider: socialUser.provider,
       nickname: this.generateRandomNickname('-'),
@@ -56,6 +50,7 @@ export class SocialLoginUserService {
       gender: socialUser.gender || null,
       profileImgPath: null,
       snsId: socialUser.id,
+      isAdmin: false,
     });
   }
 

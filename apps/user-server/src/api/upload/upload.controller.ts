@@ -66,7 +66,7 @@ export class UploadController {
     return await this.uploadService.uploadFilesToS3(
       files,
       {
-        destinaion: 'culture-content',
+        destination: 'culture-content',
         grouping: FILE_GROUPING.CULTURE_CONTENT,
       },
       loginUser.idx,
@@ -93,7 +93,7 @@ export class UploadController {
     return await this.uploadService.uploadFilesToS3(
       files,
       {
-        destinaion: 'inquiry',
+        destination: 'inquiry',
         grouping: FILE_GROUPING.INQUIRY,
       },
       loginUser.idx,
@@ -118,7 +118,7 @@ export class UploadController {
     }
 
     return await this.uploadService.uploadFilesToS3(files, {
-      destinaion: 'review',
+      destination: 'review',
       grouping: FILE_GROUPING.REVIEW,
     });
   }

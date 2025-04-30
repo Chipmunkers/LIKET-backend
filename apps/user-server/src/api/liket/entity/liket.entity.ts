@@ -1,11 +1,11 @@
 import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { LocationEntity } from '../../culture-content/entity/location.entity';
-import { UserProfileEntity } from '../../user/entity/user-profile.entity';
 import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
   IsDateString,
+  IsIn,
   IsInt,
   IsObject,
   IsOptional,
@@ -15,26 +15,15 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { TextShapeEntity } from './textShape.entity';
-import { ImgShapeEntity } from './imgShape.entity';
-import { ReviewEntity } from '../../review/entity/review.entity';
-import { ContentEntity } from '../../culture-content/entity/content.entity';
-import { PickType } from '@nestjs/swagger';
-import { BgImgInfoEntity } from './bgImgInfo.entity';
+import { TextShapeEntity } from './text-shape.entity';
+import { ImgShapeEntity } from './img-shape.entity';
+import { BgImgInfoEntity } from './bg-img-info.entity';
 import { LiketWithInclude } from './prisma-type/liket-with-include';
 import { Type } from 'class-transformer';
-
-class LiketReviewEntity extends PickType(ReviewEntity, [
-  'visitTime',
-  'starRating',
-]) {}
-
-class LiketContentEntity extends PickType(ContentEntity, [
-  'idx',
-  'title',
-  'location',
-  'genre',
-]) {}
+import { LiketModel } from 'libs/core/liket/model/liket.model';
+import { LiketReviewEntity } from 'apps/user-server/src/api/liket/entity/liket-review.entity';
+import { LiketAuthorEntity } from 'apps/user-server/src/api/liket/entity/liket-author.entity';
+import { LiketCultureContentEntity } from 'apps/user-server/src/api/liket/entity/liket-culture-content.entity';
 
 /**
  * @author wherehows
@@ -60,9 +49,8 @@ export class LiketEntity {
    * @example 3
    */
   @IsInt()
-  @Min(1)
-  @Max(3)
-  public size: number;
+  @IsIn([1, 2, 3])
+  public size: 1 | 2 | 3;
 
   /**
    * 카드를 꾸미는 텍스트 정보
@@ -104,7 +92,7 @@ export class LiketEntity {
   /**
    * 컨텐
    */
-  public cultureContent: LiketContentEntity;
+  public cultureContent: LiketCultureContentEntity;
 
   /**
    * 리뷰
@@ -114,7 +102,7 @@ export class LiketEntity {
   /**
    * 작성자
    */
-  public author: UserProfileEntity;
+  public author: LiketAuthorEntity;
 
   /**
    * 리뷰 텍스트
@@ -137,46 +125,22 @@ export class LiketEntity {
     Object.assign(this, data);
   }
 
-  static createEntity(
-    data: LiketWithInclude,
-    bgImgInfo: BgImgInfoEntity,
-    imgShapes: ImgShapeEntity[],
-    textShape?: TextShapeEntity,
-  ) {
-    const review = data.Review;
-    const content = review.CultureContent;
-    const User = review.User;
-
+  public static fromModel(model: LiketModel): LiketEntity {
     return new LiketEntity({
-      idx: data.idx,
-      cardImgPath: data.cardImgPath,
-      bgImgPath: data.bgImgPath,
-      size: data.size,
-      review: {
-        starRating: review.starRating,
-        visitTime: review.visitTime,
-      },
-      textShape: textShape
-        ? TextShapeEntity.createEntity(textShape)
+      idx: model.idx,
+      cardImgPath: model.cardImgPath,
+      bgImgPath: model.bgImgPath,
+      size: model.size,
+      review: LiketReviewEntity.fromModel(model.review),
+      author: LiketAuthorEntity.fromModel(model.author),
+      bgImgInfo: BgImgInfoEntity.fromModel(model.bgImgInfo),
+      cultureContent: LiketCultureContentEntity.fromModel(model.cultureContent),
+      createdAt: model.createdAt,
+      description: model.description,
+      imgShapes: model.imgShapes.map(ImgShapeEntity.fromModel),
+      textShape: model.textShape
+        ? TextShapeEntity.fromModel(model.textShape)
         : undefined,
-      imgShapes: imgShapes.map((imgShape) => {
-        return ImgShapeEntity.createEntity(imgShape);
-      }),
-      bgImgInfo: BgImgInfoEntity.createEntity(bgImgInfo),
-      description: data.description,
-      cultureContent: {
-        idx: content.idx,
-        title: content.title,
-        genre: TagEntity.createEntity(content.Genre),
-        location: LocationEntity.createEntity(content.Location),
-      },
-      author: {
-        idx: User.idx,
-        nickname: User.nickname,
-        profileImgPath: User.profileImgPath,
-        provider: User.provider,
-      },
-      createdAt: data.createdAt,
     });
   }
 }

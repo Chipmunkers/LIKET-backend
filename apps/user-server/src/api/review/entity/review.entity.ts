@@ -1,8 +1,6 @@
 import { UserProfileEntity } from '../../user/entity/user-profile.entity';
 import { TagEntity } from '../../content-tag/entity/tag.entity';
 import { ReviewWithInclude } from './prisma-type/review-with-include';
-import { PickType } from '@nestjs/swagger';
-import { ContentEntity } from '../../culture-content/entity/content.entity';
 import {
   IsDate,
   IsDateString,
@@ -11,17 +9,10 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-
-/**
- * @author jochongs
- */
-class ReviewContent extends PickType(ContentEntity, [
-  'idx',
-  'title',
-  'genre',
-  'likeCount',
-  'thumbnail',
-] as const) {}
+import { ReviewCultureContentEntity } from 'apps/user-server/src/api/review/entity/review-culture-content.entity';
+import { ReviewModel } from 'libs/core/review/model/review.model';
+import { ReviewAuthorEntity } from 'apps/user-server/src/api/review/entity/review-author.entity';
+import { Type } from 'class-transformer';
 
 /**
  * @author jochongs
@@ -39,7 +30,8 @@ export class ReviewEntity {
    *
    * @example 2024-05-07T12:12:12.000Z
    */
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   public visitTime: Date;
 
   /**
@@ -52,7 +44,7 @@ export class ReviewEntity {
   /**
    * 문화생활컨텐츠 정보
    */
-  public cultureContent: ReviewContent;
+  public cultureContent: ReviewCultureContentEntity;
 
   /**
    * 작성자
@@ -110,6 +102,12 @@ export class ReviewEntity {
     Object.assign(this, data);
   }
 
+  /**
+   * `core` 모듈이 개발됨에 따라 deprecated 되었습니다.
+   * 대신, `fromModel`을 사용하십시오.
+   *
+   * @deprecated
+   */
   static createEntity(review: ReviewWithInclude) {
     return new ReviewEntity({
       idx: review.idx,
@@ -129,6 +127,22 @@ export class ReviewEntity {
       starRating: review.starRating,
       likeCount: review.likeCount,
       likeState: review.ReviewLike[0] ? true : false,
+    });
+  }
+
+  public static fromModel(model: ReviewModel): ReviewEntity {
+    return new ReviewEntity({
+      idx: model.idx,
+      author: ReviewAuthorEntity.fromModel(model.author),
+      cultureContent: ReviewCultureContentEntity.fromModel(model.content),
+      visitTime: model.visitTime,
+      starRating: model.starRating,
+      description: model.description,
+      thumbnail: model.imgList[0]?.imgPath || '',
+      imgList: model.imgList.map(({ imgPath }) => imgPath),
+      likeCount: model.likeCount,
+      likeState: model.likeState,
+      createdAt: model.createdAt,
     });
   }
 }

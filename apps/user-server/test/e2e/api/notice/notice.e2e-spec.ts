@@ -1,73 +1,13 @@
+import { NoticeEntity } from 'apps/user-server/src/api/notice/entity/notice.entity';
+import { SummaryNoticeEntity } from 'apps/user-server/src/api/notice/entity/summary-notice.entity';
 import { AppModule } from 'apps/user-server/src/app.module';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { NoticeSeedHelper } from 'libs/testing/seed/notice/notice-seed.helper';
 import * as request from 'supertest';
 
 describe('Review (e2e)', () => {
   const test = TestHelper.create(AppModule);
-
-  const noticeSeeds = [
-    {
-      idx: 1,
-      title: '[공지사항] 점검 예정',
-      contents: '점검 예정입니다...',
-      activatedAt: new Date(),
-      pinnedAt: null,
-    },
-    {
-      idx: 2,
-      title: '[공지사항] 점검 예정2',
-      contents: '점검 예정입니다...2',
-      activatedAt: new Date(),
-      pinnedAt: new Date(),
-    },
-    {
-      idx: 3,
-      title: '[공지사항] 활성화되지 않은 공지사항',
-      contents: '공지사항 내용',
-      activatedAt: null,
-      pinnedAt: null,
-    },
-    {
-      idx: 4,
-      title: '[공지사항] 활성화되지 않은 공지사항2',
-      contents: '공지사항 내용',
-      activatedAt: null,
-      pinnedAt: null,
-    },
-    /**
-     * 활성화 이후에 삭제된 공지사항
-     */
-    {
-      idx: 5,
-      title: '[공지사항] 삭제된 공지사항',
-      contents: '공지사항 내용',
-      activatedAt: null,
-      pinnedAt: null,
-      deletedAt: new Date(),
-    },
-  ] as const;
-
-  beforeAll(async () => {
-    for (const notice of noticeSeeds) {
-      await test.getPrisma().notice.upsert({
-        where: {
-          idx: notice.idx,
-        },
-        create: {
-          title: notice.title,
-          contents: notice.contents,
-          activatedAt: notice.activatedAt,
-          pinnedAt: notice.pinnedAt,
-        },
-        update: {
-          title: notice.title,
-          contents: notice.contents,
-          activatedAt: notice.activatedAt,
-          pinnedAt: notice.pinnedAt,
-        },
-      });
-    }
-  });
+  const noticeSeedHelper = test.seedHelper(NoticeSeedHelper);
 
   beforeEach(async () => {
     await test.init();
@@ -78,19 +18,52 @@ describe('Review (e2e)', () => {
   });
 
   describe('GET /notice/all', () => {
-    it('Success', async () => {
+    it('Success - order by test', async () => {
+      const [firstNotice, secondNotice, pinnedNotice, deletedNotice] =
+        await noticeSeedHelper.seedAll([
+          {
+            pinnedAt: null,
+            activatedAt: new Date(),
+          },
+          {
+            pinnedAt: null,
+            activatedAt: new Date(),
+          },
+          {
+            pinnedAt: new Date(),
+            activatedAt: new Date(),
+          },
+          {
+            deletedAt: new Date(),
+          },
+        ]);
+
       const response = await request(test.getServer())
         .get('/notice/all')
         .expect(200);
 
-      expect(response.body?.noticeList).toBeDefined();
-      expect(Array.isArray(response.body?.noticeList)).toBeTruthy();
-      expect(response.body?.noticeList.length).toBe(2);
+      const noticeList: SummaryNoticeEntity[] = response.body.noticeList;
 
-      const pinnedNotice = noticeSeeds[1];
+      expect(noticeList.length).toBe(3);
+      expect(noticeList[0].idx).toBe(pinnedNotice.idx);
+    });
 
-      expect(response.body?.noticeList[0].idx).toBe(pinnedNotice.idx);
-      expect(response.body?.noticeList[0].title).toBe(pinnedNotice.title);
+    it('Success - notice field check', async () => {
+      const [noticeSeed] = await noticeSeedHelper.seedAll([
+        { activatedAt: new Date() },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/notice/all')
+        .expect(200);
+
+      expect(response.body.noticeList.length).toBe(1);
+
+      const notice: SummaryNoticeEntity = response.body.noticeList[0];
+
+      expect(notice.idx).toBe(noticeSeed.idx);
+      expect(notice.title).toBe(noticeSeed.title);
+      expect(notice.pinnedAt).toBe(noticeSeed.pinnedAt);
     });
 
     it('Fail - invalid pageable', async () => {
@@ -103,51 +76,73 @@ describe('Review (e2e)', () => {
     });
 
     it('Success - Delete notice test', async () => {
-      await test.getPrisma().notice.create({
-        data: {
-          title: '삭제된 공지사항',
-          contents: '삭제된 공지사항',
+      // all deleted notice
+      const [] = await noticeSeedHelper.seedAll([
+        {
+          pinnedAt: null,
+          activatedAt: new Date(),
           deletedAt: new Date(),
         },
-      });
+        {
+          pinnedAt: null,
+          activatedAt: new Date(),
+          deletedAt: new Date(),
+        },
+        {
+          pinnedAt: new Date(),
+          activatedAt: new Date(),
+          deletedAt: new Date(),
+        },
+        {
+          deletedAt: new Date(),
+        },
+      ]);
 
       const response = await request(test.getServer())
         .get('/notice/all')
         .expect(200);
 
-      expect(response.body?.noticeList).toBeDefined();
-      expect(Array.isArray(response.body?.noticeList)).toBeTruthy();
-      expect(response.body?.noticeList.length).toBe(2);
+      const noticeList: SummaryNoticeEntity[] = response.body.noticeList;
+
+      expect(noticeList.length).toBe(0);
     });
   });
 
   describe('GET /notice/:idx', () => {
-    it('Success', async () => {
-      const notice = noticeSeeds[0];
+    it('Success - field check', async () => {
+      const noticeSeed = await noticeSeedHelper.seed({
+        activatedAt: new Date(),
+      });
 
       const response = await request(test.getServer())
-        .get(`/notice/${notice.idx}`)
+        .get(`/notice/${noticeSeed.idx}`)
         .expect(200);
 
-      expect(response.body.idx).toBe(1);
-      expect(response.body.title).toBe(notice.title);
-      expect(response.body.contents).toBe(notice.contents);
+      const notice: NoticeEntity = response.body;
+
+      expect(notice.idx).toBe(noticeSeed.idx);
+      expect(notice.title).toBe(noticeSeed.title);
+      expect(notice.contents).toBe(noticeSeed.contents);
+      expect(notice.pinnedAt).toBe(noticeSeed.pinnedAt);
     });
 
-    it('Non-existent notice', async () => {
+    it('fail - Non-existent notice', async () => {
       const noticeIdx = 999;
 
       await request(test.getServer()).get(`/notice/${noticeIdx}`).expect(404);
     });
 
-    it('Invalid notice idx', async () => {
+    it('fail - Invalid notice idx', async () => {
       const noticeIdx = null;
 
       await request(test.getServer()).get(`/notice/${noticeIdx}`).expect(400);
     });
 
     it('Attempt to get deleted notice', async () => {
-      const deletedNotice = noticeSeeds[4];
+      const deletedNotice = await noticeSeedHelper.seed({
+        activatedAt: new Date(),
+        deletedAt: new Date(),
+      });
 
       await request(test.getServer())
         .get(`/notice/${deletedNotice.idx}`)
@@ -155,7 +150,9 @@ describe('Review (e2e)', () => {
     });
 
     it('Attempt to get deactivated notice', async () => {
-      const deactivatedNotice = noticeSeeds[2];
+      const deactivatedNotice = await noticeSeedHelper.seed({
+        activatedAt: null,
+      });
 
       await request(test.getServer())
         .get(`/notice/${deactivatedNotice.idx}`)

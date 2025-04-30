@@ -1,34 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateContentRequestDto } from './dto/create-content-request.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { ContentPagerbleDto } from './dto/content-pagerble.dto';
 import { ContentNotFoundException } from './exception/ContentNotFound';
-import { AlreadyLikeContentException } from './exception/AlreadyLikeContentException';
-import { AlreadyNotLikeContentException } from './exception/AlreadyNotLikeContentException';
 import { ContentEntity } from './entity/content.entity';
 import { SummaryContentEntity } from './entity/summary-content.entity';
 import { LoginUser } from '../auth/model/login-user';
-import { HotCultureContentEntity } from './entity/hot-content.entity';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
-import { CultureContentRepository } from './culture-content.repository';
-import { CultureContentLikeRepository } from './culture-content-like.repository';
-import { ReviewRepository } from '../review/review.repository';
-import { ContentTagRepository } from '../content-tag/content-tag.repository';
-import { UserRepository } from '../user/user.repository';
 import { TagEntity } from '../content-tag/entity/tag.entity';
 import { LikeContentPagerbleDto } from './dto/like-content-pagerble.dto';
 import { GenreWithHotContentEntity } from 'apps/user-server/src/api/culture-content/entity/genre-with-hot-content.entity';
+import { CultureContentCoreService } from 'libs/core/culture-content/culture-content-core.service';
+import { CultureContentLikeCoreService } from 'libs/core/culture-content/culture-content-like-core.service';
+import { ContentAuthService } from 'apps/user-server/src/api/culture-content/content-auth.service';
+import { Style } from 'libs/core/tag-root/style/constant/style';
+import { AGE, Age } from 'libs/core/tag-root/age/constant/age';
+import { UserCoreService } from 'libs/core/user/user-core.service';
+import { AgeCoreService } from 'libs/core/tag-root/age/age-core.service';
+import { StyleCoreService } from 'libs/core/tag-root/style/style-core.service';
 
 @Injectable()
 export class CultureContentService {
   constructor(
-    private readonly cultureContentRepository: CultureContentRepository,
-    private readonly cultureContentLikeRepository: CultureContentLikeRepository,
-    private readonly reviewRepository: ReviewRepository,
-    private readonly contentTagRepository: ContentTagRepository,
-    private readonly userRepository: UserRepository,
-    @Logger(CultureContentService.name) private readonly logger: LoggerService,
+    private readonly userCoreService: UserCoreService,
+    private readonly cultureContentCoreService: CultureContentCoreService,
+    private readonly cultureContentLikeCoreService: CultureContentLikeCoreService,
+    private readonly cultureContentAuthService: ContentAuthService,
+    private readonly ageCoreService: AgeCoreService,
+    private readonly styleCoreService: StyleCoreService,
   ) {}
 
   /**
@@ -38,28 +36,32 @@ export class CultureContentService {
    */
   public async getContentByIdx(
     idx: number,
-    userIdx?: number,
+    loginUser?: LoginUser,
   ): Promise<ContentEntity> {
-    const content =
-      await this.cultureContentRepository.selectCultureContentByIdx(
+    const contentModel =
+      await this.cultureContentCoreService.findCultureContentByIdx(
         idx,
-        userIdx,
+        loginUser?.idx,
       );
 
-    if (!content) {
-      this.logger.warn(
-        this.getContentByIdx,
-        `Attempt to not found content | content = ${idx}`,
-      );
-      throw new ContentNotFoundException('Cannot find content');
+    if (!contentModel) {
+      throw new ContentNotFoundException('Cannot find culture content');
     }
 
-    const reviewStar =
-      await this.reviewRepository.selectReviewAvgStarRatingByContentIdx(
-        content.idx,
-      );
+    this.cultureContentAuthService.checkReadPermission(contentModel, loginUser);
 
-    return ContentEntity.createEntity(content, reviewStar._sum.starRating || 0);
+    const reviewCount =
+      await this.cultureContentCoreService.getCultureContentReviewCountByIdx(
+        idx,
+      );
+    const totalStarCount =
+      await this.cultureContentCoreService.getCultureContentStarCountByIdx(idx);
+
+    return ContentEntity.fromModel(
+      contentModel,
+      reviewCount,
+      totalStarCount / reviewCount,
+    );
   }
 
   /**
@@ -67,17 +69,44 @@ export class CultureContentService {
    *
    * @author jochongs
    */
-  public async getContentAll(pagerble: ContentPagerbleDto, userIdx?: number) {
+  public async getContentAll(
+    pagerble: ContentPagerbleDto,
+    loginUser?: LoginUser,
+  ) {
+    this.cultureContentAuthService.checkReadAllPermission(pagerble, loginUser);
+
     const contentList =
-      await this.cultureContentRepository.selectCultureContentAll(
-        pagerble,
-        userIdx,
+      await this.cultureContentCoreService.findCultureContentAll(
+        {
+          page: pagerble.page,
+          row: 10,
+          accept: pagerble.accept,
+          author: pagerble.user,
+          genreList: pagerble.genre ? [pagerble.genre] : undefined,
+          styleList: pagerble.style,
+          ageList: pagerble.age ? [pagerble.age] : undefined,
+          open:
+            pagerble.open === undefined
+              ? undefined
+              : pagerble.open
+                ? ['continue']
+                : ['end'],
+          orderBy:
+            pagerble.orderby === 'like'
+              ? 'like'
+              : pagerble.orderby === 'create'
+                ? 'create'
+                : 'accept',
+          order: pagerble.order,
+          searchByList: ['title'],
+          searchKeyword: pagerble.search,
+          sidoCode: pagerble.region,
+        },
+        loginUser?.idx,
       );
 
     return {
-      contentList: contentList.map((content) =>
-        SummaryContentEntity.createEntity(content),
-      ),
+      contentList: contentList.map(SummaryContentEntity.fromModel),
     };
   }
 
@@ -89,14 +118,19 @@ export class CultureContentService {
   public async getSoonOpenContentAll(
     userIdx?: number,
   ): Promise<SummaryContentEntity[]> {
-    const contentList =
-      await this.cultureContentRepository.selectSoonOpenCultureContentAll(
+    return (
+      await this.cultureContentCoreService.findCultureContentAll(
+        {
+          page: 1,
+          row: 5,
+          orderBy: 'startDate',
+          open: ['soon-open'],
+          accept: true,
+          order: 'asc',
+        },
         userIdx,
-      );
-
-    return contentList.map((content) =>
-      SummaryContentEntity.createEntity(content),
-    );
+      )
+    ).map(SummaryContentEntity.fromModel);
   }
 
   /**
@@ -107,14 +141,19 @@ export class CultureContentService {
   public async getSoonEndContentAll(
     userIdx?: number,
   ): Promise<SummaryContentEntity[]> {
-    const contentList =
-      await this.cultureContentRepository.selectSoonEndCultureContentAll(
+    return (
+      await this.cultureContentCoreService.findCultureContentAll(
+        {
+          page: 1,
+          row: 100,
+          accept: true,
+          open: ['continue'],
+          orderBy: 'endDate',
+          order: 'asc',
+        },
         userIdx,
-      );
-
-    return contentList.map((content) =>
-      SummaryContentEntity.createEntity(content),
-    );
+      )
+    ).map(SummaryContentEntity.fromModel);
   }
 
   /**
@@ -122,12 +161,14 @@ export class CultureContentService {
    *
    * @author jochongs
    */
-  public async getHotContentAll() {
-    const genreList =
-      await this.cultureContentRepository.selectHotCultureContentAll();
+  public async getHotContentAll(readUser?: number) {
+    const genreWithHotContentModelList =
+      await this.cultureContentCoreService.findHotCultureContentGroupByGenre(
+        readUser,
+      );
 
-    return genreList.map((genre) =>
-      GenreWithHotContentEntity.createEntity(genre),
+    return genreWithHotContentModelList.map((genre) =>
+      GenreWithHotContentEntity.fromModel(genre),
     );
   }
 
@@ -141,19 +182,28 @@ export class CultureContentService {
   ): Promise<{ contentList: SummaryContentEntity[]; age: TagEntity }> {
     const ageIdx = await this.getLoginUserAgeIdx(loginUser);
 
-    const age = await this.contentTagRepository.selectAgeByIdx(ageIdx);
+    const age = await this.ageCoreService.findAgeByIdx(ageIdx);
 
-    const contentList =
-      await this.cultureContentRepository.selectHotCultureContentByAgeIdx(
-        ageIdx,
-        loginUser?.idx,
-      );
+    if (!age) {
+      throw new InternalServerErrorException(`Age not found | age = ${ageIdx}`);
+    }
 
     return {
-      contentList: contentList.map((content) =>
-        SummaryContentEntity.createEntity(content),
-      ),
-      age: TagEntity.createEntity(age),
+      contentList: (
+        await this.cultureContentCoreService.findCultureContentAll(
+          {
+            page: 1,
+            row: 100,
+            accept: true,
+            open: ['continue'],
+            orderBy: 'like',
+            order: 'desc',
+            ageList: [age.idx as Age], // TODO: 타입 강화 필요함.
+          },
+          loginUser?.idx,
+        )
+      ).map(SummaryContentEntity.fromModel),
+      age: TagEntity.fromModel(age),
     };
   }
 
@@ -162,10 +212,10 @@ export class CultureContentService {
    */
   private async getLoginUserAgeIdx(loginUser?: LoginUser) {
     if (!loginUser) {
-      return 1; // 20대
+      return AGE.TWENTIES;
     }
 
-    const user = await this.userRepository.selectUserByIdx(loginUser.idx);
+    const user = await this.userCoreService.findUserByIdx(loginUser.idx);
 
     if (!user?.birth) {
       return 4; // 20대
@@ -195,33 +245,6 @@ export class CultureContentService {
   }
 
   /**
-   * 인기 스타일 컨텐츠 목록보기
-   *
-   * @author jochongs
-   */
-  public async getHotContentByStyle(
-    loginUser?: LoginUser,
-  ): Promise<{ contentList: SummaryContentEntity[]; style: TagEntity }> {
-    const hotStyle = await this.contentTagRepository.selectHotStyle();
-
-    const contentList =
-      await this.cultureContentRepository.selectHotCultureContentByStyleIdx(
-        hotStyle.idx,
-        loginUser?.idx,
-      );
-
-    return {
-      contentList: contentList.map((content) =>
-        SummaryContentEntity.createEntity(content),
-      ),
-      style: {
-        idx: hotStyle.idx,
-        name: hotStyle.name,
-      },
-    };
-  }
-
-  /**
    * 인기 스타일 컨텐츠 목록보기 (랜덤)
    *
    * @author jochongs
@@ -229,47 +252,21 @@ export class CultureContentService {
   public async getHotContentByRandomStyle(
     loginUser?: LoginUser,
   ): Promise<{ contentList: SummaryContentEntity[]; style: TagEntity }> {
-    const hotStyles =
-      await this.contentTagRepository.selectStylesWithContentCount();
-
-    if (hotStyles[0].count <= 5) {
-      const hotStyle = hotStyles[0];
-
-      const contentList =
-        await this.cultureContentRepository.selectHotCultureContentByStyleIdx(
-          hotStyle.idx,
-          loginUser?.idx,
-        );
-
-      return {
-        contentList: contentList.map((content) =>
-          SummaryContentEntity.createEntity(content),
-        ),
-        style: {
-          idx: hotStyle.idx,
-          name: hotStyle.name,
-        },
-      };
-    }
-
-    const styles = hotStyles.filter((style) => style.count >= 5);
-
-    const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+    const randomStyleModel = await this.styleCoreService.getRandomStyle();
 
     const contentList =
-      await this.cultureContentRepository.selectHotCultureContentByStyleIdx(
-        randomStyle.idx,
-        loginUser?.idx,
-      );
+      await this.cultureContentCoreService.findCultureContentAll({
+        page: 1,
+        row: 5,
+        accept: true,
+        order: 'desc',
+        orderBy: 'like',
+        styleList: [randomStyleModel.idx as Style],
+      });
 
     return {
-      contentList: contentList.map((content) =>
-        SummaryContentEntity.createEntity(content),
-      ),
-      style: {
-        idx: randomStyle.idx,
-        name: randomStyle.name,
-      },
+      contentList: contentList.map(SummaryContentEntity.fromModel),
+      style: TagEntity.fromModel(randomStyleModel),
     };
   }
 
@@ -279,13 +276,32 @@ export class CultureContentService {
    * @author jochongs
    */
   public async createContentRequest(
-    userIdx: number,
+    loginUser: LoginUser,
     createDto: CreateContentRequestDto,
   ): Promise<number> {
-    return this.cultureContentRepository.insertCultureContent(
-      userIdx,
-      createDto,
-    );
+    this.cultureContentAuthService.checkWritePermission(loginUser, createDto);
+
+    const content = await this.cultureContentCoreService.createCultureContent({
+      authorIdx: loginUser.idx,
+      imgList: createDto.imgList,
+      ageIdx: createDto.ageIdx,
+      genreIdx: createDto.genreIdx,
+      isFee: createDto.isFee,
+      isReservation: createDto.isReservation,
+      isParking: createDto.isParking,
+      isPet: createDto.isPet,
+      location: createDto.location,
+      title: createDto.title,
+      openTime: createDto.openTime,
+      websiteLink: createDto.websiteLink,
+      id: null,
+      description: createDto.description,
+      endDate: createDto.endDate ? new Date(createDto.endDate) : null,
+      startDate: new Date(createDto.startDate),
+      styleIdxList: createDto.styleIdxList,
+    });
+
+    return content.idx;
   }
 
   /**
@@ -294,47 +310,72 @@ export class CultureContentService {
   public async updateContentRequest(
     idx: number,
     updateDto: UpdateContentDto,
-    userIdx: number,
+    loginUser: LoginUser,
   ): Promise<void> {
-    await this.cultureContentRepository.updateCultureContentByIdx(
-      idx,
+    const contentModel =
+      await this.cultureContentCoreService.findCultureContentByIdx(idx);
+
+    if (!contentModel) {
+      throw new ContentNotFoundException('Cannot find culture content');
+    }
+
+    this.cultureContentAuthService.checkUpdatePermission(
+      loginUser,
+      contentModel,
       updateDto,
     );
 
+    await this.cultureContentCoreService.updateCultureContentByIdx(idx, {
+      imgList: updateDto.imgList,
+      ageIdx: updateDto.ageIdx,
+      genreIdx: updateDto.genreIdx,
+      isFee: updateDto.isFee,
+      isReservation: updateDto.isReservation,
+      isParking: updateDto.isParking,
+      isPet: updateDto.isPet,
+      location: updateDto.location,
+      title: updateDto.title,
+      openTime: updateDto.openTime,
+      websiteLink: updateDto.websiteLink,
+      description: updateDto.description,
+      endDate: updateDto.endDate ? new Date(updateDto.endDate) : null,
+      startDate: new Date(updateDto.startDate),
+      styleIdxList: updateDto.styleIdxList,
+    });
+
     return;
   }
 
   /**
    * @author jochongs
    */
-  public async deleteContentRequest(idx: number): Promise<void> {
-    await this.cultureContentRepository.deleteContentRequest(idx);
+  public async deleteContentRequest(
+    idx: number,
+    loginUser: LoginUser,
+  ): Promise<void> {
+    const contentModel =
+      await this.cultureContentCoreService.findCultureContentByIdx(idx);
+
+    if (!contentModel) {
+      throw new ContentNotFoundException('Cannot find culture content');
+    }
+
+    this.cultureContentAuthService.checkDeletePermission(
+      loginUser,
+      contentModel,
+    );
+
+    await this.cultureContentCoreService.deleteCultureContentByIdx(idx);
   }
 
   /**
    * @author jochongs
    */
-  public async likeContent(userIdx: number, contentIdx: number) {
-    const likeState =
-      await this.cultureContentLikeRepository.selectCultureContentLike(
-        userIdx,
-        contentIdx,
-      );
-
-    if (likeState) {
-      this.logger.warn(
-        this.likeContent,
-        'Attempt to like to already liked content',
-      );
-      throw new AlreadyLikeContentException('Already liked culture content');
-    }
-
-    await this.cultureContentLikeRepository.increaseCultureContentLike(
+  public async likeContent(userIdx: number, contentIdx: number): Promise<void> {
+    await this.cultureContentLikeCoreService.likeCultureContentByIdx(
       userIdx,
       contentIdx,
     );
-
-    return;
   }
 
   /**
@@ -344,30 +385,10 @@ export class CultureContentService {
     userIdx: number,
     contentIdx: number,
   ): Promise<void> {
-    await this.getContentByIdx(contentIdx);
-
-    const likeState =
-      await this.cultureContentLikeRepository.selectCultureContentLike(
-        userIdx,
-        contentIdx,
-      );
-
-    if (!likeState) {
-      this.logger.warn(
-        this.likeContent,
-        'Attempt to cancel to like non-liked content',
-      );
-      throw new AlreadyNotLikeContentException(
-        'Already do not like culture content',
-      );
-    }
-
-    await this.cultureContentLikeRepository.decreaseCultureContentLike(
+    await this.cultureContentLikeCoreService.cancelToLikeCultureContentByIdx(
       userIdx,
       contentIdx,
     );
-
-    return;
   }
 
   /**
@@ -377,15 +398,26 @@ export class CultureContentService {
    */
   public async getLikeContentAll(
     loginUser: LoginUser,
-    pagerble: LikeContentPagerbleDto,
+    pageable: LikeContentPagerbleDto,
   ): Promise<SummaryContentEntity[]> {
-    const likeContentList =
-      await this.cultureContentLikeRepository.selectLikeContentAll(
+    return (
+      await this.cultureContentCoreService.findLikedCultureContentAll(
         loginUser.idx,
-        pagerble,
-      );
-    return likeContentList.map((likeContent) =>
-      SummaryContentEntity.fromLikeContent(likeContent),
-    );
+        {
+          page: pageable.page,
+          row: 10,
+          genre: pageable.genre ? [pageable.genre] : undefined,
+          orderBy: 'like',
+          order: 'desc',
+          accept: true,
+          open: pageable.onlyopen ? ['continue'] : [],
+        },
+      )
+    ).map(SummaryContentEntity.fromModel);
   }
 }
+
+// TODO: delete, update 메서드들 auth 로직 제거하고 service 내부에서 삭제할 수 있는 체크하기
+// TODO: updateCultureContentMethod, accept, revoke 메서드 관련 리팩토링 진행하고 테스트 케이스 만들기
+// TODO: increaseCultureContentLikeByIdx 이거 마저 구현해야함 -> 좋아요 누른 사용자가 이미 눌렀을 때 예외처리같은게 하나도 없긴함.
+// TODO: 좋아요 목록 보기 구현하다가 말았음. genre dto 손봤고 다음으로 genre 필터링 input에도 넣어야함

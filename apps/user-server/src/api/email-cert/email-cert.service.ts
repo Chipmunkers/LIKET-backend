@@ -6,8 +6,6 @@ import { JwtService } from '@nestjs/jwt';
 import { CodeNotFoundException } from './exception/CodeNotFoundException';
 import { WrongEmailCertCodeException } from './exception/WrongEmailCertCodeException';
 import { EmailJwtPayload } from './model/email-jwt-payload';
-import { Logger } from '../../common/module/logger/logger.decorator';
-import { LoggerService } from '../../common/module/logger/logger.service';
 import { EmailCertRepository } from './email-cert.repository';
 
 @Injectable()
@@ -16,7 +14,6 @@ export class EmailCertService implements IEmailCertService {
     private readonly emailCertRepository: EmailCertRepository,
     private readonly emailerService: EmailerService,
     private readonly jwtService: JwtService,
-    @Logger(EmailCertService.name) private readonly logger: LoggerService,
   ) {}
 
   /**
@@ -48,10 +45,6 @@ export class EmailCertService implements IEmailCertService {
     const randomCode = Math.floor(Math.random() * 10 ** 6)
       .toString()
       .padStart(6, '0');
-    this.logger.log(
-      this.generateRandomCode,
-      `Create random code ${randomCode}`,
-    );
     return randomCode;
   }
 
@@ -72,18 +65,10 @@ export class EmailCertService implements IEmailCertService {
     });
 
     if (!cert) {
-      this.logger.warn(
-        this.checkCertCode,
-        'Attempt to certificate email not found code',
-      );
       throw new CodeNotFoundException('Cannot find code');
     }
 
     if (cert.code !== code) {
-      this.logger.warn(
-        this.checkCertCode,
-        'Attempt to certificate email with invalid code',
-      );
       throw new WrongEmailCertCodeException('Wrong certification code');
     }
 
@@ -116,7 +101,6 @@ export class EmailCertService implements IEmailCertService {
       type,
     };
 
-    this.logger.log(this.createEmailJwt, 'Create email jwt');
     return await this.jwtService.signAsync(payload, {
       expiresIn: '30m',
     });

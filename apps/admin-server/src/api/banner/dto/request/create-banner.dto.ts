@@ -1,4 +1,10 @@
-import { IsInt, IsNotEmptyObject, IsString, Length, ValidateNested } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmptyObject,
+  IsString,
+  Length,
+  ValidateNested,
+} from 'class-validator';
 import { UploadedFileDto } from '../../../../common/upload/dto/request/uploaded-file.dto';
 import { Type } from 'class-transformer';
 
@@ -9,7 +15,7 @@ export class CreateBannerDto {
    * @example 디올 팝업스토어 광고 배너
    */
   @IsString()
-  @Length(1, 10)
+  @Length(1, 30)
   public name: string;
 
   /**

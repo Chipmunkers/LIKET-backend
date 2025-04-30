@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker';
 import {
-  AGE,
   DeepRequired,
-  GENRE,
   getRandomValueFromConstant,
   getRandomValuesFromConstant,
-  STYLE,
 } from 'libs/common';
+import { AGE } from 'libs/core/tag-root/age/constant/age';
+import { GENRE } from 'libs/core/tag-root/genre/constant/genre';
+import { STYLE } from 'libs/core/tag-root/style/constant/style';
 import { ISeedHelper } from 'libs/testing/interface/seed-helper.interface';
 import { CultureContentInput } from 'libs/testing/seed/culture-content/type/culture-content.input';
 import { CultureContentOutput } from 'libs/testing/seed/culture-content/type/culture-content.output';

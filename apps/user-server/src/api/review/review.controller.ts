@@ -19,17 +19,13 @@ import { Exception } from '../../common/decorator/exception.decorator';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewPageableDto } from './dto/review-pageable.dto';
 import { GetReviewAllResponseDto } from './dto/response/get-review-all-response.dto';
-import { ReviewAuthService } from './review-auth.service';
 import { LoginUser } from '../auth/model/login-user';
 import { ReviewEntity } from './entity/review.entity';
 
 @Controller()
 @ApiTags('Review')
 export class ReviewController {
-  constructor(
-    private readonly reviewService: ReviewService,
-    private readonly reviewAuthService: ReviewAuthService,
-  ) {}
+  constructor(private readonly reviewService: ReviewService) {}
 
   /**
    * 컨텐츠 리뷰 목록 보기
@@ -44,9 +40,7 @@ export class ReviewController {
     @Query() pagerble: ReviewPageableDto,
     @User() loginUser?: LoginUser,
   ): Promise<GetReviewAllResponseDto> {
-    await this.reviewAuthService.checkReadAllPermission(pagerble, loginUser);
-
-    return await this.reviewService.getReviewAll(pagerble, loginUser?.idx);
+    return await this.reviewService.getReviewAll(pagerble, loginUser);
   }
 
   /**
@@ -60,7 +54,7 @@ export class ReviewController {
   public async getReviewByIdx(
     @Param('idx', ParseIntPipe) idx: number,
     @User() loginUser?: LoginUser,
-  ) {
+  ): Promise<ReviewEntity> {
     return await this.reviewService.getReviewByIdx(idx, loginUser);
   }
 
@@ -91,10 +85,12 @@ export class ReviewController {
     @User() loginUser: LoginUser,
     @Body() createDto: CreateReviewDto,
     @Param('idx', ParseIntPipe) contentIdx: number,
-  ): Promise<void> {
-    await this.reviewService.createReview(contentIdx, loginUser.idx, createDto);
-
-    return;
+  ): Promise<ReviewEntity> {
+    return await this.reviewService.createReview(
+      contentIdx,
+      loginUser,
+      createDto,
+    );
   }
 
   /**
@@ -112,15 +108,7 @@ export class ReviewController {
     @Param('idx', ParseIntPipe) reviewIdx: number,
     @Body() updateDto: UpdateReviewDto,
   ): Promise<void> {
-    await this.reviewAuthService.checkUpdatePermission(
-      loginUser,
-      reviewIdx,
-      updateDto,
-    );
-
-    await this.reviewService.updateReview(reviewIdx, updateDto);
-
-    return;
+    await this.reviewService.updateReview(reviewIdx, updateDto, loginUser);
   }
 
   /**
@@ -137,11 +125,7 @@ export class ReviewController {
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
-    await this.reviewAuthService.checkDeletePermission(loginUser, reviewIdx);
-
-    await this.reviewService.deleteReview(reviewIdx);
-
-    return;
+    await this.reviewService.deleteReview(reviewIdx, loginUser);
   }
 
   /**
@@ -159,7 +143,7 @@ export class ReviewController {
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
-    await this.reviewService.likeReview(loginUser.idx, reviewIdx);
+    await this.reviewService.likeReview(loginUser, reviewIdx);
 
     return;
   }
@@ -179,7 +163,7 @@ export class ReviewController {
     @User() loginUser: LoginUser,
     @Param('idx', ParseIntPipe) reviewIdx: number,
   ): Promise<void> {
-    await this.reviewService.cancelToLikeReview(loginUser.idx, reviewIdx);
+    await this.reviewService.cancelToLikeReview(loginUser, reviewIdx);
 
     return;
   }

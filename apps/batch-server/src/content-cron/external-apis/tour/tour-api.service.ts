@@ -5,6 +5,7 @@ import { TourApiProvider } from 'apps/batch-server/src/content-cron/external-api
 import { TourApiAdapter } from 'apps/batch-server/src/content-cron/external-apis/tour/tour-api.adapter';
 import { IExternalApiAdapterService } from 'apps/batch-server/src/content-cron/interface/external-api-adapter.service';
 import { IExternalApiService } from 'apps/batch-server/src/content-cron/interface/external-api.service';
+import { RetryUtilService } from 'libs/modules';
 
 @Injectable()
 export class TourApiService
@@ -13,17 +14,25 @@ export class TourApiService
   constructor(
     private readonly tourApiProvider: TourApiProvider,
     private readonly tourApiAdapter: TourApiAdapter,
+    private readonly retryUtilService: RetryUtilService,
   ) {}
 
   /**
    * @author jochongs
    */
   public async getSummaryAll(): Promise<SummaryFestivalEntity[]> {
-    return await this.tourApiProvider.getSummaryFestivalAll({
-      numOfRows: 500,
-      pageNo: 1,
-      modifiedtime: this.getYesterday(),
-    });
+    return await this.retryUtilService.executeWithRetry(
+      () =>
+        this.tourApiProvider.getSummaryFestivalAll({
+          numOfRows: 500,
+          pageNo: 1,
+          modifiedtime: this.getYesterday(),
+        }),
+      {
+        retry: 3,
+        delay: 300,
+      },
+    );
   }
 
   /**
@@ -33,13 +42,11 @@ export class TourApiService
     const festivalId = this.getId(data);
     const imgList = await this.tourApiProvider.getFestivalImgs(festivalId);
 
-    const festivalInfo = await this.tourApiProvider.getFestivalInfoById(
-      festivalId,
-    );
+    const festivalInfo =
+      await this.tourApiProvider.getFestivalInfoById(festivalId);
 
-    const festivalIntro = await this.tourApiProvider.getFestivalIntroById(
-      festivalId,
-    );
+    const festivalIntro =
+      await this.tourApiProvider.getFestivalIntroById(festivalId);
 
     return FestivalEntity.createEntity(
       data,
@@ -72,13 +79,11 @@ export class TourApiService
     // TODO: id로 festival을 가져올 때 summaryData를 가져올 수 없음.
     const imgList = await this.tourApiProvider.getFestivalImgs(festivalId);
 
-    const festivalInfo = await this.tourApiProvider.getFestivalInfoById(
-      festivalId,
-    );
+    const festivalInfo =
+      await this.tourApiProvider.getFestivalInfoById(festivalId);
 
-    const festivalIntro = await this.tourApiProvider.getFestivalIntroById(
-      festivalId,
-    );
+    const festivalIntro =
+      await this.tourApiProvider.getFestivalIntroById(festivalId);
 
     // return FestivalEntity.createEntity(
     //   data,

@@ -1,6 +1,6 @@
 import { PickType } from '@nestjs/swagger';
 import { PagerbleDto } from '../../../common/dto/pagerble.dto';
-import { IsIn, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ToBoolean } from 'apps/user-server/src/common/decorator/to-boolean.decorator';
 

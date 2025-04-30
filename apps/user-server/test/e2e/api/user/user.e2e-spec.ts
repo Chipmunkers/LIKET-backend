@@ -3,10 +3,6 @@ import { AppModule } from '../../../../src/app.module';
 import { SignUpDto } from '../../../../src/api/user/dto/sign-up.dto';
 import { Gender } from '../../../../src/api/user/model/Gender';
 import { EmailJwtService } from '../../../../src/api/email-cert/email-jwt.service';
-import { SocialSignUpDto } from '../../../../src/api/user/dto/social-sign-up.dto';
-import { SocialLoginJwtService } from '../../../../src/common/module/social-login-jwt/social-login-jwt.service';
-import { SocialLoginUser } from '../../../../src/api/auth/model/social-login-user';
-import { SocialProvider } from '../../../../src/api/auth/strategy/social-provider.enum';
 import { UpdateProfileDto } from '../../../../src/api/user/dto/update-profile.dto';
 import { EmailDuplicateCheckDto } from '../../../../src/api/user/dto/email-duplicate-check.dto';
 import { FindPwDto } from '../../../../src/api/user/dto/find-pw.dto';
@@ -14,6 +10,8 @@ import spyOn = jest.spyOn;
 import { ResetPwDto } from '../../../../src/api/user/dto/reset-pw.dto';
 import { LoginDto } from '../../../../src/api/auth/dto/local-login.dto';
 import { TestHelper } from 'apps/user-server/test/e2e/setup/test.helper';
+import { WithdrawalReasonCoreService } from 'libs/core/withdrawal-reason/withdrawal-reason.service';
+import { WithdrawalReasonCoreRepository } from 'libs/core/withdrawal-reason/withdrawal-reason-core.repository';
 
 describe('User (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -119,177 +117,180 @@ describe('User (e2e)', () => {
     });
   });
 
-  describe('POST /user/social', () => {
-    it('Social Signup success', async () => {
-      const socialLoginUser: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'jochong',
-        email: 'test123@naver.com',
-      };
+  /**
+   * @deprecated
+   */
+  // describe('POST /user/social', () => {
+  //   it('Social Signup success', async () => {
+  //     const socialLoginUser: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'jochong',
+  //       email: 'test123@naver.com',
+  //     };
 
-      const socialLoginJwtService = test.get(SocialLoginJwtService);
+  //     const socialLoginJwtService = test.get(SocialLoginJwtService);
 
-      const socialSignUpDto: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: 'jochong',
-        token: await socialLoginJwtService.sign(socialLoginUser),
-      };
+  //     const socialSignUpDto: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: 'jochong',
+  //       token: await socialLoginJwtService.sign(socialLoginUser),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto)
-        .expect(200);
-    });
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto)
+  //       .expect(200);
+  //   });
 
-    it('Invalid social token', async () => {
-      const socialSignUpDto: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: 'jochong',
-        token: 'this.is.invalidToken',
-      };
+  //   it('Invalid social token', async () => {
+  //     const socialSignUpDto: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: 'jochong',
+  //       token: 'this.is.invalidToken',
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto)
-        .expect(403);
-    });
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto)
+  //       .expect(403);
+  //   });
 
-    it('Duplicate email', async () => {
-      const sameEmail = 'test123@naver.com';
+  //   it('Duplicate email', async () => {
+  //     const sameEmail = 'test123@naver.com';
 
-      const socialLoginUser: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'jochong',
-        email: sameEmail,
-      };
+  //     const socialLoginUser: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'jochong',
+  //       email: sameEmail,
+  //     };
 
-      const socialLoginJwtService = test.get(SocialLoginJwtService);
+  //     const socialLoginJwtService = test.get(SocialLoginJwtService);
 
-      const socialSignUpDto: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: 'jochong',
-        token: await socialLoginJwtService.sign(socialLoginUser),
-      };
+  //     const socialSignUpDto: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: 'jochong',
+  //       token: await socialLoginJwtService.sign(socialLoginUser),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto)
-        .expect(200);
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto)
+  //       .expect(200);
 
-      const socialLoginUser2: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'jochong',
-        email: sameEmail,
-      };
+  //     const socialLoginUser2: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'jochong',
+  //       email: sameEmail,
+  //     };
 
-      const socialSignUpDto2: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: 'test',
-        token: await socialLoginJwtService.sign(socialLoginUser2),
-      };
+  //     const socialSignUpDto2: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: 'test',
+  //       token: await socialLoginJwtService.sign(socialLoginUser2),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto2)
-        .expect(409);
-    });
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto2)
+  //       .expect(409);
+  //   });
 
-    it('Duplicate nickname - but ok', async () => {
-      const sameNickname = 'jochong';
+  //   it('Duplicate nickname - but ok', async () => {
+  //     const sameNickname = 'jochong';
 
-      // First social login user
-      const socialLoginUser: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'kakaoUser1',
-        email: 'another@xxxx.xxx',
-      };
+  //     // First social login user
+  //     const socialLoginUser: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'kakaoUser1',
+  //       email: 'another@xxxx.xxx',
+  //     };
 
-      const socialLoginJwtService = test.get(SocialLoginJwtService);
+  //     const socialLoginJwtService = test.get(SocialLoginJwtService);
 
-      const socialSignUpDto: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: sameNickname,
-        token: await socialLoginJwtService.sign(socialLoginUser),
-      };
+  //     const socialSignUpDto: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: sameNickname,
+  //       token: await socialLoginJwtService.sign(socialLoginUser),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto)
-        .expect(200);
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto)
+  //       .expect(200);
 
-      // Second social login user with duplicated email
-      const socialLoginUser2: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'kakaoUser2',
-        email: 'theother@gmail.com',
-      };
+  //     // Second social login user with duplicated email
+  //     const socialLoginUser2: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'kakaoUser2',
+  //       email: 'theother@gmail.com',
+  //     };
 
-      const socialSignUpDto2: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: sameNickname, // Same nickname
-        token: await socialLoginJwtService.sign(socialLoginUser2),
-      };
+  //     const socialSignUpDto2: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: sameNickname, // Same nickname
+  //       token: await socialLoginJwtService.sign(socialLoginUser2),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto2)
-        .expect(200);
-    });
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto2)
+  //       .expect(200);
+  //   });
 
-    it('Duplicate sign up with local user email', async () => {
-      const sameEmail = 'sameEmail@xxxx.xxx';
+  //   it('Duplicate sign up with local user email', async () => {
+  //     const sameEmail = 'sameEmail@xxxx.xxx';
 
-      // Local user
-      const signUpDto: SignUpDto = {
-        emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
-        pw: 'pw123123**',
-        nickname: 'jochong',
-        gender: Gender.MALE,
-        birth: 2002,
-      };
+  //     // Local user
+  //     const signUpDto: SignUpDto = {
+  //       emailToken: 'sjdklfjasdf.sadfjklasdjf.sadfjklasdf',
+  //       pw: 'pw123123**',
+  //       nickname: 'jochong',
+  //       gender: Gender.MALE,
+  //       birth: 2002,
+  //     };
 
-      const emailJwtService = test.get(EmailJwtService);
+  //     const emailJwtService = test.get(EmailJwtService);
 
-      spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
-      await request(test.getServer())
-        .post('/user/local')
-        .send(signUpDto)
-        .expect(200);
+  //     spyOn(emailJwtService, 'verify').mockResolvedValue(sameEmail);
+  //     await request(test.getServer())
+  //       .post('/user/local')
+  //       .send(signUpDto)
+  //       .expect(200);
 
-      // Social sign up with duplicated email
-      const socialLoginUser: SocialLoginUser = {
-        id: '123123123',
-        provider: SocialProvider.KAKAO,
-        nickname: 'jochong',
-        email: sameEmail,
-      };
+  //     // Social sign up with duplicated email
+  //     const socialLoginUser: SocialLoginUser = {
+  //       id: '123123123',
+  //       provider: SocialProvider.KAKAO,
+  //       nickname: 'jochong',
+  //       email: sameEmail,
+  //     };
 
-      const socialLoginJwtService = test.get(SocialLoginJwtService);
+  //     const socialLoginJwtService = test.get(SocialLoginJwtService);
 
-      const socialSignUpDto: SocialSignUpDto = {
-        birth: 2002,
-        gender: Gender.MALE,
-        nickname: 'jochong',
-        token: await socialLoginJwtService.sign(socialLoginUser),
-      };
+  //     const socialSignUpDto: SocialSignUpDto = {
+  //       birth: 2002,
+  //       gender: Gender.MALE,
+  //       nickname: 'jochong',
+  //       token: await socialLoginJwtService.sign(socialLoginUser),
+  //     };
 
-      await request(test.getServer())
-        .post('/user/social')
-        .send(socialSignUpDto)
-        .expect(409);
-    });
-  });
+  //     await request(test.getServer())
+  //       .post('/user/social')
+  //       .send(socialSignUpDto)
+  //       .expect(409);
+  //   });
+  // });
 
   describe('GET /user/my', () => {
     it('Success', async () => {
@@ -314,6 +315,112 @@ describe('User (e2e)', () => {
     });
   });
 
+  describe('PUT /user/my/profile-img', () => {
+    it('Success - change new profile img', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const beforeUpdateUser = await test.getPrisma().user.findUniqueOrThrow({
+        where: {
+          idx: loginUser.idx,
+        },
+      });
+
+      const newProfileImgPath = '/new-path/new-img.0001.png';
+      expect(beforeUpdateUser.profileImgPath).not.toBe(newProfileImgPath);
+
+      await request(test.getServer())
+        .put('/user/my/profile-img')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send({
+          profileImg: newProfileImgPath,
+        });
+
+      const afterUpdateUser = await test.getPrisma().user.findUniqueOrThrow({
+        where: {
+          idx: loginUser.idx,
+        },
+      });
+
+      expect(beforeUpdateUser.idx).toBe(afterUpdateUser.idx);
+      expect(beforeUpdateUser.nickname).toBe(afterUpdateUser.nickname);
+      expect(beforeUpdateUser.email).toBe(afterUpdateUser.email);
+      expect(beforeUpdateUser.gender).toBe(afterUpdateUser.gender);
+      expect(beforeUpdateUser.birth).toBe(afterUpdateUser.birth);
+      expect(beforeUpdateUser.isAdmin).toBe(afterUpdateUser.isAdmin);
+      expect(beforeUpdateUser.provider).toBe(afterUpdateUser.provider);
+      expect(beforeUpdateUser.pw).toBe(afterUpdateUser.pw);
+      expect(afterUpdateUser.profileImgPath).toBe(newProfileImgPath);
+    });
+
+    it('Success - change null img', async () => {
+      const loginUser = test.getLoginUsers().user1;
+
+      const beforeUpdateUser = await test.getPrisma().user.findUniqueOrThrow({
+        where: {
+          idx: loginUser.idx,
+        },
+      });
+
+      const newProfileImgPath = '/new-path/new-img.0001.png';
+      expect(beforeUpdateUser.profileImgPath).not.toBe(newProfileImgPath);
+
+      await request(test.getServer())
+        .put('/user/my/profile-img')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send({
+          profileImg: newProfileImgPath,
+        });
+
+      const afterUpdateUser = await test.getPrisma().user.findUniqueOrThrow({
+        where: {
+          idx: loginUser.idx,
+        },
+      });
+
+      expect(beforeUpdateUser.idx).toBe(afterUpdateUser.idx);
+      expect(beforeUpdateUser.nickname).toBe(afterUpdateUser.nickname);
+      expect(beforeUpdateUser.email).toBe(afterUpdateUser.email);
+      expect(beforeUpdateUser.gender).toBe(afterUpdateUser.gender);
+      expect(beforeUpdateUser.birth).toBe(afterUpdateUser.birth);
+      expect(beforeUpdateUser.isAdmin).toBe(afterUpdateUser.isAdmin);
+      expect(beforeUpdateUser.provider).toBe(afterUpdateUser.provider);
+      expect(beforeUpdateUser.pw).toBe(afterUpdateUser.pw);
+      expect(afterUpdateUser.profileImgPath).toBe(newProfileImgPath);
+
+      // 다시 프로필 이미지 삭제
+      await request(test.getServer())
+        .put('/user/my/profile-img')
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .send({});
+
+      const afterUpdateProfileImgToNullUser = await test
+        .getPrisma()
+        .user.findUniqueOrThrow({
+          where: {
+            idx: loginUser.idx,
+          },
+        });
+
+      expect(afterUpdateProfileImgToNullUser.idx).toBe(afterUpdateUser.idx);
+      expect(afterUpdateProfileImgToNullUser.nickname).toBe(
+        afterUpdateUser.nickname,
+      );
+      expect(afterUpdateProfileImgToNullUser.email).toBe(afterUpdateUser.email);
+      expect(afterUpdateProfileImgToNullUser.gender).toBe(
+        afterUpdateUser.gender,
+      );
+      expect(afterUpdateProfileImgToNullUser.birth).toBe(afterUpdateUser.birth);
+      expect(afterUpdateProfileImgToNullUser.isAdmin).toBe(
+        afterUpdateUser.isAdmin,
+      );
+      expect(afterUpdateProfileImgToNullUser.provider).toBe(
+        afterUpdateUser.provider,
+      );
+      expect(afterUpdateProfileImgToNullUser.pw).toBe(afterUpdateUser.pw);
+      expect(afterUpdateProfileImgToNullUser.profileImgPath).toBeNull();
+    });
+  });
+
   describe('PUT /my/profile', () => {
     it('Success', async () => {
       const loginUser = test.getLoginUsers().user1;
@@ -323,11 +430,35 @@ describe('User (e2e)', () => {
         birth: 2001,
       };
 
+      const userBeforeUpdate = await test.getPrisma().user.findUniqueOrThrow({
+        where: { idx: loginUser.idx },
+      });
+
+      expect(userBeforeUpdate.nickname).not.toBe(updateDto.nickname);
+      expect(userBeforeUpdate.gender).not.toBe(updateDto.gender);
+      expect(userBeforeUpdate.birth).not.toBe(updateDto.birth);
+
       await request(test.getServer())
         .put('/user/my/profile')
         .set('Authorization', `Bearer ${loginUser.accessToken}`)
         .send(updateDto)
         .expect(201);
+
+      const userAfterUpdate = await test.getPrisma().user.findUniqueOrThrow({
+        where: { idx: loginUser.idx },
+      });
+
+      expect(userAfterUpdate.idx).toBe(userBeforeUpdate.idx);
+      expect(userAfterUpdate.nickname).toBe(updateDto.nickname);
+      expect(userAfterUpdate.email).toBe(userBeforeUpdate.email);
+      expect(userAfterUpdate.gender).toBe(updateDto.gender);
+      expect(userAfterUpdate.birth).toBe(updateDto.birth);
+      expect(userAfterUpdate.isAdmin).toBe(userBeforeUpdate.isAdmin);
+      expect(userAfterUpdate.provider).toBe(userBeforeUpdate.provider);
+      expect(userAfterUpdate.pw).toBe(userBeforeUpdate.pw);
+      expect(userAfterUpdate.profileImgPath).toBe(
+        userBeforeUpdate.profileImgPath,
+      );
     });
 
     it('No token', async () => {
@@ -507,6 +638,32 @@ describe('User (e2e)', () => {
           pw: 'aa12341234**',
         })
         .expect(401);
+    });
+
+    it('Fail - transaction test', async () => {
+      const loginUser = test.getLoginUsers().user2;
+
+      const withdrawalCoreRepository = test.get(WithdrawalReasonCoreRepository);
+
+      withdrawalCoreRepository.createWithdrawalReason = jest
+        .fn()
+        .mockImplementation(async () => {
+          throw new Error('this is unknown error');
+        });
+
+      await request(test.getServer())
+        .delete('/user')
+        .send({
+          type: 1,
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(500);
+
+      const user = await test.getPrisma().user.findUniqueOrThrow({
+        where: { idx: loginUser.idx },
+      });
+
+      expect(user.deletedAt).toBeNull();
     });
   });
 });

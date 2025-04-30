@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ContentTagService } from './content-tag.service';
 import { ContentTagController } from './content-tag.controller';
-import { ContentTagRepository } from './content-tag.repository';
-import { RedisModule } from '../../common/module/redis/redis.module';
-import { PrismaModule } from 'libs/modules';
+import { GenreCoreModule } from 'libs/core/tag-root/genre/genre-core.module';
+import { StyleCoreModule } from 'libs/core/tag-root/style/style-core.module';
+import { AgeCoreModule } from 'libs/core/tag-root/age/age-core.module';
 
 @Module({
-  imports: [PrismaModule, RedisModule],
-  providers: [ContentTagService, ContentTagRepository],
+  imports: [GenreCoreModule, StyleCoreModule, AgeCoreModule],
+  providers: [ContentTagService],
   controllers: [ContentTagController],
 })
 export class ContentTagModule {}

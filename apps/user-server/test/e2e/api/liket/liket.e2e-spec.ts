@@ -8,6 +8,7 @@ import {
 } from 'libs/testing';
 import { CultureContentOutput } from 'libs/testing/seed/culture-content/type/culture-content.output';
 import { ReviewOutput } from 'libs/testing/seed/review/type/review.output';
+import { SummaryLiketEntity } from 'apps/user-server/src/api/liket/entity/summary-liket.entity';
 
 describe('Liket (e2e)', () => {
   const test = TestHelper.create(AppModule);
@@ -17,6 +18,7 @@ describe('Liket (e2e)', () => {
 
   let content: CultureContentOutput;
   let review: ReviewOutput;
+  let reviewOfOtherUser: ReviewOutput;
 
   beforeEach(async () => {
     await test.init();
@@ -28,6 +30,11 @@ describe('Liket (e2e)', () => {
 
     review = await reviewSeedHelper.seed({
       userIdx: test.getLoginUsers().user2.idx,
+      contentIdx: content.idx,
+    });
+
+    reviewOfOtherUser = await reviewSeedHelper.seed({
+      userIdx: test.getLoginUsers().not(review.userIdx).idx,
       contentIdx: content.idx,
     });
   });
@@ -316,9 +323,14 @@ describe('Liket (e2e)', () => {
     it('Success', async () => {
       const loginUser = test.getLoginUsers().of(review.userIdx);
 
-      await liketSeedHelper.seed({
-        reviewIdx: review.idx,
-      });
+      await liketSeedHelper.seedAll([
+        {
+          reviewIdx: review.idx,
+        },
+        {
+          reviewIdx: reviewOfOtherUser.idx,
+        },
+      ]);
 
       const response = await request(test.getServer())
         .get('/liket/all')
@@ -328,9 +340,10 @@ describe('Liket (e2e)', () => {
         })
         .expect(200);
 
-      expect(response.body?.liketList).toBeDefined();
-      expect(Array.isArray(response.body.liketList)).toBe(true);
-      expect(response.body.liketList.length).toBeGreaterThan(0);
+      const liketList: SummaryLiketEntity[] = response.body.liketList;
+
+      expect(Array.isArray(liketList)).toBeTruthy();
+      expect(liketList.length).toBe(1);
     });
 
     it('Attempt to see liket list created by other user', async () => {

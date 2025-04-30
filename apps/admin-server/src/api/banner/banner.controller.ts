@@ -15,7 +15,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginAuth } from '../auth/login-auth.decorator';
 import { CreateBannerDto } from './dto/request/create-banner.dto';
 import { CreateBannerResponseDto } from './dto/response/create-banner-response.dto';
-import { UpadteBannerDto } from './dto/request/update-banner.dto';
+import { UpdateBannerDto } from './dto/request/update-banner.dto';
 import { UpdateBannerOrderDto } from './dto/request/update-banner-order.dto';
 import { GetBannerAllResponseDto } from './dto/response/get-banner-all-response.dto';
 import { GetBannerAllPagerbleDto } from './dto/request/get-banner-all-pagerble.dto';
@@ -34,7 +34,9 @@ export class BannerController {
   @ApiTags('Banner')
   @ApiResponse({ status: 400, description: 'Invalid querystring' })
   @LoginAuth()
-  async getBannerAll(@Query() pagerble: GetBannerAllPagerbleDto): Promise<GetBannerAllResponseDto> {
+  async getBannerAll(
+    @Query() pagerble: GetBannerAllPagerbleDto,
+  ): Promise<GetBannerAllResponseDto> {
     return await this.bannerService.getBannerAll(pagerble);
   }
 
@@ -44,9 +46,12 @@ export class BannerController {
   @Get('/:idx')
   @HttpCode(200)
   @ApiTags('Banner')
+  @ApiResponse({ status: 400, description: 'fail to validate banner idx' })
   @ApiResponse({ status: 404, description: 'Cannot find banner' })
   @LoginAuth()
-  async getBannerByIdx(@Param('idx', ParseIntPipe) idx: number): Promise<GetBannerResponseDto> {
+  async getBannerByIdx(
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<GetBannerResponseDto> {
     const banner = await this.bannerService.getBannerByIdx(idx);
 
     return { banner };
@@ -69,9 +74,12 @@ export class BannerController {
   @Post('/')
   @HttpCode(200)
   @ApiTags('Banner')
+  @ApiResponse({ status: 400, description: 'Invalid body' })
   @ApiResponse({ status: 404, description: 'Cannot find banner image' })
   @LoginAuth()
-  async createBanner(@Body() createDto: CreateBannerDto): Promise<CreateBannerResponseDto> {
+  async createBanner(
+    @Body() createDto: CreateBannerDto,
+  ): Promise<CreateBannerResponseDto> {
     const idx = await this.bannerService.createBanner(createDto);
 
     return { idx };
@@ -83,13 +91,14 @@ export class BannerController {
   @Put('/:idx')
   @HttpCode(201)
   @ApiTags('Banner')
+  @ApiResponse({ status: 400, description: 'Invalid body or path parameter' })
   @ApiResponse({ status: 404, description: 'Cannot find banner image' })
   @LoginAuth()
   async updateBanner(
     @Param('idx', ParseIntPipe) idx: number,
-    @Body() udpateDto: UpadteBannerDto,
+    @Body() updateDto: UpdateBannerDto,
   ): Promise<void> {
-    await this.bannerService.updateBanner(idx, udpateDto);
+    await this.bannerService.updateBanner(idx, updateDto);
 
     return;
   }
@@ -116,6 +125,7 @@ export class BannerController {
   @Post('/:idx/activate')
   @HttpCode(201)
   @ApiTags('Banner')
+  @ApiResponse({ status: 400, description: 'Invalid path parameter' })
   @ApiResponse({ status: 404, description: 'Cannot find banner' })
   @ApiResponse({ status: 409, description: 'Already activate banner' })
   @LoginAuth()
@@ -133,10 +143,13 @@ export class BannerController {
   @Post('/:idx/deactivate')
   @HttpCode(201)
   @ApiTags('Banner')
+  @ApiResponse({ status: 400, description: 'Invalid path parameter' })
   @ApiResponse({ status: 404, description: 'Cannot find banner' })
   @ApiResponse({ status: 409, description: 'Already deactivate banner' })
   @LoginAuth()
-  async deactivateBanner(@Param('idx', ParseIntPipe) idx: number): Promise<void> {
+  async deactivateBanner(
+    @Param('idx', ParseIntPipe) idx: number,
+  ): Promise<void> {
     await this.bannerService.getBannerByIdx(idx);
 
     await this.bannerService.deactivateBanner(idx);

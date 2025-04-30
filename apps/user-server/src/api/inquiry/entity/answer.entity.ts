@@ -1,4 +1,5 @@
 import { Answer } from '@prisma/client';
+import { InquiryAnswerModel } from 'libs/core/inquiry/model/inquiry-answer.model';
 
 /**
  * @author jochongs
@@ -29,11 +30,25 @@ export class AnswerEntity {
     Object.assign(this, data);
   }
 
+  /**
+   * `InquiryCoreModule`이 개발됨에 따라 deprecated되었습니다.
+   * 대신, `fromModel` 정적 메서드를 사용하십시오.
+   *
+   * @deprecated
+   */
   static createEntity(answer: Answer): AnswerEntity {
     return new AnswerEntity({
       idx: answer.idx,
       contents: answer.contents,
       createdAt: answer.createdAt,
+    });
+  }
+
+  public static fromModel(answerModel: InquiryAnswerModel): AnswerEntity {
+    return new AnswerEntity({
+      idx: answerModel.idx,
+      contents: answerModel.contents,
+      createdAt: answerModel.createdAt,
     });
   }
 }

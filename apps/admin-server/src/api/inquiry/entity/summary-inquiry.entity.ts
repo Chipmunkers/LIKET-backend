@@ -14,7 +14,11 @@ const inquiryWithInclude = Prisma.validator<Prisma.InquiryDefaultArgs>()({
 
 type InquiryWithInclude = Prisma.InquiryGetPayload<typeof inquiryWithInclude>;
 
-class InquiryAuthor extends PickType(UserEntity, ['idx', 'nickname', 'profileImgPath'] as const) {}
+class InquiryAuthor extends PickType(UserEntity, [
+  'idx',
+  'nickname',
+  'profileImgPath',
+] as const) {}
 
 export class SummaryInquiryEntity {
   /**

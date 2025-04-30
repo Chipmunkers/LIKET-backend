@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { InsertEmailCertCodeDao } from './dao/insert-email-cert-code.dao';
+import { InsertEmailCertCodeInput } from './input/insert-email-cert-code.input';
 import { Logger } from '../../common/module/logger/logger.decorator';
 import { LoggerService } from '../../common/module/logger/logger.service';
-import { SelectEmailCertCodeDao } from './dao/select-email-cert-code.dao';
-import { DeleteEmailCertCodeDao } from './dao/delete-email-cert-code.dao';
+import { SelectEmailCertCodeInput } from './input/select-email-cert-code.input';
+import { DeleteEmailCertCodeInput } from './input/delete-email-cert-code.input';
 import { PrismaProvider } from 'libs/modules';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class EmailCertRepository {
   /**
    * @author jochongs
    */
-  public selectEmailCertCodeByEmail(dao: SelectEmailCertCodeDao) {
+  public selectEmailCertCodeByEmail(dao: SelectEmailCertCodeInput) {
     this.logger.log(
       this.selectEmailCertCodeByEmail,
       `SELECT email cert code WHERE email = ${dao.email}`,
@@ -38,7 +38,7 @@ export class EmailCertRepository {
   /**
    * @author jochongs
    */
-  public insertEmailCertCode(dao: InsertEmailCertCodeDao) {
+  public insertEmailCertCode(dao: InsertEmailCertCodeInput) {
     this.logger.log(this.insertEmailCertCode, 'INSERT email cert code');
     return this.prisma.emailCertCode.create({
       data: {
@@ -52,7 +52,7 @@ export class EmailCertRepository {
   /**
    * @author jochongs
    */
-  public deleteEmailCertCodeByEmail(dao: DeleteEmailCertCodeDao) {
+  public deleteEmailCertCodeByEmail(dao: DeleteEmailCertCodeInput) {
     this.logger.log(
       this.deleteEmailCertCodeByEmail,
       `DELETE email cert code WHERE email = ${dao.email}`,

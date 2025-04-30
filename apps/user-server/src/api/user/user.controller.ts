@@ -98,52 +98,6 @@ export class UserController {
   }
 
   /**
-   * 소셜 회원가입 하기 (프로필 이미지 file로 전달)
-   * 소셜 회원가입이 원터치 방식으로 변경됨에 따라 Deprecated됨
-   *
-   * @deprecated
-   *
-   * @author jochongs
-   */
-  @Post('/social')
-  @ApiTags('Auth')
-  @HttpCode(200)
-  @Exception(400, 'Invalid body')
-  @Exception(401, 'Invalid social jwt')
-  @Exception(409, 'Duplicate email or nickname')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor(
-      'file',
-      MulterOptionProvider.createOption({
-        mimetype: ['image/png', 'image/jpeg'],
-        limits: 1 * 1024 * 1024,
-      }),
-    ),
-  )
-  public async socialSignUp(
-    @Body() signUpDto: SocialSignUpDto,
-    @Res({ passthrough: true }) res: Response,
-    @UploadedFile() file?: Express.Multer.File,
-  ): Promise<SignUpResponseDto> {
-    let uploadedFile: UploadedFileEntity | undefined;
-    if (file) {
-      uploadedFile = await this.uploadService.uploadFileToS3(file, {
-        destination: 'profile-img',
-        grouping: FILE_GROUPING.PROFILE_IMG,
-      });
-    }
-
-    const loginToken = await this.userService.socialUserSignUp(
-      signUpDto,
-      uploadedFile,
-    );
-    res.cookie('refreshToken', loginToken.refreshToken, cookieConfig());
-
-    return { token: loginToken.accessToken };
-  }
-
-  /**
    * 내 정보 보기
    *
    * @author jochongs
@@ -189,7 +143,10 @@ export class UserController {
     @User() loginUser: LoginUser,
     @Body() updateDto: UpdateProfileImgDto,
   ): Promise<void> {
-    await this.userService.updateProfileImg(loginUser, updateDto.profileImg);
+    await this.userService.updateProfileImg(
+      loginUser,
+      updateDto.profileImg || null,
+    );
   }
 
   /**

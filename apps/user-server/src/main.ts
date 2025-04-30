@@ -5,9 +5,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { GET_MODE, MODE } from 'libs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { UserCoreService } from 'libs/core/user/user-core.service';
+import { WithdrawalReasonCoreService } from 'libs/core/withdrawal-reason/withdrawal-reason.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

@@ -1,6 +1,7 @@
 import { Location } from '@prisma/client';
 import { SelectLocationFieldPrisma } from 'apps/user-server/src/api/culture-content/entity/prisma/select-location-field';
 import { IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import { CultureContentLocationModel } from 'libs/core/culture-content/model/culture-content-location.model';
 
 /**
  * @author jochongs
@@ -81,6 +82,12 @@ export class LocationEntity {
     Object.assign(this, data);
   }
 
+  /**
+   * `CultureContentCoreModule`이 만들어짐에따라 deprecated 되었습니다.
+   * 대신 fromModel 정적 메서드를 사용하십시오.
+   *
+   * @deprecated
+   */
   static createEntity(location: SelectLocationFieldPrisma) {
     return new LocationEntity({
       region1Depth: location.region1Depth,
@@ -91,6 +98,19 @@ export class LocationEntity {
       positionY: location.positionY,
       hCode: location.hCode,
       bCode: location.bCode,
+    });
+  }
+
+  public static fromModel(model: CultureContentLocationModel): LocationEntity {
+    return new LocationEntity({
+      region1Depth: model.region1Depth,
+      region2Depth: model.region2Depth,
+      detailAddress: model.detailAddress,
+      address: model.address,
+      positionX: model.positionX,
+      positionY: model.positionY,
+      hCode: model.hCode,
+      bCode: model.bCode,
     });
   }
 }

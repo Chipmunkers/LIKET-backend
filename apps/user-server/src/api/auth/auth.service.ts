@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { HashService } from '../../common/module/hash/hash.service';
 import { LoginDto } from './dto/local-login.dto';
 import { BlockedUserException } from './exception/BlockedUserException';
 import { InvalidEmailOrPwException } from './exception/InvalidEmailOrPwException';
@@ -13,13 +12,15 @@ import { Request, Response } from 'express';
 import { SocialLoginUser } from './model/social-login-user';
 import { LoginToken } from './model/login-token';
 import { NaverLoginStrategy } from './strategy/naver/naver-login.strategy';
-import { UserRepository } from '../user/user.repository';
 import { InvalidRefreshTokenType } from '../../common/module/login-jwt/exception/InvalidRefreshTokenType';
 import { InvalidRefreshTokenException } from '../../common/module/login-jwt/exception/InvalidRefreshTokenException';
 import { SocialLoginUserService } from '../user/social-login-user.service';
 import { SocialLoginEmailDuplicateException } from './exception/SocialLoginEmailDuplicateException';
 import { LoginJwtPayload } from '../../common/module/login-jwt/model/login-jwt-payload';
 import { AppleLoginStrategy } from './strategy/apple/apple-login.strategy';
+import { UserCoreService } from 'libs/core/user/user-core.service';
+import { HashService } from 'libs/modules/hash/hash.service';
+import { UserModel } from 'libs/core/user/model/user.model';
 
 @Injectable()
 export class AuthService {
@@ -32,11 +33,11 @@ export class AuthService {
     private readonly hashService: HashService,
     private readonly loginJwtService: LoginJwtService,
     private readonly socialLoginUserService: SocialLoginUserService,
-    private readonly userRepository: UserRepository,
     @Logger('AuthService') private readonly logger: LoggerService,
     private readonly kakaoLoginStrategy: KakaoLoginStrategy,
     private readonly naverLoginStrategy: NaverLoginStrategy,
     private readonly appleLoginStrategy: AppleLoginStrategy,
+    private readonly userCoreService: UserCoreService,
   ) {
     this.socialLoginStrategyMap = {
       [SocialProvider.KAKAO]: this.kakaoLoginStrategy,
@@ -51,34 +52,21 @@ export class AuthService {
    * @author jochongs
    */
   public async login(loginDto: LoginDto): Promise<LoginToken> {
-    const user = await this.userRepository.selectUserByEmail(loginDto.email);
+    const user = await this.userCoreService.findUserByEmail(loginDto.email);
 
     if (!user) {
-      this.logger.warn(
-        this.login,
-        'Attempt to login with invalid email or password',
-      );
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
     if (user.provider !== 'local') {
-      this.logger.error(
-        this.login,
-        'Social login user attempted to login in local login',
-      );
       throw new InvalidEmailOrPwException('invalid email');
     }
 
     if (user.blockedAt) {
-      this.logger.warn(
-        this.login,
-        `Blocked user attempted to login | user = ${user.idx}`,
-      );
       throw new BlockedUserException('your account has been suspended');
     }
 
-    if (!this.hashService.comparePw(loginDto.pw, user.pw || '')) {
-      this.logger.warn(this.login, 'Attempt to login with invalid pw');
+    if (!(await this.hashService.comparePw(loginDto.pw, user.pw || ''))) {
       throw new InvalidEmailOrPwException('invalid email or password');
     }
 
@@ -154,7 +142,6 @@ export class AuthService {
    */
   public async socialLoginForApp(req: Request, provider: SocialProvider) {
     const strategy = this.socialLoginStrategyMap[provider];
-    this.logger.log(this.socialLoginForApp, `social login ${provider} for app`);
 
     try {
       const socialLoginUser = await strategy.getSocialLoginUserForApp(req);
@@ -181,27 +168,16 @@ export class AuthService {
     const strategy = this.socialLoginStrategyMap[socialUser.provider];
 
     try {
-      // TODO: 정지 사용자 확인 로직 추가 필요
-      let loginUser = await this.userRepository.selectSocialLoginUser(
+      let loginUser = await this.userCoreService.findUserBySnsId(
         socialUser.id,
         socialUser.provider,
       );
       if (!loginUser) {
         // * 첫 번째 회원가입
-        this.logger.log(
-          this.socialLoginForWeb,
-          `first social login ${socialUser.provider}`,
-        );
-
-        const duplicateUser = await this.userRepository.selectUserByEmail(
+        const duplicateUser = await this.userCoreService.findUserByEmail(
           socialUser.email,
         );
         if (duplicateUser) {
-          this.logger.warn(
-            this.socialLogin,
-            `Attempt to login with duplicated email | email = ${socialUser.email}`,
-          );
-
           throw new SocialLoginEmailDuplicateException(
             'email duplicate',
             duplicateUser.email,
@@ -209,9 +185,8 @@ export class AuthService {
           );
         }
 
-        loginUser = await this.socialLoginUserService.signUpSocialUser(
-          socialUser,
-        );
+        loginUser =
+          await this.socialLoginUserService.signUpSocialUser(socialUser);
       }
 
       if (loginUser.blockedAt) {
@@ -258,19 +233,14 @@ export class AuthService {
         );
       }
 
-      const payload = await this.loginJwtService.verifyRefreshToken(
-        refreshToken,
-      );
+      const payload =
+        await this.loginJwtService.verifyRefreshToken(refreshToken);
 
       const accessToken = this.loginJwtService.sign(
         payload.idx,
         payload.isAdmin,
       );
 
-      this.logger.log(
-        this.reissueAccessToken,
-        'Success to reissue refresh token',
-      );
       return accessToken;
     } catch (err) {
       res.clearCookie('refreshToken');
@@ -284,51 +254,13 @@ export class AuthService {
    * @author jochongs
    */
   public async logout(refreshToken?: string) {
-    //await this.userRepository.deleteUserLastLoginByIdx(loginUser.idx);
-
     if (refreshToken) {
       const base64Url = refreshToken.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const decodedPayload = Buffer.from(base64, 'base64').toString('utf8');
       const payload: LoginJwtPayload = JSON.parse(decodedPayload);
-
-      await this.userRepository.deleteUserLastLoginByIdx(payload.idx);
+      await this.userCoreService.updateUserLastLoginByIdx(payload.idx, null);
     }
-  }
-
-  /**
-   * @author jochongs
-   */
-  private async checkFirstSocialLogin(
-    socialLoginUser: SocialLoginUser,
-  ): Promise<boolean> {
-    const user = await this.userRepository.selectSocialLoginUser(
-      socialLoginUser.id,
-      socialLoginUser.provider,
-    );
-
-    if (user) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * @author jochongs
-   */
-  private async checkDuplicateSocialEmail(
-    socialLoginUser: SocialLoginUser,
-  ): Promise<boolean> {
-    const user = await this.userRepository.selectUserByEmail(
-      socialLoginUser.email,
-    );
-
-    if (user) {
-      return true;
-    }
-
-    return false;
   }
 
   /**
@@ -346,6 +278,18 @@ export class AuthService {
    * @param idx 사용자 인덱스
    */
   private async updateLoginTimeByUserIdx(idx: number) {
-    await this.userRepository.updateUserLastLoginByIdx(idx);
+    await this.userCoreService.updateUserLastLoginByIdx(idx);
+  }
+
+  /**
+   * 사용자 정보 불러오기
+   * ! 주의: AuthGuard에서만 사용 권장
+   *
+   * @author jochongs
+   *
+   * @param idx 사용자 식별자
+   */
+  public async findUserByIdx(idx: number): Promise<UserModel | null> {
+    return await this.userCoreService.findUserByIdx(idx);
   }
 }
