@@ -23,6 +23,7 @@ import * as uuid from 'uuid';
 import { UtilService } from 'apps/admin-server/src/common/util/util.service';
 import { Style } from 'libs/core/tag-root/style/constant/style';
 import { Age } from 'libs/core/tag-root/age/constant/age';
+import { SummaryContentFromInstagramEntity } from 'apps/admin-server/src/api/culture-content/entity/summary-content-from-instagram.entity';
 
 @Injectable()
 export class CultureContentService {
@@ -493,7 +494,26 @@ export class CultureContentService {
   };
 
   /**
-   * Get culture content info from instagram information
+   * get culture content basic info from instagram feed
+   *
+   * @author jochongs
+   */
+  public async getCultureContentInfoFromInstagramBasicInfo(
+    code: string,
+  ): Promise<SummaryContentFromInstagramEntity> {
+    const instagramFeedEntity =
+      await this.instagramService.getInstagramFeedData(code);
+
+    const uploadedImgList = await this.uploadImgs(instagramFeedEntity.images);
+
+    return SummaryContentFromInstagramEntity.from(
+      instagramFeedEntity.caption,
+      uploadedImgList.map(({ path }) => path),
+    );
+  }
+
+  /**
+   * Get culture content info from instagram feed
    *
    * @author jochongs
    */
@@ -547,7 +567,10 @@ export class CultureContentService {
       uploadedImgList.push(
         await this.s3Service.uploadFileToS3ByUrl(imgList[i], {
           filename:
-            uuid.v4() + '-' + this.utilService.generateRandomNumericString(6),
+            uuid.v4() +
+            '-' +
+            this.utilService.generateRandomNumericString(6) +
+            '.png',
           path: 'culture-content',
         }),
       );
