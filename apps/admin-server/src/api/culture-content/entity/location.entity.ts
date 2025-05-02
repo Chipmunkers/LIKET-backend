@@ -1,4 +1,5 @@
 import { Location } from '@prisma/client';
+import { KakaoAddressEntity } from 'libs/modules';
 
 export class LocationEntity {
   /**
@@ -63,5 +64,20 @@ export class LocationEntity {
 
   static createEntity(location: Location) {
     return new LocationEntity(location);
+  }
+
+  public static fromKakaoAddress(
+    kakaoAddress: KakaoAddressEntity,
+  ): LocationEntity {
+    return new LocationEntity({
+      address: kakaoAddress.address_name,
+      bCode: kakaoAddress.b_code,
+      hCode: kakaoAddress.h_code,
+      detailAddress: null,
+      positionX: Number(kakaoAddress.x),
+      positionY: Number(kakaoAddress.y),
+      region1Depth: kakaoAddress.region_1depth_name,
+      region2Depth: kakaoAddress.region_2depth_name,
+    });
   }
 }

@@ -87,6 +87,7 @@ export class InstagramService {
    * @author jochongs
    */
   private async setSessionToFile() {
+    console.log('session file save');
     const session = await this.igClient.state.serialize();
     delete session.constants;
     writeFileSync(this.SESSION_FILE_PATH, JSON.stringify(session));
@@ -110,6 +111,7 @@ export class InstagramService {
       return InstagramFeedEntity.from({
         caption: item.caption?.text ?? '',
         images: this.extractImageUrls(item),
+        createdAt: new Date(item.taken_at * 1000),
       });
     } catch (err) {
       if (err.message?.includes('Media not found or unavailable')) {

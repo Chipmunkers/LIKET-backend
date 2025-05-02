@@ -4,6 +4,7 @@ import { UtilService } from '../util/util.service';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { FILE_GROUPING } from './dto/file-grouping';
 import { UploadFileEntity } from './entity/upload-file.entity';
+import * as uuid from 'uuid';
 
 @Injectable()
 export class UploadService {
@@ -61,7 +62,8 @@ export class UploadService {
     const region = this.configService.get('AWS_REGION');
     const bucketName = this.configService.get('S3_BUCKET_NAME');
 
-    const fileName = this.utilService.generateRandomNumericString(6);
+    const fileName =
+      uuid.v4() + '-' + this.utilService.generateRandomNumericString(6);
     const fileExt = this.extractFileExt(file.originalname);
 
     const command = new PutObjectCommand({

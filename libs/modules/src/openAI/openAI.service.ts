@@ -6,6 +6,7 @@ import { GET_MODE, MODE, Mode } from 'libs/common';
 import { AGE, Age } from 'libs/core/tag-root/age/constant/age';
 import { STYLE, Style } from 'libs/core/tag-root/style/constant/style';
 import OpenAI from 'openai';
+import { ExtractedContentInfoEntity } from 'libs/modules/openAI/entity/extracted-content-info.entity';
 
 @Injectable()
 export class OpenAIService {
@@ -246,14 +247,8 @@ export class OpenAIService {
   public async extractContentInfo(
     data: object,
     imgList: string[] = [],
-  ): Promise<{
-    title: string;
-    genre: string;
-    address: string;
-    openTime: string;
-    openDate: string;
-    openEndDate: string;
-  }> {
+  ): Promise<ExtractedContentInfoEntity> {
+    // TODO: 아래 내용 반영할 지 결정해야함.
     // if (this.MODE !== MODE.PRODUCT) {
     //   return {
     //     title: '제목',
@@ -323,13 +318,14 @@ export class OpenAIService {
                       "genre": "장르",
                       "address": "주소",
                       "openTime": "오픈 시간", <!-- YYYY-MM-DD -->
-                      "openDate": "오픈 날짜", <!-- YYYY-MM-DD -->
-                      "openEndDate": "오픈 종료 날짜",
+                      "startDate": "오픈 날짜", <!-- YYYY-MM-DD -->
+                      "endDate": "오픈 종료 날짜",
                       "detailedAddress": "자세한 주소" <!-- 건물이나 상호명 등, 보행자가 찾아올 수 있는 주소를 의미합니다. -->
-                      "isFee": true, <!-- 입장료 여부 -->
-                      "isReservation": true, <!-- 예약 여부 -->
-                      "isParking": true, <!-- 주차 여부 -->
-                      "isPet": true <!-- 반려동물 동반 여부 -->
+                      "isFee": boolean, <!-- 입장료 여부 -->
+                      "isReservation": boolean, <!-- 예약 여부 -->
+                      "isParking": boolean, <!-- 주차 여부 -->
+                      "isPet": boolean <!-- 반려동물 동반 여부 -->
+                      "reason": "startDate와 endDate를 작성한 것에 대한 근거"
                     }
                       
                     만약, 이미지와 본문 속에 제목, 주소, 오픈시간, 오픈 날짜, 오픈 종료 날짜가 포함되어 있지 않다면 비어있는 문자열을 리턴하도록 해.
@@ -341,6 +337,12 @@ export class OpenAIService {
                     만약 오픈 날짜가 12월 31일이고 오픈 종료 날짜가 1월 1일이며 연도가 명시되어있지 않은 경우,
                     오픈 날짜는 올해인 ${new Date().getFullYear()}년 12월 31일이지만 오픈 종료 날짜는 내년인 ${new Date().getFullYear() + 1}년 1월 1일로 작성해.
                     오픈 날짜와 오픈 종료 날짜가 같은 경우, 오픈 날짜와 오픈 종료 날짜는 반드시 같은 연도로 작성해야 해.
+
+                    다만, startDate는 이미지와 본문 속에 명시되어 있지 않을 수도 있어. 그런 경우 빈 문자열로 작성해.
+                    만약, 주어진 문화생활컨텐츠 데이터나 이미지 속에서 '오늘부터' 연다고 나온다면 그것은 반드시 문화생활컨텐츠의 createdAt필드를 기준으로 오늘이라는 점을 고려해야돼.
+                    꼭 오늘이 아니더라도 피드 내용이나 이미지에 상대적인 시간이 적혀있다면 반드시 오늘 날짜가 아닌 문화생활컨텐츠의 createdAt필드를 기준으로 계산해야돼.
+
+                    스토어나 장기 팝업스토어의 경우 종료 날짜가 정해지지 않는 경우도 있어. 그런 경우 endDate는 반드시 빈 문자열로 작성해.
                     `,
                   },
                   ...imgList.map(
@@ -367,21 +369,22 @@ export class OpenAIService {
                     genre: { type: 'string' },
                     address: { type: 'string' },
                     openTime: { type: 'string' },
-                    openDate: { type: 'string' },
-                    openEndDate: { type: 'string' },
+                    startDate: { type: 'string' },
+                    endDate: { type: 'string' },
                     detailedAddress: { type: 'string' },
                     isFee: { type: 'boolean' },
                     isReservation: { type: 'boolean' },
                     isParking: { type: 'boolean' },
                     isPet: { type: 'boolean' },
+                    reason: { type: 'string' },
                   },
                   required: [
                     'title',
                     'genre',
                     'address',
                     'openTime',
-                    'openDate',
-                    'openEndDate',
+                    'startDate',
+                    'endDate',
                     'detailedAddress',
                     'isFee',
                     'isReservation',
@@ -394,7 +397,11 @@ export class OpenAIService {
             },
           });
 
-          return JSON.parse(completion.choices[0].message.content || '');
+          const result = JSON.parse(
+            completion.choices[0].message.content || '',
+          );
+
+          return result;
         } catch (err) {
           throw err;
         }

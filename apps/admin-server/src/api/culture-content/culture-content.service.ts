@@ -7,12 +7,33 @@ import { SummaryContentEntity } from './entity/summary-content.entity';
 import { ContentNotFoundException } from './exception/ContentNotFoundException';
 import { AlreadyActiveContentException } from './exception/AlreadyActiveContentException';
 import { AlreadyDeactiveContentException } from './exception/AlreadyDeactiveContentException';
-import { PrismaProvider } from 'libs/modules';
+import {
+  InstagramFeedEntity,
+  InstagramService,
+  KakaoAddressEntity,
+  KakaoAddressService,
+  OpenAIService,
+  PrismaProvider,
+  S3Service,
+  UploadedFileEntity,
+} from 'libs/modules';
 import { Prisma } from '@prisma/client';
+import { ContentFromInstagramEntity } from 'apps/admin-server/src/api/culture-content/entity/content-from-instagram.entity';
+import * as uuid from 'uuid';
+import { UtilService } from 'apps/admin-server/src/common/util/util.service';
+import { Style } from 'libs/core/tag-root/style/constant/style';
+import { Age } from 'libs/core/tag-root/age/constant/age';
 
 @Injectable()
 export class CultureContentService {
-  constructor(private readonly prisma: PrismaProvider) {}
+  constructor(
+    private readonly prisma: PrismaProvider,
+    private readonly instagramService: InstagramService,
+    private readonly s3Service: S3Service,
+    private readonly utilService: UtilService,
+    private readonly openAIService: OpenAIService,
+    private readonly kakaoAddressService: KakaoAddressService,
+  ) {}
 
   getContentAll: (pagerble: GetContentPagerbleDto) => Promise<{
     contentList: SummaryContentEntity[];
@@ -470,4 +491,85 @@ export class CultureContentService {
 
     return;
   };
+
+  /**
+   * Get culture content info from instagram information
+   *
+   * @author jochongs
+   */
+  public async getCultureContentInfoFromInstagram(
+    code: string,
+  ): Promise<ContentFromInstagramEntity> {
+    const instagramFeedEntity =
+      await this.instagramService.getInstagramFeedData(code);
+
+    const uploadedImgList = await this.uploadImgs(instagramFeedEntity.images);
+
+    const contentInfo = await this.openAIService.extractContentInfo(
+      instagramFeedEntity,
+      uploadedImgList.map((img) => img.url),
+    );
+
+    const kakaoLocation = await this.getContentLocation(contentInfo.address);
+    const styleAndAge = await this.getStyleAndAgeFromAI(
+      instagramFeedEntity,
+      uploadedImgList,
+    );
+
+    return ContentFromInstagramEntity.fromInstagram(
+      instagramFeedEntity,
+      contentInfo,
+      kakaoLocation,
+      styleAndAge?.styleIdxList || null,
+      uploadedImgList,
+      styleAndAge?.ageIdx || null,
+    );
+  }
+
+  private async getContentLocation(
+    address: string,
+  ): Promise<KakaoAddressEntity | null> {
+    if (!address) return null;
+
+    try {
+      const response = await this.kakaoAddressService.searchAddress(address);
+      return response.documents[0].address;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+
+  private async uploadImgs(imgList: string[]): Promise<UploadedFileEntity[]> {
+    const uploadedImgList: UploadedFileEntity[] = [];
+
+    for (let i = 0; i < imgList.length; i++) {
+      uploadedImgList.push(
+        await this.s3Service.uploadFileToS3ByUrl(imgList[i], {
+          filename:
+            uuid.v4() + '-' + this.utilService.generateRandomNumericString(6),
+          path: 'culture-content',
+        }),
+      );
+    }
+
+    return uploadedImgList;
+  }
+
+  private async getStyleAndAgeFromAI(
+    contentInfo: InstagramFeedEntity,
+    uploadedImgList: UploadedFileEntity[],
+  ): Promise<{
+    styleIdxList: Style[];
+    ageIdx: Age;
+  } | null> {
+    try {
+      return await this.openAIService.extractStyleAndAge(
+        contentInfo,
+        uploadedImgList.map(({ url }) => url),
+      );
+    } catch (err) {
+      return null;
+    }
+  }
 }

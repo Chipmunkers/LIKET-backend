@@ -21,10 +21,27 @@ import { LoginPayloadDto } from '../../common/token/dto/loign-payload.dto';
 import { CreateCultureContentDto } from './dto/request/create-culture-content.dto';
 import { UpdateCultureContentDto } from './dto/request/update-culture-content.dto';
 import { UpdatePermissionDeniedException } from './exception/UpdatePermissionDeniedException';
+import { ContentFromInstagramEntity } from 'apps/admin-server/src/api/culture-content/entity/content-from-instagram.entity';
 
 @Controller('culture-content')
 export class CultureContentController {
   constructor(private readonly cultureContentService: CultureContentService) {}
+
+  /**
+   * 인스타 피드 게시글을 통해 문화생활컨텐츠 긁어오기
+   */
+  @Get('/instagram/:code')
+  @HttpCode(200)
+  @ApiTags('Culture-Content')
+  @ApiResponse({ status: 400, description: 'Invalid ' })
+  @LoginAuth()
+  async getCultureContentInfoFromInstagram(
+    @Param('code') code: string,
+  ): Promise<ContentFromInstagramEntity> {
+    return await this.cultureContentService.getCultureContentInfoFromInstagram(
+      code,
+    );
+  }
 
   /**
    * 문화생활컨텐츠 목록 보기

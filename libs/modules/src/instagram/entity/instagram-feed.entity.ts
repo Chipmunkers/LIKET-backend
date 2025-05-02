@@ -9,6 +9,11 @@ export class InstagramFeedEntity {
    */
   public images: string[];
 
+  /**
+   * 피드 생성 시간
+   */
+  public createdAt: Date;
+
   constructor(data: InstagramFeedEntity) {
     Object.assign(this, data);
   }
@@ -17,6 +22,7 @@ export class InstagramFeedEntity {
     return new InstagramFeedEntity({
       caption: data.caption,
       images: data.images,
+      createdAt: data.createdAt,
     });
   }
 }
