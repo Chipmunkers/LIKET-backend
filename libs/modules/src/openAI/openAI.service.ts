@@ -293,6 +293,9 @@ export class OpenAIService {
                     
                     예시. 이미지나 주어진 참고할 문화생활컨텐츠 데이터에 '- 장소 : SHIFT.G 성수 팝업 스토어 (서울시 성동구 연무장길 35, STAGE 35)'라는 텍스트가 있다면,
                     주소는 '서울시 성동구 연무장길 35'이고, 자세한 주소는 'STAGE 35'입니다. 물론 자세한 주소도 명시되어있지 않을 경우 빈 텍스트로 리턴해.
+
+                    주소 없이 자세한 주소로만 명시되어있는 경우 해당 값은 자세한 주소로 입력할 수 있도록 해.
+                    예를 들어, 대한민국 주소가 아닌 건물 명이나 건물의 상호명으로만 명시되어있는 경우 해당 값은 자세한 주소로 입력될 수 있도록 해줘.
                     
                     입장료, 예약, 주차, 반려동물 동반 여부는 true, false로 구분되어야하며, 명시되어있지 않을 경우 false로 설정하십시오.
 
@@ -320,14 +323,13 @@ export class OpenAIService {
                       "openTime": "오픈 시간", <!-- YYYY-MM-DD -->
                       "startDate": "오픈 날짜", <!-- YYYY-MM-DD -->
                       "endDate": "오픈 종료 날짜",
-                      "detailedAddress": "자세한 주소" <!-- 건물이나 상호명 등, 보행자가 찾아올 수 있는 주소를 의미합니다. -->
+                      "detailedAddress": "자세한 주소" <!-- 건물이나 상호명 등, 보행자가 찾아올 수 있는 주소를 의미합니다.-->
                       "isFee": boolean, <!-- 입장료 여부 -->
                       "isReservation": boolean, <!-- 예약 여부 -->
                       "isParking": boolean, <!-- 주차 여부 -->
                       "isPet": boolean <!-- 반려동물 동반 여부 -->
-                      "reason": "startDate와 endDate를 작성한 것에 대한 근거"
                     }
-                      
+
                     만약, 이미지와 본문 속에 제목, 주소, 오픈시간, 오픈 날짜, 오픈 종료 날짜가 포함되어 있지 않다면 비어있는 문자열을 리턴하도록 해.
                     그러나, 장르는 필수로 포함되어야 해.
 
@@ -376,7 +378,6 @@ export class OpenAIService {
                     isReservation: { type: 'boolean' },
                     isParking: { type: 'boolean' },
                     isPet: { type: 'boolean' },
-                    reason: { type: 'string' },
                   },
                   required: [
                     'title',

@@ -63,6 +63,9 @@ export class ContentFromInstagramEntity extends IntersectionType(
       description: feed.caption ? feed.caption : undefined,
       styleList: styleList ? styleList : [],
       age: age ? age : undefined,
+      openTime: extractedContentInfoEntity.openTime
+        ? extractedContentInfoEntity.openTime
+        : undefined,
       endDate: extractedContentInfoEntity.endDate,
       startDate: extractedContentInfoEntity.startDate,
       genreIdx: extractedContentInfoEntity.genre
