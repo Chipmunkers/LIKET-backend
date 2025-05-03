@@ -31,27 +31,21 @@ export class InstagramService {
    * 세션이 만료되면 다시 로그인 후 세션을 파일에 저장
    */
   private async initAuth(): Promise<void> {
-    try {
-      // 세션이 있는지 확인
-      await this.igClient.account.currentUser();
-    } catch (error) {
-      const sessionString = await this.getSessionStringFromFile();
+    const sessionString = await this.getSessionStringFromFile();
 
-      if (!sessionString) {
-        console.log('No session found, logging in...');
-        await this.login();
-        await this.setSessionToFile();
-        return;
-      }
-
+    if (sessionString) {
       try {
         await this.igClient.state.deserialize(sessionString);
-      } catch (error) {
-        console.log('Session is invalid, logging in again...');
-        await this.login();
-        await this.setSessionToFile();
+        await this.igClient.account.currentUser(); // 세션 확인
+        return;
+      } catch (err) {
+        console.log('Session invalid, re-logging in');
       }
     }
+
+    // 세션이 없거나 실패했을 때 로그인
+    await this.login();
+    await this.setSessionToFile();
   }
 
   /**
@@ -89,7 +83,6 @@ export class InstagramService {
   private async setSessionToFile() {
     console.log('session file save');
     const session = await this.igClient.state.serialize();
-    delete session.constants;
     writeFileSync(this.SESSION_FILE_PATH, JSON.stringify(session));
   }
 
