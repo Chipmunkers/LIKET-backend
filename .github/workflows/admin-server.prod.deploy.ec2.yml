@@ -67,6 +67,10 @@ jobs:
               docker stop ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
               docker rm ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
               
-              docker run -d -p 3001:3000 --name ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_CONTAINER_NAME }} --env-file ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_ENV_PATH }} ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_ECR_REGISTRY }}/${{ secrets.ADMIN_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}:latest
+              docker run -d -p 3001:3000 \
+                --name ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_CONTAINER_NAME }} \
+                --env-file ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_ENV_PATH }} \
+                -v /home/ubuntu/instagram-session/ig-session.json:/usr/src/app/ig-session.json \
+                ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_ECR_REGISTRY }}/${{ secrets.ADMIN_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}:latest
             EOF
   

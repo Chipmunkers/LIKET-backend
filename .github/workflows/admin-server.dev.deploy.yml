@@ -57,5 +57,9 @@ jobs:
             docker stop ${{ secrets.ADMIN_SERVER_DEV_DEPLOY_CONTAINER_NAME }} || true
             docker rm ${{ secrets.ADMIN_SERVER_DEV_DEPLOY_CONTAINER_NAME }} || true
             
-            docker run -d -p 3001:3000 --name ${{ secrets.ADMIN_SERVER_DEV_DEPLOY_CONTAINER_NAME }} --env-file ${{ secrets.ADMIN_SERVER_DEV_DEPLOY_ENV_PATH }} ${{ secrets.COMMON_DOCKER_HUB_USER }}/liket-backoffice-dev-api-server:latest
+            docker run -d -p 3001:3000 \
+              --name ${{ secrets.ADMIN_SERVER_DEV_DEPLOY_CONTAINER_NAME }} \
+              --env-file ${{ secrets.ADMIN_SERVER_DEV_DEPLOY_ENV_PATH }} \
+              -v /home/jochong/chipmunkers/instagram-session/ig-session.json:/usr/src/app/ig-session.json \
+              ${{ secrets.COMMON_DOCKER_HUB_USER }}/liket-backoffice-dev-api-server:latest
           EOF

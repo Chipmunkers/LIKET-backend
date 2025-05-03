@@ -1,7 +1,11 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IgApiClient } from 'instagram-private-api';
+import {
+  IgApiClient,
+  IgCookieNotFoundError,
+  IgLoginRequiredError,
+} from 'instagram-private-api';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { urlSegmentToInstagramId } from 'instagram-id-to-url-segment';
 import { MediaNotFoundException } from 'libs/modules/instagram/exception/MediaNotFoundException';
@@ -26,9 +30,9 @@ export class InstagramService {
 
   /**
    * Instagram 로그인 초기화 메서드
-   * 세션이 없으면 로그인 후 세션을 파일에 저장
-   * 세션이 있으면 세션을 파일에서 읽어옴
-   * 세션이 만료되면 다시 로그인 후 세션을 파일에 저장
+   * ! 주의: 로그인이 되어있지 않다고 판단될 경우에만 시도
+   *
+   * @author jochongs
    */
   private async initAuth(): Promise<void> {
     const sessionString = await this.getSessionStringFromFile();
@@ -96,8 +100,6 @@ export class InstagramService {
   ): Promise<InstagramFeedEntity> {
     const mediaId = urlSegmentToInstagramId(feedCode);
     try {
-      await this.initAuth();
-
       const media = await this.igClient.media.info(mediaId);
       const item = media.items[0];
 
@@ -110,8 +112,28 @@ export class InstagramService {
       if (err.message?.includes('Media not found or unavailable')) {
         throw new MediaNotFoundException(mediaId);
       }
-      throw err;
+
+      // 로그인 관련 에러가 아닌 경우 다시 throw
+      if (
+        !(
+          err instanceof IgCookieNotFoundError ||
+          err instanceof IgLoginRequiredError
+        )
+      ) {
+        throw err;
+      }
     }
+
+    await this.initAuth();
+
+    const media = await this.igClient.media.info(mediaId);
+    const item = media.items[0];
+
+    return InstagramFeedEntity.from({
+      caption: item.caption?.text ?? '',
+      images: this.extractImageUrls(item),
+      createdAt: new Date(item.taken_at * 1000),
+    });
   }
 
   private extractImageUrls(item: any): string[] {
