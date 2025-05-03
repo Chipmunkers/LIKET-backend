@@ -5,6 +5,7 @@
 /dev-deploy/.env.*
 .env.seed
 test-data
+ig-session.json
 
 # Logs
 logs

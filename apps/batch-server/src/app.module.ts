@@ -7,6 +7,7 @@ import { ClsModule } from 'nestjs-cls';
 import { ClsPluginTransactional } from '@nestjs-cls/transactional';
 import { PrismaModule, PrismaProvider } from 'libs/modules';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
+import { InstagramModule } from 'libs/modules/instagram/instagram.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-pr
     ConfigModule.forRoot(),
     KakaoAddressModule,
     ContentCronModule,
+    InstagramModule,
     ClsModule.forRoot({
       plugins: [
         new ClsPluginTransactional({
