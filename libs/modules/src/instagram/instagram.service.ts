@@ -25,6 +25,8 @@ export class InstagramService {
     this.INSTAGRAM_USERNAME = this.configService.get('instagram').username;
     this.INSTAGRAM_PASSWORD = this.configService.get('instagram').password;
     this.igClient = new IgApiClient();
+
+    // TODO: 세션을 새로 발급하거나 만들 때만 기기를 새로 생성하도록 수정
     this.igClient.state.generateDevice(this.INSTAGRAM_USERNAME);
   }
 

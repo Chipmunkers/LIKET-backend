@@ -98,7 +98,9 @@ export class FindCultureContentAllInput {
   public readonly author?: number;
 
   /**
-   * 법정동 앞 두자리 필터링
+   * 법정동 코드 필터링
+   *
+   * startWith로 필터링하기 때문에 10 이라면 10으로 시작하는 모든 법정동 코드로 필터링함.
    */
-  public readonly sidoCode?: string;
+  public readonly bCode?: string;
 }
