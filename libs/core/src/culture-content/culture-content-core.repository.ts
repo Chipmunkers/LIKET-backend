@@ -164,7 +164,7 @@ export class CultureContentCoreRepository {
       ageList = [],
       coordinateRange,
       author,
-      sidoCode,
+      bCode,
     }: FindCultureContentAllInput,
     readUser: number = -1,
   ): Promise<SummaryCultureContentSelectField[]> {
@@ -257,7 +257,7 @@ export class CultureContentCoreRepository {
         AND: [
           { deletedAt: null },
           this.getAuthorWhereClause(author),
-          this.getSidoCodeWhereClause(sidoCode),
+          this.getBCodeWhereClause(bCode),
           this.getGenreWhereClause(genreList),
           this.getStyleWhereClause(styleList),
           this.getAgeWhereClause(ageList),
@@ -470,16 +470,16 @@ export class CultureContentCoreRepository {
    *
    * @author jochongs
    *
-   * @param sidoCode 시도 코드
+   * @param bCode 시도 코드
    */
-  private getSidoCodeWhereClause(
-    sidoCode?: string,
-  ): Prisma.CultureContentWhereInput {
-    if (!sidoCode) return {};
+  private getBCodeWhereClause(bCode?: string): Prisma.CultureContentWhereInput {
+    if (!bCode) return {};
 
     return {
       Location: {
-        sidoCode,
+        bCode: {
+          startsWith: bCode,
+        },
       },
     };
   }

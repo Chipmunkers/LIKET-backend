@@ -100,7 +100,7 @@ export class CultureContentService {
           order: pagerble.order,
           searchByList: ['title'],
           searchKeyword: pagerble.search,
-          sidoCode: pagerble.region,
+          bCode: pagerble.region,
         },
         loginUser?.idx,
       );
