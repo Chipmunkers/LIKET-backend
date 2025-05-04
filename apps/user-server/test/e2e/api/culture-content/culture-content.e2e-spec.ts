@@ -614,6 +614,67 @@ describe('Culture Content (e2e)', () => {
       );
     });
 
+    it('Success: region filter (4 digit)', async () => {
+      const loginUser = test.getLoginUsers().user1;
+      const contentAuthor = test.getLoginUsers().not(loginUser.idx);
+
+      const [content1, content2] = await contentSeedHelper.seedAll([
+        {
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          location: {
+            bCode: '1012341234',
+          },
+        },
+        {
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          location: {
+            bCode: '1013341234',
+          },
+        },
+        {
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          location: {
+            bCode: '1112341234',
+          },
+        },
+        {
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          location: {
+            bCode: '1212341234',
+          },
+        },
+        {
+          acceptedAt: new Date(),
+          userIdx: contentAuthor.idx,
+          location: {
+            bCode: '1312341234',
+          },
+        },
+      ]);
+
+      const response = await request(test.getServer())
+        .get('/culture-content/all')
+        .query({
+          accept: true,
+          region: '1012',
+        })
+        .set('Authorization', `Bearer ${loginUser.accessToken}`)
+        .expect(200);
+
+      const contentList: SummaryContentEntity[] = response.body.contentList;
+
+      expect(contentList).toBeDefined();
+      expect(Array.isArray(contentList)).toBe(true);
+
+      expect(contentList.map(({ idx }) => idx).sort()).toStrictEqual(
+        [content1.idx].sort(),
+      );
+    });
+
     it('Success: open filter', async () => {
       const loginUser = test.getLoginUsers().user1;
 

@@ -66,13 +66,13 @@ export class ContentPagerbleDto extends PickType(PagerbleDto, [
   age?: Age;
 
   /**
-   * 법정동 코드
+   * 법정동 코드 시작 문자열
    *
    * @example "10"
    */
   @IsString()
   @IsOptional()
-  @Length(2, 2)
+  @Length(1, 10)
   region?: string;
 
   /**
