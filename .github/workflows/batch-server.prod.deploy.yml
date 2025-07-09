@@ -68,6 +68,6 @@ jobs:
               docker stop ${{ secrets.BATCH_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
               docker rm ${{ secrets.BATCH_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
               
-              docker run -d -p 5002:3000 --name ${{ secrets.BATCH_SERVER_PROD_DEPLOY_CONTAINER_NAME }} --env-file ${{ secrets.BATCH_SERVER_PROD_DEPLOY_ENV_PATH }} ${{ secrets.BATCH_SERVER_PROD_DEPLOY_ECR_REGISTRY }}/${{ secrets.BATCH_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}:latest
+              docker run -d -p 5002:3000 --name ${{ secrets.BATCH_SERVER_PROD_DEPLOY_CONTAINER_NAME }} --network liket-net --env-file ${{ secrets.BATCH_SERVER_PROD_DEPLOY_ENV_PATH }} ${{ secrets.BATCH_SERVER_PROD_DEPLOY_ECR_REGISTRY }}/${{ secrets.BATCH_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}:latest
             EOF
   
