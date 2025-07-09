@@ -8,7 +8,7 @@ on:
       - apps/batch-server/**
       - prisma/schema.prisma
       - libs/**
-      - .github/workflows/batch-server.prod.deploy.ec2.yml
+      - .github/workflows/batch-server.prod.deploy.yml
       - '!apps/batch-server/test/**'
       - '!apps/batch-server/README.md'
 
@@ -52,16 +52,17 @@ jobs:
       steps:
         - name: Checkout code
           uses: actions/checkout@v2
+
+        - name: Install sshpass 
+          run: sudo apt-get update && sudo apt-get install -y sshpass
   
-        - name: Deploy to EC2
+        - name: Deploy to home server
           env:
             HOST: ${{ secrets.COMMON_HOME_SERVER_HOST }}
             PW: ${{ secrets.COMMON_HOME_SERVER_PW }}
             USER: ${{ secrets.COMMON_HOME_SERVER_USER }}
           run: |
-            echo "$KEY" > key.pem
-            chmod 400 key.pem
-            ssh -o StrictHostKeyChecking=no -i key.pem $USER@$HOST << 'EOF'
+            sshpass -p "$PW" ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
               aws ecr get-login-password --region ${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.COMMON_AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.USER_SERVER_PROD_DEPLOY_AWS_REGION }}.amazonaws.com
               docker pull ${{ secrets.BATCH_SERVER_PROD_DEPLOY_ECR_REGISTRY }}/${{ secrets.BATCH_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}:latest
               docker stop ${{ secrets.BATCH_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
