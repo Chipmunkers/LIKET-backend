@@ -8,7 +8,7 @@ on:
       - apps/batch-server/**
       - prisma/schema.prisma
       - libs/**
-      - .github/workflows/batch-server.prod.deploy.ec2.yml
+      - .github/workflows/batch-server.prod.deploy.yml
       - '!apps/batch-server/test/**'
       - '!apps/batch-server/README.md'
 
