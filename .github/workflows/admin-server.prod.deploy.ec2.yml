@@ -55,9 +55,9 @@ jobs:
   
         - name: Deploy to EC2
           env:
-            HOST: ${{ secrets.COMMON_DEPLOY_EC2_HOST }}
-            KEY: ${{ secrets.COMMON_DEPLOY_EC2_KEY }}
-            USER: ubuntu
+            HOST: ${{ secrets.COMMON_HOME_SERVER_HOST }}
+            PW: ${{ secrets.COMMON_HOME_SERVER_PW }}
+            USER: ${{ secrets.COMMON_HOME_SERVER_USER }}
           run: |
             echo "$KEY" > key.pem
             chmod 400 key.pem
@@ -67,7 +67,7 @@ jobs:
               docker stop ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
               docker rm ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
               
-              docker run -d -p 3001:3000 \
+              docker run -d -p 5001:3000 \
                 --name ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_CONTAINER_NAME }} \
                 --env-file ${{ secrets.ADMIN_SERVER_PROD_DEPLOY_ENV_PATH }} \
                 -v /home/ubuntu/instagram-session/ig-session.json:/usr/src/app/ig-session.json \

@@ -55,9 +55,9 @@ jobs:
   
         - name: Deploy to EC2
           env:
-            HOST: ${{ secrets.COMMON_DEPLOY_EC2_HOST }}
-            KEY: ${{ secrets.COMMON_DEPLOY_EC2_KEY }}
-            USER: ubuntu
+            HOST: ${{ secrets.COMMON_HOME_SERVER_HOST }}
+            PW: ${{ secrets.COMMON_HOME_SERVER_PW }}
+            USER: ${{ secrets.COMMON_HOME_SERVER_USER }}
           run: |
             echo "$KEY" > key.pem
             chmod 400 key.pem
@@ -67,6 +67,6 @@ jobs:
               docker stop ${{ secrets.BATCH_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
               docker rm ${{ secrets.BATCH_SERVER_PROD_DEPLOY_CONTAINER_NAME }} || true
               
-              docker run -d -p 3002:3000 --name ${{ secrets.BATCH_SERVER_PROD_DEPLOY_CONTAINER_NAME }} --env-file ${{ secrets.BATCH_SERVER_PROD_DEPLOY_ENV_PATH }} ${{ secrets.BATCH_SERVER_PROD_DEPLOY_ECR_REGISTRY }}/${{ secrets.BATCH_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}:latest
+              docker run -d -p 5002:3000 --name ${{ secrets.BATCH_SERVER_PROD_DEPLOY_CONTAINER_NAME }} --env-file ${{ secrets.BATCH_SERVER_PROD_DEPLOY_ENV_PATH }} ${{ secrets.BATCH_SERVER_PROD_DEPLOY_ECR_REGISTRY }}/${{ secrets.BATCH_SERVER_PROD_DEPLOY_ECR_REPOSITORY }}:latest
             EOF
   
